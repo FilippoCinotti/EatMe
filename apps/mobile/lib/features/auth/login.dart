@@ -100,10 +100,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               secondary: true,
               action: () async {
                 await api.resetPassword(email.text.trim());
-                if (context.mounted)
+                if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(context.t('reset_sent'))),
                   );
+                }
               },
             ),
           if (!EatMeApi.development && EatMeApi.oauthEnabled) ...[
@@ -156,8 +157,9 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
         AsyncAction(
           label: context.t('save'),
           action: () async {
-            if (password.text.length < 12)
+            if (password.text.length < 12) {
               throw const ApiFailure('password_length');
+            }
             await Supabase.instance.client.auth.updateUser(
               UserAttributes(password: password.text),
             );

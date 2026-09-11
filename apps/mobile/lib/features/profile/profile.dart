@@ -152,7 +152,7 @@ class PrivacyPage extends ConsumerWidget {
                 .read(apiProvider)
                 .request('GET', '/privacy/export');
             final text = const JsonEncoder.withIndent('  ').convert(data);
-            if (context.mounted)
+            if (context.mounted) {
               await showDialog<void>(
                 context: context,
                 builder: (context) => AlertDialog(
@@ -176,6 +176,7 @@ class PrivacyPage extends ConsumerWidget {
                   ],
                 ),
               );
+            }
           },
         ),
         const SizedBox(height: 16),

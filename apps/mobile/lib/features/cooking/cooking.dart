@@ -66,17 +66,18 @@ class _CookingPageState extends ConsumerState<CookingPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (confirmation)
+    if (confirmation) {
       return ConfirmCookingPage(
         recipeId: widget.recipeId,
         servings: widget.servings,
       );
+    }
     return Scaffold(
       appBar: AppBar(title: Text(context.t('cooking_mode'))),
       body: FutureBuilder<Recipe>(
         future: future,
         builder: (context, snapshot) {
-          if (snapshot.hasError)
+          if (snapshot.hasError) {
             return PageBody(
               children: [
                 StatusNote(text: context.t('network_error'), warning: true),
@@ -86,8 +87,10 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                 ),
               ],
             );
-          if (!snapshot.hasData)
+          }
+          if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
+          }
           final steps = snapshot.data!.instructions(context.language);
           return PageBody(
             children: [
@@ -197,11 +200,12 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
       ),
     );
     controller.dispose();
-    if (value != null && mounted)
+    if (value != null && mounted) {
       setState(() {
         overrides[ingredient['food_id'] as String] = value;
         future = load();
       });
+    }
   }
 
   @override
@@ -210,7 +214,7 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
     body: FutureBuilder<Json>(
       future: future,
       builder: (context, snapshot) {
-        if (snapshot.hasError)
+        if (snapshot.hasError) {
           return PageBody(
             children: [
               StatusNote(
@@ -227,8 +231,10 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
               ),
             ],
           );
-        if (!snapshot.hasData)
+        }
+        if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
+        }
         final plan = snapshot.data!;
         final shortages = (plan['shortages'] as List).isNotEmpty;
         return PageBody(

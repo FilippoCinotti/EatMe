@@ -102,8 +102,9 @@ class AppController extends Notifier<AppState> {
 
   Future<void> hydrate() async {
     final config = await api.request('GET', '/config');
-    if ((config['auth_mode'] == 'development') != EatMeApi.development)
+    if ((config['auth_mode'] == 'development') != EatMeApi.development) {
       throw const ApiFailure('auth_mode_mismatch');
+    }
     final responses = await Future.wait([
       api.request('GET', '/profile'),
       api.request('GET', '/catalog'),

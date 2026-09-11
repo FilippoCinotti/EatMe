@@ -36,7 +36,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
     body: FutureBuilder<(Recipe, Json)>(
       future: future,
       builder: (context, snapshot) {
-        if (snapshot.hasError)
+        if (snapshot.hasError) {
           return PageBody(
             children: [
               StatusNote(
@@ -53,8 +53,10 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               ),
             ],
           );
-        if (!snapshot.hasData)
+        }
+        if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
+        }
         final (recipe, plan) = snapshot.data!;
         return PageBody(
           children: [

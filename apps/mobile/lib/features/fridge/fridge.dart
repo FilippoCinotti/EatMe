@@ -122,7 +122,7 @@ class _LeftoversSheetState extends ConsumerState<LeftoversSheet> {
   Widget build(BuildContext context) => FutureBuilder<Json>(
     future: future,
     builder: (context, snapshot) {
-      if (snapshot.hasError)
+      if (snapshot.hasError) {
         return Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -140,11 +140,13 @@ class _LeftoversSheetState extends ConsumerState<LeftoversSheet> {
             ],
           ),
         );
-      if (!snapshot.hasData)
+      }
+      if (!snapshot.hasData) {
         return const Padding(
           padding: EdgeInsets.all(40),
           child: Center(child: CircularProgressIndicator()),
         );
+      }
       final items = snapshot.data!['items'] as List;
       return ListView(
         shrinkWrap: true,

@@ -23,7 +23,7 @@ Future<void> main() async {
   if (!EatMeApi.development) {
     await Supabase.initialize(
       url: const String.fromEnvironment('SUPABASE_URL'),
-      anonKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
+      publishableKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
       authOptions: const FlutterAuthClientOptions(
         localStorage: SecureAuthStorage(),
       ),
@@ -42,18 +42,21 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: refresh,
     redirect: (context, state) {
       final stage = ref.read(appProvider).stage, path = state.uri.path;
-      if (stage == Stage.loading || stage == Stage.failed)
+      if (stage == Stage.loading || stage == Stage.failed) {
         return path == '/launch' ? null : '/launch';
+      }
       if (stage == Stage.login) return path == '/login' ? null : '/login';
-      if (stage == Stage.onboarding)
+      if (stage == Stage.onboarding) {
         return path == '/onboarding' ? null : '/onboarding';
+      }
       if ([
         '/launch',
         '/login',
         '/onboarding',
         '/login-callback',
-      ].contains(path))
+      ].contains(path)) {
         return '/chef';
+      }
       return null;
     },
     routes: [
@@ -119,7 +122,7 @@ class _EatMeAppState extends ConsumerState<EatMeApp> {
   void initState() {
     super.initState();
     Future.microtask(() => ref.read(appProvider.notifier).restore());
-    if (!EatMeApi.development)
+    if (!EatMeApi.development) {
       subscription = Supabase.instance.client.auth.onAuthStateChange.listen((
         event,
       ) async {
@@ -133,6 +136,7 @@ class _EatMeAppState extends ConsumerState<EatMeApp> {
           if (mounted) ref.read(routerProvider).push('/reset-password');
         }
       });
+    }
   }
 
   @override

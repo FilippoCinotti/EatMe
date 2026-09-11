@@ -157,7 +157,7 @@ class RecipeCard extends StatelessWidget {
       'available': r.available,
       'total': r.total,
     });
-    if (!featured)
+    if (!featured) {
       return ListTile(
         contentPadding: const EdgeInsets.symmetric(vertical: 12),
         title: Text(localized(r.recipe.title, context.language)),
@@ -165,6 +165,7 @@ class RecipeCard extends StatelessWidget {
         trailing: const Icon(Icons.arrow_forward),
         onTap: () => context.push('/recipes/${r.recipe.id}'),
       );
+    }
     return Material(
       color: scheme.primary.withValues(alpha: 0.07),
       borderRadius: BorderRadius.circular(24),

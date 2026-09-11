@@ -73,7 +73,7 @@ class _FoodAssessmentState extends ConsumerState<FoodAssessment> {
   Widget build(BuildContext context) => FutureBuilder<Json>(
     future: future,
     builder: (context, snapshot) {
-      if (snapshot.hasError)
+      if (snapshot.hasError) {
         return Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -94,11 +94,13 @@ class _FoodAssessmentState extends ConsumerState<FoodAssessment> {
             ],
           ),
         );
-      if (!snapshot.hasData)
+      }
+      if (!snapshot.hasData) {
         return const Padding(
           padding: EdgeInsets.all(48),
           child: Center(child: CircularProgressIndicator()),
         );
+      }
       final data = snapshot.data!,
           assessment = Map<String, dynamic>.from(data['assessment'] as Map);
       final compatible = assessment['status'] == 'no_known_conflict';

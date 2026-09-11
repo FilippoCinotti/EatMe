@@ -105,7 +105,7 @@ class EatMeApi {
           method: method,
           headers: {
             if (token != null) 'Authorization': 'Bearer $token',
-            if (operationKey != null) 'Idempotency-Key': operationKey,
+            'Idempotency-Key': ?operationKey,
           },
         ),
       );
@@ -157,8 +157,9 @@ class EatMeApi {
   }
 
   Future<void> oauth(OAuthProvider provider) async {
-    if (development || !oauthEnabled)
+    if (development || !oauthEnabled) {
       throw const ApiFailure('oauth_not_configured');
+    }
     await Supabase.instance.client.auth.signInWithOAuth(
       provider,
       redirectTo: redirect,

@@ -36,14 +36,16 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       );
       allergies.addAll(List<String>.from(settings['allergies'] as List));
       intolerances.addAll(List<String>.from(settings['intolerances'] as List));
-      if ((settings['diets'] as List).isNotEmpty)
+      if ((settings['diets'] as List).isNotEmpty) {
         strictness = settings['diets'][0]['strictness'] as String;
+      }
       adult = true;
       consent = allergies.isNotEmpty || intolerances.isNotEmpty;
     } else {
       for (final diet in state.diets) {
-        if (diet.slug == 'mediterranean' && diet.selectable)
+        if (diet.slug == 'mediterranean' && diet.selectable) {
           selected.add(diet.id);
+        }
       }
     }
   }
@@ -258,8 +260,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   throw const ApiFailure('invalid_profile');
                 }
                 if ((allergies.isNotEmpty || intolerances.isNotEmpty) &&
-                    !consent)
+                    !consent) {
                   throw const ApiFailure('health_consent_required');
+                }
                 final data = <String, dynamic>{
                   'name': name.text.trim(),
                   'adult_confirmed': adult,
