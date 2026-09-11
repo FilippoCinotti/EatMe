@@ -3,7 +3,10 @@ import logging
 import signal
 import threading
 
+from eatme.errors import DomainError
 from eatme.transport import configured_router
+
+logger = logging.getLogger(__name__)
 
 
 def main():
@@ -15,8 +18,8 @@ def main():
         try:
             service.purge_expired_media()
             worked = service.run_next_job()
-        except Exception:
-            logging.error('worker_iteration_failed')
+        except (DomainError, OSError):
+            logger.error('worker_iteration_failed')
             worked = False
         if not worked:
             stop.wait(2)

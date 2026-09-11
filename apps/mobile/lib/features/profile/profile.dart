@@ -78,9 +78,16 @@ class ProfilePage extends ConsumerWidget {
             ('preferences', '/preferences', Icons.tune),
             ('notifications', '/notifications', Icons.notifications_none),
             ('insights', '/insights', Icons.insights_outlined),
+            ('subscriptions', '/subscriptions', Icons.workspace_premium_outlined),
             ('offline_sync', '/sync', Icons.sync),
             ('evidence_library', '/evidence', Icons.library_books_outlined),
-          ]) ListTile(leading: Icon(item.$3), title: Text(context.t(item.$1)), trailing: const Icon(Icons.chevron_right), onTap: () => context.push(item.$2)),
+          ])
+            ListTile(
+              leading: Icon(item.$3),
+              title: Text(context.t(item.$1)),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push(item.$2),
+            ),
           const SizedBox(height: 28),
           Text(
             context.t('preferences'),

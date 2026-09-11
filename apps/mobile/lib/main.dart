@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +17,7 @@ import 'features/organize/leftovers.dart';
 import 'features/organize/recipe_library.dart';
 import 'features/organize/scanning.dart';
 import 'features/organize/settings.dart';
+import 'features/organize/subscriptions.dart';
 import 'core/models.dart';
 import 'features/auth/login.dart';
 import 'features/onboarding/onboarding.dart';
@@ -94,15 +96,25 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/planner', builder: (_, _) => const PlannerPage()),
       GoRoute(path: '/household', builder: (_, _) => const HouseholdPage()),
       GoRoute(path: '/leftovers', builder: (_, _) => const LeftoversPage()),
-      GoRoute(path: '/recipe-library', builder: (_, _) => const RecipeLibraryPage()),
-      GoRoute(path: '/recipe-editor', builder: (_, state) => RecipeEditorPage(initial: state.extra as Json?)),
+      GoRoute(
+        path: '/recipe-library',
+        builder: (_, _) => const RecipeLibraryPage(),
+      ),
+      GoRoute(
+        path: '/recipe-editor',
+        builder: (_, state) => RecipeEditorPage(initial: state.extra as Json?),
+      ),
       GoRoute(path: '/scanning', builder: (_, _) => const ScanningPage()),
       GoRoute(path: '/barcode', builder: (_, _) => const BarcodePage()),
       GoRoute(path: '/preferences', builder: (_, _) => const PreferencesPage()),
-      GoRoute(path: '/notifications', builder: (_, _) => const NotificationsPage()),
+      GoRoute(
+        path: '/notifications',
+        builder: (_, _) => const NotificationsPage(),
+      ),
       GoRoute(path: '/evidence', builder: (_, _) => const EvidencePage()),
       GoRoute(path: '/insights', builder: (_, _) => const InsightsPage()),
       GoRoute(path: '/sync', builder: (_, _) => const SyncPage()),
+      GoRoute(path: '/subscriptions', builder: (_, _) => const SubscriptionsPage()),
       GoRoute(
         path: '/reset-password',
         builder: (_, _) => const ResetPasswordPage(),
@@ -229,7 +241,15 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     body: child,
-    bottomNavigationBar: NavigationBar(
+    bottomNavigationBar: SafeArea(
+      minimum: const EdgeInsets.fromLTRB(18, 0, 18, 12),
+      child: Align(heightFactor: 1, child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 620),
+        child: ClipRRect(borderRadius: BorderRadius.circular(30), child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: MediaQuery.highContrastOf(context) ? 0 : 12, sigmaY: MediaQuery.highContrastOf(context) ? 0 : 12),
+          child: NavigationBar(
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainer.withValues(alpha: .92),
+      elevation: 0,
       selectedIndex: paths.indexOf(path).clamp(0, 3).toInt(),
       onDestinationSelected: (index) => context.go(paths[index]),
       destinations: [
@@ -250,6 +270,6 @@ class AppShell extends StatelessWidget {
           label: context.t('profile'),
         ),
       ],
-    ),
+    ))))),
   );
 }

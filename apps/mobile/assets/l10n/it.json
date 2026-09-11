@@ -384,5 +384,15 @@
   "household_changed": "Questa modifica appartiene a un altro nucleo. Torna a quel nucleo prima di sincronizzare.",
   "offline_queue_full": "Sincronizza le modifiche in attesa prima di aggiungerne altre.",
   "edit": "Edit",
-  "no_leftovers": "No leftovers"
+  "no_leftovers": "No leftovers",
+  "package_count": "Numero di confezioni controllate sull’etichetta",
+  "subscriptions": "Abbonamenti",
+  "your_membership": "Il tuo abbonamento",
+  "subscription_notice": "Gli abbonamenti si rinnovano secondo le condizioni mostrate dallo store. Puoi ripristinare gli acquisti o gestire la cancellazione nel tuo account dello store.",
+  "no_offerings": "Nessun abbonamento è attualmente disponibile.",
+  "subscribe": "Continua nello store",
+  "restore_purchases": "Ripristina acquisti",
+  "manage_subscription": "Gestisci abbonamento",
+  "terms": "Condizioni di utilizzo",
+  "store_unavailable": "Lo store non è disponibile. Riprova più tardi."
 }

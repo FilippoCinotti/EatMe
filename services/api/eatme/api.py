@@ -77,7 +77,7 @@ class DeleteInput(StrictBody):
 def create_app(router=None):
     import os
     router = router or configured_router()
-    app = FastAPI(title="EatMe API",version="0.1.0",docs_url="/docs" if router.development else None)
+    app = FastAPI(title="EatMe API",version="1.0.0",docs_url="/docs" if router.development else None)
     origins = list(filter(None,os.getenv("CORS_ORIGINS","http://localhost:3000").split(",")))
     app.add_middleware(CORSMiddleware,allow_origins=origins,allow_methods=["GET","POST","PUT","PATCH","DELETE"],
                        allow_headers=["Authorization","Content-Type","Idempotency-Key"])
@@ -167,7 +167,7 @@ def create_app(router=None):
     def domain_command(body:dict,request:Request):
         return dispatch(request,body)
 
-    for resource in ("shopping", "plans", "households", "preferences", "leftovers", "recipes", "jobs", "notifications", "admin/content", "reports", "inventory/metadata", "media", "recipes/import-url", "analytics", "entitlements/refresh"): 
+    for resource in ("shopping", "plans", "households", "preferences", "leftovers", "recipes", "jobs", "notifications", "admin/content", "reports", "inventory/metadata", "media", "recipes/import-url", "analytics", "entitlements/refresh", "products/stock"): 
         app.add_api_route("/api/v1/"+resource, domain_command, methods=["POST"], name=resource+"_command")
     app.add_api_route("/api/v1/products/{code}", get_resource, methods=["GET"], name="product_lookup")
     return app

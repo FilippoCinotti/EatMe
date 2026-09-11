@@ -384,5 +384,15 @@
   "household_changed": "This change belongs to another household. Switch back before syncing.",
   "offline_queue_full": "Sync your pending changes before adding more.",
   "edit": "Edit",
-  "no_leftovers": "No leftovers"
+  "no_leftovers": "No leftovers",
+  "package_count": "Number of packages checked against the label",
+  "subscriptions": "Subscriptions",
+  "your_membership": "Your membership",
+  "subscription_notice": "Store subscriptions renew according to the terms shown by the store. You can restore purchases or manage cancellation in your store account.",
+  "no_offerings": "No subscription offerings are currently available.",
+  "subscribe": "Continue to store",
+  "restore_purchases": "Restore purchases",
+  "manage_subscription": "Manage subscription",
+  "terms": "Terms of use",
+  "store_unavailable": "The store is unavailable. Please try again later."
 }

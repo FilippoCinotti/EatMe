@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'models.dart';
 import 'offline.dart';
+import 'reminders.dart';
 
 class ApiFailure implements Exception {
   const ApiFailure(this.code, {this.offline = false});
@@ -79,20 +80,31 @@ class EatMeApi {
     'OAUTH_ENABLED',
     defaultValue: false,
   );
-  static const redirect = 'dev.eatme.app://login-callback';
+  static const redirect = 'com.filippocinotti.eatme://login-callback';
   static const secure = FlutterSecureStorage();
   final Dio dio;
   bool offline = false;
   bool syncing = false;
   Future<void> _queueWrite = Future.value();
   OfflineStore? get cache => userId == null ? null : OfflineStore(userId!);
-  bool cacheable(String path) => !path.startsWith('/privacy') && !path.startsWith('/admin') && !path.startsWith('/products') && !path.startsWith('/entitlements') && path != '/health';
+  bool cacheable(String path) =>
+      !path.startsWith('/privacy') &&
+      !path.startsWith('/admin') &&
+      !path.startsWith('/products') &&
+      !path.startsWith('/entitlements') &&
+      path != '/health';
   bool canQueue(String method, String path, Json body) =>
-      (path == '/shopping' && ['add', 'edit', 'check', 'delete'].contains(body['action'])) ||
+      (path == '/shopping' &&
+          ['add', 'edit', 'check', 'delete'].contains(body['action'])) ||
       (path == '/plans' && body['action'] == 'save') ||
       (path.startsWith('/inventory/') && method == 'PATCH');
 
-  Future<void> enqueue(String method, String path, Json body, String key) async {
+  Future<void> enqueue(
+    String method,
+    String path,
+    Json body,
+    String key,
+  ) async {
     final current = cache;
     if (current == null) throw const ApiFailure('unauthorized');
     final operation = _queueWrite.then((_) async {
@@ -100,7 +112,14 @@ class EatMeApi {
       if (pending.any((e) => e['key'] == key)) return;
       if (pending.length >= 50) throw const ApiFailure('offline_queue_full');
       final profile = await current.read('/profile');
-      pending.add({'method': method, 'path': path, 'body': body, 'key': key, 'household_id': profile?['household_id'], 'status': 'pending'});
+      pending.add({
+        'method': method,
+        'path': path,
+        'body': body,
+        'key': key,
+        'household_id': profile?['household_id'],
+        'status': 'pending',
+      });
       await current.savePending(pending);
     });
     _queueWrite = operation.catchError((Object _) {});
@@ -119,22 +138,33 @@ class EatMeApi {
         final item = pending.first;
         if (item['household_id'] != profile['household_id']) {
           item['status'] = 'household_changed';
-          await current.savePending(pending); break;
+          await current.savePending(pending);
+          break;
         }
         try {
-          await request(item['method'] as String, item['path'] as String,
-            body: Map<String, dynamic>.from(item['body'] as Map), operationKey: item['key'] as String, allowCache: false);
+          await request(
+            item['method'] as String,
+            item['path'] as String,
+            body: Map<String, dynamic>.from(item['body'] as Map),
+            operationKey: item['key'] as String,
+            allowCache: false,
+          );
           pending.removeAt(0);
           await current.savePending(pending);
         } on ApiFailure catch (error) {
           if (error.offline) break;
           item['status'] = error.code;
-          await current.savePending(pending); break;
+          await current.savePending(pending);
+          break;
         }
       }
-    } on ApiFailure { /* Keep the encrypted outbox for the next explicit retry. */ }
-    finally { syncing = false; }
+    } on ApiFailure {
+      /* Keep the encrypted outbox for the next explicit retry. */
+    } finally {
+      syncing = false;
+    }
   }
+
   String? localToken, localUserId;
   String? get token => development
       ? localToken
@@ -171,9 +201,15 @@ class EatMeApi {
       if (method == 'GET' && cacheable(path)) await cache?.cache(path, value);
       return value;
     } on DioException catch (error) {
-      if (error.response == null && method == 'GET' && allowCache && cacheable(path)) {
+      if (error.response == null &&
+          method == 'GET' &&
+          allowCache &&
+          cacheable(path)) {
         final saved = await cache?.read(path);
-        if (saved != null) { offline = true; return saved; }
+        if (saved != null) {
+          offline = true;
+          return saved;
+        }
       }
       final data = error.response?.data;
       final code = data is Map && data['error'] is Map
@@ -239,6 +275,7 @@ class EatMeApi {
   }
 
   Future<void> logout() async {
+    await cache?.clear();
     if (development && token != null) {
       await request('POST', '/auth/logout');
     } else if (!development) {
@@ -248,10 +285,11 @@ class EatMeApi {
   }
 
   Future<void> clearSession() async {
+    await Reminders.clear();
+    await cache?.clear();
     if (!development && Supabase.instance.client.auth.currentSession != null) {
       await Supabase.instance.client.auth.signOut(scope: SignOutScope.local);
     }
-    await cache?.clear();
     localToken = localUserId = null;
     for (final key in ['eatme.token', 'eatme.user', 'eatme.inventory']) {
       await secure.delete(key: key);

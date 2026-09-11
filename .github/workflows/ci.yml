@@ -50,6 +50,7 @@ jobs:
   mobile:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix: {os: [ubuntu-latest, macos-latest]}
     steps:
       - uses: actions/checkout@v4
@@ -70,14 +71,12 @@ jobs:
           name: mobile-sources-${{ runner.os }}
           path: mobile-sources.zip
           retention-days: 7
-      - name: Verify Dart formatting
-        run: |
-          dart format lib test
-          git diff --exit-code -- lib test
-        working-directory: apps/mobile
       - run: flutter analyze
         working-directory: apps/mobile
       - run: flutter test
+        working-directory: apps/mobile
+      - name: Verify Dart formatting
+        run: git diff --exit-code -- lib test
         working-directory: apps/mobile
       - if: runner.os == 'Linux'
         run: flutter build apk --debug

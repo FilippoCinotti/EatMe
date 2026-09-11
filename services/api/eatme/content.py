@@ -100,6 +100,7 @@ class ContentService:
                     value = {**recipe, "ingredients": [{"food_id": replacement, "quantity": amount} if i["food_id"] == original else i for i in recipe["ingredients"]]}
                     # A replacement is a new private recipe; it never edits the original catalog.
                     value["provenance"] = "user-substitution"
+                    return {**value,"requires_step_review":True}
                 elif action == "save":
                     value = data.get("recipe")
                 else:
@@ -160,6 +161,8 @@ class ContentService:
         return {"title": str(recipe.get("name", ""))[:160], "ingredients_text": recipe.get("recipeIngredient", [])[:40], "instructions": recipe.get("recipeInstructions", []), "source_url": url, "requires_mapping": True}
 
     def product(self, user_id, code):
+        if not self.feature_enabled('barcode_scan'):
+            raise DomainError('product_provider_not_configured', 503)
         self._household(user_id)
         code = barcode(code)
         with self.db.transaction() as tx:
@@ -191,3 +194,30 @@ class ContentService:
             for name, value in nutrients.get("values", {}).items():
                 totals[name] = totals.get(name, 0) + float(value["value"]) * amount / 100000
         return {"totals": totals, "servings": servings, "complete": not missing, "missing_food_ids": missing}
+
+    def product_stock(self, user_id, data, key):
+        home = self._household(user_id, write=True)
+        with self.db.transaction(home) as tx:
+            def save():
+                self._member(tx, user_id, home, write=True)
+                row = tx.one('SELECT * FROM food_products WHERE id=?', (valid_uuid(data.get('product_id')),))
+                if not row:
+                    raise DomainError('product_not_found', 404)
+                if data.get('package_checked') is not True:
+                    raise DomainError('package_confirmation_required', 422)
+                product = decode(row['data'])
+                amount = amount_milli(data.get('quantity'))
+                if amount % 1000:
+                    raise DomainError('whole_units_required', 422)
+                from .catalog import identifier
+                food_id = identifier('product-food', row['barcode'])
+                food = {'id': food_id, 'name': {'en': product['name'], 'it': product['name']}, 'group': 'packaged', 'unit': 'pcs', 'ingredient_status': 'unknown', 'allergens': [], 'may_contain': [], 'intolerances': [], 'nutrition': product.get('nutrition'), 'provenance': 'openfoodfacts-unreviewed', 'is_demo': False}
+                # Packaged foods cannot inherit the safety assessment of a generic ingredient.
+                tx.execute('INSERT INTO foods VALUES (?,?) ON CONFLICT DO NOTHING', (food_id, encode(food)))
+                batch_id, stamp = new_id(), now()
+                tx.execute('INSERT INTO inventory_batches VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', (batch_id, home, food_id, amount, 'fridge', None, 'unknown', None, 'barcode-confirmed', 1, stamp, stamp))
+                tx.execute('INSERT INTO inventory_metadata VALUES (?,?,?)', (batch_id, encode({'barcode': row['barcode'], 'product_id': row['id'], 'lot': text(data.get('lot', ''), maximum=100, empty=True), 'ingredients_unreviewed': True}), stamp))
+                self._event(tx, user_id, home, batch_id, 'created', amount)
+                duplicates = tx.one('SELECT COUNT(*) AS n FROM inventory_batches WHERE household_id=? AND food_id=? AND quantity_milli>0', (home, food_id))['n'] - 1
+                return {'id': batch_id, 'version': 1, 'existing_batches': duplicates, 'assessment': 'unknown_ingredients'}
+            return self._once(tx, user_id, key, 'product_stock', data, save)

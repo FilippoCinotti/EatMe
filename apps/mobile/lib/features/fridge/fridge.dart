@@ -32,7 +32,11 @@ class _FridgePageState extends ConsumerState<FridgePage> {
       appBar: AppBar(
         title: Text(context.t('my_fridge')),
         actions: [
-          IconButton(tooltip: context.t('scan_and_import'), icon: const Icon(Icons.document_scanner_outlined), onPressed: () => context.push('/scanning')),
+          IconButton(
+            tooltip: context.t('scan_and_import'),
+            icon: const Icon(Icons.document_scanner_outlined),
+            onPressed: () => context.push('/scanning'),
+          ),
 
           IconButton(
             tooltip: context.t('add_food'),

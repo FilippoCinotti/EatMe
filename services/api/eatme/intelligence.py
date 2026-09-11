@@ -141,6 +141,8 @@ class IntelligenceService:
             return {'items': [{**r, 'result': decode(r['result']) if r['result'] else None} for r in tx.all('SELECT id,kind,status,progress,result,error_code,created_at,completed_at,confirmed_at,version FROM processing_jobs WHERE user_id=? ORDER BY created_at DESC LIMIT 30', (user_id,))]}
 
     def job_action(self, user_id, data, key):
+        if data.get('action') == 'create' and not self.feature_enabled({'recipe': 'ai_recipe', 'receipt': 'receipt_scan'}.get(data.get('kind'), 'ai_scan')):
+            raise DomainError('feature_disabled', 503)
         home = self._household(user_id, write=True)
         with self.db.transaction(home) as tx:
             def change():

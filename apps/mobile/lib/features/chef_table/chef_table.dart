@@ -49,11 +49,27 @@ class ChefTablePage extends ConsumerWidget {
             style: Theme.of(context).textTheme.displaySmall,
           ),
           const SizedBox(height: 24),
-          Wrap(spacing: 8, runSpacing: 8, children: [
-            ActionChip(avatar: const Icon(Icons.calendar_month_outlined), label: Text(context.t('meal_planner')), onPressed: () => context.push('/planner')),
-            ActionChip(avatar: const Icon(Icons.shopping_bag_outlined), label: Text(context.t('shopping_list')), onPressed: () => context.push('/shopping')),
-            ActionChip(avatar: const Icon(Icons.book_outlined), label: Text(context.t('recipe_library')), onPressed: () => context.push('/recipe-library')),
-          ]),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              ActionChip(
+                avatar: const Icon(Icons.calendar_month_outlined),
+                label: Text(context.t('meal_planner')),
+                onPressed: () => context.push('/planner'),
+              ),
+              ActionChip(
+                avatar: const Icon(Icons.shopping_bag_outlined),
+                label: Text(context.t('shopping_list')),
+                onPressed: () => context.push('/shopping'),
+              ),
+              ActionChip(
+                avatar: const Icon(Icons.book_outlined),
+                label: Text(context.t('recipe_library')),
+                onPressed: () => context.push('/recipe-library'),
+              ),
+            ],
+          ),
           const SizedBox(height: 24),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,

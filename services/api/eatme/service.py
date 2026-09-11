@@ -67,15 +67,15 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
             return profile["household_id"]
 
     def _catalog(self, tx, user_id=None):
-        foods = {r["id"]:decode(r["data"]) for r in tx.all("SELECT * FROM foods")}
+        foods = {r["id"]:decode(r["data"]) for r in tx.all("SELECT f.* FROM foods f LEFT JOIN content_ownership o ON o.content_id=f.id AND o.kind='food' WHERE o.content_id IS NULL OR o.user_id=? OR o.household_id IN (SELECT household_id FROM household_members WHERE user_id=?)", (user_id,user_id))}
         recipes = [decode(r["data"]) for r in tx.all("SELECT r.* FROM recipes r LEFT JOIN content_ownership o ON o.content_id=r.id AND o.kind='recipe' WHERE o.content_id IS NULL OR o.user_id=?", (user_id,))]
         diets = [decode(r["data"]) for r in tx.all("SELECT * FROM diet_definitions")]
         versions = [{**v,"rules":decode(v["rules"])} for v in tx.all("SELECT * FROM diet_versions")]
         return foods,recipes,diets,versions
 
-    def catalog(self) -> dict:
+    def catalog(self, user_id=None) -> dict:
         with self.db.transaction() as tx:
-            foods,_,diets,versions = self._catalog(tx)
+            foods,_,diets,versions = self._catalog(tx,user_id)
             current = self.clock() if self.clock else date.today()
             for diet in diets:
                 diet["selectable"] = any(v["diet_id"]==diet["id"] and v["status"]=="PUBLISHED" and
@@ -186,7 +186,7 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
     def inventory(self,user_id):
         household_id = self._household(user_id)
         with self.db.transaction() as tx:
-            foods,_,_,_ = self._catalog(tx)
+            foods,_,_,_ = self._catalog(tx,user_id)
             settings = self._profile(tx,user_id)["settings"]
             return {"items":[{**b,"quantity":quantity(b["quantity_milli"]),"food":foods[b["food_id"]],
                               "usable":batch_usable(b,self.today(settings))} for b in self._inventory(tx,household_id)]}
@@ -267,7 +267,17 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
             inventory = self._inventory(tx,household_id)
             if food_id:
                 recipes = [r for r in recipes if food_id in {i["food_id"] for i in r["ingredients"]}]
+            prefs_row = tx.one("SELECT data FROM user_preferences WHERE user_id=?",(user_id,))
+            preferences = decode(prefs_row["data"]) if prefs_row else {}
+            if preferences.get("max_minutes"):
+                recipes = [r for r in recipes if r["minutes"] <= preferences["max_minutes"]]
             ranked,rejected = rank(recipes,foods,inventory,profile["settings"],rules,today,mode,size,self.weights)
+            feedback = {r["recipe_id"]:r["rating"] for r in tx.all("SELECT recipe_id,rating FROM recipe_feedback WHERE user_id=?",(user_id,))} if preferences.get("learning") else {}
+            cuisines = {c.casefold() for c in preferences.get("cuisines",[])}
+            for item in ranked:
+                item["preference_adjustment"] = .05 * feedback.get(item["recipe"]["id"],0) + (.03 if item["recipe"].get("cuisine","").casefold() in cuisines else 0)
+                item["score"] = round(item["score"]+item["preference_adjustment"],6)
+            ranked.sort(key=lambda item:(-item["score"],item["recipe"]["id"]))
             trace_id = new_id()
             snapshot = [{"id":b["id"],"version":b["version"],"quantity_milli":b["quantity_milli"],
                          "expiry_date":b["expiry_date"],"expiry_kind":b["expiry_kind"]} for b in inventory]

@@ -52,8 +52,8 @@ class Router:
         if route=="/api/v1/config" and method=="GET":
             return {"auth_mode":"development" if self.development else "supabase",
                     "features":{"manual_inventory":True,"recipe_cooking":True,"healthy_food":True,
-                                "ai_scan":False,"barcode_scan":False,"receipt_scan":False,"meal_planner":True,
-                                "household_sharing":True,"account_deletion":self.development}}
+                                "ai_scan":self.service.feature_enabled("ai_scan"),"barcode_scan":self.service.feature_enabled("barcode_scan"),"receipt_scan":self.service.feature_enabled("receipt_scan"),"meal_planner":True,
+                                "household_sharing":True,"account_deletion":self.development or bool(os.getenv("SUPABASE_SERVICE_ROLE_KEY"))}}
         if route in {"/api/v1/auth/register","/api/v1/auth/login"} and method=="POST":
             if not self.development:
                 raise DomainError("use_supabase_auth",404)
@@ -79,7 +79,7 @@ class Router:
                    "/leftovers":self.service.leftover_action, "/recipes":self.service.recipe_action,
                    "/jobs":self.service.job_action, "/notifications":self.service.notification_action,
                    "/admin/content":self.service.admin_action, "/reports":self.service.report,
-                   "/inventory/metadata":self.service.inventory_metadata}
+                   "/inventory/metadata":self.service.inventory_metadata, "/products/stock":self.service.product_stock}
         resource = route.removeprefix("/api/v1")
         if resource=="/media" and method=="POST":
             return self.service.media_upload(user_id,body)
@@ -99,7 +99,7 @@ class Router:
         if resource in actions and method=="POST":
             return actions[resource](user_id,body,operation_key)
         if route=="/api/v1/catalog" and method=="GET":
-            return self.service.catalog()
+            return self.service.catalog(user_id)
         if route=="/api/v1/profile":
             if method=="GET":
                 return self.service.get_profile(user_id)
@@ -137,7 +137,7 @@ class Router:
             allowed = set(filter(None,os.getenv("ADMIN_USER_IDS","").split(",")))
             if user_id not in allowed:
                 raise DomainError("forbidden",403)
-            return self.service.catalog()
+            return self.service.catalog(user_id)
         raise DomainError("not_found",404)
 
 

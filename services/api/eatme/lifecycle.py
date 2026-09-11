@@ -14,6 +14,12 @@ CATEGORIES = {'expiry', 'plans', 'shopping', 'household', 'recalls'}
 
 
 class LifecycleService:
+    def feature_enabled(self, name):
+        defaults = {'ai_scan': bool(os.getenv('AI_PROVIDER')), 'receipt_scan': bool(os.getenv('AI_PROVIDER')), 'ai_recipe': bool(os.getenv('AI_PROVIDER')), 'barcode_scan': bool(os.getenv('PRODUCT_CONTACT')), 'subscriptions': bool(os.getenv('REVENUECAT_SECRET_KEY'))}
+        with self.db.transaction() as tx:
+            row = tx.one('SELECT enabled FROM feature_flags WHERE name=?', (name,))
+            return bool(row['enabled']) if row else defaults.get(name, False)
+
     def notifications(self, user_id):
         with self.db.transaction() as tx:
             profile = self._profile(tx, user_id)
@@ -142,6 +148,8 @@ class LifecycleService:
 
     def delete_account(self, user_id):
         # Ownership is checked before external identity deletion; retry records survive profile deletion.
+        if os.getenv('AUTH_MODE', 'development') == 'supabase' and not os.getenv('SUPABASE_SERVICE_ROLE_KEY'):
+            raise DomainError('account_deletion_not_configured', 503)
         with self.db.transaction() as tx:
             self._profile(tx, user_id)
             for home in tx.all('SELECT id FROM households WHERE owner_id=?', (user_id,)):
