@@ -128,6 +128,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/cook/:id',
         builder: (_, state) => CookingPage(
           recipeId: state.pathParameters['id']!,
+          participants: state.extra as List<String>?,
           servings:
               (int.tryParse(state.uri.queryParameters['servings'] ?? '1') ?? 1)
                   .clamp(1, 20)
@@ -270,6 +271,6 @@ class AppShell extends StatelessWidget {
           label: context.t('profile'),
         ),
       ],
-    ))))),
+    )))))),
   );
 }

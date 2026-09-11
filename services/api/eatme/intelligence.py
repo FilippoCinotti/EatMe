@@ -210,6 +210,12 @@ class IntelligenceService:
             job = tx.one("SELECT * FROM processing_jobs WHERE (status='queued' AND available_at<=?) OR (status='processing' AND lease_until<?) ORDER BY created_at LIMIT 1" + clause, (stamp, stamp))
             if not job:
                 return False
+            prefs = tx.one('SELECT data FROM user_preferences WHERE user_id=?', (job['user_id'],))
+            deleting = tx.one("SELECT 1 FROM account_deletions WHERE user_id=? AND status IN ('pending','completed')", (job['user_id'],))
+            member = tx.one("SELECT role FROM household_members WHERE household_id=? AND user_id=?", (job['household_id'], job['user_id']))
+            if deleting or not member or member['role'] == 'viewer' or not prefs or not decode(prefs['data']).get('ai_consent'):
+                tx.execute("UPDATE processing_jobs SET status='cancelled',error_code='ai_consent_required',completed_at=?,version=version+1 WHERE id=?", (stamp, job['id']))
+                return True
             tx.execute("UPDATE processing_jobs SET status='processing',progress=20,attempts=attempts+1,lease_until=?,version=version+1 WHERE id=?", ((datetime.now(timezone.utc) + timedelta(minutes=3)).isoformat(), job['id']))
             lease_version = job['version'] + 1
             foods = self._catalog(tx, job['user_id'])[0]

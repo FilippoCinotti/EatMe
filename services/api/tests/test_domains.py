@@ -33,6 +33,18 @@ class DomainCase(unittest.TestCase):
     def meal(self, slug='sunny-bowl'):
         return {'recipe_id': identifier('recipe', slug), 'servings': 2, 'date': '2026-09-11', 'slot': 'dinner'}
 
+    def test_deletion_tombstone_blocks_access_and_new_members(self):
+        invite = self.app.household_action(self.owner, {'action': 'invite'}, new_id())
+        with self.db.transaction() as tx:
+            tx.execute("INSERT INTO account_deletions VALUES (?,'pending','2026-09-11',NULL,NULL)", (self.owner,))
+        self.assertCode('account_deletion_pending', lambda: self.app.get_profile(self.owner))
+        self.assertCode('account_deletion_pending', lambda: self.app.save_profile(self.owner, {'name': 'Back', 'adult_confirmed': True}, new_id()))
+        self.assertCode('invitation_unavailable', lambda: self.app.household_action(self.guest, {'action': 'accept', 'token': invite['token']}, new_id()))
+        self.app.retry_account_deletions()
+        with self.db.transaction() as tx:
+            self.assertEqual(tx.one('SELECT status FROM account_deletions WHERE user_id=?', (self.owner,))['status'], 'completed')
+            self.assertIsNone(tx.one('SELECT 1 FROM profiles WHERE user_id=?', (self.owner,)))
+
     def test_invitation_is_single_use_and_viewer_cannot_modify_shared_stock(self):
         invite = self.join('viewer')
         self.assertCode('invitation_unavailable', lambda: self.app.household_action(self.guest, {'action': 'accept', 'token': invite['token']}, new_id()))

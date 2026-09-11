@@ -19,6 +19,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
   String get path => '/plans';
   DateTime start = DateUtils.dateOnly(DateTime.now());
   List<Json> recipes = [];
+  List<String>? participants;
   Json? selected;
   @override
   Future<void> load() async {
@@ -79,6 +80,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
       'slot': slot,
       'recipe_id': recipe['id'],
       'servings': int.tryParse(servings) ?? 1,
+      if (participants != null) 'participants': participants,
     });
     await saveMeals(meals);
   }
@@ -112,11 +114,16 @@ class _PlannerState extends ResourceState<PlannerPage> {
             }
           },
         ),
+        AsyncAction(label: context.t('who_is_eating'), secondary: true, action: () async {
+          final value = await chooseDiners(context, ref.read(apiProvider), participants);
+          if (value != null && mounted) setState(() => participants = value);
+        }),
         AsyncAction(
           label: context.t('generate_week'),
           action: () async {
             final result = await command({
               'action': 'generate',
+              if (participants != null) 'participants': participants,
               'start_date': isoDay(start),
               'servings': 1,
               if (selected != null) 'id': selected!['id'],

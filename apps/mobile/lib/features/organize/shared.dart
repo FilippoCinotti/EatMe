@@ -158,3 +158,20 @@ class _FoodPickerState extends State<FoodPicker> {
     ],
   );
 }
+
+Future<List<String>?> chooseDiners(BuildContext context, EatMeApi api, List<String>? initial) async {
+  final home = await api.request('GET', '/households');
+  if (!context.mounted) return null;
+  final members = records(home['members']);
+  final selected = (initial ?? [api.userId!]).toSet();
+  return showDialog<List<String>>(context: context, builder: (context) => StatefulBuilder(builder: (context, update) => AlertDialog(
+    title: Text(context.t('who_is_eating')),
+    content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
+      Text(context.t('diner_consent_notice')),
+      for (final member in members) CheckboxListTile(title: Text(member['name'] as String), value: selected.contains(member['user_id']),
+        subtitle: member['user_id'] != api.userId && member['share_constraints'] != 1 ? Text(context.t('sharing_not_enabled')) : null,
+        onChanged: member['user_id'] != api.userId && member['share_constraints'] != 1 ? null : (value) => update(() { if (value == true) { selected.add(member['user_id'] as String); } else { selected.remove(member['user_id']); } })),
+    ])),
+    actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(context.t('cancel'))), TextButton(onPressed: selected.isEmpty ? null : () => Navigator.pop(context, selected.toList()..sort()), child: Text(context.t('save')))],
+  )));
+}

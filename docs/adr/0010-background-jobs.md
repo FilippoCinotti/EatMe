@@ -1,15 +1,11 @@
-# ADR 0010-background-jobs: Jobs asincroni e pipeline inventario
+# 0010: Durable database-backed processing jobs
 
-Stato: decisione della foundation; vedere implementation-status per la verifica.
+Status: accepted for the application implementation.
 
-## Decisione
+## Decision
 
-Rimandare la coda finché non esiste la prima scansione reale; conservare l’interfaccia provider.
+Use database jobs with leases, version checks, cancellation and bounded retries. Store media separately with private encryption and retention. Processing workers never write inventory without user confirmation.
 
-## Conseguenze
+## Consequences
 
-Il worker non è ancora un processo eseguibile. Il milestone AI Inventory introdurrà stato job, retry, cancellazione, limiti e retention.
-
-## Alternative
-
-Non bloccare il caricamento della home in attesa di lavori costosi.
+Validate this boundary through domain and platform tests. Revisit the decision when measured scale, reliability or product requirements justify a change; record a new decision rather than silently changing the architecture.

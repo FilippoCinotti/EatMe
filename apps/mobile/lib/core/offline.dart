@@ -42,6 +42,12 @@ class OfflineStore {
 
   Future<void> savePending(List<Json> value) =>
       storage.write(key: '${prefix}outbox', value: jsonEncode(value));
+  Future<void> clearSnapshots() async {
+    for (final key in (await storage.readAll()).keys.where(
+      (key) => key.startsWith(prefix) && key != '${prefix}outbox')) {
+      await storage.delete(key: key);
+    }
+  }
   Future<void> clear() async {
     for (final key in (await storage.readAll()).keys.where(
       (key) => key.startsWith(prefix),

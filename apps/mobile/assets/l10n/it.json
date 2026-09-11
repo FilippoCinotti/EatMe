@@ -394,5 +394,8 @@
   "restore_purchases": "Ripristina acquisti",
   "manage_subscription": "Gestisci abbonamento",
   "terms": "Condizioni di utilizzo",
-  "store_unavailable": "Lo store non è disponibile. Riprova più tardi."
+  "store_unavailable": "Lo store non è disponibile. Riprova più tardi.",
+  "who_is_eating": "Chi mangia?",
+  "diner_consent_notice": "I commensali selezionati devono attivare la condivisione dei vincoli nelle impostazioni del nucleo.",
+  "sharing_not_enabled": "Condivisione dei vincoli disattivata"
 }

@@ -46,6 +46,7 @@ jobs:
       - run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/202609100001_core.sql
       - run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/202609100002_rls.sql
       - run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/202609110003_domains.sql
+      - run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/202609110004_identity.sql
       - run: psql -v ON_ERROR_STOP=1 -f supabase/tests/rls.sql
   mobile:
     runs-on: ${{ matrix.os }}
@@ -75,15 +76,18 @@ jobs:
         working-directory: apps/mobile
       - run: flutter test
         working-directory: apps/mobile
-      - name: Verify Dart formatting
-        run: git diff --exit-code -- lib test
-        working-directory: apps/mobile
       - if: runner.os == 'Linux'
         run: flutter build apk --debug
         working-directory: apps/mobile
       - if: runner.os == 'macOS'
         run: flutter build ios --simulator --debug
         working-directory: apps/mobile
+      - name: Verify Dart formatting
+        run: git diff --exit-code -- lib test
+        working-directory: apps/mobile
+      - name: Export UI verification images
+        if: always()
+        run: python3 scripts/export_ci_review.py mobile
   admin:
     runs-on: ubuntu-latest
     steps:
@@ -92,6 +96,7 @@ jobs:
         with: {node-version: '22'}
       - run: npm install --ignore-scripts
         working-directory: apps/admin
+      - run: python3 scripts/export_ci_review.py admin
       - run: npm run typecheck
         working-directory: apps/admin
       - run: npm run build

@@ -1,15 +1,11 @@
-# ADR 0007-recommender: Filtro, ranking e traccia
+# 0007: Deterministic recommendations
 
-Stato: decisione della foundation; vedere implementation-status per la verifica.
+Status: accepted for the application implementation.
 
-## Decisione
+## Decision
 
-Applicare hard constraint, scoring configurabile, diversificazione e motivazioni dai segnali effettivi.
+Filter hard constraints before scoring availability, approaching dates, preferences and time. Persist explainable traces and input versions. Learning from recipe feedback is opt-in and never infers medical conditions.
 
-## Conseguenze
+## Consequences
 
-La traccia contiene snapshot inventario, versione profilo e versioni regole. Sono necessari retention e limiti di volume prima della beta.
-
-## Alternative
-
-Nessun modello generativo sceglie in autonomia la ricetta più adatta.
+Validate this boundary through domain and platform tests. Revisit the decision when measured scale, reliability or product requirements justify a change; record a new decision rather than silently changing the architecture.

@@ -52,6 +52,9 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
         return self.clock() if self.clock else datetime.now(ZoneInfo(settings["timezone"])).date()
 
     def _profile(self, tx: Transaction, user_id: str) -> dict:
+        deletion = tx.one("SELECT status FROM account_deletions WHERE user_id=?", (user_id,))
+        if deletion and deletion["status"] in {"pending", "completed"}:
+            raise DomainError("account_deletion_pending", 409)
         row = tx.one("SELECT * FROM profiles WHERE user_id=?",(user_id,))
         if not row:
             raise DomainError("onboarding_required",409)
@@ -88,6 +91,9 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
 
     def get_profile(self, user_id: str):
         with self.db.transaction() as tx:
+            deletion = tx.one("SELECT status FROM account_deletions WHERE user_id=?", (user_id,))
+            if deletion and deletion["status"] in {"pending", "completed"}:
+                raise DomainError("account_deletion_pending", 409)
             row = tx.one("SELECT * FROM profiles WHERE user_id=?",(user_id,))
             if not row:
                 return {"onboarded":False}
@@ -139,6 +145,8 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
             raise DomainError("duplicate_diet",422)
         with self.db.transaction() as tx:
             def save():
+                if tx.one("SELECT 1 FROM account_deletions WHERE user_id=? AND status IN ('pending','completed')", (user_id,)):
+                    raise DomainError("account_deletion_pending", 409)
                 foods,_,diets,versions = self._catalog(tx)
                 active_rules(assignments,versions,self.today({"timezone":timezone}))
                 chosen = {a["diet_id"] for a in assignments}

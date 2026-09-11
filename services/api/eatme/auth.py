@@ -76,13 +76,18 @@ class SupabaseAuth:
         self.issuer = url.rstrip("/") + "/auth/v1"
         self.jwks = jwt.PyJWKClient(self.issuer + "/.well-known/jwks.json", cache_keys=True, lifespan=300)
 
-    def verify(self, token: str) -> str:
+    def verify(self, token: str, *, recent=False) -> str:
         try:
             key = self.jwks.get_signing_key_from_jwt(token)
             claims = self.jwt.decode(token,key.key,algorithms=["ES256","RS256"],audience="authenticated",
                                      issuer=self.issuer,options={"require":["exp","iat","sub","aud","iss"]})
             if claims.get("role") != "authenticated":
                 raise ValueError("Wrong role")
+            if recent:
+                methods = claims.get("amr", [])
+                recent_methods = [m for m in methods if m.get("method") in {"password", "oauth", "otp", "totp", "sso/saml"} and isinstance(m.get("timestamp"), (int,float)) and 0 <= datetime.now(timezone.utc).timestamp()-m["timestamp"] <= 300]
+                if not recent_methods:
+                    raise DomainError("reauthentication_required", 409)
             return str(UUID(claims["sub"]))
         except (self.jwt.PyJWTError,ValueError,KeyError):
             raise DomainError("unauthorized",401) from None

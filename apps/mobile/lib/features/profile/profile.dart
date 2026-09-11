@@ -78,7 +78,11 @@ class ProfilePage extends ConsumerWidget {
             ('preferences', '/preferences', Icons.tune),
             ('notifications', '/notifications', Icons.notifications_none),
             ('insights', '/insights', Icons.insights_outlined),
-            ('subscriptions', '/subscriptions', Icons.workspace_premium_outlined),
+            (
+              'subscriptions',
+              '/subscriptions',
+              Icons.workspace_premium_outlined,
+            ),
             ('offline_sync', '/sync', Icons.sync),
             ('evidence_library', '/evidence', Icons.library_books_outlined),
           ])

@@ -109,7 +109,13 @@ class _NotificationsState extends ResourceState<NotificationsPage> {
     });
     final app = ref.read(appProvider);
     final plans = await ref.read(apiProvider).request('GET', '/plans');
-    await Reminders.schedule(Map<String, dynamic>.from(data!['preferences'] as Map), app.inventory, records(plans['items']), app.profile['settings']['timezone'] as String, app.locale?.languageCode ?? 'en');
+    await Reminders.schedule(
+      Map<String, dynamic>.from(data!['preferences'] as Map),
+      app.inventory,
+      records(plans['items']),
+      app.profile['settings']['timezone'] as String,
+      app.locale?.languageCode ?? 'en',
+    );
   }
 
   @override
@@ -330,8 +336,8 @@ class _SyncState extends ConsumerState<SyncPage> {
                 tooltip: context.t('discard_change'),
                 icon: const Icon(Icons.delete_outline),
                 onPressed: () async {
-                  pending.remove(item);
-                  await ref.read(apiProvider).cache?.savePending(pending);
+                  await ref.read(apiProvider).discardPending(item['key'] as String);
+                  await load();
                   await load();
                 },
               ),

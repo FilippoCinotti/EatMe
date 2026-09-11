@@ -1,60 +1,39 @@
-# Configurazione e rilascio
+# Release process
 
-## Primo passaggio su un ambiente completo
+## Application verification
 
-1. Installare Flutter stable, Python 3.12, Node 22 e strumenti PostgreSQL/Docker.
-2. Eseguire `python scripts/bootstrap_mobile.py`; quindi formattare e analizzare Dart.
-3. Risolvere e committare lockfile Python, npm e pub con versioni verificate.
-4. Eseguire tutti i job CI. Non presentare un job non eseguito come superato.
-5. Eseguire il flusso su emulatori e dispositivi e verificare UI, accessibilità e temi.
+Require a clean reproducible checkout, reviewed native projects and lockfiles, passing API/HTTP tests, PostgreSQL isolation tests, Flutter analysis/widget/integration checks, native debug builds and studio checks. Enable GitHub Code scanning and resolve actionable findings. Test camera denial, photo-library recovery, offline startup, outbox conflicts, multi-user consent changes and account deletion on real devices.
 
-## Database e Supabase
+## Deployment
 
-Usare un progetto separato per staging e produzione. Impostare il login owner in
-`MIGRATION_DATABASE_URL` ed eseguire `python scripts/migrate.py` con psycopg installato.
-Il runner SQL usa lock e checksum; una migrazione già applicata non è modificabile.
+Deploy the API behind HTTPS with Supabase authentication and PostgreSQL. Apply immutable migrations with the migration credential, then run the API using only its restricted database role. Deploy the worker with the same private media volume and encryption key. Configure backup/retention, health monitoring, gateway rate limiting and alerting. Deploy the studio with its server-only API URL and HTTP-only sessions.
 
-Creare separatamente un login applicativo con password generata fuori dal repository
-e concedergli il ruolo `eatme_backend`. Il backend assume questo ruolo durante le
-transazioni. Non usare il login owner come credenziale applicativa abituale.
+Configure and exercise Google/Apple login, email verification, password recovery, identity deletion, Apple token revocation and provider outages. Publish approved food/recipe/evidence content through the review workflow. Do not enable an unreviewed medical profile. Set the legal operator/contact and publish privacy, terms, support and deletion-request pages.
 
-Configurare, sul server:
+## Android
 
-| Variabile | Valore/configurazione |
-| --- | --- |
-| EATME_ENV | staging oppure production |
-| AUTH_MODE | supabase |
-| DATABASE_URL | DSN PostgreSQL del login applicativo, con TLS |
-| SUPABASE_URL | URL HTTPS del progetto |
-| CORS_ORIGINS | Origini esatte della console |
-| ADMIN_USER_IDS | UUID dei soli operatori autorizzati |
+The application identifier is `com.filippocinotti.eatme`. New submissions target Android API 36 under the requirements effective August 31, 2026. Recheck the [official target API requirements](https://support.google.com/googleplay/android-developer/answer/11926878?hl=en) at submission time.
 
-Configurare signing keys asimmetriche, email verification, SMTP, callback OAuth e
-redirect allowlist. I server non development rifiutano SQLite e auth locale.
-Non applicare `supabase/tests/bootstrap_ci.sql` a Supabase: serve solo a CI effimera.
+Set `ANDROID_KEYSTORE_PATH`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD` in a secure build environment. Keep the keystore outside the repository. Copy the public configuration template to `apps/mobile/config/production.json` and replace its deployment values.
 
-## Mobile con auth live
+```bash
+cd apps/mobile
+flutter build appbundle --release --dart-define-from-file=config/production.json
+```
 
-Passare con `--dart-define`:
-`AUTH_MODE=supabase`, `API_URL=https://…/api/v1`, `SUPABASE_URL=https://…`,
-`SUPABASE_ANON_KEY=…` e, dopo aver configurato i provider, `OAUTH_ENABLED=true`.
-La callback è `dev.eatme.app://login-callback`. Scegliere identifier e scheme
-definitivi e mantenerli coerenti tra Android, iOS, Supabase, Apple e Google.
+Upload the signed bundle to an internal testing track first. Complete Data safety, content rating, account deletion, target audience, applicable health declarations, screenshots and store metadata. Never sign a release with the debug keystore.
 
-Collaudare registrazione con email da confermare, login, private relay Apple,
-refresh/rotazione token, recupero password e logout. La revoca lato Supabase
-richiede la policy appropriata: la verifica JWT offline non revoca immediatamente
-un access token già emesso prima della scadenza.
+## iOS
 
-## Gate prima di beta / store
+Open `apps/mobile/ios/Runner.xcworkspace` on macOS, select the correct Apple development team and signing profiles, and verify bundle capabilities and the aggregated privacy manifest. Use the simulator for early checks and physical devices for camera, sign-in and purchase lifecycle checks.
 
-Non distribuire come prodotto medico/nutrizionale reale il catalogo dimostrativo.
-Completare governance, fonti e contenuti, cancellazione account live, gestione
-consensi e retention. Verificare API/PostgreSQL con dati reali e controlli di autorizzazione.
-Completare privacy notice, manifest, accessibilità, icone/splash, permessi,
-monitoraggio, supporto e gestione errori.
+```bash
+cd apps/mobile
+flutter build ipa --release --dart-define-from-file=config/production.json
+```
 
-Firma Android in keystore protetto; firma iOS con team e provisioning configurati
-nel CI autorizzato. Le build della CI iniziale sono debug/simulator, non pacchetti
-firmati per gli store. Proseguire con TestFlight e internal Play testing prima
-di una distribuzione pubblica. Pubblicazione e deployment non sono stati effettuati.
+Distribute through TestFlight before submission. Supply reviewer access, an operational backend, support/privacy URLs, age rating, privacy disclosures and accurate screenshots. Review the [App Store guidelines](https://developer.apple.com/app-store/review/guidelines/) against the actual deployment. Signing and a successful build do not guarantee store acceptance.
+
+## Release decision
+
+Record the tested commit, build number, migration set, provider configuration, review evidence and rollback procedure. Increase the build number for each uploaded build. Roll out gradually, monitor failures and maintain a server-side kill switch for optional integrations. No public release should proceed while an implementation, validation or owner-configuration gate remains open.

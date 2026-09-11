@@ -144,3 +144,8 @@ CREATE TABLE IF NOT EXISTS rate_limit_windows (
  key_hash TEXT PRIMARY KEY, window_start INTEGER NOT NULL, requests INTEGER NOT NULL
 );
 INSERT INTO schema_versions(version) VALUES ('0003') ON CONFLICT DO NOTHING;
+CREATE TABLE IF NOT EXISTS identity_tokens (
+ user_id TEXT NOT NULL, provider TEXT NOT NULL, ciphertext TEXT NOT NULL,
+ PRIMARY KEY(user_id,provider)
+);
+INSERT INTO schema_versions(version) VALUES ('0004') ON CONFLICT DO NOTHING;

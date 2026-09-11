@@ -1,5 +1,7 @@
 {
   "AUTH_MODE": "development",
   "API_URL": "http://10.0.2.2:8000/api/v1",
-  "OAUTH_ENABLED": false
+  "OAUTH_ENABLED": false,
+  "APPLE_ANDROID_CLIENT_ID": "",
+  "APPLE_ANDROID_CALLBACK_URL": ""
 }

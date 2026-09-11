@@ -1,28 +1,9 @@
-# Privacy del primo milestone
+# Privacy architecture
 
-Sono registrati nome, identificatore, composizione numerica del nucleo, scelte
-esplicite, alimenti e relativi eventi. Non si deducono condizioni di salute da
-ricette aperte o preferenze. Nessun dato viene inviato ad advertising o analytics.
+Health profile consent, household constraint sharing, assisted processing and analytics are independent choices. Removing allergy/intolerance/medical selections withdraws their active consent record. Household sharing can be disabled without leaving the household. Analytics accept a strict usage-field allowlist and exclude food, recipe and health labels.
 
-Allergie e intolleranze richiedono consenso esplicito versionato. Le opzioni
-mediche richiedono un consenso separato. La rimozione dal profilo cancella le
-restrizioni correnti e registra il ritiro dei consensi precedenti. Le copie
-storiche presenti nelle tracce richiedono una policy di retention/purge prima
-della beta: non si dichiara già soddisfatta una cancellazione granulare completa.
+Mobile snapshots and outbox entries are encrypted using platform secure storage and partitioned by account. Logout clears personal caches. Offline mutations retain their idempotency keys. Final cooking requires live validation. Server images use authenticated ownership, encryption, metadata stripping and a retention deadline. Operations must run media cleanup continuously and monitor failures.
 
-La cache mobile salva solo l’ultimo inventario nello storage sicuro della
-piattaforma, associato all’UUID della sessione. Non conserva localmente un profilo
-medico per avviare valutazioni offline. Logout e cancellazione eliminano la cache
-e la sessione locale. In produzione la sessione Supabase è persistita mediante
-un’implementazione di LocalStorage basata sullo stesso storage sicuro.
+Exports include profile, inventory, events, cooking, consent, plans, shopping, preferences, feedback, private recipes, processing records and media metadata. Account deletion verifies ownership prerequisites, deletes the identity and removes associated personal records and media. Shared contributions are handled according to the data model and documented release policy. Store subscriptions require separate cancellation.
 
-L’export comprende profilo, consensi, inventario, eventi, cucina e avanzi.
-La cancellazione locale elimina il nucleo se ha un solo membro. Le operazioni
-con gruppi condivisi si arrestano per richiedere una gestione della proprietà.
-La cancellazione Supabase/Auth/storage e la riautenticazione non sono ancora
-implementate: sono requisiti bloccanti per il rilascio.
-
-La versione iniziale non riceve immagini o scontrini. Retention delle immagini,
-regioni di trattamento, titolare/responsabili, informativa definitiva e procedure
-per l’esercizio dei diritti devono essere definiti con le integrazioni effettive.
-Questo documento descrive l’architettura, non certifica conformità normativa.
+The Next.js app includes public privacy and deletion-request pages. Before release, the operator must supply its identity/contact, legal basis, hosting region, subprocessors, provider retention, backup retention, rights and support procedure. App Store privacy labels and Google Play Data safety declarations must match the configured deployment, including optional integrations.

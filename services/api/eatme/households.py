@@ -49,6 +49,9 @@ class HouseholdService:
                     target = invite["household_id"]
                     if tx.postgres:
                         tx.execute("SELECT id FROM households WHERE id=? FOR UPDATE", (target,))
+                    owner = tx.one("SELECT owner_id FROM households WHERE id=?", (target,))
+                    if not owner or tx.one("SELECT 1 FROM account_deletions WHERE user_id=? AND status IN ('pending','completed')", (owner["owner_id"],)):
+                        raise DomainError("invitation_unavailable", 409)
                     if tx.one("SELECT COUNT(*) AS n FROM household_members WHERE household_id=?", (target,))["n"] >= 20:
                         raise DomainError("household_full", 409)
                     if tx.one("SELECT 1 FROM household_members WHERE household_id=? AND user_id=?", (target, user_id)):
@@ -109,11 +112,13 @@ class HouseholdService:
     def _diners(self, tx, user_id, participants, profile, versions, today):
         if participants is None:
             participants = [user_id]
-        if not isinstance(participants, list) or not 1 <= len(participants) <= 20 or len(set(participants)) != len(participants):
+        if not isinstance(participants, list) or not 1 <= len(participants) <= 20 or any(not isinstance(p,str) for p in participants) or len(set(participants)) != len(participants):
             raise DomainError("invalid_participants", 422)
         settings = {**profile["settings"], "diets": [], "allergies": [], "intolerances": [], "never_suggest": []}
         rules, rule_versions, snapshots = [], {}, {}
-        for participant in participants:
+        for participant in sorted(participants):
+            if tx.postgres:
+                tx.execute("SELECT user_id FROM profiles WHERE user_id=? FOR SHARE", (participant,))
             valid_uuid(participant)
             self._member(tx, participant, profile["household_id"])
             if participant != user_id:
@@ -144,6 +149,8 @@ class HouseholdService:
                 for name in ("learning", "analytics", "ai_consent", "seasonal"):
                     if name in value and type(value[name]) is not bool:
                         raise DomainError("invalid_preferences", 422)
+                if value.get('ai_consent') is False:
+                    tx.execute("UPDATE processing_jobs SET status='cancelled',completed_at=?,version=version+1 WHERE user_id=? AND status IN ('queued','processing')", (now(), user_id))
                 for name in ("goals", "cuisines"):
                     if name in value:
                         if not isinstance(value[name], list) or len(value[name]) > 20:

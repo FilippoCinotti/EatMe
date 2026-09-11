@@ -1,15 +1,11 @@
-# ADR 0004-riverpod: Riverpod e GoRouter
+# 0004: Riverpod for application state
 
-Stato: decisione della foundation; vedere implementation-status per la verifica.
+Status: accepted for the application implementation.
 
-## Decisione
+## Decision
 
-Usare NotifierProvider per lo stato condiviso e GoRouter per shell e deep link.
+Use Riverpod for session, catalog, inventory and recommendation state. Scope feature state to screens and route providers. Clear account-specific state on logout and identity changes.
 
-## Conseguenze
+## Consequences
 
-I widget consumano lo stato e il client API tramite provider. La navigazione osserva i cambi di fase auth senza ricreare il router a ogni aggiornamento inventario.
-
-## Alternative
-
-Non si mescolano Bloc, Redux e altri gestori di stato.
+Validate this boundary through domain and platform tests. Revisit the decision when measured scale, reliability or product requirements justify a change; record a new decision rather than silently changing the architecture.

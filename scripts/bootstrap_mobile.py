@@ -10,6 +10,8 @@ import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+from native_assets import generate
+
 root=Path(__file__).resolve().parents[1]
 mobile=root/'apps/mobile'
 flutter=shutil.which('flutter')
@@ -98,7 +100,6 @@ if 'ios' in created:
         'PRODUCT_BUNDLE_IDENTIFIER = com.filippocinotti.eatme;\n\t\t\t\tCODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;')
     project.write_text(source)
 
-from native_assets import generate
 generate(mobile)
 
 subprocess.run([flutter,'pub','get'],cwd=mobile,check=True)

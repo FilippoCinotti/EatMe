@@ -402,9 +402,19 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
           AsyncAction(
             label: context.t('map_product_to_food'),
             action: () async {
-              final amount = await askText(context, context.t('package_count'), initial: '1', numeric: true);
+              final amount = await askText(
+                context,
+                context.t('package_count'),
+                initial: '1',
+                numeric: true,
+              );
               if (amount == null) return;
-              await Mutation().send(ref.read(apiProvider), 'POST', '/products/stock', {'product_id': product!['id'], 'quantity': amount, 'package_checked': true});
+              await Mutation()
+                  .send(ref.read(apiProvider), 'POST', '/products/stock', {
+                    'product_id': product!['id'],
+                    'quantity': amount,
+                    'package_checked': true,
+                  });
               await ref.read(appProvider.notifier).refresh();
               if (context.mounted) context.pop();
             },

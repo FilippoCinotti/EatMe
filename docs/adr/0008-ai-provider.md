@@ -1,15 +1,11 @@
-# ADR 0008-ai-provider: Provider AI separati
+# 0008: Isolated AI provider adapter
 
-Stato: decisione della foundation; vedere implementation-status per la verifica.
+Status: accepted for the application implementation.
 
-## Decisione
+## Decision
 
-Definire interfacce; tenere scansioni disattivate finché non esiste un provider collaudato.
+Centralize prompts and schemas in the server. Treat provider responses as untrusted candidates. Revalidate canonical ingredients and dietary constraints before use. Keep development fixtures explicit and production credentials server-side.
 
-## Conseguenze
+## Consequences
 
-Un servizio non configurato produce un errore esplicito. Il flusso manuale non dipende da AI. I riconoscimenti futuri richiederanno conferma prima del commit.
-
-## Alternative
-
-Non usare risposte simulate come se provenissero da un servizio live.
+Validate this boundary through domain and platform tests. Revisit the decision when measured scale, reliability or product requirements justify a change; record a new decision rather than silently changing the architecture.

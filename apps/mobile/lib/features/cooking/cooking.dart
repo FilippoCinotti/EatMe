@@ -14,9 +14,11 @@ class CookingPage extends ConsumerStatefulWidget {
     super.key,
     required this.recipeId,
     required this.servings,
+    this.participants,
   });
   final String recipeId;
   final int servings;
+  final List<String>? participants;
   @override
   ConsumerState<CookingPage> createState() => _CookingPageState();
 }
@@ -70,6 +72,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
       return ConfirmCookingPage(
         recipeId: widget.recipeId,
         servings: widget.servings,
+        participants: widget.participants,
       );
     }
     return Scaffold(
@@ -149,9 +152,11 @@ class ConfirmCookingPage extends ConsumerStatefulWidget {
     super.key,
     required this.recipeId,
     required this.servings,
+    this.participants,
   });
   final String recipeId;
   final int servings;
+  final List<String>? participants;
   @override
   ConsumerState<ConfirmCookingPage> createState() => _ConfirmCookingPageState();
 }
@@ -164,6 +169,7 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
   Json get request => {
     'recipe_id': widget.recipeId,
     'servings': widget.servings,
+    if (widget.participants != null) 'participants': widget.participants,
     'consumption': overrides,
   };
   Future<Json> load() =>
@@ -289,6 +295,7 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
                 final data = <String, dynamic>{
                   ...request,
                   'profile_version': plan['profile_version'],
+                  if (widget.participants != null) 'participant_versions': plan['participant_versions'],
                   'diet_rules_version': plan['diet_rules_version'],
                   'batch_versions': {
                     for (final a in (plan['allocations'] as List))

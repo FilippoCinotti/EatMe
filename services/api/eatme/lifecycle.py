@@ -146,13 +146,16 @@ class LifecycleService:
             result['format_version'] = 2
         return result
 
-    def delete_account(self, user_id):
+    def delete_account(self, user_id, *, retry=False):
         # Ownership is checked before external identity deletion; retry records survive profile deletion.
         if os.getenv('AUTH_MODE', 'development') == 'supabase' and not os.getenv('SUPABASE_SERVICE_ROLE_KEY'):
             raise DomainError('account_deletion_not_configured', 503)
+        if not retry and os.getenv('AUTH_MODE', 'development') == 'supabase':
+            from .identity import revoke_apple_if_linked
+            revoke_apple_if_linked(self.db, user_id, preflight=True)
         with self.db.transaction() as tx:
-            self._profile(tx, user_id)
-            for home in tx.all('SELECT id FROM households WHERE owner_id=?', (user_id,)):
+            lock = ' FOR UPDATE' if tx.postgres else ''
+            for home in tx.all('SELECT id FROM households WHERE owner_id=? ORDER BY id' + lock, (user_id,)):
                 if tx.one('SELECT COUNT(*) AS n FROM household_members WHERE household_id=?', (home['id'],))['n'] > 1:
                     raise DomainError('ownership_transfer_required', 409)
             tx.execute("INSERT INTO account_deletions VALUES (?,'pending',?,NULL,NULL) ON CONFLICT(user_id) DO NOTHING", (user_id, now()))
@@ -161,9 +164,13 @@ class LifecycleService:
             if not key:
                 raise DomainError('account_deletion_not_configured', 503)
             try:
+                from .identity import revoke_apple_if_linked
+                revoke_apple_if_linked(self.db,user_id)
                 https_request(os.environ['SUPABASE_URL'].rstrip('/') + '/auth/v1/admin/users/' + valid_uuid(user_id), method='DELETE', headers={'Authorization': 'Bearer ' + key, 'apikey': key}, redirects=0)
             except DomainError as error:
                 if error.code != 'provider_not_found':
+                    with self.db.transaction() as tx:
+                        tx.execute('UPDATE account_deletions SET provider_error=? WHERE user_id=?', (error.code, user_id))
                     raise
         with self.db.transaction() as tx:
             media = tx.all('SELECT storage_key FROM media_objects WHERE user_id=?', (user_id,))
@@ -180,8 +187,20 @@ class LifecycleService:
             tx.execute('UPDATE inventory_events SET actor_id=NULL WHERE actor_id=?', (user_id,))
             tx.execute('UPDATE shopping_items SET created_by=NULL WHERE created_by=?', (user_id,))
             tx.execute('UPDATE leftover_events SET actor_id=NULL WHERE actor_id=?', (user_id,))
+            tx.execute('DELETE FROM identity_tokens WHERE user_id=?', (user_id,))
+            tx.execute('UPDATE household_invitations SET accepted_by=NULL WHERE accepted_by=?', (user_id,))
             tx.execute('DELETE FROM profiles WHERE user_id=?', (user_id,))
             if not tx.postgres:
                 tx.execute('DELETE FROM dev_accounts WHERE user_id=?', (user_id,))
-            tx.execute("UPDATE account_deletions SET status='completed',completed_at=? WHERE user_id=?", (now(), user_id))
+            tx.execute("UPDATE account_deletions SET status='completed',provider_error=NULL,completed_at=? WHERE user_id=?", (now(), user_id))
         return {'deleted': True}
+
+    def retry_account_deletions(self):
+        with self.db.transaction() as tx:
+            rows = tx.all("SELECT user_id FROM account_deletions WHERE status='pending' ORDER BY requested_at LIMIT 10")
+        for row in rows:
+            try:
+                self.delete_account(row['user_id'], retry=True)
+            except (DomainError, OSError):
+                continue
+        return len(rows)

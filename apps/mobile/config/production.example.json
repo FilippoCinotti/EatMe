@@ -7,5 +7,7 @@
   "REVENUECAT_ANDROID_KEY": "",
   "REVENUECAT_IOS_KEY": "",
   "PRIVACY_URL": "https://YOUR_PUBLIC_HOST/privacy",
-  "TERMS_URL": "https://YOUR_PUBLIC_HOST/terms"
+  "TERMS_URL": "https://YOUR_PUBLIC_HOST/terms",
+  "APPLE_ANDROID_CLIENT_ID": "",
+  "APPLE_ANDROID_CALLBACK_URL": ""
 }

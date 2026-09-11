@@ -20,13 +20,14 @@ class _RecipePageState extends ConsumerState<RecipePage> {
       ref.read(appProvider).profile['household_size'] as int? ?? 1;
   late Future<(Recipe, Json)> future = load();
   String tab = 'ingredients';
+  List<String>? participants;
   Future<(Recipe, Json)> load() async {
     final api = ref.read(apiProvider);
     final recipe = await api.request('GET', '/recipes/${widget.recipeId}');
     final preview = await api.request(
       'POST',
       '/cooking/preview',
-      body: {'recipe_id': widget.recipeId, 'servings': servings},
+      body: {'recipe_id': widget.recipeId, 'servings': servings, if (participants != null) 'participants': participants},
     );
     return (Recipe.fromJson(recipe), preview);
   }
@@ -110,6 +111,10 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               ],
             ),
             const SizedBox(height: 16),
+            AsyncAction(label: context.t('who_is_eating'), secondary: true, action: () async {
+              final value = await chooseDiners(context, ref.read(apiProvider), participants);
+              if (value != null && mounted) setState(() { participants = value; future = load(); });
+            }),
             SegmentedButton<String>(
               segments: ['ingredients', 'overview', 'why']
                   .map(
@@ -258,7 +263,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
             FilledButton(
               onPressed: ref.watch(appProvider).offline
                   ? null
-                  : () => context.push('/cook/${recipe.id}?servings=$servings'),
+                  : () => context.push('/cook/${recipe.id}?servings=$servings', extra: participants),
               child: Text(context.t('start_cooking')),
             ),
           ],

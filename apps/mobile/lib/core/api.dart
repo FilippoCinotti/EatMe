@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -85,6 +87,7 @@ class EatMeApi {
   final Dio dio;
   bool offline = false;
   bool syncing = false;
+  int _cacheEpoch = 0;
   Future<void> _queueWrite = Future.value();
   OfflineStore? get cache => userId == null ? null : OfflineStore(userId!);
   bool cacheable(String path) =>
@@ -126,43 +129,55 @@ class EatMeApi {
     await operation;
   }
 
+  Future<void> discardPending(String key) async {
+    final current = cache;
+    if (current == null) return;
+    final operation = _queueWrite.then((_) async {
+      final rows = await current.pending();
+      rows.removeWhere((row) => row['key'] == key);
+      await current.savePending(rows);
+    });
+    _queueWrite = operation.catchError((Object _) {});
+    await operation;
+  }
+
   Future<void> sync() async {
     if (syncing || cache == null) return;
     syncing = true;
-    try {
-      await _queueWrite;
-      final current = cache!;
-      final profile = await request('GET', '/profile', allowCache: false);
-      final pending = await current.pending();
-      while (pending.isNotEmpty) {
-        final item = pending.first;
-        if (item['household_id'] != profile['household_id']) {
-          item['status'] = 'household_changed';
-          await current.savePending(pending);
-          break;
+    final current = cache!;
+    final account = userId;
+    // Serialize the entire replay with enqueue/discard to prevent lost writes.
+    final operation = _queueWrite.then((_) async {
+      try {
+        if (userId != account) return;
+        final profile = await request('GET', '/profile', allowCache: false);
+        final pending = await current.pending();
+        while (pending.isNotEmpty && userId == account) {
+          final item = pending.first;
+          if (item['household_id'] != profile['household_id']) {
+            item['status'] = 'household_changed';
+            await current.savePending(pending);
+            break;
+          }
+          try {
+            await request(item['method'] as String, item['path'] as String,
+              body: Map<String, dynamic>.from(item['body'] as Map),
+              operationKey: item['key'] as String, allowCache: false);
+            pending.removeAt(0);
+            await current.savePending(pending);
+          } on ApiFailure catch (error) {
+            if (error.offline) break;
+            item['status'] = error.code;
+            await current.savePending(pending);
+            break;
+          }
         }
-        try {
-          await request(
-            item['method'] as String,
-            item['path'] as String,
-            body: Map<String, dynamic>.from(item['body'] as Map),
-            operationKey: item['key'] as String,
-            allowCache: false,
-          );
-          pending.removeAt(0);
-          await current.savePending(pending);
-        } on ApiFailure catch (error) {
-          if (error.offline) break;
-          item['status'] = error.code;
-          await current.savePending(pending);
-          break;
-        }
+      } on ApiFailure {
+        // Keep the encrypted outbox for the next explicit retry.
       }
-    } on ApiFailure {
-      /* Keep the encrypted outbox for the next explicit retry. */
-    } finally {
-      syncing = false;
-    }
+    });
+    _queueWrite = operation.catchError((Object _) {});
+    try { await operation; } finally { syncing = false; }
   }
 
   String? localToken, localUserId;
@@ -184,6 +199,8 @@ class EatMeApi {
     String? operationKey,
     bool allowCache = true,
   }) async {
+    final account = userId;
+    final epoch = _cacheEpoch;
     try {
       final result = await dio.request<dynamic>(
         path,
@@ -198,10 +215,26 @@ class EatMeApi {
       );
       final value = Map<String, dynamic>.from(result.data as Map);
       offline = false;
-      if (method == 'GET' && cacheable(path)) await cache?.cache(path, value);
+      if (account == userId && epoch == _cacheEpoch) {
+        if (path == '/households' && method == 'POST' &&
+            ['switch', 'accept', 'leave'].contains(body?['action'])) {
+          _cacheEpoch++;
+          await cache?.clearSnapshots();
+          await secure.delete(key: 'eatme.inventory');
+        }
+        if (path == '/profile' && method == 'GET') {
+          final previous = await cache?.read('/profile');
+          if (previous != null && previous['household_id'] != value['household_id']) {
+            _cacheEpoch++;
+            await cache?.clearSnapshots();
+            await secure.delete(key: 'eatme.inventory');
+          }
+        }
+        if (method == 'GET' && cacheable(path)) await cache?.cache(path, value);
+      }
       return value;
     } on DioException catch (error) {
-      if (error.response == null &&
+      if (account == userId && epoch == _cacheEpoch && error.response == null &&
           method == 'GET' &&
           allowCache &&
           cacheable(path)) {
@@ -260,6 +293,33 @@ class EatMeApi {
     if (development || !oauthEnabled) {
       throw const ApiFailure('oauth_not_configured');
     }
+    if (provider == OAuthProvider.apple) {
+      final auth = Supabase.instance.client.auth;
+      final rawNonce = auth.generateRawNonce();
+      final state = auth.generateRawNonce();
+      final android = defaultTargetPlatform == TargetPlatform.android;
+      const serviceId = String.fromEnvironment('APPLE_ANDROID_CLIENT_ID');
+      const callback = String.fromEnvironment('APPLE_ANDROID_CALLBACK_URL');
+      if (android && (serviceId.isEmpty || !callback.startsWith('https://'))) {
+        throw const ApiFailure('oauth_not_configured');
+      }
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [AppleIDAuthorizationScopes.email, AppleIDAuthorizationScopes.fullName],
+        nonce: sha256.convert(utf8.encode(rawNonce)).toString(), state: state,
+        webAuthenticationOptions: android ? WebAuthenticationOptions(
+          clientId: serviceId, redirectUri: Uri.parse(callback)) : null,
+      );
+      if (credential.identityToken == null || credential.state != state) {
+        throw const ApiFailure('invalid_credentials');
+      }
+      await auth.signInWithIdToken(provider: OAuthProvider.apple,
+        idToken: credential.identityToken!, nonce: rawNonce);
+      await request('POST', '/auth/apple-authorization', body: {
+        'authorization_code': credential.authorizationCode,
+        'platform': android ? 'android' : 'ios',
+      });
+      return;
+    }
     await Supabase.instance.client.auth.signInWithOAuth(
       provider,
       redirectTo: redirect,
@@ -285,6 +345,8 @@ class EatMeApi {
   }
 
   Future<void> clearSession() async {
+    await _queueWrite;
+    _cacheEpoch++;
     await Reminders.clear();
     await cache?.clear();
     if (!development && Supabase.instance.client.auth.currentSession != null) {

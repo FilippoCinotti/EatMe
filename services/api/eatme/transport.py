@@ -64,6 +64,11 @@ class Router:
         token = authorization[7:]
         user_id = self.auth.verify(token)
         self.limiter.check("user:"+user_id,180)
+        if route not in {"/api/v1/profile", "/api/v1/auth/logout"} or method != "DELETE":
+            with self.service.db.transaction() as tx:
+                deletion = tx.one("SELECT status FROM account_deletions WHERE user_id=?", (user_id,))
+                if deletion and deletion["status"] in {"pending", "completed"}:
+                    raise DomainError("account_deletion_pending", 409)
         if route=="/api/v1/auth/logout" and method=="POST":
             if self.development:
                 self.auth.logout(token)
@@ -100,6 +105,11 @@ class Router:
             return actions[resource](user_id,body,operation_key)
         if route=="/api/v1/catalog" and method=="GET":
             return self.service.catalog(user_id)
+        if route=="/api/v1/auth/apple-authorization" and method=="POST":
+            if self.development:
+                raise DomainError("use_supabase_auth",404)
+            from .identity import store_apple_authorization
+            return store_apple_authorization(self.service.db,user_id,body.get("authorization_code"),body.get("platform","ios"))
         if route=="/api/v1/profile":
             if method=="GET":
                 return self.service.get_profile(user_id)
@@ -108,6 +118,8 @@ class Router:
             if method=="DELETE":
                 if body.get("confirm") is not True:
                     raise DomainError("deletion_confirmation_required",422)
+                if not self.development:
+                    self.auth.verify(token,recent=True)
                 return self.service.delete_account(user_id)
         if route=="/api/v1/inventory":
             if method=="GET":

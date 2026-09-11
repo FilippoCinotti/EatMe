@@ -394,5 +394,8 @@
   "restore_purchases": "Restore purchases",
   "manage_subscription": "Manage subscription",
   "terms": "Terms of use",
-  "store_unavailable": "The store is unavailable. Please try again later."
+  "store_unavailable": "The store is unavailable. Please try again later.",
+  "who_is_eating": "Who is eating?",
+  "diner_consent_notice": "Selected diners must enable constraint sharing in their household settings.",
+  "sharing_not_enabled": "Constraint sharing is disabled"
 }
