@@ -87,6 +87,7 @@ class AppController extends Notifier<AppState> {
         state = state.copy(stage: Stage.login);
         return;
       }
+      await api.sync();
       await hydrate();
     } on ApiFailure catch (error) {
       if (error.code == 'unauthorized') {
@@ -125,6 +126,7 @@ class AppController extends Notifier<AppState> {
       stage: profile['onboarded'] == true ? Stage.ready : Stage.onboarding,
     );
     if (state.stage == Stage.ready) await refresh();
+    state = state.copy(offline: api.offline);
   }
 
   Future<void> refresh({String? mode}) async {
@@ -136,7 +138,7 @@ class AppController extends Notifier<AppState> {
         inventory: (inventory['items'] as List)
             .map((b) => Batch.fromJson(Map<String, dynamic>.from(b as Map)))
             .toList(),
-        offline: false,
+        offline: api.offline,
         mode: chosenMode,
       );
       final recommendations = await api.request(

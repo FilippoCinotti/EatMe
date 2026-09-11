@@ -5,6 +5,12 @@ from datetime import date, datetime
 from uuid import UUID, uuid4
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+from .lifecycle import LifecycleService
+from .intelligence import IntelligenceService
+from .governance import GovernanceService
+from .content import ContentService
+from .households import HouseholdService
+from .planning import PlanningService
 from .auth import now
 from .catalog import ALLERGENS
 from .engine import active_rules, amount_milli, batch_usable, compatibility, quantity, rank, requirements
@@ -38,7 +44,7 @@ def valid_date(value) -> str | None:
         raise DomainError("invalid_date",422) from None
 
 
-class Service:
+class Service(HouseholdService, PlanningService, ContentService, GovernanceService, IntelligenceService, LifecycleService):
     def __init__(self, db: Database, *, clock=None, weights=None):
         self.db, self.clock, self.weights = db, clock, weights
 
@@ -60,9 +66,9 @@ class Service:
                 raise DomainError("forbidden",403)
             return profile["household_id"]
 
-    def _catalog(self, tx):
+    def _catalog(self, tx, user_id=None):
         foods = {r["id"]:decode(r["data"]) for r in tx.all("SELECT * FROM foods")}
-        recipes = [decode(r["data"]) for r in tx.all("SELECT * FROM recipes")]
+        recipes = [decode(r["data"]) for r in tx.all("SELECT r.* FROM recipes r LEFT JOIN content_ownership o ON o.content_id=r.id AND o.kind='recipe' WHERE o.content_id IS NULL OR o.user_id=?", (user_id,))]
         diets = [decode(r["data"]) for r in tx.all("SELECT * FROM diet_definitions")]
         versions = [{**v,"rules":decode(v["rules"])} for v in tx.all("SELECT * FROM diet_versions")]
         return foods,recipes,diets,versions
@@ -201,6 +207,7 @@ class Service:
             raise DomainError("expiry_type_required",422)
         with self.db.transaction(household_id) as tx:
             def add():
+                self._member(tx,user_id,household_id,write=True)
                 food = tx.one("SELECT data FROM foods WHERE id=?",(data.get("food_id"),))
                 if not food:
                     raise DomainError("food_not_found",404)
@@ -217,6 +224,7 @@ class Service:
         household_id = self._household(user_id,write=True)
         with self.db.transaction(household_id) as tx:
             def change():
+                self._member(tx,user_id,household_id,write=True)
                 batch = tx.one("SELECT * FROM inventory_batches WHERE id=? AND household_id=?",(batch_id,household_id))
                 if not batch:
                     raise DomainError("item_not_found",404)
@@ -246,7 +254,7 @@ class Service:
 
     def _context(self,tx,user_id):
         profile = self._profile(tx,user_id)
-        foods,recipes,_,versions = self._catalog(tx)
+        foods,recipes,_,versions = self._catalog(tx,user_id)
         today = self.today(profile["settings"])
         rules,rule_versions = active_rules(profile["settings"]["diets"],versions,today)
         return profile,foods,recipes,rules,rule_versions,today
@@ -285,14 +293,16 @@ class Service:
             if food_id not in foods:
                 raise DomainError("food_not_found",404)
             return {"food":foods[food_id],"assessment":compatibility([food_id],foods,profile["settings"],rules),
-                    "diet_rules_version":versions,"nutrition":None,"evidence":[]}
+                    "diet_rules_version":versions,"nutrition":foods[food_id].get("nutrition"),"evidence":[]}
 
     def _preview(self,tx,user_id,data):
         profile,foods,recipes,rules,versions,today = self._context(tx,user_id)
+        self._member(tx,user_id,profile["household_id"])
+        settings,rules,versions,participants = self._diners(tx,user_id,data.get("participants"),profile,self._catalog(tx,user_id)[3],today)
         recipe = next((r for r in recipes if r["id"]==data.get("recipe_id")),None)
         if not recipe:
             raise DomainError("recipe_not_found",404)
-        validation = compatibility([i["food_id"] for i in recipe["ingredients"]],foods,profile["settings"],rules)
+        validation = compatibility([i["food_id"] for i in recipe["ingredients"]],foods,settings,rules)
         if validation["reasons"]:
             raise DomainError("recipe_not_compatible",409,validation)
         needed = requirements(recipe,data.get("servings",recipe["servings"]))
@@ -316,7 +326,7 @@ class Service:
                 shortages.append({"food_id":f,"quantity":quantity(remaining)})
             ingredients.append({"food_id":f,"food":foods[f],"quantity":quantity(total),"available":quantity(total-remaining)})
         return {"recipe_id":recipe["id"],"servings":data.get("servings",recipe["servings"]),"ingredients":ingredients,
-                "allocations":allocations,"shortages":shortages,"profile_version":profile["version"],"diet_rules_version":versions}
+                "allocations":allocations,"shortages":shortages,"profile_version":profile["version"],"diet_rules_version":versions,"participant_versions":participants}
 
     def cooking_preview(self,user_id,data):
         household_id = self._household(user_id)
@@ -327,9 +337,12 @@ class Service:
         household_id = self._household(user_id,write=True)
         with self.db.transaction(household_id) as tx:
             def confirm():
+                self._member(tx,user_id,household_id,write=True)
                 plan = self._preview(tx,user_id,data)
                 if data.get("profile_version") != plan["profile_version"] or data.get("diet_rules_version") != plan["diet_rules_version"]:
                     raise DomainError("stale_profile",409)
+                if data.get("participants") is not None and data.get("participant_versions") != plan["participant_versions"]:
+                    raise DomainError("stale_participants",409)
                 versions = {a["batch_id"]:a["version"] for a in plan["allocations"]}
                 if data.get("batch_versions") != versions:
                     raise DomainError("stale_inventory",409)
@@ -356,7 +369,7 @@ class Service:
     def leftovers(self,user_id):
         household_id = self._household(user_id)
         with self.db.transaction() as tx:
-            rows = tx.all("SELECT l.*,r.data AS recipe_data FROM leftovers l JOIN cooking_sessions c ON c.id=l.cooking_id JOIN recipes r ON r.id=c.recipe_id WHERE l.household_id=? ORDER BY l.prepared_at DESC",(household_id,))
+            rows = tx.all("SELECT l.*,COALESCE(s.remaining,l.servings) AS remaining,COALESCE(s.version,1) AS version,r.data AS recipe_data FROM leftovers l LEFT JOIN leftover_state s ON s.leftover_id=l.id JOIN cooking_sessions c ON c.id=l.cooking_id JOIN recipes r ON r.id=c.recipe_id WHERE l.household_id=? ORDER BY l.prepared_at DESC",(household_id,))
             return {"items":[{**{k:v for k,v in row.items() if k!="recipe_data"},"recipe_title":decode(row["recipe_data"])["title"]} for row in rows]}
 
     def export(self,user_id):

@@ -8,6 +8,7 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
   "fastapi>=0.115,<1", "uvicorn[standard]>=0.30,<1",
+  "Pillow>=11.3,<13", "cryptography>=46,<50",
   "PyJWT[crypto]>=2.9,<3", "psycopg[binary]>=3.2,<4"
 ]
 
@@ -15,7 +16,7 @@ dependencies = [
 dev = ["httpx>=0.27,<1", "ruff>=0.11,<1", "pip-audit>=2.8,<3"]
 
 [tool.setuptools.package-data]
-eatme = ["schema.sql"]
+eatme = ["schema.sql", "domain.sql"]
 
 [tool.ruff]
 line-length = 140

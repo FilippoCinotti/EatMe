@@ -48,12 +48,12 @@ class Router:
         query = parse_qs(split.query)
         self.limiter.check(client,180)
         if route=="/api/v1/health" and method=="GET":
-            return {"status":"ok","version":"0.1.0"}
+            return {"status":"ok","version":"1.0.0"}
         if route=="/api/v1/config" and method=="GET":
             return {"auth_mode":"development" if self.development else "supabase",
                     "features":{"manual_inventory":True,"recipe_cooking":True,"healthy_food":True,
-                                "ai_scan":False,"barcode_scan":False,"receipt_scan":False,"meal_planner":False,
-                                "household_sharing":False,"account_deletion":self.development}}
+                                "ai_scan":False,"barcode_scan":False,"receipt_scan":False,"meal_planner":True,
+                                "household_sharing":True,"account_deletion":self.development}}
         if route in {"/api/v1/auth/register","/api/v1/auth/login"} and method=="POST":
             if not self.development:
                 raise DomainError("use_supabase_auth",404)
@@ -68,6 +68,36 @@ class Router:
             if self.development:
                 self.auth.logout(token)
             return {"logged_out":True}
+        reads = {"/shopping":self.service.shopping, "/plans":self.service.plans,
+                 "/households":self.service.households, "/preferences":self.service.preferences,
+                 "/recipes":self.service.recipes, "/jobs":self.service.jobs,
+                 "/notifications":self.service.notifications, "/insights":self.service.insights,
+                 "/entitlements":self.service.entitlements, "/recalls":self.service.recalls,
+                 "/admin/content":self.service.admin_content}
+        actions = {"/shopping":self.service.shopping_action, "/plans":self.service.plan_action,
+                   "/households":self.service.household_action, "/preferences":self.service.preferences,
+                   "/leftovers":self.service.leftover_action, "/recipes":self.service.recipe_action,
+                   "/jobs":self.service.job_action, "/notifications":self.service.notification_action,
+                   "/admin/content":self.service.admin_action, "/reports":self.service.report,
+                   "/inventory/metadata":self.service.inventory_metadata}
+        resource = route.removeprefix("/api/v1")
+        if resource=="/media" and method=="POST":
+            return self.service.media_upload(user_id,body)
+        if resource=="/recipes/import-url" and method=="POST":
+            return self.service.import_url(user_id,body)
+        if resource=="/analytics" and method=="POST":
+            return self.service.analytics(user_id,body)
+        if resource=="/entitlements/refresh" and method=="POST":
+            return self.service.entitlements(user_id,refresh=True)
+        if resource=="/evidence" and method=="GET":
+            return self.service.evidence(user_id,query.get("q",[""])[0])
+        if resource.startswith("/products/") and method=="GET":
+            self.limiter.check("product:"+user_id,12)
+            return self.service.product(user_id,resource.split("/")[-1])
+        if resource in reads and method=="GET":
+            return reads[resource](user_id)
+        if resource in actions and method=="POST":
+            return actions[resource](user_id,body,operation_key)
         if route=="/api/v1/catalog" and method=="GET":
             return self.service.catalog()
         if route=="/api/v1/profile":
@@ -78,7 +108,7 @@ class Router:
             if method=="DELETE":
                 if body.get("confirm") is not True:
                     raise DomainError("deletion_confirmation_required",422)
-                return self.service.delete_local_account(user_id)
+                return self.service.delete_account(user_id)
         if route=="/api/v1/inventory":
             if method=="GET":
                 return self.service.inventory(user_id)
@@ -102,7 +132,7 @@ class Router:
         if route=="/api/v1/leftovers" and method=="GET":
             return self.service.leftovers(user_id)
         if route=="/api/v1/privacy/export" and method=="GET":
-            return self.service.export(user_id)
+            return self.service.export_all(user_id)
         if route=="/api/v1/admin/catalog" and method=="GET":
             allowed = set(filter(None,os.getenv("ADMIN_USER_IDS","").split(",")))
             if user_id not in allowed:

@@ -9,6 +9,14 @@ import 'core/localization.dart';
 import 'core/state.dart';
 import 'design_system/theme.dart';
 import 'design_system/widgets.dart';
+import 'features/organize/shopping.dart';
+import 'features/organize/planner.dart';
+import 'features/organize/household.dart';
+import 'features/organize/leftovers.dart';
+import 'features/organize/recipe_library.dart';
+import 'features/organize/scanning.dart';
+import 'features/organize/settings.dart';
+import 'core/models.dart';
 import 'features/auth/login.dart';
 import 'features/onboarding/onboarding.dart';
 import 'features/chef_table/chef_table.dart';
@@ -82,6 +90,19 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, _) => const OnboardingPage(edit: true),
       ),
       GoRoute(path: '/privacy', builder: (_, _) => const PrivacyPage()),
+      GoRoute(path: '/shopping', builder: (_, _) => const ShoppingPage()),
+      GoRoute(path: '/planner', builder: (_, _) => const PlannerPage()),
+      GoRoute(path: '/household', builder: (_, _) => const HouseholdPage()),
+      GoRoute(path: '/leftovers', builder: (_, _) => const LeftoversPage()),
+      GoRoute(path: '/recipe-library', builder: (_, _) => const RecipeLibraryPage()),
+      GoRoute(path: '/recipe-editor', builder: (_, state) => RecipeEditorPage(initial: state.extra as Json?)),
+      GoRoute(path: '/scanning', builder: (_, _) => const ScanningPage()),
+      GoRoute(path: '/barcode', builder: (_, _) => const BarcodePage()),
+      GoRoute(path: '/preferences', builder: (_, _) => const PreferencesPage()),
+      GoRoute(path: '/notifications', builder: (_, _) => const NotificationsPage()),
+      GoRoute(path: '/evidence', builder: (_, _) => const EvidencePage()),
+      GoRoute(path: '/insights', builder: (_, _) => const InsightsPage()),
+      GoRoute(path: '/sync', builder: (_, _) => const SyncPage()),
       GoRoute(
         path: '/reset-password',
         builder: (_, _) => const ResetPasswordPage(),

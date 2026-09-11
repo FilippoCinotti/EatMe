@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/api.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
@@ -74,6 +73,14 @@ class ProfilePage extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/profile/edit'),
           ),
+          for (final item in [
+            ('household', '/household', Icons.group_outlined),
+            ('preferences', '/preferences', Icons.tune),
+            ('notifications', '/notifications', Icons.notifications_none),
+            ('insights', '/insights', Icons.insights_outlined),
+            ('offline_sync', '/sync', Icons.sync),
+            ('evidence_library', '/evidence', Icons.library_books_outlined),
+          ]) ListTile(leading: Icon(item.$3), title: Text(context.t(item.$1)), trailing: const Icon(Icons.chevron_right), onTap: () => context.push(item.$2)),
           const SizedBox(height: 28),
           Text(
             context.t('preferences'),
@@ -184,7 +191,7 @@ class PrivacyPage extends ConsumerWidget {
           onPressed: () => context.push('/profile/edit'),
           child: Text(context.t('review_consent')),
         ),
-        if (EatMeApi.development) ...[
+        ...[
           const SizedBox(height: 32),
           AsyncAction(
             label: context.t('delete_account'),

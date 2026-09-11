@@ -21,7 +21,7 @@ def create_server(router,host="127.0.0.1",port=8000):
         def handle_request(self):
             try:
                 size = int(self.headers.get("Content-Length","0"))
-                if not 0<=size<=262144:
+                if not 0<=size<=(6_000_000 if self.path == "/api/v1/media" else 262144):
                     raise DomainError("payload_too_large",413)
                 raw = self.rfile.read(size)
                 body = json.loads(raw) if raw else {}

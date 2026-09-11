@@ -27,3 +27,7 @@ apps/mobile/ios/Flutter/flutter_export_environment.sh
 *.p12
 *.mobileprovision
 .DS_Store
+
+var/
+
+mobile-sources.zip

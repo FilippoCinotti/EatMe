@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/api.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
@@ -31,6 +32,8 @@ class _FridgePageState extends ConsumerState<FridgePage> {
       appBar: AppBar(
         title: Text(context.t('my_fridge')),
         actions: [
+          IconButton(tooltip: context.t('scan_and_import'), icon: const Icon(Icons.document_scanner_outlined), onPressed: () => context.push('/scanning')),
+
           IconButton(
             tooltip: context.t('add_food'),
             onPressed: state.offline
@@ -61,7 +64,7 @@ class _FridgePageState extends ConsumerState<FridgePage> {
           const SizedBox(height: 16),
           if (location == 'fridge' && !state.offline)
             TextButton.icon(
-              onPressed: () => sheet(context, const LeftoversSheet()),
+              onPressed: () => context.push('/leftovers'),
               icon: const Icon(Icons.takeout_dining_outlined),
               label: Text(context.t('leftovers')),
             ),

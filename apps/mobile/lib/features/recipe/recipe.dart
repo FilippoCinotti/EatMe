@@ -6,6 +6,7 @@ import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
+import '../organize/shared.dart';
 
 class RecipePage extends ConsumerStatefulWidget {
   const RecipePage({super.key, required this.recipeId});
@@ -32,7 +33,11 @@ class _RecipePageState extends ConsumerState<RecipePage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(),
+    appBar: AppBar(actions: [
+      IconButton(tooltip: context.t('favorite'), icon: const Icon(Icons.favorite_border), onPressed: () async {
+        await Mutation().send(ref.read(apiProvider), 'POST', '/recipes', {'action': 'favorite', 'recipe_id': widget.recipeId, 'enabled': true});
+      }),
+    ]),
     body: FutureBuilder<(Recipe, Json)>(
       future: future,
       builder: (context, snapshot) {
@@ -164,6 +169,27 @@ class _RecipePageState extends ConsumerState<RecipePage> {
             ),
             if ((plan['shortages'] as List).isNotEmpty)
               StatusNote(text: context.t('missing_ingredients_notice')),
+            const SizedBox(height: 24),
+            AsyncAction(label: context.t('build_shopping_list'), secondary: true, action: () async {
+              await Mutation().send(ref.read(apiProvider), 'POST', '/shopping', {'action': 'generate', 'meals': [{'recipe_id': recipe.id, 'servings': servings}]});
+              if (context.mounted) context.push('/shopping');
+            }),
+            const SizedBox(height: 8),
+            Wrap(spacing: 8, children: [for (final rating in [1, -1]) AsyncAction(label: context.t(rating == 1 ? 'like_recipe' : 'dislike_recipe'), secondary: true, action: () async {
+              await Mutation().send(ref.read(apiProvider), 'POST', '/recipes', {'action': 'feedback', 'recipe_id': recipe.id, 'rating': rating});
+            })]),
+            const SizedBox(height: 8),
+            AsyncAction(label: context.t('substitute_ingredient'), secondary: true, action: () async {
+              final foods = ref.read(appProvider).foods;
+              final original = await chooseFood(context, foods.where((f) => recipe.ingredients.any((i) => i['food_id'] == f.id)).toList());
+              if (original == null || !context.mounted) return;
+              final replacement = await chooseFood(context, foods);
+              if (replacement == null || !context.mounted) return;
+              final amount = await askText(context, '${context.t('quantity')} (${replacement.unit})', numeric: true);
+              if (amount == null) return;
+              final changed = await Mutation().send(ref.read(apiProvider), 'POST', '/recipes', {'action': 'substitute', 'recipe_id': recipe.id, 'food_id': original.id, 'replacement_id': replacement.id, 'quantity': amount});
+              if (context.mounted) context.push('/recipes/${changed['id']}');
+            }),
             const SizedBox(height: 24),
             FilledButton(
               onPressed: ref.watch(appProvider).offline

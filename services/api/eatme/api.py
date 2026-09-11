@@ -58,9 +58,11 @@ class CookingInput(StrictBody):
     recipe_id: str
     servings: int = Field(ge=1,le=20)
     consumption: dict[str,str] = Field(default_factory=dict)
+    participants: list[str] | None = Field(default=None,max_length=20)
 
 
 class CookingConfirmation(CookingInput):
+    participant_versions: dict[str,int] | None = None
     profile_version: int
     diet_rules_version: dict[str,int]
     batch_versions: dict[str,int]
@@ -86,7 +88,7 @@ def create_app(router=None):
         body = bytearray()
         async for chunk in request.stream():
             body.extend(chunk)
-            if len(body)>262144:
+            if len(body)>(6_000_000 if request.url.path == "/api/v1/media" else 262144):
                 return JSONResponse({"error":{"code":"payload_too_large"}},status_code=413)
         request._body = bytes(body)
         response = await call_next(request)
@@ -158,4 +160,14 @@ def create_app(router=None):
     def delete(body:DeleteInput,request:Request):
         return dispatch(request,body.model_dump())
 
+    # Domain commands validate action-specific fields at the shared service boundary.
+    for resource in ("shopping", "plans", "households", "preferences", "leftovers", "recipes", "jobs", "notifications", "insights", "entitlements", "recalls", "evidence", "admin/content"): 
+        app.add_api_route("/api/v1/"+resource, get_resource, methods=["GET"], name=resource+"_list") if resource != "leftovers" else None
+
+    def domain_command(body:dict,request:Request):
+        return dispatch(request,body)
+
+    for resource in ("shopping", "plans", "households", "preferences", "leftovers", "recipes", "jobs", "notifications", "admin/content", "reports", "inventory/metadata", "media", "recipes/import-url", "analytics", "entitlements/refresh"): 
+        app.add_api_route("/api/v1/"+resource, domain_command, methods=["POST"], name=resource+"_command")
+    app.add_api_route("/api/v1/products/{code}", get_resource, methods=["GET"], name="product_lookup")
     return app
