@@ -1,0 +1,19 @@
+name: Diet rule update
+description: Profilo, versione, evidenze e casi limite da verificare
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Contesto e risultato atteso
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidenze, riproduzione e verifica
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impatto su dati, allergie e regole mediche

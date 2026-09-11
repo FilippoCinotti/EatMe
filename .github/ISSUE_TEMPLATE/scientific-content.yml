@@ -1,0 +1,19 @@
+name: Scientific content update
+description: Fonti, revisione e impatto su affermazioni scientifiche
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Contesto e risultato atteso
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidenze, riproduzione e verifica
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impatto su dati, allergie e regole mediche
