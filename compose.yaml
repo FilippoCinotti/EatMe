@@ -1,0 +1,14 @@
+services:
+  api:
+    build: services/api
+    environment:
+      EATME_ENV: development
+      AUTH_MODE: development
+      DATABASE_URL: /data/eatme-dev.sqlite3
+      CORS_ORIGINS: http://localhost:3000
+      ADMIN_USER_IDS: ${ADMIN_USER_IDS:-}
+    ports: ['127.0.0.1:8000:8000']
+    volumes: [eatme_local:/data]
+    security_opt: ['no-new-privileges:true']
+volumes:
+  eatme_local:

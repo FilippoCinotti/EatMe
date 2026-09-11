@@ -1,0 +1,384 @@
+from __future__ import annotations
+
+import hashlib
+from datetime import date, datetime
+from uuid import UUID, uuid4
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+
+from .auth import now
+from .catalog import ALLERGENS
+from .engine import active_rules, amount_milli, batch_usable, compatibility, quantity, rank, requirements
+from .errors import DomainError
+from .storage import Database, Transaction, decode, encode
+
+HEALTH_CONSENT = "nutrition-profile-1"
+MEDICAL_CONSENT = "medical-nutrition-1"
+
+
+def new_id() -> str:
+    return str(uuid4())
+
+
+def valid_uuid(value: str) -> str:
+    try:
+        return str(UUID(value))
+    except (TypeError,ValueError,AttributeError):
+        raise DomainError("invalid_identifier",422) from None
+
+
+def valid_date(value) -> str | None:
+    if value is None or value == "":
+        return None
+    try:
+        parsed = date.fromisoformat(value)
+        if parsed.isoformat() != value:
+            raise ValueError
+        return value
+    except (ValueError,TypeError):
+        raise DomainError("invalid_date",422) from None
+
+
+class Service:
+    def __init__(self, db: Database, *, clock=None, weights=None):
+        self.db, self.clock, self.weights = db, clock, weights
+
+    def today(self, settings: dict) -> date:
+        return self.clock() if self.clock else datetime.now(ZoneInfo(settings["timezone"])).date()
+
+    def _profile(self, tx: Transaction, user_id: str) -> dict:
+        row = tx.one("SELECT * FROM profiles WHERE user_id=?",(user_id,))
+        if not row:
+            raise DomainError("onboarding_required",409)
+        row["settings"] = decode(row["settings"])
+        return row
+
+    def _household(self, user_id: str, write: bool = False) -> str:
+        with self.db.transaction() as tx:
+            profile = self._profile(tx,user_id)
+            member = tx.one("SELECT role FROM household_members WHERE household_id=? AND user_id=?",(profile["household_id"],user_id))
+            if not member or (write and member["role"] == "viewer"):
+                raise DomainError("forbidden",403)
+            return profile["household_id"]
+
+    def _catalog(self, tx):
+        foods = {r["id"]:decode(r["data"]) for r in tx.all("SELECT * FROM foods")}
+        recipes = [decode(r["data"]) for r in tx.all("SELECT * FROM recipes")]
+        diets = [decode(r["data"]) for r in tx.all("SELECT * FROM diet_definitions")]
+        versions = [{**v,"rules":decode(v["rules"])} for v in tx.all("SELECT * FROM diet_versions")]
+        return foods,recipes,diets,versions
+
+    def catalog(self) -> dict:
+        with self.db.transaction() as tx:
+            foods,_,diets,versions = self._catalog(tx)
+            current = self.clock() if self.clock else date.today()
+            for diet in diets:
+                diet["selectable"] = any(v["diet_id"]==diet["id"] and v["status"]=="PUBLISHED" and
+                    v["effective_from"]<=current.isoformat() and (not v["effective_until"] or current.isoformat()<v["effective_until"])
+                    for v in versions)
+                if diet["medical"] and not (diet.get("review_date") and diet.get("evidence_references")):
+                    diet["selectable"] = False
+            return {"foods":list(foods.values()),"diets":diets,"allergens":ALLERGENS,
+                    "intolerances":["lactose"],"health_consent_version":HEALTH_CONSENT,"is_demo":True}
+
+    def get_profile(self, user_id: str):
+        with self.db.transaction() as tx:
+            row = tx.one("SELECT * FROM profiles WHERE user_id=?",(user_id,))
+            if not row:
+                return {"onboarded":False}
+            row["settings"] = decode(row["settings"])
+            row["household_size"] = tx.one("SELECT size FROM households WHERE id=?",(row["household_id"],))["size"]
+            return {"onboarded":True,**row}
+
+    def _once(self, tx, user_id, key, name, body, action):
+        key = valid_uuid(key)
+        if tx.postgres:
+            tx.execute("SELECT pg_advisory_xact_lock(hashtextextended(?,0))",(user_id+":"+key,))
+        fingerprint = hashlib.sha256(encode({"action":name,"body":body}).encode()).hexdigest()
+        existing = tx.one("SELECT * FROM operations WHERE user_id=? AND operation_key=?",(user_id,key))
+        if existing:
+            if existing["request_hash"] != fingerprint:
+                raise DomainError("idempotency_conflict",409)
+            return decode(existing["response"])
+        result = action()
+        tx.execute("INSERT INTO operations VALUES (?,?,?,?,?)",(user_id,key,fingerprint,encode(result),now()))
+        return result
+
+    def save_profile(self, user_id: str, data: dict, key: str):
+        name = data.get("name","")
+        if not isinstance(name,str) or not 1 <= len(name.strip()) <= 80 or data.get("adult_confirmed") is not True:
+            raise DomainError("invalid_profile",422)
+        size = data.get("household_size",1)
+        if type(size) is not int or not 1 <= size <= 20:
+            raise DomainError("invalid_household_size",422)
+        timezone = data.get("timezone","Europe/Rome")
+        try:
+            ZoneInfo(timezone)
+        except (ZoneInfoNotFoundError,TypeError,ValueError):
+            raise DomainError("invalid_timezone",422) from None
+        allergies, intolerances = data.get("allergies",[]),data.get("intolerances",[])
+        if not isinstance(allergies,list) or any(not isinstance(v,str) or v not in ALLERGENS for v in allergies):
+            raise DomainError("invalid_allergen",422)
+        if not isinstance(intolerances,list) or any(v!="lactose" for v in intolerances):
+            raise DomainError("invalid_intolerance",422)
+        if (allergies or intolerances) and data.get("health_consent_version") != HEALTH_CONSENT:
+            raise DomainError("health_consent_required",422)
+        assignments = data.get("diets",[])
+        if not isinstance(assignments,list) or len(assignments)>8:
+            raise DomainError("invalid_diet",422)
+        for assignment in assignments:
+            if not isinstance(assignment,dict) or assignment.get("strictness") not in {"flexible","standard","strict"}:
+                raise DomainError("invalid_diet",422)
+            valid_uuid(assignment.get("diet_id"))
+        if len({a["diet_id"] for a in assignments}) != len(assignments):
+            raise DomainError("duplicate_diet",422)
+        with self.db.transaction() as tx:
+            def save():
+                foods,_,diets,versions = self._catalog(tx)
+                active_rules(assignments,versions,self.today({"timezone":timezone}))
+                chosen = {a["diet_id"] for a in assignments}
+                medical = [d for d in diets if d["id"] in chosen and d["medical"]]
+                if medical:
+                    if any(not d.get("review_date") or not d.get("evidence_references") for d in medical):
+                        raise DomainError("medical_profiles_not_released",409)
+                    if data.get("medical_consent_version") != MEDICAL_CONSENT:
+                        raise DomainError("medical_consent_required",422)
+                never = data.get("never_suggest",[])
+                if not isinstance(never,list) or any(f not in foods for f in never):
+                    raise DomainError("invalid_food",422)
+                settings = {"diets":assignments,"allergies":sorted(set(allergies)),"intolerances":sorted(set(intolerances)),
+                            "never_suggest":never,"timezone":timezone,"adult_confirmed":True}
+                existing = tx.one("SELECT * FROM profiles WHERE user_id=?",(user_id,))
+                stamp = now()
+                if existing:
+                    if data.get("expected_version") != existing["version"]:
+                        raise DomainError("stale_profile",409)
+                    household_id = existing["household_id"]
+                    changed = tx.execute("UPDATE profiles SET name=?,settings=?,version=version+1 WHERE user_id=? AND version=?",
+                               (name.strip(),encode(settings),user_id,existing["version"]))
+                    if changed.rowcount != 1:
+                        raise DomainError("stale_profile",409)
+                    tx.execute("UPDATE households SET size=? WHERE id=? AND owner_id=?",(size,household_id,user_id))
+                    version = existing["version"]+1
+                else:
+                    household_id = new_id()
+                    tx.execute("INSERT INTO households VALUES (?,?,?,?)",(household_id,user_id,size,stamp))
+                    tx.execute("INSERT INTO profiles VALUES (?,?,?,?,?,?)",(user_id,name.strip(),household_id,encode(settings),1,stamp))
+                    tx.execute("INSERT INTO household_members VALUES (?,?,?)",(household_id,user_id,"owner"))
+                    version = 1
+                # Withdrawal is explicit: removing all health fields withdraws the previous consent.
+                tx.execute("UPDATE consents SET withdrawn_at=? WHERE user_id=? AND withdrawn_at IS NULL",(stamp,user_id))
+                if allergies or intolerances:
+                    tx.execute("INSERT INTO consents VALUES (?,?,?,?,?,?)",(new_id(),user_id,"health_profile",HEALTH_CONSENT,stamp,None))
+                if medical:
+                    tx.execute("INSERT INTO consents VALUES (?,?,?,?,?,?)",(new_id(),user_id,"medical_nutrition",MEDICAL_CONSENT,stamp,None))
+                return {"user_id":user_id,"household_id":household_id,"version":version,"onboarded":True}
+            return self._once(tx,user_id,key,"profile",data,save)
+
+    def _inventory(self, tx, household_id):
+        return tx.all("SELECT * FROM inventory_batches WHERE household_id=? AND quantity_milli>0 ORDER BY CASE WHEN expiry_date IS NULL THEN 1 ELSE 0 END,expiry_date,created_at,id",(household_id,))
+
+    def inventory(self,user_id):
+        household_id = self._household(user_id)
+        with self.db.transaction() as tx:
+            foods,_,_,_ = self._catalog(tx)
+            settings = self._profile(tx,user_id)["settings"]
+            return {"items":[{**b,"quantity":quantity(b["quantity_milli"]),"food":foods[b["food_id"]],
+                              "usable":batch_usable(b,self.today(settings))} for b in self._inventory(tx,household_id)]}
+
+    def _event(self,tx,user_id,household_id,batch_id,kind,delta,metadata=None):
+        tx.execute("INSERT INTO inventory_events VALUES (?,?,?,?,?,?,?,?)",
+                   (new_id(),household_id,batch_id,user_id,kind,delta,now(),encode(metadata or {})))
+
+    def add_inventory(self,user_id,data,key):
+        household_id = self._household(user_id,write=True)
+        amount = amount_milli(data.get("quantity"))
+        location = data.get("location","fridge")
+        expiry = valid_date(data.get("expiry_date"))
+        kind = data.get("expiry_kind","unknown")
+        if location not in {"fridge","freezer","pantry"} or kind not in {"unknown","use_by","best_before","estimated"}:
+            raise DomainError("invalid_inventory",422)
+        if bool(expiry) != (kind != "unknown"):
+            raise DomainError("expiry_type_required",422)
+        with self.db.transaction(household_id) as tx:
+            def add():
+                food = tx.one("SELECT data FROM foods WHERE id=?",(data.get("food_id"),))
+                if not food:
+                    raise DomainError("food_not_found",404)
+                if decode(food["data"])["unit"]=="pcs" and amount%1000:
+                    raise DomainError("whole_units_required",422)
+                batch_id, stamp = new_id(),now()
+                tx.execute("INSERT INTO inventory_batches VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                           (batch_id,household_id,data["food_id"],amount,location,expiry,kind,None,"manual",1,stamp,stamp))
+                self._event(tx,user_id,household_id,batch_id,"created",amount)
+                return {"id":batch_id,"version":1,"quantity":quantity(amount)}
+            return self._once(tx,user_id,key,"add_inventory",data,add)
+
+    def change_inventory(self,user_id,batch_id,data,key):
+        household_id = self._household(user_id,write=True)
+        with self.db.transaction(household_id) as tx:
+            def change():
+                batch = tx.one("SELECT * FROM inventory_batches WHERE id=? AND household_id=?",(batch_id,household_id))
+                if not batch:
+                    raise DomainError("item_not_found",404)
+                if data.get("expected_version") != batch["version"]:
+                    raise DomainError("stale_inventory",409)
+                action = data.get("action")
+                amount, location, opened = batch["quantity_milli"],batch["location"],batch["opened_at"]
+                if action in {"consumed","discarded"}:
+                    amount -= amount_milli(data.get("quantity",quantity(amount)))
+                    if amount < 0:
+                        raise DomainError("insufficient_inventory",409)
+                elif action == "corrected":
+                    amount = amount_milli(data.get("quantity"),zero=True)
+                elif action == "moved":
+                    location = data.get("location")
+                    if location not in {"fridge","freezer","pantry"}:
+                        raise DomainError("invalid_location",422)
+                elif action == "opened":
+                    opened = now()
+                else:
+                    raise DomainError("invalid_action",422)
+                tx.execute("UPDATE inventory_batches SET quantity_milli=?,location=?,opened_at=?,version=version+1,updated_at=? WHERE id=?",
+                           (amount,location,opened,now(),batch_id))
+                self._event(tx,user_id,household_id,batch_id,action,amount-batch["quantity_milli"])
+                return {"id":batch_id,"version":batch["version"]+1,"quantity":quantity(amount)}
+            return self._once(tx,user_id,key,"change_inventory:"+batch_id,data,change)
+
+    def _context(self,tx,user_id):
+        profile = self._profile(tx,user_id)
+        foods,recipes,_,versions = self._catalog(tx)
+        today = self.today(profile["settings"])
+        rules,rule_versions = active_rules(profile["settings"]["diets"],versions,today)
+        return profile,foods,recipes,rules,rule_versions,today
+
+    def recommendations(self,user_id,mode="for_you",food_id=None):
+        household_id = self._household(user_id)
+        with self.db.transaction() as tx:
+            profile,foods,recipes,rules,versions,today = self._context(tx,user_id)
+            size = tx.one("SELECT size FROM households WHERE id=?",(household_id,))["size"]
+            inventory = self._inventory(tx,household_id)
+            if food_id:
+                recipes = [r for r in recipes if food_id in {i["food_id"] for i in r["ingredients"]}]
+            ranked,rejected = rank(recipes,foods,inventory,profile["settings"],rules,today,mode,size,self.weights)
+            trace_id = new_id()
+            snapshot = [{"id":b["id"],"version":b["version"],"quantity_milli":b["quantity_milli"],
+                         "expiry_date":b["expiry_date"],"expiry_kind":b["expiry_kind"]} for b in inventory]
+            trace = {"mode":mode,"diet_rules_version":versions,"profile_version":profile["version"],
+                     "inventory_snapshot":snapshot,"ranked":ranked,"rejected":rejected,"servings":size}
+            tx.execute("INSERT INTO recommendation_traces VALUES (?,?,?,?,?)",(trace_id,user_id,household_id,encode(trace),now()))
+            return {"trace_id":trace_id,"items":ranked[:4],"servings":size,"diet_rules_version":versions,"is_demo":True}
+
+    def recipe(self,user_id,recipe_id):
+        self._household(user_id)
+        with self.db.transaction() as tx:
+            profile,foods,recipes,rules,versions,_ = self._context(tx,user_id)
+            recipe = next((r for r in recipes if r["id"]==recipe_id),None)
+            if not recipe:
+                raise DomainError("recipe_not_found",404)
+            validation = compatibility([i["food_id"] for i in recipe["ingredients"]],foods,profile["settings"],rules)
+            return {**recipe,"compatibility":validation,"diet_rules_version":versions}
+
+    def food_compatibility(self,user_id,food_id):
+        self._household(user_id)
+        with self.db.transaction() as tx:
+            profile,foods,_,rules,versions,_ = self._context(tx,user_id)
+            if food_id not in foods:
+                raise DomainError("food_not_found",404)
+            return {"food":foods[food_id],"assessment":compatibility([food_id],foods,profile["settings"],rules),
+                    "diet_rules_version":versions,"nutrition":None,"evidence":[]}
+
+    def _preview(self,tx,user_id,data):
+        profile,foods,recipes,rules,versions,today = self._context(tx,user_id)
+        recipe = next((r for r in recipes if r["id"]==data.get("recipe_id")),None)
+        if not recipe:
+            raise DomainError("recipe_not_found",404)
+        validation = compatibility([i["food_id"] for i in recipe["ingredients"]],foods,profile["settings"],rules)
+        if validation["reasons"]:
+            raise DomainError("recipe_not_compatible",409,validation)
+        needed = requirements(recipe,data.get("servings",recipe["servings"]))
+        custom = data.get("consumption",{})
+        if not isinstance(custom,dict) or any(f not in needed for f in custom):
+            raise DomainError("invalid_consumption",422)
+        for f,value in custom.items():
+            needed[f] = amount_milli(value,zero=True)
+        inventory = self._inventory(tx,profile["household_id"])
+        allocations, shortages, ingredients = [],[],[]
+        for f,total in needed.items():
+            remaining = total
+            for batch in inventory:
+                if batch["food_id"]!=f or not batch_usable(batch,today):
+                    continue
+                used = min(remaining,batch["quantity_milli"])
+                if used:
+                    allocations.append({"batch_id":batch["id"],"version":batch["version"],"food_id":f,"quantity_milli":used,"quantity":quantity(used)})
+                    remaining -= used
+            if remaining:
+                shortages.append({"food_id":f,"quantity":quantity(remaining)})
+            ingredients.append({"food_id":f,"food":foods[f],"quantity":quantity(total),"available":quantity(total-remaining)})
+        return {"recipe_id":recipe["id"],"servings":data.get("servings",recipe["servings"]),"ingredients":ingredients,
+                "allocations":allocations,"shortages":shortages,"profile_version":profile["version"],"diet_rules_version":versions}
+
+    def cooking_preview(self,user_id,data):
+        household_id = self._household(user_id)
+        with self.db.transaction(household_id) as tx:
+            return self._preview(tx,user_id,data)
+
+    def cooking_confirm(self,user_id,data,key):
+        household_id = self._household(user_id,write=True)
+        with self.db.transaction(household_id) as tx:
+            def confirm():
+                plan = self._preview(tx,user_id,data)
+                if data.get("profile_version") != plan["profile_version"] or data.get("diet_rules_version") != plan["diet_rules_version"]:
+                    raise DomainError("stale_profile",409)
+                versions = {a["batch_id"]:a["version"] for a in plan["allocations"]}
+                if data.get("batch_versions") != versions:
+                    raise DomainError("stale_inventory",409)
+                if plan["shortages"]:
+                    raise DomainError("insufficient_inventory",409,{"shortages":plan["shortages"]})
+                left = data.get("leftover_servings",0)
+                if type(left) is not int or not 0 <= left <= plan["servings"]:
+                    raise DomainError("invalid_leftovers",422)
+                use_date = valid_date(data.get("leftover_use_date"))
+                cooking_id = new_id()
+                for item in plan["allocations"]:
+                    changed = tx.execute("UPDATE inventory_batches SET quantity_milli=quantity_milli-?,version=version+1,updated_at=? WHERE id=? AND household_id=? AND version=? AND quantity_milli>=?",
+                        (item["quantity_milli"],now(),item["batch_id"],household_id,item["version"],item["quantity_milli"]))
+                    if changed.rowcount != 1:
+                        raise DomainError("stale_inventory",409)
+                    self._event(tx,user_id,household_id,item["batch_id"],"cooked",-item["quantity_milli"],{"cooking_id":cooking_id})
+                record = {**plan,"consumption_overrides":data.get("consumption",{}),"leftover_servings":left}
+                tx.execute("INSERT INTO cooking_sessions VALUES (?,?,?,?,?,?)",(cooking_id,user_id,household_id,plan["recipe_id"],encode(record),now()))
+                if left:
+                    tx.execute("INSERT INTO leftovers VALUES (?,?,?,?,?,?,?,?)",(new_id(),household_id,cooking_id,left,now(),"fridge",use_date,"manual"))
+                return {"id":cooking_id,"consumed":plan["allocations"],"leftover_servings":left}
+            return self._once(tx,user_id,key,"cooking_confirm",data,confirm)
+
+    def leftovers(self,user_id):
+        household_id = self._household(user_id)
+        with self.db.transaction() as tx:
+            rows = tx.all("SELECT l.*,r.data AS recipe_data FROM leftovers l JOIN cooking_sessions c ON c.id=l.cooking_id JOIN recipes r ON r.id=c.recipe_id WHERE l.household_id=? ORDER BY l.prepared_at DESC",(household_id,))
+            return {"items":[{**{k:v for k,v in row.items() if k!="recipe_data"},"recipe_title":decode(row["recipe_data"])["title"]} for row in rows]}
+
+    def export(self,user_id):
+        household_id = self._household(user_id)
+        with self.db.transaction() as tx:
+            return {"format_version":1,"exported_at":now(),"profile":self._profile(tx,user_id),
+                    "inventory":self._inventory(tx,household_id),
+                    "inventory_events":tx.all("SELECT * FROM inventory_events WHERE household_id=?",(household_id,)),
+                    "cooking_sessions":tx.all("SELECT * FROM cooking_sessions WHERE user_id=?",(user_id,)),
+                    "consents":tx.all("SELECT * FROM consents WHERE user_id=?",(user_id,)),
+                    "leftovers":tx.all("SELECT * FROM leftovers WHERE household_id=?",(household_id,))}
+
+    def delete_local_account(self,user_id):
+        import os
+        if self.db.postgres or os.getenv("EATME_ENV","development")!="development":
+            raise DomainError("account_deletion_not_configured",503)
+        household_id = self._household(user_id,write=True)
+        with self.db.transaction(household_id) as tx:
+            members = tx.all("SELECT user_id FROM household_members WHERE household_id=?",(household_id,))
+            if len(members)!=1:
+                raise DomainError("ownership_transfer_required",409)
+            tx.execute("DELETE FROM households WHERE id=?",(household_id,))
+            tx.execute("DELETE FROM profiles WHERE user_id=?",(user_id,))
+            tx.execute("DELETE FROM dev_accounts WHERE user_id=?",(user_id,))
+            return {"deleted":True}
