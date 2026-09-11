@@ -20,101 +20,211 @@ import 'features/cooking/cooking.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if(!EatMeApi.development) {
-    await Supabase.initialize(url:const String.fromEnvironment('SUPABASE_URL'),anonKey:const String.fromEnvironment('SUPABASE_ANON_KEY'),
-      authOptions:const FlutterAuthClientOptions(localStorage:SecureAuthStorage()));
+  if (!EatMeApi.development) {
+    await Supabase.initialize(
+      url: const String.fromEnvironment('SUPABASE_URL'),
+      anonKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
+      authOptions: const FlutterAuthClientOptions(
+        localStorage: SecureAuthStorage(),
+      ),
+    );
   }
-  runApp(const ProviderScope(child:EatMeApp()));
+  runApp(const ProviderScope(child: EatMeApp()));
 }
 
-final routerProvider=Provider<GoRouter>((ref){
-  final refresh=ValueNotifier(0);
-  ref.listen(appProvider,(previous,next){if(previous?.stage!=next.stage) refresh.value++;});
-  final router=GoRouter(initialLocation:'/launch',refreshListenable:refresh,redirect:(context,state){
-    final stage=ref.read(appProvider).stage,path=state.uri.path;
-    if(stage==Stage.loading||stage==Stage.failed) return path=='/launch'?null:'/launch';
-    if(stage==Stage.login) return path=='/login'?null:'/login';
-    if(stage==Stage.onboarding) return path=='/onboarding'?null:'/onboarding';
-    if(['/launch','/login','/onboarding','/login-callback'].contains(path)) return '/chef';
-    return null;
-  },routes:[
-    GoRoute(path:'/launch',builder:(_,_)=>const LaunchPage()),
-    GoRoute(path:'/login',builder:(_,_)=>const LoginPage()),
-    GoRoute(path:'/login-callback',builder:(_,_)=>const LaunchPage()),
-    GoRoute(path:'/onboarding',builder:(_,_)=>const OnboardingPage()),
-    ShellRoute(builder:(context,state,child)=>AppShell(path:state.uri.path,child:child),routes:[
-      GoRoute(path:'/chef',builder:(_,_)=>const ChefTablePage()),
-      GoRoute(path:'/fridge',builder:(_,_)=>const FridgePage()),
-      GoRoute(path:'/healthy-food',builder:(_,_)=>const HealthyFoodPage()),
-      GoRoute(path:'/profile',builder:(_,_)=>const ProfilePage()),
-    ]),
-    GoRoute(path:'/profile/edit',builder:(_,_)=>const OnboardingPage(edit:true)),
-    GoRoute(path:'/privacy',builder:(_,_)=>const PrivacyPage()),
-    GoRoute(path:'/reset-password',builder:(_,_)=>const ResetPasswordPage()),
-    GoRoute(path:'/recipes/:id',builder:(_,state)=>RecipePage(recipeId:state.pathParameters['id']!)),
-    GoRoute(path:'/cook/:id',builder:(_,state)=>CookingPage(recipeId:state.pathParameters['id']!,servings:(int.tryParse(state.uri.queryParameters['servings']??'1')??1).clamp(1,20).toInt())),
-  ]);
-  ref.onDispose((){router.dispose();refresh.dispose();});
+final routerProvider = Provider<GoRouter>((ref) {
+  final refresh = ValueNotifier(0);
+  ref.listen(appProvider, (previous, next) {
+    if (previous?.stage != next.stage) refresh.value++;
+  });
+  final router = GoRouter(
+    initialLocation: '/launch',
+    refreshListenable: refresh,
+    redirect: (context, state) {
+      final stage = ref.read(appProvider).stage, path = state.uri.path;
+      if (stage == Stage.loading || stage == Stage.failed)
+        return path == '/launch' ? null : '/launch';
+      if (stage == Stage.login) return path == '/login' ? null : '/login';
+      if (stage == Stage.onboarding)
+        return path == '/onboarding' ? null : '/onboarding';
+      if ([
+        '/launch',
+        '/login',
+        '/onboarding',
+        '/login-callback',
+      ].contains(path))
+        return '/chef';
+      return null;
+    },
+    routes: [
+      GoRoute(path: '/launch', builder: (_, _) => const LaunchPage()),
+      GoRoute(path: '/login', builder: (_, _) => const LoginPage()),
+      GoRoute(path: '/login-callback', builder: (_, _) => const LaunchPage()),
+      GoRoute(path: '/onboarding', builder: (_, _) => const OnboardingPage()),
+      ShellRoute(
+        builder: (context, state, child) =>
+            AppShell(path: state.uri.path, child: child),
+        routes: [
+          GoRoute(path: '/chef', builder: (_, _) => const ChefTablePage()),
+          GoRoute(path: '/fridge', builder: (_, _) => const FridgePage()),
+          GoRoute(
+            path: '/healthy-food',
+            builder: (_, _) => const HealthyFoodPage(),
+          ),
+          GoRoute(path: '/profile', builder: (_, _) => const ProfilePage()),
+        ],
+      ),
+      GoRoute(
+        path: '/profile/edit',
+        builder: (_, _) => const OnboardingPage(edit: true),
+      ),
+      GoRoute(path: '/privacy', builder: (_, _) => const PrivacyPage()),
+      GoRoute(
+        path: '/reset-password',
+        builder: (_, _) => const ResetPasswordPage(),
+      ),
+      GoRoute(
+        path: '/recipes/:id',
+        builder: (_, state) =>
+            RecipePage(recipeId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/cook/:id',
+        builder: (_, state) => CookingPage(
+          recipeId: state.pathParameters['id']!,
+          servings:
+              (int.tryParse(state.uri.queryParameters['servings'] ?? '1') ?? 1)
+                  .clamp(1, 20)
+                  .toInt(),
+        ),
+      ),
+    ],
+  );
+  ref.onDispose(() {
+    router.dispose();
+    refresh.dispose();
+  });
   return router;
 });
 
 class EatMeApp extends ConsumerStatefulWidget {
   const EatMeApp({super.key});
   @override
-  ConsumerState<EatMeApp> createState()=>_EatMeAppState();
+  ConsumerState<EatMeApp> createState() => _EatMeAppState();
 }
+
 class _EatMeAppState extends ConsumerState<EatMeApp> {
   StreamSubscription<AuthState>? subscription;
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    Future.microtask(()=>ref.read(appProvider.notifier).restore());
-    if(!EatMeApi.development) subscription=Supabase.instance.client.auth.onAuthStateChange.listen((event) async {
-      if(!mounted) return;
-      if(event.event==AuthChangeEvent.signedIn||event.event==AuthChangeEvent.signedOut) {await ref.read(appProvider.notifier).restore();}
-      if(event.event==AuthChangeEvent.passwordRecovery) {
-        await ref.read(appProvider.notifier).restore();
-        if(mounted) ref.read(routerProvider).push('/reset-password');
-      }
-    });
+    Future.microtask(() => ref.read(appProvider.notifier).restore());
+    if (!EatMeApi.development)
+      subscription = Supabase.instance.client.auth.onAuthStateChange.listen((
+        event,
+      ) async {
+        if (!mounted) return;
+        if (event.event == AuthChangeEvent.signedIn ||
+            event.event == AuthChangeEvent.signedOut) {
+          await ref.read(appProvider.notifier).restore();
+        }
+        if (event.event == AuthChangeEvent.passwordRecovery) {
+          await ref.read(appProvider.notifier).restore();
+          if (mounted) ref.read(routerProvider).push('/reset-password');
+        }
+      });
   }
+
   @override
-  void dispose(){subscription?.cancel();super.dispose();}
+  void dispose() {
+    subscription?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final state=ref.watch(appProvider);
-    return MaterialApp.router(title:'EatMe',debugShowCheckedModeBanner:false,
-      theme:Tokens.theme(Brightness.light),darkTheme:Tokens.theme(Brightness.dark),themeMode:state.theme,
-      locale:state.locale,supportedLocales:const [Locale('it'),Locale('en')],
-      localizationsDelegates:const [EatMeStrings.delegate,GlobalMaterialLocalizations.delegate,GlobalWidgetsLocalizations.delegate,GlobalCupertinoLocalizations.delegate],
-      routerConfig:ref.watch(routerProvider));
+    final state = ref.watch(appProvider);
+    return MaterialApp.router(
+      title: 'EatMe',
+      debugShowCheckedModeBanner: false,
+      theme: Tokens.theme(Brightness.light),
+      darkTheme: Tokens.theme(Brightness.dark),
+      themeMode: state.theme,
+      locale: state.locale,
+      supportedLocales: const [Locale('it'), Locale('en')],
+      localizationsDelegates: const [
+        EatMeStrings.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      routerConfig: ref.watch(routerProvider),
+    );
   }
 }
 
 class LaunchPage extends ConsumerWidget {
   const LaunchPage({super.key});
   @override
-  Widget build(BuildContext context,WidgetRef ref) {
-    final state=ref.watch(appProvider);
-    return Scaffold(body:state.stage==Stage.failed?PageBody(children:[
-      const SizedBox(height:64),StatusNote(text:context.t(state.error??'unknown_error'),warning:true),
-      AsyncAction(label:context.t('retry'),action:()=>ref.read(appProvider.notifier).restore()),
-      AsyncAction(label:context.t('return_login'),secondary:true,action:() async {await ref.read(apiProvider).clearSession();await ref.read(appProvider.notifier).restore();}),
-    ]):const Center(child:CircularProgressIndicator()));
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(appProvider);
+    return Scaffold(
+      body: state.stage == Stage.failed
+          ? PageBody(
+              children: [
+                const SizedBox(height: 64),
+                StatusNote(
+                  text: context.t(state.error ?? 'unknown_error'),
+                  warning: true,
+                ),
+                AsyncAction(
+                  label: context.t('retry'),
+                  action: () => ref.read(appProvider.notifier).restore(),
+                ),
+                AsyncAction(
+                  label: context.t('return_login'),
+                  secondary: true,
+                  action: () async {
+                    await ref.read(apiProvider).clearSession();
+                    await ref.read(appProvider.notifier).restore();
+                  },
+                ),
+              ],
+            )
+          : const Center(child: CircularProgressIndicator()),
+    );
   }
 }
 
 class AppShell extends StatelessWidget {
-  const AppShell({super.key,required this.path,required this.child});
+  const AppShell({super.key, required this.path, required this.child});
   final String path;
   final Widget child;
-  static const paths=['/chef','/fridge','/healthy-food','/profile'];
+  static const paths = ['/chef', '/fridge', '/healthy-food', '/profile'];
   @override
-  Widget build(BuildContext context)=>Scaffold(body:child,bottomNavigationBar:NavigationBar(selectedIndex:paths.indexOf(path).clamp(0,3).toInt(),
-    onDestinationSelected:(index)=>context.go(paths[index]),destinations:[
-      NavigationDestination(icon:const Icon(Icons.restaurant_menu_outlined),label:context.t('chef_table')),
-      NavigationDestination(icon:const Icon(Icons.kitchen_outlined),label:context.t('fridge')),
-      NavigationDestination(icon:const Icon(Icons.eco_outlined),label:context.t('healthy_food')),
-      NavigationDestination(icon:const Icon(Icons.person_outline),label:context.t('profile')),
-    ]));
+  Widget build(BuildContext context) => Scaffold(
+    body: child,
+    bottomNavigationBar: NavigationBar(
+      selectedIndex: paths.indexOf(path).clamp(0, 3).toInt(),
+      onDestinationSelected: (index) => context.go(paths[index]),
+      destinations: [
+        NavigationDestination(
+          icon: const Icon(Icons.restaurant_menu_outlined),
+          label: context.t('chef_table'),
+        ),
+        NavigationDestination(
+          icon: const Icon(Icons.kitchen_outlined),
+          label: context.t('fridge'),
+        ),
+        NavigationDestination(
+          icon: const Icon(Icons.eco_outlined),
+          label: context.t('healthy_food'),
+        ),
+        NavigationDestination(
+          icon: const Icon(Icons.person_outline),
+          label: context.t('profile'),
+        ),
+      ],
+    ),
+  );
 }
