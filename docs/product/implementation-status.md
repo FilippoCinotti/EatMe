@@ -7,7 +7,7 @@ Branch di sviluppo: `feat/eatme-foundation`.
 
 ## Done
 
-Verificato con Python 3.12 e storage SQLite locale:
+Verificato localmente e in GitHub Actions:
 
 - Identità UUID, registrazione/login di sviluppo con hash scrypt, sessioni revocabili.
 - Profilo adulto, dimensione del nucleo, fuso orario, diete multiple e livelli di rigidità.
@@ -25,6 +25,12 @@ Verificato con Python 3.12 e storage SQLite locale:
   protezione da retry e versioni obsolete; avanzi salvati senza scadenze inventate.
 - Separazione degli account, esportazione dati e cancellazione locale del singolo nucleo.
 - Flusso HTTP completo verificato senza servizi esterni.
+- Wrapper FastAPI: due test aggiuntivi eseguiti in GitHub Actions, 36 test backend totali superati.
+- PostgreSQL 17/RLS: migrazioni e test SQL eseguiti in GitHub Actions.
+- Console Next.js: typecheck, build e audit eseguiti in GitHub Actions.
+- Lint Python, audit dipendenze e build Docker superati nel workflow remoto.
+- Flutter: formattazione, analisi e tre test widget superati su Linux e macOS.
+- Build Android debug e iOS simulatore debug superate in GitHub Actions.
 
 ## In progress
 
@@ -34,17 +40,17 @@ Sorgenti scritti, ma verifiche di ambiente ancora necessarie:
   inserimento manuale, ricette, modalità cucina e privacy.
 - Cache cifrata dell’inventario: consultazione durante interruzioni nella sessione
   corrente; le modifiche offline e il pieno avvio offline non sono implementati.
-- Wrapper FastAPI/Pydantic, contratto OpenAPI e verifiche dedicate.
+- Contratto OpenAPI da completare con modelli di risposta dedicati.
 - Supabase email/OAuth/recupero password e storage sicuro delle sessioni.
-- Migrazioni PostgreSQL, RLS e ruolo backend a privilegi separati.
-- Console amministrativa Next.js di sola consultazione e allowlist UUID lato API.
-- Workflow CI, CodeQL, scansione dipendenze e test widget.
-- Runner nativi generabili: SDK assente, quindi non generati né compilati qui.
+- Collaudo live di migrazioni PostgreSQL, RLS e ruolo backend a privilegi separati su Supabase.
+- Console amministrativa di sola consultazione: editing e revisione da implementare.
+- Collaudo end-to-end su emulatori/dispositivi e configurazione Code scanning per CodeQL.
+- Runner nativi generati e compilati in CI; ancora da versionare insieme ai lockfile.
 
 ## Next
 
 1. Installare SDK/dipendenze; formattare, risolvere versioni e commit dei lockfile.
-2. Eseguire Flutter analyze/test e build Android/iOS, FastAPI TestClient e PostgreSQL RLS.
+2. Attivare Code scanning su GitHub e completare le configurazioni di rilascio.
 3. Verificare il flusso mobile su emulatori e dispositivi, inclusi testo grande e screen reader.
 4. Configurare e collaudare Supabase e callback OAuth; completare la cancellazione live.
 5. Introdurre dati reali con licenze/provenienza, revisione scientifica e admin con ruoli e audit.
@@ -52,14 +58,15 @@ Sorgenti scritti, ma verifiche di ambiente ancora necessarie:
 
 ## Blocked
 
-- Download dipendenze bloccato dall’ambiente; Flutter/Dart, PostgreSQL/Docker assenti.
+- Ambiente locale privo di Flutter/Dart e PostgreSQL/Docker; le verifiche che li richiedono avvengono in CI.
+- CodeQL: GitHub segnala che Code scanning non è attivato nel repository.
 - Credenziali OAuth/Supabase, firma iOS/Android e servizi AI non fornite.
 - Regole mediche e scientifiche reali non curate: nessuna regola clinica di produzione pubblicata.
 
 ## Known technical debt
 
 - Dipendenze espresse come intervalli: lockfile ancora da generare e verificare.
-- Formattazione SDK e analisi Dart non eseguite; la CI può evidenziare correzioni necessarie.
+- Formattazione SDK eseguita; verifiche mobile aggiornate nel rapporto delle verifiche.
 - Schema minimo con JSON per configurazioni e catalogo; normalizzazione del knowledge base
   completo, governance di pubblicazione, operatori nutrizionali e risoluzione dei conflitti da estendere.
 - Gli operatori di regola non implementati bloccano la compatibilità, senza ignorarli.

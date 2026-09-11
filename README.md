@@ -7,10 +7,14 @@ Contiene il primo flusso applicativo, il progetto Flutter, il backend FastAPI,
 le migrazioni PostgreSQL/Supabase e una console amministrativa di consultazione.
 
 **È un primo milestone di sviluppo, non una release pronta per gli store.**
-Il motore Python e il percorso HTTP locale sono stati eseguiti e testati.
-Flutter, FastAPI, PostgreSQL e Next.js richiedono ancora le rispettive verifiche
-di integrazione/build: SDK e dipendenze non erano disponibili nell’ambiente
-di creazione. Il repository di sviluppo è
+Il backend ha superato 36 test in CI, compresi quelli FastAPI. Sono passati
+anche i test PostgreSQL/RLS, typecheck e build Next.js, lint, scansione delle
+dipendenze Python e build Docker. Flutter supera formattazione, analisi e test
+widget su Linux/macOS; sono riuscite le build Android debug e iOS simulatore.
+CodeQL richiede l’attivazione di Code scanning nelle impostazioni GitHub.
+Gli esiti e i limiti delle verifiche sono descritti nel
+[rapporto delle verifiche](docs/product/verification.md).
+Il repository di sviluppo è
 [FilippoCinotti/EatMe](https://github.com/FilippoCinotti/EatMe).
 Nessuna versione dell’app è stata distribuita online o sugli store.
 
