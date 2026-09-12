@@ -2,9 +2,9 @@
 
 ## Application validation
 
-The foundation-only results are superseded by application checks. The latest published implementation is `48669f134397c8e0da51d55345b9a32904ab49af`.
+The foundation-only results are superseded by application checks. The latest tested implementation is `bf967a785a9df9bc2c6c3ae1d8bc0c06aae8c442`.
 
-[Application CI](https://github.com/FilippoCinotti/EatMe/actions/runs/34689449901) verifies the following:
+[Application CI](https://github.com/FilippoCinotti/EatMe/actions/runs/34703254730) verifies the following:
 
 | Check | Result at this checkpoint |
 | --- | --- |
@@ -16,7 +16,7 @@ The foundation-only results are superseded by application checks. The latest pub
 | Flutter analysis and 12 widget/workflow tests | Passed on Linux and macOS |
 | iOS simulator debug build | Passed; simulator archive uploaded |
 | Android debug build | Passed; APK uploaded |
-| Real API Android emulator flow | Blocked before emulator launch by exhausted runner disk space; the runner preparation now removes unused preinstalled SDKs before building |
+| Real API Android emulator flow | Emulator launch and app startup passed; the test reached shopping but raced the checkbox response before locating the purchase button. Bounded waits for rendered network results are now included for the next run |
 
 The light and dark shopping screens were inspected at 390 × 844 with 1.6× text scaling using real fonts. No overflow or clipped controls were observed. These are interface review images, not store marketing screenshots. Two additional tests verify that all four navigation destinations remain inside an unobstructed foldable display region at 1.6× text scaling. The exact formatter output for the new test file is included in the runner correction.
 

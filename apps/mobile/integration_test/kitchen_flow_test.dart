@@ -7,6 +7,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
+Future<void> waitFor(WidgetTester tester, Finder finder) async {
+  // Network completion does not always schedule an animation frame.
+  final deadline = DateTime.now().add(const Duration(seconds: 30));
+  while (finder.evaluate().isEmpty && DateTime.now().isBefore(deadline)) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  expect(finder, findsOneWidget);
+}
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   testWidgets('real API: purchase, plan, cook and export a meal', (
@@ -61,16 +70,20 @@ void main() {
     expect(find.byType(NavigationDestination), findsNWidgets(4));
     container.read(routerProvider).go('/shopping');
     await tester.pumpAndSettle();
+    await waitFor(tester, find.byType(Checkbox));
     await tester.tap(find.byType(Checkbox));
-    await tester.pumpAndSettle();
+    await waitFor(tester, find.text('Purchased · add to fridge'));
     await tester.ensureVisible(find.text('Purchased · add to fridge'));
     await tester.tap(find.text('Purchased · add to fridge'));
+    await waitFor(tester, find.text('Everything is in order'));
     await tester.pumpAndSettle();
     expect((await api.request('GET', '/shopping'))['items'], isEmpty);
     container.read(routerProvider).go('/planner');
     await tester.pumpAndSettle();
+    await waitFor(tester, find.text('Suggest seven dinners'));
     await tester.ensureVisible(find.text('Suggest seven dinners'));
     await tester.tap(find.text('Suggest seven dinners'));
+    await waitFor(tester, find.text('Add missing ingredients to shopping'));
     await tester.pumpAndSettle();
     final plans = await api.request('GET', '/plans');
     expect(plans['items'][0]['data']['meals'].length, 7);
@@ -92,8 +105,10 @@ void main() {
     await tester.ensureVisible(find.text('I’m done'));
     await tester.tap(find.text('I’m done'));
     await tester.pumpAndSettle();
+    await waitFor(tester, find.text('Confirm & update Fridge'));
     await tester.ensureVisible(find.text('Confirm & update Fridge'));
     await tester.tap(find.text('Confirm & update Fridge'));
+    await waitFor(tester, find.text('Fridge updated.'));
     await tester.pumpAndSettle();
     final Json exported = await api.request('GET', '/privacy/export');
     expect((exported['cooking_sessions'] as List).length, 1);
