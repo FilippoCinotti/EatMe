@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -162,6 +163,23 @@ Widget harness(
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() async {
+    final sdk = Platform.environment['FLUTTER_ROOT'];
+    if (sdk == null) return;
+    final fonts = Directory('$sdk/bin/cache/artifacts/material_fonts');
+    final text = FontLoader('Roboto');
+    for (final file in fonts.listSync().whereType<File>().where(
+      (file) => file.path.endsWith('.ttf') && file.path.contains('Roboto-'),
+    )) {
+      text.addFont(Future.value(ByteData.sublistView(file.readAsBytesSync())));
+    }
+    await text.load();
+    final icons = FontLoader('MaterialIcons');
+    icons.addFont(Future.value(ByteData.sublistView(
+      File('${fonts.path}/MaterialIcons-Regular.otf').readAsBytesSync(),
+    )));
+    await icons.load();
+  });
   setUp(() {
     FlutterSecureStorage.setMockInitialValues({});
   });
@@ -200,7 +218,11 @@ void main() {
   ) async {
     await tester.pumpWidget(harness(const RecipeEditorPage(), TestApi()));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(find.text('Save private recipe'), 300);
+    await tester.scrollUntilVisible(
+      find.text('Save private recipe'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     final button = tester.widget<FilledButton>(
       find.widgetWithText(FilledButton, 'Save private recipe'),
     );
