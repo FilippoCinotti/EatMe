@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'api.dart';
 import 'models.dart';
+import 'reminders.dart';
+import 'package:flutter/services.dart';
 
 enum Stage { loading, login, onboarding, ready, failed }
 
@@ -13,11 +15,13 @@ class AppState {
     this.diets = const [],
     this.allergens = const [],
     this.inventory = const [],
+    this.leftovers = const [],
     this.recommendations = const [],
     this.theme = ThemeMode.system,
     this.locale,
     this.error,
     this.offline = false,
+    this.isDemo = false,
     this.mode = 'for_you',
   });
   final Stage stage;
@@ -26,11 +30,12 @@ class AppState {
   final List<Diet> diets;
   final List<String> allergens;
   final List<Batch> inventory;
+  final List<Json> leftovers;
   final List<Recommendation> recommendations;
   final ThemeMode theme;
   final Locale? locale;
   final String? error;
-  final bool offline;
+  final bool offline, isDemo;
   final String mode;
   AppState copy({
     Stage? stage,
@@ -39,11 +44,13 @@ class AppState {
     List<Diet>? diets,
     List<String>? allergens,
     List<Batch>? inventory,
+    List<Json>? leftovers,
     List<Recommendation>? recommendations,
     ThemeMode? theme,
     Locale? locale,
     String? error,
     bool? offline,
+    bool? isDemo,
     String? mode,
   }) => AppState(
     stage: stage ?? this.stage,
@@ -52,11 +59,13 @@ class AppState {
     diets: diets ?? this.diets,
     allergens: allergens ?? this.allergens,
     inventory: inventory ?? this.inventory,
+    leftovers: leftovers ?? this.leftovers,
     recommendations: recommendations ?? this.recommendations,
     theme: theme ?? this.theme,
     locale: locale ?? this.locale,
     error: error,
     offline: offline ?? this.offline,
+    isDemo: isDemo ?? this.isDemo,
     mode: mode ?? this.mode,
   );
 }
@@ -87,6 +96,7 @@ class AppController extends Notifier<AppState> {
         state = state.copy(stage: Stage.login);
         return;
       }
+      await api.sync();
       await hydrate();
     } on ApiFailure catch (error) {
       if (error.code == 'unauthorized') {
@@ -110,10 +120,14 @@ class AppController extends Notifier<AppState> {
       api.request('GET', '/catalog'),
     ]);
     final profile = responses[0], catalog = responses[1];
-    final switchedUser = state.profile['user_id'] != profile['user_id'];
+    final switchedUser =
+        state.profile['user_id'] != profile['user_id'] ||
+        state.profile['household_id'] != profile['household_id'];
     state = state.copy(
       profile: profile,
+      isDemo: catalog['is_demo'] == true,
       inventory: switchedUser ? const [] : null,
+      leftovers: switchedUser ? const [] : null,
       recommendations: switchedUser ? const [] : null,
       foods: (catalog['foods'] as List)
           .map((f) => Food.fromJson(Map<String, dynamic>.from(f as Map)))
@@ -125,6 +139,7 @@ class AppController extends Notifier<AppState> {
       stage: profile['onboarded'] == true ? Stage.ready : Stage.onboarding,
     );
     if (state.stage == Stage.ready) await refresh();
+    state = state.copy(offline: api.offline);
   }
 
   Future<void> refresh({String? mode}) async {
@@ -136,8 +151,14 @@ class AppController extends Notifier<AppState> {
         inventory: (inventory['items'] as List)
             .map((b) => Batch.fromJson(Map<String, dynamic>.from(b as Map)))
             .toList(),
-        offline: false,
+        offline: api.offline,
         mode: chosenMode,
+      );
+      final meals = await api.request('GET', '/leftovers');
+      state = state.copy(
+        leftovers: (meals['items'] as List)
+            .map((v) => Map<String, dynamic>.from(v as Map))
+            .toList(),
       );
       final recommendations = await api.request(
         'GET',
@@ -151,8 +172,11 @@ class AppController extends Notifier<AppState> {
             )
             .toList(),
       );
+      state = state.copy(offline: api.offline);
+      if (!api.offline) await updateReminders();
     } on ApiFailure catch (error) {
-      if (error.code == 'unauthorized') {
+      if (error.code == 'unauthorized' ||
+          error.code == 'account_deletion_pending') {
         await api.clearSession();
         state = AppState(
           stage: Stage.login,
@@ -179,6 +203,40 @@ class AppController extends Notifier<AppState> {
       } else {
         state = state.copy(error: error.code, recommendations: const []);
       }
+    }
+  }
+
+  Future<void> updateReminders() async {
+    try {
+      final notification = await api.request(
+        'GET',
+        '/notifications',
+        allowCache: false,
+      );
+      final preferences = Map<String, dynamic>.from(
+        notification['preferences'] as Map? ?? {},
+      );
+      if (preferences['enabled'] != true) {
+        await Reminders.clear();
+        return;
+      }
+      final plans = await api.request('GET', '/plans', allowCache: false);
+      final settings = state.profile['settings'] as Map;
+      await Reminders.schedule(
+        preferences,
+        state.inventory,
+        (plans['items'] as List)
+            .map((v) => Map<String, dynamic>.from(v as Map))
+            .toList(),
+        settings['timezone'] as String,
+        state.locale?.languageCode ?? 'en',
+      );
+    } on ApiFailure {
+      // Existing device reminders remain available when the API cannot refresh them.
+    } on MissingPluginException {
+      // Headless tests have no native notification service.
+    } on PlatformException {
+      // A denied device capability must not prevent inventory access.
     }
   }
 

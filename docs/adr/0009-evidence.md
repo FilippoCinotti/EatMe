@@ -1,15 +1,11 @@
-# ADR 0009-evidence: Evidence e RAG come dominio separato
+# 0009: Approved evidence retrieval
 
-Stato: decisione della foundation; vedere implementation-status per la verifica.
+Status: accepted for the application implementation.
 
-## Decisione
+## Decision
 
-Non pubblicare spiegazioni scientifiche senza fonti revisionate.
+Retrieve only current published evidence and preserve citations and review metadata. A missing source is an unknown result, not permission to generate a scientific claim. Require independent review before publication.
 
-## Conseguenze
+## Consequences
 
-Questa foundation non esegue RAG né pubblica contenuti clinici reali. Fonti, claim, versioni, validità e workflow reviewer appartengono al milestone Scientific Evidence.
-
-## Alternative
-
-Nessuna fonte inventata per riempire una schermata dimostrativa.
+Validate this boundary through domain and platform tests. Revisit the decision when measured scale, reliability or product requirements justify a change; record a new decision rather than silently changing the architecture.

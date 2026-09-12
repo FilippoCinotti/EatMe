@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'batch_details.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/api.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
@@ -32,6 +35,12 @@ class _FridgePageState extends ConsumerState<FridgePage> {
         title: Text(context.t('my_fridge')),
         actions: [
           IconButton(
+            tooltip: context.t('scan_and_import'),
+            icon: const Icon(Icons.document_scanner_outlined),
+            onPressed: () => context.push('/scanning'),
+          ),
+
+          IconButton(
             tooltip: context.t('add_food'),
             onPressed: state.offline
                 ? null
@@ -61,7 +70,7 @@ class _FridgePageState extends ConsumerState<FridgePage> {
           const SizedBox(height: 16),
           if (location == 'fridge' && !state.offline)
             TextButton.icon(
-              onPressed: () => sheet(context, const LeftoversSheet()),
+              onPressed: () => context.push('/leftovers'),
               icon: const Icon(Icons.takeout_dining_outlined),
               label: Text(context.t('leftovers')),
             ),
@@ -366,7 +375,17 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         StatusNote(text: expiryLabel(context, batch), warning: !batch.usable),
-        if (!batch.usable)
+        if (batch.recalls.isNotEmpty) ...[
+          StatusNote(text: context.t('recalled_batch'), warning: true),
+          for (final recall in batch.recalls)
+            TextButton(
+              onPressed: () => launchUrl(
+                Uri.parse(recall['url'] as String),
+                mode: LaunchMode.externalApplication,
+              ),
+              child: Text(context.t('read_source')),
+            ),
+        ] else if (!batch.usable)
           StatusNote(text: context.t('use_by_passed'), warning: true),
         TextField(
           controller: amount,
@@ -386,6 +405,20 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
           tilePadding: EdgeInsets.zero,
           title: Text(context.t('manage_food')),
           children: [
+            AsyncAction(
+              label: context.t('edit_batch_details'),
+              secondary: true,
+              enabled: !offline,
+              action: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => BatchDetailsPage(batch: batch),
+                  ),
+                );
+                if (context.mounted) Navigator.pop(context);
+              },
+            ),
+            const SizedBox(height: 12),
             AsyncAction(
               label: context.t('correct_quantity'),
               secondary: true,

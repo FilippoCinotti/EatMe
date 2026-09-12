@@ -1,0 +1,45 @@
+# Supply .env.production from a secret manager. Terminate HTTPS at your gateway.
+services:
+  api:
+    image: ${EATME_IMAGE:?Set an immutable image digest}
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      EATME_ENV: production
+      AUTH_MODE: supabase
+      MEDIA_DIRECTORY: /data/media
+    ports: ["127.0.0.1:8000:8000"]
+    volumes: ["private-media:/data"]
+    read_only: true
+    tmpfs: ["/tmp"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health', timeout=5)"]
+      interval: 30s
+      timeout: 6s
+      retries: 3
+    stop_grace_period: 30s
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+  worker:
+    image: ${EATME_IMAGE:?Set an immutable image digest}
+    command: ["python", "-m", "eatme.worker"]
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      EATME_ENV: production
+      AUTH_MODE: supabase
+      MEDIA_DIRECTORY: /data/media
+    volumes: ["private-media:/data"]
+    read_only: true
+    tmpfs: ["/tmp"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    stop_grace_period: 60s
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+volumes:
+  private-media:

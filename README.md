@@ -1,168 +1,60 @@
-# EatMe · Foundation 0.1.0
+# EatMe
 
-Eat what you have. Eat what is good for you. Waste less.
+EatMe is a Flutter application for Android and iOS that connects household food inventory, recipe discovery, cooking, shopping and meal planning. A Python API owns dietary validation and inventory transactions. A Next.js studio manages catalog and evidence review.
 
-Questo repository avvia l’implementazione della [specifica completa](docs/product/specification.md).
-Contiene il primo flusso applicativo, il progetto Flutter, il backend FastAPI,
-le migrazioni PostgreSQL/Supabase e una console amministrativa di consultazione.
+## Run on a simulator
 
-**È un primo milestone di sviluppo, non una release pronta per gli store.**
-Il backend ha superato 36 test in CI, compresi quelli FastAPI. Sono passati
-anche i test PostgreSQL/RLS, typecheck e build Next.js, lint, scansione delle
-dipendenze Python e build Docker. Flutter supera formattazione, analisi e test
-widget su Linux/macOS; sono riuscite le build Android debug e iOS simulatore.
-CodeQL richiede l’attivazione di Code scanning nelle impostazioni GitHub.
-Gli esiti e i limiti delle verifiche sono descritti nel
-[rapporto delle verifiche](docs/product/verification.md).
-Il repository di sviluppo è
-[FilippoCinotti/EatMe](https://github.com/FilippoCinotti/EatMe).
-Nessuna versione dell’app è stata distribuita online o sugli store.
-
-## Prova subito il backend, senza installare pacchetti
-
-Serve Python 3.12 o successivo. Dalla cartella del progetto:
+Install **Flutter 3.47.2**, **Python 3.12**, and Git. Android development also needs Android Studio, an Android SDK/emulator and JDK 17. iOS development needs a Mac with Xcode, its simulator runtimes and CocoaPods where required by Flutter plugins.
 
 ```bash
-cd services/api
-python -m unittest discover -s tests -v
-python -m eatme.local_server
+git clone --branch feat/eatme-app https://github.com/FilippoCinotti/EatMe.git
+cd EatMe
+python -m pip install -e 'services/api[dev]'
+python scripts/dev.py
 ```
 
-La API risponde su `http://127.0.0.1:8000/api/v1/health`.
-Il database locale `eatme-dev.sqlite3` viene creato automaticamente e mantiene
-le modifiche tra gli avvii. Non viene incluso nei commit.
-I test usano database temporanei separati e dati inventati.
-
-Il server HTTP della libreria standard è un **adattatore di sviluppo**, utile
-anche in ambienti senza accesso ai pacchetti. Condivide routing e dominio con
-FastAPI; non sostituisce il server di produzione.
-
-## Avvia la app iOS / Android
-
-Installa Flutter stable, Android Studio per Android e Xcode su macOS per iOS.
-Versione Flutter di riferimento per la prima CI: 3.47.2. Poi, dalla root:
+In a second terminal, resolve the locked dependencies and start an emulator:
 
 ```bash
 python scripts/bootstrap_mobile.py
 cd apps/mobile
-dart format lib test
-flutter analyze
-flutter test
-flutter run --dart-define=API_URL=http://10.0.2.2:8000/api/v1
+flutter doctor -v
+flutter devices
+# Android emulator: 10.0.2.2 reaches the host computer.
+flutter run -d YOUR_ANDROID_DEVICE_ID --dart-define=API_URL=http://10.0.2.2:8000/api/v1
+# iOS simulator on macOS:
+flutter run -d YOUR_IOS_SIMULATOR_ID --dart-define=API_URL=http://127.0.0.1:8000/api/v1
 ```
 
-L’indirizzo qui sopra è quello dell’host visto dall’emulatore Android.
-Per il simulatore iOS sullo stesso Mac usa invece
-`--dart-define=API_URL=http://127.0.0.1:8000/api/v1`.
-Per un dispositivo fisico configura un endpoint HTTPS raggiungibile.
+Register a development account in the app. Local authentication and demonstration catalog content are isolated from production. Press `r` in the Flutter terminal for hot reload or use the Flutter extension in VS Code/Android Studio.
 
-Lo script genera **solo le cartelle native mancanti** in una directory temporanea,
-poi le copia nel progetto. Non sovrascrive Dart, pubspec o runner già presenti.
-Configura la callback OAuth `dev.eatme.app://login-callback`, accesso a Internet,
-storage sicuro e HTTP per il solo debug Android. Non richiede la fotocamera.
-Identificatore provvisorio generato: `dev.eatme.eatme`; scegline uno definitivo
-prima della distribuzione e aggiorna le configurazioni OAuth.
+## Application workflows
 
-Al primo avvio scegli **Crea account** con un’email fittizia e una password
-di almeno 12 caratteri. In sviluppo le email non vengono inviate né verificate.
-Scegli nome, numero di persone, dieta e restrizioni facoltative.
+- **ChefTable:** constraint-aware suggestions, recipe detail, favorites, feedback, private imports, ingredient substitution drafts and guided cooking.
+- **Fridge:** individual batches, quantities, locations, dates, stock events, barcode products, confirmed photo/receipt imports and leftovers.
+- **HealthyFood:** ingredient compatibility, source-attributed nutrition where available, and approved evidence retrieval.
+- **Profile:** dietary consent, household membership, preferences, reminders, export, deletion and offline synchronization.
+- **Shopping and planning:** weekly meal slots, automatic dinner suggestions, usable-stock deficit calculation, purchase-to-inventory transactions and concurrency checks.
+- **Editorial studio:** drafts, independent review, publication, deprecation, reports, feature flags and audit history.
 
-Per provare la bowl per due persone aggiungi:
+The canonical catalog is deliberately small in development. Unknown ingredients and unavailable scientific rules fail closed. RAD and other uncurated clinical profiles cannot be activated by a language-model answer.
 
-| Alimento | Quantità |
-| --- | ---: |
-| Ceci cotti | 300 g |
-| Pomodori | 300 g |
-| Olio di oliva | 20 ml |
+## Repository
 
-In ChefTable seleziona **Senza fare la spesa**, apri la bowl e segui i passaggi.
-La conferma scala 300 g di ceci, 200 g di pomodori e 20 ml di olio.
-Rimangono 100 g di pomodori. Puoi registrare e consultare eventuali avanzi.
-Il test HTTP automatizzato verifica questo percorso, incluso il retry della conferma.
-
-## Esegui FastAPI
-
-```bash
-python -m venv .venv
-```
-
-Attiva l’ambiente virtuale secondo il tuo sistema operativo, quindi:
-
-```bash
-python -m pip install -e 'services/api[dev]'
-python -m uvicorn eatme.api:create_app --factory --host 127.0.0.1 --port 8000 --no-access-log
-```
-
-In sviluppo la documentazione OpenAPI è su `http://127.0.0.1:8000/docs`.
-Alternativa con Docker: `docker compose up --build` dalla root.
-Il compose fornito avvia solo l’ambiente locale; non è una configurazione di produzione.
-
-## Console amministrativa
-
-```bash
-cd apps/admin
-npm install
-npm run typecheck
-npm run build
-npm run dev
-```
-
-In `apps/admin/.env.local` imposta
-`EATME_API_URL=http://127.0.0.1:8000/api/v1`.
-Avvia il backend con `ADMIN_USER_IDS` contenente gli UUID autorizzati, separati
-da virgole. La console richiede il token di sessione di uno di questi utenti.
-Puoi ottenerlo dalla risposta del login locale. La console non memorizza il token
-nel browser e verifica il ruolo tramite l’API. Mostra catalogo e stato delle diete;
-il flusso di editing/revisione/pubblicazione non è ancora implementato.
-
-## Collegamenti esterni e produzione
-
-Leggi [configurazione e rilascio](docs/releases/release-process.md) prima di
-attivare Supabase o costruire una release. Le variabili sono elencate in
-[.env.example](.env.example), senza credenziali. Non caricare `.env` reali nel repository.
-
-Il client include l’integrazione Supabase per email, recupero password,
-refresh di sessione, Google e Apple. Google/Apple compaiono solo con
-`OAUTH_ENABLED=true` e richiedono configurazione nei rispettivi provider e callback
-native. Questi collegamenti live **non sono stati testati**.
-Le build release rifiutano auth locale e URL API non HTTPS.
-
-Il catalogo iniziale è esplicitamente dimostrativo, senza valori nutrizionali
-inventati o fonti scientifiche simulate. RAD esiste come `REQUIRES_REVIEW` e non
-influenza le raccomandazioni iniziali. La selezione di un profilo medico richiede
-regole pubblicate, riferimenti e data di revisione e consenso dedicato.
-Il test di attivazione RAD usa unicamente fixture sintetiche, non regole cliniche reali.
-
-## Struttura
-
-| Percorso | Responsabilità |
+| Path | Responsibility |
 | --- | --- |
-| `apps/mobile` | Flutter, Riverpod, GoRouter, temi, localizzazione IT/EN |
-| `apps/admin` | Next.js / TypeScript, console di consultazione |
-| `services/api/eatme` | Identità, inventario, regole, ranking, consumi |
-| `services/worker` | Interfacce per provider AI e barcode futuri |
-| `supabase/migrations` | Schema e policy di accesso PostgreSQL |
-| `supabase/tests` | Test SQL delle policy |
-| `packages/contracts` | Documentazione dei contratti e generatori OpenAPI |
-| `packages/design_tokens` | Palette, spaziatura e raggi condivisi |
-| `.github` | CI, scansione, aggiornamenti dipendenze e template |
-| `docs` | Specifica, stato, architettura, ADR, privacy e rilascio |
+| `apps/mobile` | Flutter UI and device integrations |
+| `services/api/eatme` | Authentication boundary, domain services, recommendation engine and persistence |
+| `services/worker` | Durable processing jobs and media retention |
+| `apps/admin` | Editorial studio and public privacy/deletion pages |
+| `supabase/migrations` | Versioned PostgreSQL schema and access policies |
+| `services/api/tests` | Domain, HTTP, privacy, concurrency and processing tests |
+| `docs` | Product, architecture, setup, verification and release documentation |
 
-## Sviluppo e integrazione su GitHub
+## Configuration and release
 
-Il bootstrap del progetto è nel branch `feat/eatme-foundation`, con una PR verso
-`main`. Le verifiche remote sono consultabili nella scheda
-[Actions](https://github.com/FilippoCinotti/EatMe/actions).
-Esegui il bootstrap Flutter, la formattazione e le build prima di integrare la PR.
-Aggiungi i runner nativi generati, `pubspec.lock` e
-`package-lock.json`; risolvi e blocca anche le dipendenze Python.
-La CI usa oggi `npm install` per questa prima risoluzione: passa a `npm ci`
-quando il lockfile verificato viene committato.
+Copy `.env.example` to a local environment file and load it with your process manager. The scripts do not silently load arbitrary environment files. Configure external providers only when you intend to use them. No secret key belongs in the mobile app.
 
-Completa i ruoli di revisione in CODEOWNERS, proteggi `main`, richiedi i controlli
-CI e crea i milestone descritti nella roadmap. Queste impostazioni GitHub
-non vengono attivate da un semplice file nel repository.
+Read [local development](docs/development/local-setup.md), [provider setup](docs/development/providers.md), [release process](docs/releases/release-process.md), and [verification](docs/product/verification.md). Store publication requires live backend configuration, signing accounts, public legal/support resources and device validation; source delivery alone does not satisfy those gates.
 
-Consulta [stato di implementazione](docs/product/implementation-status.md),
-[verifiche](docs/product/verification.md) e [prossime attività](docs/product/backlog.md)
-per distinguere ciò che è implementato, testato o ancora da sviluppare.
+All documentation, source comments and new GitHub review text are maintained in English. User-facing mobile strings support English and Italian.

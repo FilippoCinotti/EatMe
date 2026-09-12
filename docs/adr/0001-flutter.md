@@ -1,15 +1,13 @@
-# ADR 0001-flutter: Flutter per iOS e Android
+# 0001: Flutter for shared mobile UI
 
-Stato: decisione della foundation; vedere implementation-status per la verifica.
+Status: accepted for the application implementation.
 
-## Decisione
+## Decision
 
-Adottare Flutter stable per una sola UI nativa multipiattaforma.
+Use Flutter for Android and iOS with native plugins for camera, authentication, secure storage, notifications and purchases. Keep platform configuration in versioned native runners. Shared code reduces duplicated business UI; platform-specific lifecycle validation remains required.
 
-## Conseguenze
+## Consequences
 
-Rispetta lo stack richiesto e permette parità dei temi. Lo SDK è assente in questo ambiente: la decisione è implementata nei sorgenti ma le build non sono verificate.
+The application frame respects operating-system display features and keeps navigation, pages and dialogs inside an unobstructed display region. Content has a maximum reading width and remains scrollable with larger text. Synthetic hinge tests verify generic foldable layouts; named future hardware still requires validation on the actual device and operating system.
 
-## Alternative
-
-React Native o due app native richiederebbero cambiare la specifica e aumenterebbero lo scope.
+Validate this boundary through domain and platform tests. Revisit the decision when measured scale, reliability or product requirements justify a change; record a new decision rather than silently changing the architecture.

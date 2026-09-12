@@ -1,15 +1,11 @@
-# ADR 0002-postgres: PostgreSQL con adattatore SQLite locale
+# 0002: PostgreSQL for production
 
-Stato: decisione della foundation; vedere implementation-status per la verifica.
+Status: accepted for the application implementation.
 
-## Decisione
+## Decision
 
-PostgreSQL/Supabase è il target; SQLite esegue i test e lo sviluppo senza servizi.
+Use PostgreSQL and Supabase-compatible row policies in production. Keep SQLite only for explicit local development. Domain SQL uses portable statements and integer quantities; CI separately validates PostgreSQL permissions and transaction behavior.
 
-## Conseguenze
+## Consequences
 
-SQL comune e transazioni esplicite minimizzano la divergenza. RLS, lock e grant vanno verificati nel job PostgreSQL: i test SQLite non li certificano.
-
-## Alternative
-
-Usare SQLite in produzione o richiedere sempre un cluster esterno non soddisfa il prodotto o la portabilità dello sviluppo.
+Validate this boundary through domain and platform tests. Revisit the decision when measured scale, reliability or product requirements justify a change; record a new decision rather than silently changing the architecture.

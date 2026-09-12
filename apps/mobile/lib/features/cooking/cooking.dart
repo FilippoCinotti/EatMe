@@ -14,9 +14,11 @@ class CookingPage extends ConsumerStatefulWidget {
     super.key,
     required this.recipeId,
     required this.servings,
+    this.participants,
   });
   final String recipeId;
   final int servings;
+  final List<String>? participants;
   @override
   ConsumerState<CookingPage> createState() => _CookingPageState();
 }
@@ -24,11 +26,29 @@ class CookingPage extends ConsumerStatefulWidget {
 class _CookingPageState extends ConsumerState<CookingPage> {
   late Future<Recipe> future = load();
   Timer? timer;
+  DateTime? timerEnd;
   int step = 0, remaining = 0;
   bool confirmation = false;
-  Future<Recipe> load() async => Recipe.fromJson(
-    await ref.read(apiProvider).request('GET', '/recipes/${widget.recipeId}'),
-  );
+  Future<Recipe> load() async {
+    final api = ref.read(apiProvider);
+    await api.request(
+      'POST',
+      '/cooking/preview',
+      body: {
+        'recipe_id': widget.recipeId,
+        'servings': widget.servings,
+        if (widget.participants != null) 'participants': widget.participants,
+      },
+    );
+    return Recipe.fromJson(
+      await api.request(
+        'GET',
+        '/recipes/${widget.recipeId}',
+        allowCache: false,
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -48,13 +68,19 @@ class _CookingPageState extends ConsumerState<CookingPage> {
       setState(() => remaining = 0);
       return;
     }
+    timerEnd = DateTime.now().add(const Duration(minutes: 5));
     setState(() => remaining = 300);
     timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (!mounted) {
         t.cancel();
         return;
       }
-      setState(() => remaining--);
+      setState(
+        () => remaining =
+            ((timerEnd!.difference(DateTime.now()).inMilliseconds + 999) ~/
+                    1000)
+                .clamp(0, 300),
+      );
       if (remaining == 0) {
         t.cancel();
         ScaffoldMessenger.of(
@@ -70,6 +96,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
       return ConfirmCookingPage(
         recipeId: widget.recipeId,
         servings: widget.servings,
+        participants: widget.participants,
       );
     }
     return Scaffold(
@@ -149,9 +176,11 @@ class ConfirmCookingPage extends ConsumerStatefulWidget {
     super.key,
     required this.recipeId,
     required this.servings,
+    this.participants,
   });
   final String recipeId;
   final int servings;
+  final List<String>? participants;
   @override
   ConsumerState<ConfirmCookingPage> createState() => _ConfirmCookingPageState();
 }
@@ -164,6 +193,7 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
   Json get request => {
     'recipe_id': widget.recipeId,
     'servings': widget.servings,
+    if (widget.participants != null) 'participants': widget.participants,
     'consumption': overrides,
   };
   Future<Json> load() =>
@@ -289,6 +319,8 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
                 final data = <String, dynamic>{
                   ...request,
                   'profile_version': plan['profile_version'],
+                  if (widget.participants != null)
+                    'participant_versions': plan['participant_versions'],
                   'diet_rules_version': plan['diet_rules_version'],
                   'batch_versions': {
                     for (final a in (plan['allocations'] as List))

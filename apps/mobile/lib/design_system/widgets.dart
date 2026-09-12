@@ -90,6 +90,17 @@ class PageBody extends StatelessWidget {
   }
 }
 
+/// Keeps navigation and dialogs within an unobstructed foldable display region.
+class AdaptiveAppFrame extends StatelessWidget {
+  const AdaptiveAppFrame({super.key, required this.child});
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => ColoredBox(
+    color: Theme.of(context).colorScheme.surface,
+    child: DisplayFeatureSubScreen(anchorPoint: Offset.zero, child: child),
+  );
+}
+
 class FoodMark extends StatelessWidget {
   const FoodMark({super.key, required this.food, this.size = 48});
   final Food food;

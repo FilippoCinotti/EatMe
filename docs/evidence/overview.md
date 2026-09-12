@@ -1,13 +1,7 @@
-# Evidenze scientifiche
+# Evidence and recalls
 
-Non esiste ancora un servizio RAG operativo. HealthyFood mostra che i record demo
-non hanno fonti revisionate; non simula una ricerca né un punteggio.
-RAD e gli altri profili non curati rimangono non pubblicati.
+Evidence records include a claim, publisher, URL, jurisdiction, publication date, strength and next review date. An author creates a draft; a different authorized reviewer publishes it. Retrieval returns only current published evidence. Missing approved evidence produces an explicit unavailable result, not a generated scientific answer.
 
-Il milestone dedicato deve introdurre ScientificSource, ScientificClaim,
-workflow reviewer, audit, versioni, giurisdizione, qualità dell’evidenza e scadenza
-della revisione. Recuperare solo contenuti approvati; citare record effettivamente
-usati; distinguere dati mancanti, incompatibilità e impossibilità di verifica.
+Clinical diet publication requires approved evidence references and qualified-review metadata. Publication history and administrative actions are auditable. Deprecation removes a source from active retrieval; diet rules can be deprecated independently to stop their use.
 
-Richiami alimentari e tossicologia non sono implementati. Non creare allarmi
-senza identificazione del prodotto e confronto con una fonte competente.
+Recall alerts require an exact barcode and lot match against stored batch metadata. Similar product names are insufficient. The source notice remains visible. A complete production catalog needs ongoing review and a maintained recall ingestion process; demo records are not a recall surveillance service.

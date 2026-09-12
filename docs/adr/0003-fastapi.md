@@ -1,15 +1,11 @@
-# ADR 0003-fastapi: FastAPI e dominio indipendente
+# 0003: FastAPI at the production HTTP boundary
 
-Stato: decisione della foundation; vedere implementation-status per la verifica.
+Status: accepted for the application implementation.
 
-## Decisione
+## Decision
 
-Separare Router e Service da FastAPI/Pydantic.
+Use FastAPI for request validation, OpenAPI and production hosting. A dependency-light local HTTP adapter invokes the same router and services. Neither adapter duplicates business rules.
 
-## Conseguenze
+## Consequences
 
-Un adattatore HTTP standard permette di provare lo stesso flusso quando i pacchetti non sono disponibili. FastAPI è il trasporto principale da verificare in CI.
-
-## Alternative
-
-Logica solo nel client esporrebbe regole e credenziali; duplicare il dominio nei due trasporti creerebbe incoerenze.
+Validate this boundary through domain and platform tests. Revisit the decision when measured scale, reliability or product requirements justify a change; record a new decision rather than silently changing the architecture.

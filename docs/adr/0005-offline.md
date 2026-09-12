@@ -1,15 +1,11 @@
-# ADR 0005-offline: Cache iniziale e futuro outbox Drift
+# 0005: Bounded encrypted offline persistence
 
-Stato: decisione della foundation; vedere implementation-status per la verifica.
+Status: accepted for the application implementation.
 
-## Decisione
+## Decision
 
-Nel primo flusso conservare solo l’ultimo inventario nello storage sicuro, senza scritture offline.
+Use bounded platform-encrypted snapshots and a durable outbox partitioned by account. Each queued mutation retains its UUID and household context. Do not queue cooking confirmation or publish scientific content offline. A conflict requires explicit reconciliation. Larger catalog datasets can migrate behind this storage boundary without changing server authority.
 
-## Conseguenze
+## Consequences
 
-Riduce il rischio di consumi duplicati e valutazioni su profili obsoleti. Avvio offline completo, Drift e outbox restano in backlog; serviranno cifratura e politica di conflitto.
-
-## Alternative
-
-Non rimuovere né consumare alimenti sulla base di una previsione o di una copia non sincronizzata.
+Validate this boundary through domain and platform tests. Revisit the decision when measured scale, reliability or product requirements justify a change; record a new decision rather than silently changing the architecture.

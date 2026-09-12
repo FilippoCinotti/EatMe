@@ -73,6 +73,7 @@ class Database:
         connection = self.connect()
         try:
             connection.executescript(schema)
+            connection.executescript(Path(__file__).with_name("domain.sql").read_text())
         finally:
             connection.close()
 

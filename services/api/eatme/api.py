@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from .errors import DomainError
@@ -58,9 +58,11 @@ class CookingInput(StrictBody):
     recipe_id: str
     servings: int = Field(ge=1,le=20)
     consumption: dict[str,str] = Field(default_factory=dict)
+    participants: list[str] | None = Field(default=None,max_length=20)
 
 
 class CookingConfirmation(CookingInput):
+    participant_versions: dict[str,int] | None = None
     profile_version: int
     diet_rules_version: dict[str,int]
     batch_versions: dict[str,int]
@@ -75,7 +77,7 @@ class DeleteInput(StrictBody):
 def create_app(router=None):
     import os
     router = router or configured_router()
-    app = FastAPI(title="EatMe API",version="0.1.0",docs_url="/docs" if router.development else None)
+    app = FastAPI(title="EatMe API",version="1.0.0",docs_url="/docs" if router.development else None)
     origins = list(filter(None,os.getenv("CORS_ORIGINS","http://localhost:3000").split(",")))
     app.add_middleware(CORSMiddleware,allow_origins=origins,allow_methods=["GET","POST","PUT","PATCH","DELETE"],
                        allow_headers=["Authorization","Content-Type","Idempotency-Key"])
@@ -86,7 +88,7 @@ def create_app(router=None):
         body = bytearray()
         async for chunk in request.stream():
             body.extend(chunk)
-            if len(body)>262144:
+            if len(body)>(6_000_000 if request.url.path == "/api/v1/media" else 262144):
                 return JSONResponse({"error":{"code":"payload_too_large"}},status_code=413)
         request._body = bytes(body)
         response = await call_next(request)
@@ -103,6 +105,21 @@ def create_app(router=None):
         return router.dispatch(request.method,str(request.url.path)+(f"?{request.url.query}" if request.url.query else ""),body,
             request.headers.get("Authorization",""),request.headers.get("Idempotency-Key",""),
             request.client.host if request.client else "unknown")
+
+    @app.post("/api/v1/auth/apple/callback", include_in_schema=False)
+    async def apple_callback(request: Request):
+        from urllib.parse import parse_qs, urlencode
+        router.limiter.check("apple-callback:" + (request.client.host if request.client else "unknown"), 30)
+        raw = await request.body()
+        if len(raw) > 16000 or request.headers.get("content-type", "").split(";")[0] != "application/x-www-form-urlencoded":
+            raise DomainError("invalid_apple_authorization", 422)
+        fields = parse_qs(raw.decode("utf-8", errors="replace"), max_num_fields=10)
+        # Forward only protocol fields to a fixed application package. The client
+        # validates state/nonce and Supabase verifies the signed identity token.
+        allowed = {k: v[0] for k, v in fields.items() if k in {"code", "id_token", "state", "error"} and len(v) == 1}
+        if not allowed.get("state"):
+            raise DomainError("invalid_apple_authorization", 422)
+        return RedirectResponse("intent://callback?" + urlencode(allowed) + "#Intent;package=com.filippocinotti.eatme;scheme=signinwithapple;end", status_code=303)
 
     # GET endpoints share a transport; OpenAPI path parameter names remain explicit.
     @app.get("/api/v1/health")
@@ -158,4 +175,14 @@ def create_app(router=None):
     def delete(body:DeleteInput,request:Request):
         return dispatch(request,body.model_dump())
 
+    # Domain commands validate action-specific fields at the shared service boundary.
+    for resource in ("shopping", "plans", "households", "preferences", "leftovers", "recipes", "jobs", "notifications", "insights", "entitlements", "recalls", "evidence", "admin/content"):
+        app.add_api_route("/api/v1/"+resource, get_resource, methods=["GET"], name=resource+"_list") if resource != "leftovers" else None
+
+    def domain_command(body:dict,request:Request):
+        return dispatch(request,body)
+
+    for resource in ("shopping", "plans", "households", "preferences", "leftovers", "recipes", "jobs", "notifications", "admin/content", "reports", "inventory/metadata", "media", "recipes/import-url", "analytics", "entitlements/refresh", "products/stock", "auth/apple-authorization"):
+        app.add_api_route("/api/v1/"+resource, domain_command, methods=["POST"], name=resource+"_command")
+    app.add_api_route("/api/v1/products/{code}", get_resource, methods=["GET"], name="product_lookup")
     return app

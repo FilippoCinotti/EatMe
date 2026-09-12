@@ -1,9 +1,7 @@
-# Contribuire
+# Contributing
 
-Leggere specifica, stato e ADR. Lavorare per flussi completi in branch brevi
-`feat/…`, `fix/…`, `chore/…`. Usare Conventional Commits.
-Aggiornare `docs/product/implementation-status.md` a ogni milestone.
-Per modifiche al dominio eseguire i test; per il mobile verificare temi e accessibilità.
-Per schema/RLS aggiungere una nuova migrazione e test SQL; non modificare migrazioni applicate.
-Per regole mediche mantenere contenuti non revisionati fuori dalla pubblicazione.
-Inserire nella PR ciò che è stato eseguito e ciò che rimane non verificato.
+Use short feature branches and a focused pull request. Explain the user problem, resulting behavior, validation and remaining limitations. Keep documentation, comments, commit messages and review text in English. Localize mobile UI strings in both resource files.
+
+Run API tests, static checks and relevant platform checks before requesting review. Changes to quantities, permissions, consent or clinical validation need behavioral tests. Do not add tests that only mirror implementation details. Never modify an applied database migration; add a new version. Regenerate and review lockfiles when dependencies change.
+
+Private recipe imports must remain private. Unknown ingredients and unsupported rules fail closed. Clinical rules require published evidence and an independent qualified reviewer; fixture data must stay visibly distinguishable. Never commit credentials, personal data, generated runtime configuration or signing material.

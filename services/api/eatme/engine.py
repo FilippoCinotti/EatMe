@@ -38,7 +38,7 @@ def requirements(recipe: dict, servings: int) -> dict[str,int]:
 
 def batch_usable(batch: dict, today: date) -> bool:
     # A best-before or estimated date is never interpreted as a safety date.
-    return not (batch["expiry_kind"] == "use_by" and batch["expiry_date"] and date.fromisoformat(batch["expiry_date"]) < today)
+    return not batch.get("recalls") and not (batch["expiry_kind"] == "use_by" and batch["expiry_date"] and date.fromisoformat(batch["expiry_date"]) < today)
 
 
 def active_rules(assignments: list[dict], versions: list[dict], today: date) -> tuple[list[dict],dict]:

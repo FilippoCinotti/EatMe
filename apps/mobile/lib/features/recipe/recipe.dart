@@ -6,6 +6,7 @@ import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
+import '../organize/shared.dart';
 
 class RecipePage extends ConsumerStatefulWidget {
   const RecipePage({super.key, required this.recipeId});
@@ -19,15 +20,61 @@ class _RecipePageState extends ConsumerState<RecipePage> {
       ref.read(appProvider).profile['household_size'] as int? ?? 1;
   late Future<(Recipe, Json)> future = load();
   String tab = 'ingredients';
+  bool favorite = false;
+  bool privateRecipe = false;
+  final mutation = Mutation();
+  List<String>? participants;
   Future<(Recipe, Json)> load() async {
     final api = ref.read(apiProvider);
     final recipe = await api.request('GET', '/recipes/${widget.recipeId}');
-    final preview = await api.request(
-      'POST',
-      '/cooking/preview',
-      body: {'recipe_id': widget.recipeId, 'servings': servings},
-    );
-    return (Recipe.fromJson(recipe), preview);
+    if (mounted) {
+      setState(() {
+        favorite = recipe['favorite'] == true;
+        privateRecipe = recipe['private'] == true;
+      });
+    }
+    try {
+      final preview = await api.request(
+        'POST',
+        '/cooking/preview',
+        body: {
+          'recipe_id': widget.recipeId,
+          'servings': servings,
+          if (participants != null) 'participants': participants,
+        },
+      );
+      return (Recipe.fromJson(recipe), preview);
+    } on ApiFailure catch (error) {
+      if (!error.offline && error.code != 'recipe_not_compatible') rethrow;
+      final model = Recipe.fromJson(recipe),
+          foods = ref.read(appProvider).foods;
+      return (
+        model,
+        {
+          'preview_unavailable': error.code,
+          'shortages': [],
+          'diet_rules_version': recipe['diet_rules_version'] ?? {},
+          'nutrition': recipe['nutrition'],
+          'ingredients': model.ingredients.map((item) {
+            final food = foods
+                .where((f) => f.id == item['food_id'])
+                .firstOrNull;
+            return {
+              'food': {
+                'name': food?.name ?? {'en': context.t('unknown_ingredient')},
+                'unit': food?.unit ?? '',
+              },
+              'quantity':
+                  ((double.tryParse('${item['quantity']}') ?? 0) *
+                          servings /
+                          model.servings)
+                      .toStringAsFixed(2),
+              'available': '—',
+            };
+          }).toList(),
+        },
+      );
+    }
   }
 
   @override
@@ -58,13 +105,32 @@ class _RecipePageState extends ConsumerState<RecipePage> {
           return const Center(child: CircularProgressIndicator());
         }
         final (recipe, plan) = snapshot.data!;
+        final nutrition = plan['nutrition'] as Map?;
+        final nutrients = nutrition?['totals'] as Map? ?? {};
         return PageBody(
           children: [
+            if (plan['preview_unavailable'] != null)
+              StatusNote(
+                text: context.t(plan['preview_unavailable'] as String),
+                warning: true,
+              ),
             Text(
               localized(recipe.title, context.language),
               style: Theme.of(context).textTheme.displaySmall,
             ),
             const SizedBox(height: 16),
+            AsyncAction(
+              label: context.t(favorite ? 'remove_favorite' : 'favorite'),
+              secondary: true,
+              action: () async {
+                await mutation.send(ref.read(apiProvider), 'POST', '/recipes', {
+                  'action': 'favorite',
+                  'recipe_id': widget.recipeId,
+                  'enabled': !favorite,
+                });
+                if (mounted) setState(() => favorite = !favorite);
+              },
+            ),
             Text(context.t('minutes', {'minutes': recipe.minutes})),
             const SizedBox(height: 16),
             Row(
@@ -95,6 +161,23 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               ],
             ),
             const SizedBox(height: 16),
+            AsyncAction(
+              label: context.t('who_is_eating'),
+              secondary: true,
+              action: () async {
+                final value = await chooseDiners(
+                  context,
+                  ref.read(apiProvider),
+                  participants,
+                );
+                if (value != null && mounted) {
+                  setState(() {
+                    participants = value;
+                    future = load();
+                  });
+                }
+              },
+            ),
             SegmentedButton<String>(
               segments: ['ingredients', 'overview', 'why']
                   .map(
@@ -160,15 +243,171 @@ class _RecipePageState extends ConsumerState<RecipePage> {
             ExpansionTile(
               tilePadding: EdgeInsets.zero,
               title: Text(context.t('nutrition')),
-              children: [StatusNote(text: context.t('nutrition_unavailable'))],
+              children: [
+                StatusNote(
+                  text: context.t(
+                    nutrients.isEmpty
+                        ? 'nutrition_unavailable'
+                        : 'nutrition_method',
+                  ),
+                ),
+                if (nutrients.isNotEmpty)
+                  Text('${nutrition?['servings']} ${context.t('servings')}'),
+                for (final nutrient in nutrients.entries)
+                  ListTile(
+                    title: Text(context.t('nutrient_${nutrient.key}')),
+                    subtitle: nutrient.value['complete'] == true
+                        ? null
+                        : Text(context.t('partial_nutrition')),
+                    trailing: Text(
+                      '${nutrient.value['value']} ${nutrient.value['unit']}',
+                    ),
+                  ),
+              ],
             ),
             if ((plan['shortages'] as List).isNotEmpty)
               StatusNote(text: context.t('missing_ingredients_notice')),
             const SizedBox(height: 24),
+            AsyncAction(
+              label: context.t('build_shopping_list'),
+              secondary: true,
+              action: () async {
+                await Mutation().send(
+                  ref.read(apiProvider),
+                  'POST',
+                  '/shopping',
+                  {
+                    'action': 'generate',
+                    'meals': [
+                      {'recipe_id': recipe.id, 'servings': servings},
+                    ],
+                  },
+                );
+                if (context.mounted) context.push('/shopping');
+              },
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: [
+                for (final rating in [1, -1])
+                  AsyncAction(
+                    label: context.t(
+                      rating == 1 ? 'like_recipe' : 'dislike_recipe',
+                    ),
+                    secondary: true,
+                    action: () async {
+                      await Mutation()
+                          .send(ref.read(apiProvider), 'POST', '/recipes', {
+                            'action': 'feedback',
+                            'recipe_id': recipe.id,
+                            'rating': rating,
+                          });
+                    },
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            AsyncAction(
+              label: context.t('substitute_ingredient'),
+              secondary: true,
+              action: () async {
+                final foods = ref.read(appProvider).foods;
+                final original = await chooseFood(
+                  context,
+                  foods
+                      .where(
+                        (f) =>
+                            recipe.ingredients.any((i) => i['food_id'] == f.id),
+                      )
+                      .toList(),
+                );
+                if (original == null || !context.mounted) return;
+                final replacement = await chooseFood(context, foods);
+                if (replacement == null || !context.mounted) return;
+                final amount = await askText(
+                  context,
+                  '${context.t('quantity')} (${replacement.unit})',
+                  numeric: true,
+                );
+                if (amount == null) return;
+                final changed = await Mutation()
+                    .send(ref.read(apiProvider), 'POST', '/recipes', {
+                      'action': 'substitute',
+                      'recipe_id': recipe.id,
+                      'food_id': original.id,
+                      'replacement_id': replacement.id,
+                      'quantity': amount,
+                    });
+                if (context.mounted) {
+                  context.push('/recipe-editor', extra: changed);
+                }
+              },
+            ),
+            const SizedBox(height: 24),
+            AsyncAction(
+              label: context.t('report_problem'),
+              secondary: true,
+              action: () async {
+                final message = await askText(
+                  context,
+                  context.t('report_notice'),
+                );
+                if (message == null || message.isEmpty) return;
+                await mutation.send(ref.read(apiProvider), 'POST', '/reports', {
+                  'kind': 'recipe',
+                  'subject_id': recipe.id,
+                  'message': message,
+                });
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(context.t('report_sent'))),
+                  );
+                }
+              },
+            ),
+            if (privateRecipe)
+              AsyncAction(
+                label: context.t('archive_recipe'),
+                secondary: true,
+                action: () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text(context.t('archive_recipe')),
+                      content: Text(context.t('archive_recipe_body')),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text(context.t('cancel')),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text(context.t('archive_recipe')),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirmed != true) return;
+                  await mutation.send(
+                    ref.read(apiProvider),
+                    'POST',
+                    '/recipes',
+                    {'action': 'delete', 'recipe_id': recipe.id},
+                  );
+                  await ref.read(appProvider.notifier).refresh();
+                  if (context.mounted) context.go('/chef');
+                },
+              ),
             FilledButton(
-              onPressed: ref.watch(appProvider).offline
+              onPressed:
+                  ref.watch(appProvider).offline ||
+                      plan['preview_unavailable'] != null
                   ? null
-                  : () => context.push('/cook/${recipe.id}?servings=$servings'),
+                  : () => context.push(
+                      '/cook/${recipe.id}?servings=$servings',
+                      extra: participants,
+                    ),
               child: Text(context.t('start_cooking')),
             ),
           ],

@@ -1,13 +1,7 @@
-# EatMe
+# Product overview
 
-EatMe unisce ciò che hai in casa, le date dei prodotti e le scelte alimentari per
-aiutarti a scegliere cosa cucinare. La prima versione lavora per un adulto e un
-nucleo numerico, senza inviti o profili degli altri commensali.
+EatMe helps people decide what to cook and use the food already in their kitchen. The four primary areas are ChefTable, Fridge, HealthyFood and Profile. Shopping, planning, recipes, leftovers and insights are reached from those areas rather than adding primary tabs.
 
-Quattro sezioni: ChefTable propone poche ricette; Fridge gestisce i lotti;
-HealthyFood espone conflitti rispetto al profilo; Profile raccoglie personalizzazione,
-aspetto e privacy. Piani, spesa e notifiche saranno contestuali, non nuove tab.
+The visual system uses warm light surfaces, a restrained green accent, soft radii, readable typography and a floating navigation bar. Dark mode and system appearance are supported. Layouts use safe areas, flexible wrapping, bounded content widths and accessible controls.
 
-La complessità delle regole resta nel servizio. La UI usa pochi colori,
-spaziatura ampia, dettagli progressivi e un’azione principale.
-La specifica originale è conservata senza modifiche in specification.md.
+Dietary constraints and food provenance are central product concepts. Unknown data stays unknown, clinical rules require review, and inventory changes require traceable transactions. The specification in `specification.md` remains the original product source of truth; implementation status and verification are maintained separately.

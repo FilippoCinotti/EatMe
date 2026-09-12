@@ -1,15 +1,11 @@
-# ADR 0006-diet-rules: Regole pubblicate e deterministiche
+# 0006: Versioned data-driven dietary rules
 
-Stato: decisione della foundation; vedere implementation-status per la verifica.
+Status: accepted for the application implementation.
 
-## Decisione
+## Decision
 
-Valutare regole canoniche lato server, risolvendo versioni e consenso.
+Store dietary definitions and effective rule versions in the database. Publish only reviewed rules. Reject unsupported operators and unknown ingredients. Clinical profiles require explicit consent and approved evidence; no hardcoded invented RAD rule is permitted.
 
-## Conseguenze
+## Consequences
 
-RAD non ha logica clinica dedicata nel client. Un operatore non supportato blocca la valutazione. La governance completa richiede ancora implementazione editoriale.
-
-## Alternative
-
-Prompt LLM e singola stringa user.diet non garantiscono vincoli, tracciabilità o gestione dell’incertezza.
+Validate this boundary through domain and platform tests. Revisit the decision when measured scale, reliability or product requirements justify a change; record a new decision rather than silently changing the architecture.

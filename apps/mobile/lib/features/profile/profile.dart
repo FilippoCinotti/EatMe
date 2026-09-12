@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/api.dart';
 import '../../core/localization.dart';
+import '../../core/api.dart';
+import '../../core/data_export.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
@@ -74,6 +75,25 @@ class ProfilePage extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/profile/edit'),
           ),
+          for (final item in [
+            ('household', '/household', Icons.group_outlined),
+            ('preferences', '/preferences', Icons.tune),
+            ('notifications', '/notifications', Icons.notifications_none),
+            ('insights', '/insights', Icons.insights_outlined),
+            (
+              'subscriptions',
+              '/subscriptions',
+              Icons.workspace_premium_outlined,
+            ),
+            ('offline_sync', '/sync', Icons.sync),
+            ('evidence_library', '/evidence', Icons.library_books_outlined),
+          ])
+            ListTile(
+              leading: Icon(item.$3),
+              title: Text(context.t(item.$1)),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push(item.$2),
+            ),
           const SizedBox(height: 28),
           Text(
             context.t('preferences'),
@@ -121,7 +141,7 @@ class ProfilePage extends ConsumerWidget {
             action: () => ref.read(appProvider.notifier).logout(),
           ),
           const SizedBox(height: 16),
-          StatusNote(text: context.t('development_catalog')),
+          if (state.isDemo) StatusNote(text: context.t('development_catalog')),
         ],
       ),
     );
@@ -180,11 +200,21 @@ class PrivacyPage extends ConsumerWidget {
           },
         ),
         const SizedBox(height: 16),
+        AsyncAction(
+          label: context.t('export_file'),
+          secondary: true,
+          action: () async {
+            final data = await ref
+                .read(apiProvider)
+                .request('GET', '/privacy/export');
+            if (context.mounted) await DataExport.share(context, data);
+          },
+        ),
         TextButton(
           onPressed: () => context.push('/profile/edit'),
           child: Text(context.t('review_consent')),
         ),
-        if (EatMeApi.development) ...[
+        ...[
           const SizedBox(height: 32),
           AsyncAction(
             label: context.t('delete_account'),
@@ -208,10 +238,21 @@ class PrivacyPage extends ConsumerWidget {
                 ),
               );
               if (confirmed != true) return;
-              await ref
-                  .read(apiProvider)
-                  .request('DELETE', '/profile', body: {'confirm': true});
-              await ref.read(appProvider.notifier).deleted();
+              try {
+                await ref
+                    .read(apiProvider)
+                    .request('DELETE', '/profile', body: {'confirm': true});
+                await ref.read(appProvider.notifier).deleted();
+              } on ApiFailure catch (error) {
+                if ([
+                  'reauthentication_required',
+                  'apple_reauthentication_required',
+                ].contains(error.code)) {
+                  if (context.mounted) await context.push('/reauthenticate');
+                  return;
+                }
+                rethrow;
+              }
             },
           ),
         ],

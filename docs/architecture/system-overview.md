@@ -1,43 +1,13 @@
-# Architettura
+# System overview
 
-L’app Flutter comunica esclusivamente con `/api/v1` per le operazioni di dominio.
-In produzione riceve una sessione da Supabase Auth; FastAPI verifica firma,
-issuer, audience, scadenza, ruolo e soggetto UUID del JWT usando la JWKS configurata.
-L’identità non è letta dal corpo della richiesta.
+Flutter owns interaction, navigation, device permissions and bounded encrypted offline snapshots. The Python API owns identity verification, membership, consent, dietary validation and all mutations. PostgreSQL is the production database; SQLite is an explicit local development adapter. A worker consumes durable database jobs. The Next.js studio proxies authenticated editorial requests through HTTP-only sessions.
 
-Il core Python non dipende dal trasporto. FastAPI e l’adattatore HTTP locale
-invocano lo stesso Router e lo stesso Service. La seconda implementazione HTTP
-serve a sviluppo e test in ambienti senza dipendenze; non è un server di produzione.
+## Boundaries
 
-`Service` compone storage, policy e ranking. `engine.py` contiene calcoli senza rete:
-normalizzazione quantità, disponibilità, verifica ingredienti, selezione delle
-versioni, scoring ed esposizione delle componenti che motivano la proposta.
+`Service` composes inventory/cooking, household, planning, content, governance, intelligence and lifecycle services. Transactions are short and synchronous. External requests are performed outside inventory write transactions. Quantity arithmetic uses integer thousandths; cooking revalidates requirements and versions at confirmation.
 
-SQLite è un adattatore locale. PostgreSQL è il target applicativo. In PostgreSQL
-ogni transazione assume `eatme_backend`; il login database deve avere esplicitamente
-il permesso di assumere questo ruolo. Il ruolo ha accesso DML ai soli dati operativi,
-lettura sul catalogo e append sull’audit; non può modificare lo schema né pubblicare
-regole. RLS protegge gli accessi Supabase diretti. Il backend verifica sempre il
-nucleo dell’utente, anche se le policy del ruolo server gli consentono l’accesso ai record operativi per eseguire operazioni atomiche.
+Provider responses are untrusted. HTTPS imports validate public addresses, pin the validated connection, preserve TLS hostname checks, cap responses and restrict redirects. Processing never writes inventory until a user confirms corrected candidates. Clinical publication is independent of AI processing.
 
-Le mutazioni inventario bloccano il nucleo in PostgreSQL. Versioni ottimistiche
-impediscono la conferma di anteprime obsolete. Una chiave UUID idempotente è legata
-all’utente, alla risorsa e all’hash della richiesta; risposta ed effetti sono
-salvati nella stessa transazione. La lock idempotente PostgreSQL serializza le
-richieste duplicate. SQLite serializza le scritture con `BEGIN IMMEDIATE`.
+## Environments
 
-Gli ingredienti usano unità canoniche del food (`g`, `ml`, `pcs`). Lo storage usa
-millesimi interi; le conversioni per densità o fra dimensioni non sono indovinate.
-Il consumo usa prima i lotti con data più vicina, escludendo use-by scaduti.
-
-Il worker futuro resta separato. Nessuna chiamata AI avviene oggi nel percorso
-principale. Un provider mancante produce un errore esplicito, mai riconoscimenti finti.
-
-Fonti tecniche consultate:
-[FastAPI](https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/),
-[Supabase JWT](https://supabase.com/docs/guides/auth/jwts),
-[Flutter stable](https://docs.flutter.dev/install/archive),
-[GoRouter](https://pub.dev/packages/go_router),
-[Riverpod](https://pub.dev/packages/flutter_riverpod),
-[storage sicuro](https://pub.dev/packages/flutter_secure_storage),
-[Next.js](https://nextjs.org/docs/app/getting-started/installation).
+Development permits local credentials, fixture content and SQLite. Staging/production require Supabase and PostgreSQL. Live integrations require server-side keys and configured feature availability. Release mobile builds reject local authentication and HTTP endpoints. CI validates adapters separately and builds both native targets.

@@ -1,9 +1,16 @@
 # Changelog
 
-## 0.1.0 — 2026-09-10
+## 1.0.0 — application implementation in review
 
-- Avvio monorepo EatMe dalla specifica fornita.
-- Core Python per profili, diete, inventario, ranking e cucina, con percorso HTTP testato.
-- Sorgenti Flutter IT/EN e temi light/dark; wrapper FastAPI e auth Supabase predisposti.
-- Migrazioni PostgreSQL/RLS, console amministrativa, interfacce provider e workflow CI.
-- Documentati limiti di verifica, contenuti demo e backlog prima della beta.
+- Connected shopping, weekly plans, household invitations/roles, shared diner constraints and leftovers.
+- Added private recipe imports, favorites, feedback, substitution drafts and product lookup.
+- Added encrypted private media, durable AI jobs, confirmation, quotas and retention.
+- Added editorial review/publication, evidence retrieval, recall matching, reports and audit history.
+- Added encrypted offline snapshots, durable mutation keys, notification preferences and native integrations.
+- Added Android/iOS source generation, signing configuration, original icons and English deployment documentation.
+
+See `docs/product/verification.md` for tested commits. This entry is not a store release announcement.
+
+## 0.1.0 — initial foundation
+
+Introduced the Flutter shell, onboarding, dietary constraints, batch inventory, recommendations, atomic cooking confirmation, local authentication, Supabase boundary, PostgreSQL migrations and initial CI.

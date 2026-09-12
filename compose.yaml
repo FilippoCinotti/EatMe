@@ -6,9 +6,28 @@ services:
       AUTH_MODE: development
       DATABASE_URL: /data/eatme-dev.sqlite3
       CORS_ORIGINS: http://localhost:3000
+      MEDIA_DIRECTORY: /data/media
+      AI_PROVIDER: ${AI_PROVIDER:-}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-}
+      PRODUCT_CONTACT: ${PRODUCT_CONTACT:-}
       ADMIN_USER_IDS: ${ADMIN_USER_IDS:-}
     ports: ['127.0.0.1:8000:8000']
     volumes: [eatme_local:/data]
+    security_opt: ['no-new-privileges:true']
+  worker:
+    build: services/api
+    command: [python, -m, eatme.worker]
+    environment:
+      EATME_ENV: development
+      AUTH_MODE: development
+      DATABASE_URL: /data/eatme-dev.sqlite3
+      MEDIA_DIRECTORY: /data/media
+      AI_PROVIDER: ${AI_PROVIDER:-}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-}
+    volumes: [eatme_local:/data]
+    depends_on: [api]
     security_opt: ['no-new-privileges:true']
 volumes:
   eatme_local:
