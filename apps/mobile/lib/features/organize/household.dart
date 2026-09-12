@@ -40,13 +40,15 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
             trailing: current?['role'] != 'owner' || member['user_id'] == userId
                 ? null
                 : PopupMenuButton<String>(
-                    onSelected: (role) async { await guard(() async {
-                      await command({
-                        'action': role == 'owner' ? 'transfer' : 'role',
-                        'role': role,
-                        'user_id': member['user_id'],
+                    onSelected: (role) async {
+                      await guard(() async {
+                        await command({
+                          'action': role == 'owner' ? 'transfer' : 'role',
+                          'role': role,
+                          'user_id': member['user_id'],
+                        });
                       });
-                    }); },
+                    },
                     itemBuilder: (context) => [
                       for (final role in ['member', 'viewer', 'owner'])
                         PopupMenuItem(
@@ -62,14 +64,16 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
           title: Text(context.t('share_constraints')),
           subtitle: Text(context.t('share_constraints_body')),
           value: me?['share_constraints'] == 1,
-          onChanged: (value) async { await guard(() async {
-            await command({
-              'action': 'share_constraints',
-              'enabled': value,
-              'consent_version': data?['consent_version'],
+          onChanged: (value) async {
+            await guard(() async {
+              await command({
+                'action': 'share_constraints',
+                'enabled': value,
+                'consent_version': data?['consent_version'],
+              });
+              await ref.read(appProvider.notifier).hydrate();
             });
-            await ref.read(appProvider.notifier).hydrate();
-          }); },
+          },
         ),
         if (current?['role'] == 'owner') ...[
           AsyncAction(
@@ -110,8 +114,9 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
             secondary: true,
             action: () async {
               final name = await askText(context, context.t('household'));
-              if (name != null)
+              if (name != null) {
                 await command({'action': 'rename', 'name': name});
+              }
             },
           ),
         ],
@@ -133,10 +138,12 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
             title: Text(home['name'] as String? ?? context.t('your_household')),
             subtitle: Text(context.t('role_${home['role']}')),
             trailing: const Icon(Icons.swap_horiz),
-            onTap: () async { await guard(() async {
-              await command({'action': 'switch', 'household_id': home['id']});
-              await ref.read(appProvider.notifier).hydrate();
-            }); },
+            onTap: () async {
+              await guard(() async {
+                await command({'action': 'switch', 'household_id': home['id']});
+                await ref.read(appProvider.notifier).hydrate();
+              });
+            },
           ),
       ]),
     );

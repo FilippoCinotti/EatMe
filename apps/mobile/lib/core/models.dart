@@ -51,8 +51,10 @@ class Batch {
     this.expiryDate,
     this.expiryKind,
     this.version,
-    this.usable, {this.metadata = const {}, this.recalls = const []}
-  );
+    this.usable, {
+    this.metadata = const {},
+    this.recalls = const [],
+  });
   final String id, quantity, location, expiryKind;
   final Food food;
   final DateTime? expiryDate;
@@ -70,7 +72,9 @@ class Batch {
     j['version'] as int,
     j['usable'] as bool,
     metadata: Map<String, dynamic>.from(j['metadata'] as Map? ?? {}),
-    recalls: (j['recalls'] as List? ?? []).map((v) => Map<String, dynamic>.from(v as Map)).toList(),
+    recalls: (j['recalls'] as List? ?? [])
+        .map((v) => Map<String, dynamic>.from(v as Map))
+        .toList(),
   );
 }
 

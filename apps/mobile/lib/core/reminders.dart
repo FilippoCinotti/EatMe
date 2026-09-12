@@ -61,12 +61,13 @@ class Reminders {
     final candidates = <(String, DateTime, String)>[];
     if (categories.contains('expiry')) {
       for (final batch in inventory) {
-        if (batch.expiryDate != null)
+        if (batch.expiryDate != null) {
           candidates.add((
             'expiry:${batch.id}:${batch.expiryDate}',
             batch.expiryDate!,
             'expiry',
           ));
+        }
       }
     }
     if (categories.contains('plans')) {

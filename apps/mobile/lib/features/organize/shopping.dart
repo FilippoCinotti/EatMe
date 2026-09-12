@@ -83,10 +83,11 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                           'checked': value,
                         });
                       } catch (_) {
-                        if (mounted && context.mounted)
+                        if (mounted && context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(context.t('retry'))),
                           );
+                        }
                       }
                     },
                   ),
@@ -108,13 +109,14 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                             initial: item['quantity'] as String,
                             numeric: true,
                           );
-                          if (amount != null)
+                          if (amount != null) {
                             await command({
                               'action': 'edit',
                               'id': item['id'],
                               'expected_version': item['version'],
                               'quantity': amount,
                             });
+                          }
                         },
                       ),
                       AsyncAction(

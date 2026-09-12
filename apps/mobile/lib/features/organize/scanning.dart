@@ -28,8 +28,9 @@ class _ScanningState extends ResourceState<ScanningPage> {
     timer = Timer.periodic(const Duration(seconds: 4), (_) {
       if (records(
         data?['items'],
-      ).any((j) => ['queued', 'processing'].contains(j['status'])))
+      ).any((j) => ['queued', 'processing'].contains(j['status']))) {
         load();
+      }
     });
   }
 
@@ -128,16 +129,21 @@ class _ScanningState extends ResourceState<ScanningPage> {
         action: () async {
           if (!await consent() || !mounted || !context.mounted) return;
           final prompt = await askText(context, context.t('recipe_idea'));
-          if (prompt != null)
+          if (prompt != null) {
             await command({
               'action': 'create',
               'kind': 'recipe',
               'text': prompt,
             });
+          }
         },
       ),
       const SizedBox(height: 8),
-      AsyncAction(label: context.t('recipe_photo'), secondary: true, action: () => scan('recipe', ImageSource.gallery)),
+      AsyncAction(
+        label: context.t('recipe_photo'),
+        secondary: true,
+        action: () => scan('recipe', ImageSource.gallery),
+      ),
       const SizedBox(height: 28),
       for (final job in records(data?['items']))
         Card(
@@ -253,12 +259,13 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                     OutlinedButton(
                       onPressed: () async {
                         final food = await chooseFood(context, foods);
-                        if (food != null && mounted)
+                        if (food != null && mounted) {
                           setState(() {
                             item['food_id'] = food.id;
                             item['unit'] = food.unit;
                             item['confirmed'] = false;
                           });
+                        }
                       },
                       child: Text(
                         foods

@@ -22,10 +22,13 @@ abstract class ResourceState<T extends ConsumerStatefulWidget>
   final mutation = Mutation();
   bool updating = false;
   Future<void> guard(Future<void> Function() action) async {
-    try { await action(); } on ApiFailure catch (e) {
+    try {
+      await action();
+    } on ApiFailure catch (e) {
       if (mounted) setState(() => error = e.code);
     }
   }
+
   @override
   void initState() {
     super.initState();
@@ -35,11 +38,12 @@ abstract class ResourceState<T extends ConsumerStatefulWidget>
   Future<void> load() async {
     try {
       final value = await ref.read(apiProvider).request('GET', path);
-      if (mounted && context.mounted)
+      if (mounted && context.mounted) {
         setState(() {
           data = value;
           error = null;
         });
+      }
     } on ApiFailure catch (e) {
       if (mounted && context.mounted) setState(() => error = e.code);
     }
@@ -49,20 +53,22 @@ abstract class ResourceState<T extends ConsumerStatefulWidget>
     if (updating) throw const ApiFailure('operation_in_progress');
     updating = true;
     try {
-    final value = await mutation.send(
-      ref.read(apiProvider),
-      'POST',
-      path,
-      body,
-    );
-    await load();
-    if (mounted && value['queued'] == true) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t('queued_offline'))));
+      final value = await mutation.send(
+        ref.read(apiProvider),
+        'POST',
+        path,
+        body,
+      );
+      await load();
+      if (mounted && value['queued'] == true) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.t('queued_offline'))));
+      }
+      return value;
+    } finally {
+      updating = false;
     }
-    return value;
-    } finally { updating = false; }
   }
 
   Widget content(List<Widget> children) => data == null && error == null

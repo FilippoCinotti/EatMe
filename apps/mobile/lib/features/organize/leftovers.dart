@@ -55,10 +55,18 @@ class _LeftoversState extends ResourceState<LeftoversPage> {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      AsyncAction(label: context.t('remix_leftovers'), secondary: true, action: () async {
-                        await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => LeftoverRemixPage(item: item)));
-                        await load();
-                      }),
+                      AsyncAction(
+                        label: context.t('remix_leftovers'),
+                        secondary: true,
+                        action: () async {
+                          await Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => LeftoverRemixPage(item: item),
+                            ),
+                          );
+                          await load();
+                        },
+                      ),
                       for (final action in ['consume', 'discard'])
                         AsyncAction(
                           label: context.t(action),
@@ -70,13 +78,14 @@ class _LeftoversState extends ResourceState<LeftoversPage> {
                               initial: '1',
                               numeric: true,
                             );
-                            if (amount != null)
+                            if (amount != null) {
                               await command({
                                 'action': action,
                                 'id': item['id'],
                                 'expected_version': item['version'],
                                 'servings': int.tryParse(amount) ?? 0,
                               });
+                            }
                           },
                         ),
                       AsyncAction(
@@ -104,13 +113,14 @@ class _LeftoversState extends ResourceState<LeftoversPage> {
                               const Duration(days: 365),
                             ),
                           );
-                          if (date != null)
+                          if (date != null) {
                             await command({
                               'action': 'date',
                               'id': item['id'],
                               'expected_version': item['version'],
                               'user_use_date': isoDay(date),
                             });
+                          }
                         },
                       ),
                     ],

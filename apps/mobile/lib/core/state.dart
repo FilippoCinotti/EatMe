@@ -162,7 +162,8 @@ class AppController extends Notifier<AppState> {
       state = state.copy(offline: api.offline);
       if (!api.offline) await updateReminders();
     } on ApiFailure catch (error) {
-      if (error.code == 'unauthorized' || error.code == 'account_deletion_pending') {
+      if (error.code == 'unauthorized' ||
+          error.code == 'account_deletion_pending') {
         await api.clearSession();
         state = AppState(
           stage: Stage.login,
@@ -194,14 +195,26 @@ class AppController extends Notifier<AppState> {
 
   Future<void> updateReminders() async {
     try {
-      final notification = await api.request('GET', '/notifications', allowCache: false);
-      final preferences = Map<String, dynamic>.from(notification['preferences'] as Map? ?? {});
+      final notification = await api.request(
+        'GET',
+        '/notifications',
+        allowCache: false,
+      );
+      final preferences = Map<String, dynamic>.from(
+        notification['preferences'] as Map? ?? {},
+      );
       if (preferences['enabled'] != true) return;
       final plans = await api.request('GET', '/plans', allowCache: false);
       final settings = state.profile['settings'] as Map;
-      await Reminders.schedule(preferences, state.inventory,
-        (plans['items'] as List).map((v) => Map<String, dynamic>.from(v as Map)).toList(),
-        settings['timezone'] as String, state.locale?.languageCode ?? 'en');
+      await Reminders.schedule(
+        preferences,
+        state.inventory,
+        (plans['items'] as List)
+            .map((v) => Map<String, dynamic>.from(v as Map))
+            .toList(),
+        settings['timezone'] as String,
+        state.locale?.languageCode ?? 'en',
+      );
     } on ApiFailure {
       // Existing device reminders remain available when the API cannot refresh them.
     } on MissingPluginException {

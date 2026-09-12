@@ -25,23 +25,46 @@ class _RecipePageState extends ConsumerState<RecipePage> {
     final api = ref.read(apiProvider);
     final recipe = await api.request('GET', '/recipes/${widget.recipeId}');
     try {
-    final preview = await api.request(
-      'POST',
-      '/cooking/preview',
-      body: {'recipe_id': widget.recipeId, 'servings': servings, if (participants != null) 'participants': participants},
-    );
-    return (Recipe.fromJson(recipe), preview);
+      final preview = await api.request(
+        'POST',
+        '/cooking/preview',
+        body: {
+          'recipe_id': widget.recipeId,
+          'servings': servings,
+          if (participants != null) 'participants': participants,
+        },
+      );
+      return (Recipe.fromJson(recipe), preview);
     } on ApiFailure catch (error) {
       if (!error.offline && error.code != 'recipe_not_compatible') rethrow;
-      final model = Recipe.fromJson(recipe), foods = ref.read(appProvider).foods;
-      return (model, {'preview_unavailable': error.code, 'shortages': [],
-        'diet_rules_version': recipe['diet_rules_version'] ?? {}, 'nutrition': recipe['nutrition'],
-        'ingredients': model.ingredients.map((item) {
-          final food = foods.where((f) => f.id == item['food_id']).firstOrNull;
-          return {'food': {'name': food?.name ?? {'en': context.t('unknown_ingredient')}, 'unit': food?.unit ?? ''},
-            'quantity': ((double.tryParse('${item['quantity']}') ?? 0) * servings / model.servings).toStringAsFixed(2),
-            'available': '—'};
-        }).toList()});
+      final model = Recipe.fromJson(recipe),
+          foods = ref.read(appProvider).foods;
+      return (
+        model,
+        {
+          'preview_unavailable': error.code,
+          'shortages': [],
+          'diet_rules_version': recipe['diet_rules_version'] ?? {},
+          'nutrition': recipe['nutrition'],
+          'ingredients': model.ingredients.map((item) {
+            final food = foods
+                .where((f) => f.id == item['food_id'])
+                .firstOrNull;
+            return {
+              'food': {
+                'name': food?.name ?? {'en': context.t('unknown_ingredient')},
+                'unit': food?.unit ?? '',
+              },
+              'quantity':
+                  ((double.tryParse('${item['quantity']}') ?? 0) *
+                          servings /
+                          model.servings)
+                      .toStringAsFixed(2),
+              'available': '—',
+            };
+          }).toList(),
+        },
+      );
     }
   }
 
@@ -91,7 +114,11 @@ class _RecipePageState extends ConsumerState<RecipePage> {
         final nutrients = nutrition?['totals'] as Map? ?? {};
         return PageBody(
           children: [
-            if (plan['preview_unavailable'] != null) StatusNote(text: context.t(plan['preview_unavailable'] as String), warning: true),
+            if (plan['preview_unavailable'] != null)
+              StatusNote(
+                text: context.t(plan['preview_unavailable'] as String),
+                warning: true,
+              ),
             Text(
               localized(recipe.title, context.language),
               style: Theme.of(context).textTheme.displaySmall,
@@ -127,10 +154,23 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               ],
             ),
             const SizedBox(height: 16),
-            AsyncAction(label: context.t('who_is_eating'), secondary: true, action: () async {
-              final value = await chooseDiners(context, ref.read(apiProvider), participants);
-              if (value != null && mounted) setState(() { participants = value; future = load(); });
-            }),
+            AsyncAction(
+              label: context.t('who_is_eating'),
+              secondary: true,
+              action: () async {
+                final value = await chooseDiners(
+                  context,
+                  ref.read(apiProvider),
+                  participants,
+                );
+                if (value != null && mounted) {
+                  setState(() {
+                    participants = value;
+                    future = load();
+                  });
+                }
+              },
+            ),
             SegmentedButton<String>(
               segments: ['ingredients', 'overview', 'why']
                   .map(
@@ -197,13 +237,25 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               tilePadding: EdgeInsets.zero,
               title: Text(context.t('nutrition')),
               children: [
-                StatusNote(text: context.t(nutrients.isEmpty ? 'nutrition_unavailable' : 'nutrition_method')),
-                if (nutrients.isNotEmpty) Text('${nutrition?['servings']} ${context.t('servings')}'),
-                for (final nutrient in nutrients.entries) ListTile(
-                  title: Text(context.t('nutrient_${nutrient.key}')),
-                  subtitle: nutrient.value['complete'] == true ? null : Text(context.t('partial_nutrition')),
-                  trailing: Text('${nutrient.value['value']} ${nutrient.value['unit']}'),
+                StatusNote(
+                  text: context.t(
+                    nutrients.isEmpty
+                        ? 'nutrition_unavailable'
+                        : 'nutrition_method',
+                  ),
                 ),
+                if (nutrients.isNotEmpty)
+                  Text('${nutrition?['servings']} ${context.t('servings')}'),
+                for (final nutrient in nutrients.entries)
+                  ListTile(
+                    title: Text(context.t('nutrient_${nutrient.key}')),
+                    subtitle: nutrient.value['complete'] == true
+                        ? null
+                        : Text(context.t('partial_nutrition')),
+                    trailing: Text(
+                      '${nutrient.value['value']} ${nutrient.value['unit']}',
+                    ),
+                  ),
               ],
             ),
             if ((plan['shortages'] as List).isNotEmpty)
@@ -280,14 +332,21 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                       'replacement_id': replacement.id,
                       'quantity': amount,
                     });
-                if (context.mounted) context.push('/recipe-editor', extra: changed);
+                if (context.mounted) {
+                  context.push('/recipe-editor', extra: changed);
+                }
               },
             ),
             const SizedBox(height: 24),
             FilledButton(
-              onPressed: ref.watch(appProvider).offline || plan['preview_unavailable'] != null
+              onPressed:
+                  ref.watch(appProvider).offline ||
+                      plan['preview_unavailable'] != null
                   ? null
-                  : () => context.push('/cook/${recipe.id}?servings=$servings', extra: participants),
+                  : () => context.push(
+                      '/cook/${recipe.id}?servings=$servings',
+                      extra: participants,
+                    ),
               child: Text(context.t('start_cooking')),
             ),
           ],

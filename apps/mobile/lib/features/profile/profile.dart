@@ -200,10 +200,16 @@ class PrivacyPage extends ConsumerWidget {
           },
         ),
         const SizedBox(height: 16),
-        AsyncAction(label: context.t('export_file'), secondary: true, action: () async {
-          final data = await ref.read(apiProvider).request('GET', '/privacy/export');
-          if (context.mounted) await DataExport.share(context, data);
-        }),
+        AsyncAction(
+          label: context.t('export_file'),
+          secondary: true,
+          action: () async {
+            final data = await ref
+                .read(apiProvider)
+                .request('GET', '/privacy/export');
+            if (context.mounted) await DataExport.share(context, data);
+          },
+        ),
         TextButton(
           onPressed: () => context.push('/profile/edit'),
           child: Text(context.t('review_consent')),
@@ -233,10 +239,15 @@ class PrivacyPage extends ConsumerWidget {
               );
               if (confirmed != true) return;
               try {
-                await ref.read(apiProvider).request('DELETE', '/profile', body: {'confirm': true});
+                await ref
+                    .read(apiProvider)
+                    .request('DELETE', '/profile', body: {'confirm': true});
                 await ref.read(appProvider.notifier).deleted();
               } on ApiFailure catch (error) {
-                if (['reauthentication_required', 'apple_reauthentication_required'].contains(error.code)) {
+                if ([
+                  'reauthentication_required',
+                  'apple_reauthentication_required',
+                ].contains(error.code)) {
                   if (context.mounted) await context.push('/reauthenticate');
                   return;
                 }

@@ -9,21 +9,53 @@ import 'package:integration_test/integration_test.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  testWidgets('real API: purchase, plan, cook and export a meal', (tester) async {
+  testWidgets('real API: purchase, plan, cook and export a meal', (
+    tester,
+  ) async {
     final api = EatMeApi();
     await EatMeApi.secure.write(key: 'eatme.locale', value: 'en');
-    await api.login('mobile-${DateTime.now().microsecondsSinceEpoch}@example.test', 'Integration-only-12345!', register: true);
-    await api.request('PUT', '/profile', operationKey: api.newOperation(), body: {'name': 'Kitchen test', 'adult_confirmed': true});
+    await api.login(
+      'mobile-${DateTime.now().microsecondsSinceEpoch}@example.test',
+      'Integration-only-12345!',
+      register: true,
+    );
+    await api.request(
+      'PUT',
+      '/profile',
+      operationKey: api.newOperation(),
+      body: {'name': 'Kitchen test', 'adult_confirmed': true},
+    );
     final catalog = await api.request('GET', '/catalog');
     final foods = (catalog['foods'] as List).cast<Map>();
-    for (final food in foods.where((food) => food['ingredient_status'] == 'known')) {
-      await api.request('POST', '/inventory', operationKey: api.newOperation(), body: {'food_id': food['id'], 'quantity': food['unit'] == 'pcs' ? '20' : '1000'});
+    for (final food in foods.where(
+      (food) => food['ingredient_status'] == 'known',
+    )) {
+      await api.request(
+        'POST',
+        '/inventory',
+        operationKey: api.newOperation(),
+        body: {
+          'food_id': food['id'],
+          'quantity': food['unit'] == 'pcs' ? '20' : '1000',
+        },
+      );
     }
-    final tomato = foods.firstWhere((food) => '${food['name']['en']}'.toLowerCase().contains('tomato'));
-    await api.request('POST', '/shopping', operationKey: api.newOperation(), body: {'action': 'add', 'food_id': tomato['id'], 'quantity': '100'});
-    final container = ProviderContainer(overrides: [apiProvider.overrideWithValue(api)]);
+    final tomato = foods.firstWhere(
+      (food) => '${food['name']['en']}'.toLowerCase().contains('tomato'),
+    );
+    await api.request(
+      'POST',
+      '/shopping',
+      operationKey: api.newOperation(),
+      body: {'action': 'add', 'food_id': tomato['id'], 'quantity': '100'},
+    );
+    final container = ProviderContainer(
+      overrides: [apiProvider.overrideWithValue(api)],
+    );
     addTearDown(container.dispose);
-    await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const EatMeApp()));
+    await tester.pumpWidget(
+      UncontrolledProviderScope(container: container, child: const EatMeApp()),
+    );
     await tester.pumpAndSettle(const Duration(milliseconds: 250));
     expect(container.read(appProvider).stage, Stage.ready);
     expect(find.byType(NavigationDestination), findsNWidgets(4));
@@ -43,10 +75,16 @@ void main() {
     final plans = await api.request('GET', '/plans');
     expect(plans['items'][0]['data']['meals'].length, 7);
     final recipes = await api.request('GET', '/recipes');
-    final recipe = Map<String, dynamic>.from((recipes['items'] as List).first as Map);
+    final recipe = Map<String, dynamic>.from(
+      (recipes['items'] as List).first as Map,
+    );
     container.read(routerProvider).go('/cook/${recipe['id']}?servings=1');
     await tester.pumpAndSettle();
-    for (var step = 0; step < 30 && find.text('Next step').evaluate().isNotEmpty; step++) {
+    for (
+      var step = 0;
+      step < 30 && find.text('Next step').evaluate().isNotEmpty;
+      step++
+    ) {
       await tester.ensureVisible(find.text('Next step'));
       await tester.tap(find.text('Next step'));
       await tester.pumpAndSettle();

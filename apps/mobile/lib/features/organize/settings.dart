@@ -72,7 +72,7 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
               context.t('comma_separated'),
               initial: (prefs['cuisines'] as List? ?? []).join(', '),
             );
-            if (value != null)
+            if (value != null) {
               await update(
                 'cuisines',
                 value
@@ -81,6 +81,7 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
                     .where((v) => v.isNotEmpty)
                     .toList(),
               );
+            }
           },
         ),
       ]),
@@ -164,8 +165,9 @@ class _NotificationsState extends ResourceState<NotificationsPage> {
                 initial: '${prefs[setting]}',
                 numeric: true,
               );
-              if (value != null)
+              if (value != null) {
                 await update({setting: int.tryParse(value) ?? 0});
+              }
             },
           ),
         const Divider(),

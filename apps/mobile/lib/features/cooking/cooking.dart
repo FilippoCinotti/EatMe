@@ -31,10 +31,24 @@ class _CookingPageState extends ConsumerState<CookingPage> {
   bool confirmation = false;
   Future<Recipe> load() async {
     final api = ref.read(apiProvider);
-    await api.request('POST', '/cooking/preview', body: {'recipe_id': widget.recipeId,
-      'servings': widget.servings, if (widget.participants != null) 'participants': widget.participants});
-    return Recipe.fromJson(await api.request('GET', '/recipes/${widget.recipeId}', allowCache: false));
+    await api.request(
+      'POST',
+      '/cooking/preview',
+      body: {
+        'recipe_id': widget.recipeId,
+        'servings': widget.servings,
+        if (widget.participants != null) 'participants': widget.participants,
+      },
+    );
+    return Recipe.fromJson(
+      await api.request(
+        'GET',
+        '/recipes/${widget.recipeId}',
+        allowCache: false,
+      ),
+    );
   }
+
   @override
   void initState() {
     super.initState();
@@ -61,7 +75,12 @@ class _CookingPageState extends ConsumerState<CookingPage> {
         t.cancel();
         return;
       }
-      setState(() => remaining = ((timerEnd!.difference(DateTime.now()).inMilliseconds + 999) ~/ 1000).clamp(0, 300));
+      setState(
+        () => remaining =
+            ((timerEnd!.difference(DateTime.now()).inMilliseconds + 999) ~/
+                    1000)
+                .clamp(0, 300),
+      );
       if (remaining == 0) {
         t.cancel();
         ScaffoldMessenger.of(
@@ -300,7 +319,8 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
                 final data = <String, dynamic>{
                   ...request,
                   'profile_version': plan['profile_version'],
-                  if (widget.participants != null) 'participant_versions': plan['participant_versions'],
+                  if (widget.participants != null)
+                    'participant_versions': plan['participant_versions'],
                   'diet_rules_version': plan['diet_rules_version'],
                   'batch_versions': {
                     for (final a in (plan['allocations'] as List))

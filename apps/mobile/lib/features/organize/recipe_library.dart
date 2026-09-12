@@ -88,13 +88,15 @@ class _LibraryState extends ResourceState<RecipeLibraryPage> {
                       ? Icons.favorite
                       : Icons.favorite_border,
                 ),
-                onPressed: () async { await guard(() async {
-                  await command({
-                    'action': 'favorite',
-                    'recipe_id': recipe['id'],
-                    'enabled': recipe['favorite'] != true,
+                onPressed: () async {
+                  await guard(() async {
+                    await command({
+                      'action': 'favorite',
+                      'recipe_id': recipe['id'],
+                      'enabled': recipe['favorite'] != true,
+                    });
                   });
-                }); },
+                },
               ),
               onTap: () => context.push('/recipes/${recipe['id']}'),
             ),
@@ -129,10 +131,17 @@ class _EditorState extends ConsumerState<RecipeEditorPage> {
       title.text = name is Map ? '${name['en']}' : '${name ?? ''}';
       dynamic flatten(dynamic value) {
         if (value is String) return [value];
-        if (value is List) return value.expand((v) => List<String>.from(flatten(v))).toList();
-        if (value is Map) return value['text'] is String ? [value['text'] as String] : flatten(value['itemListElement']);
+        if (value is List) {
+          return value.expand((v) => List<String>.from(flatten(v))).toList();
+        }
+        if (value is Map) {
+          return value['text'] is String
+              ? [value['text'] as String]
+              : flatten(value['itemListElement']);
+        }
         return <String>[];
       }
+
       final rawSteps = value['steps'] ?? flatten(value['instructions']);
       steps.text = rawSteps is Map
           ? (rawSteps['en'] as List).join('\n')
@@ -222,11 +231,12 @@ class _EditorState extends ConsumerState<RecipeEditorPage> {
                 initial: food.unit == 'pcs' ? '1' : '100',
                 numeric: true,
               );
-              if (amount != null && mounted && context.mounted)
+              if (amount != null && mounted && context.mounted) {
                 setState(
                   () =>
                       ingredients.add({'food_id': food.id, 'quantity': amount}),
                 );
+              }
             },
           ),
           const SizedBox(height: 24),
@@ -241,14 +251,17 @@ class _EditorState extends ConsumerState<RecipeEditorPage> {
             ),
           ),
           const SizedBox(height: 24),
-          if (widget.initial != null) CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(context.t('review_recipe_steps')),
-            value: reviewed, onChanged: (value) => setState(() => reviewed = value == true),
-          ),
+          if (widget.initial != null)
+            CheckboxListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(context.t('review_recipe_steps')),
+              value: reviewed,
+              onChanged: (value) => setState(() => reviewed = value == true),
+            ),
           AsyncAction(
             label: context.t('save_private_recipe'),
-            enabled: ingredients.isNotEmpty && (widget.initial == null || reviewed),
+            enabled:
+                ingredients.isNotEmpty && (widget.initial == null || reviewed),
             action: () async {
               final result = await mutation.send(
                 ref.read(apiProvider),
@@ -269,7 +282,9 @@ class _EditorState extends ConsumerState<RecipeEditorPage> {
                   },
                 },
               );
-              if (mounted && context.mounted) context.replace('/recipes/${result['id']}');
+              if (mounted && context.mounted) {
+                context.replace('/recipes/${result['id']}');
+              }
             },
           ),
         ],

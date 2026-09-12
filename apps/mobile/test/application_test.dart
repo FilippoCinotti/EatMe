@@ -49,10 +49,11 @@ class TestApi extends EatMeApi {
     });
     if (!connected) throw const ApiFailure('network_error', offline: true);
     if (path == '/profile') return {'household_id': home, 'user_id': uid};
-    if (path == '/shopping' && method == 'GET')
+    if (path == '/shopping' && method == 'GET') {
       return {
         'items': item.isEmpty ? [] : [item],
       };
+    }
     if (path == '/shopping' && body?['action'] == 'check') {
       item = {...item, 'checked': body!['checked'], 'version': 2};
       return {'updated': true};
@@ -61,7 +62,7 @@ class TestApi extends EatMeApi {
       item = {};
       return {'purchased': true};
     }
-    if (path == '/households')
+    if (path == '/households') {
       return {
         'current_id': home,
         'items': [
@@ -83,6 +84,7 @@ class TestApi extends EatMeApi {
         ],
         'consent_version': 'household-constraints-1',
       };
+    }
     if (path == '/recipes') return {'items': []};
     return {'items': []};
   }
@@ -246,17 +248,19 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
-        final image =
-            await (boundary.currentContext!.findRenderObject()!
-                    as RenderRepaintBoundary)
-                .toImage();
-        final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-        final output = File(
-          'build/screenshots/shopping-${dark ? 'dark' : 'light'}.png',
-        );
-        await output.parent.create(recursive: true);
-        await output.writeAsBytes(bytes!.buffer.asUint8List());
-        image.dispose();
+        await tester.runAsync(() async {
+          final image =
+              await (boundary.currentContext!.findRenderObject()!
+                      as RenderRepaintBoundary)
+                  .toImage();
+          final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+          final output = File(
+            'build/screenshots/shopping-${dark ? 'dark' : 'light'}.png',
+          );
+          await output.parent.create(recursive: true);
+          await output.writeAsBytes(bytes!.buffer.asUint8List());
+          image.dispose();
+        });
       },
     );
   }

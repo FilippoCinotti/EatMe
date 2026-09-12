@@ -26,13 +26,14 @@ class _PlannerState extends ResourceState<PlannerPage> {
     await super.load();
     try {
       final result = await ref.read(apiProvider).request('GET', '/recipes');
-      if (mounted && context.mounted)
+      if (mounted && context.mounted) {
         setState(() {
           recipes = records(result['items']);
           selected = records(
             data?['items'],
           ).where((p) => p['start_date'] == isoDay(start)).firstOrNull;
         });
+      }
     } on ApiFailure catch (e) {
       if (mounted && context.mounted) setState(() => error = e.code);
     }
@@ -137,8 +138,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
               if (selected != null) 'id': selected!['id'],
               if (selected != null) 'expected_version': selected!['version'],
             });
-            if (mounted && result['id'] != null)
+            if (mounted && result['id'] != null) {
               setState(() => selected = result);
+            }
           },
         ),
         const SizedBox(height: 8),

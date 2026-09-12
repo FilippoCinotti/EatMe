@@ -27,8 +27,9 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
     final key = defaultTargetPlatform == TargetPlatform.iOS
         ? const String.fromEnvironment('REVENUECAT_IOS_KEY')
         : const String.fromEnvironment('REVENUECAT_ANDROID_KEY');
-    if (data?['configured'] != true || key.isEmpty || EatMeApi.development)
+    if (data?['configured'] != true || key.isEmpty || EatMeApi.development) {
       return;
+    }
     try {
       final user = ref.read(apiProvider).userId!;
       if (!configured) {
@@ -41,13 +42,16 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
       }
       final offerings = await Purchases.getOfferings();
       final customer = await Purchases.getCustomerInfo();
-      if (mounted && context.mounted)
+      if (mounted && context.mounted) {
         setState(() {
           packages = offerings.current?.availablePackages ?? [];
           managementUrl = customer.managementURL;
         });
+      }
     } catch (_) {
-      if (mounted && context.mounted) setState(() => error = 'store_unavailable');
+      if (mounted && context.mounted) {
+        setState(() => error = 'store_unavailable');
+      }
     }
   }
 

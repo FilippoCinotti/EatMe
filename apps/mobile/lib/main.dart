@@ -92,7 +92,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/profile/edit',
         builder: (_, _) => const OnboardingPage(edit: true),
       ),
-      GoRoute(path: '/reauthenticate', builder: (_, _) => const ReauthenticatePage()),
+      GoRoute(
+        path: '/reauthenticate',
+        builder: (_, _) => const ReauthenticatePage(),
+      ),
       GoRoute(path: '/privacy', builder: (_, _) => const PrivacyPage()),
       GoRoute(path: '/shopping', builder: (_, _) => const ShoppingPage()),
       GoRoute(path: '/planner', builder: (_, _) => const PlannerPage()),
