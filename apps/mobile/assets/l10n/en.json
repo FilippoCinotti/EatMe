@@ -431,5 +431,21 @@
   "remix_prepared": "I reviewed the steps and prepared this meal.",
   "leftover_provenance_unavailable": "The original ingredients could not be verified.",
   "batch_not_usable": "This batch is past its use-by date or matches a recall.",
-  "event_leftover_remix": "Reused in a meal"
+  "event_leftover_remix": "Reused in a meal",
+  "prepared_meals": "Already prepared",
+  "budget_preference": "Shopping preference",
+  "budget_any": "Standard ranking",
+  "budget_medium": "Prefer what I have",
+  "budget_low": "Prioritize what I have",
+  "budget_notice": "Uses ingredient availability to reduce extra shopping. This is not a price estimate.",
+  "archive_recipe": "Archive private recipe",
+  "report_problem": "Report a problem",
+  "report_notice": "Describe the problem without passwords or unnecessary health details.",
+  "report_sent": "Your report was sent.",
+  "remove_favorite": "Remove from favorites",
+  "archive_recipe_body": "Remove this recipe from your collection? Previous cooking records are retained.",
+  "pending_invitations": "Pending invitations",
+  "revoke_invitation": "Revoke invitation",
+  "leave_household": "Leave this household",
+  "leave_household_body": "Shared inventory stays with this household. You will return to another household or a new personal kitchen."
 }

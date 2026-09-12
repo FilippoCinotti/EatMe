@@ -26,7 +26,9 @@ class HouseholdService:
             profile = self._profile(tx, user_id)
             homes = tx.all("SELECT h.*,m.role,s.name FROM households h JOIN household_members m ON m.household_id=h.id LEFT JOIN household_settings s ON s.household_id=h.id WHERE m.user_id=?", (user_id,))
             members = tx.all("SELECT m.user_id,m.role,p.name,COALESCE(c.share_constraints,0) AS share_constraints FROM household_members m JOIN profiles p ON p.user_id=m.user_id LEFT JOIN member_permissions c ON c.user_id=m.user_id AND c.household_id=m.household_id WHERE m.household_id=?", (profile["household_id"],))
-            return {"items": homes, "current_id": profile["household_id"], "members": members, "consent_version": SHARING_CONSENT}
+            owner = any(h['id'] == profile['household_id'] and h['role'] == 'owner' for h in homes)
+            invitations = tx.all("SELECT id,role,expires_at FROM household_invitations WHERE household_id=? AND accepted_at IS NULL AND revoked_at IS NULL AND expires_at>? ORDER BY created_at DESC LIMIT 100", (profile['household_id'], now())) if owner else []
+            return {"items": homes, "current_id": profile["household_id"], "members": members, "invitations": invitations, "consent_version": SHARING_CONSENT}
 
     def household_action(self, user_id, data, key):
         household_id = self._household(user_id)
@@ -78,7 +80,16 @@ class HouseholdService:
                     member = self._member(tx, user_id, household_id)
                     if member["role"] == "owner":
                         raise DomainError("ownership_transfer_required", 409)
-                    target = valid_uuid(data.get("fallback_household_id"))
+                    target = data.get("fallback_household_id")
+                    if target is None:
+                        fallback = tx.one("SELECT household_id FROM household_members WHERE user_id=? AND household_id<>? ORDER BY household_id LIMIT 1", (user_id, household_id))
+                        if fallback:
+                            target = fallback['household_id']
+                        else:
+                            target = new_id()
+                            tx.execute("INSERT INTO households VALUES (?,?,?,?)", (target, user_id, 1, now()))
+                            tx.execute("INSERT INTO household_members VALUES (?,?,?)", (target, user_id, 'owner'))
+                    target = valid_uuid(target)
                     if target == household_id:
                         raise DomainError("invalid_household", 422)
                     self._member(tx, user_id, target)

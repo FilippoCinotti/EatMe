@@ -76,6 +76,20 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
           },
         ),
         if (current?['role'] == 'owner') ...[
+          if (records(data?['invitations']).isNotEmpty)
+            Text(context.t('pending_invitations')),
+          for (final invitation in records(data?['invitations']))
+            ListTile(
+              title: Text(context.t('role_${invitation['role']}')),
+              subtitle: Text('${invitation['expires_at']}'.substring(0, 10)),
+              trailing: IconButton(
+                tooltip: context.t('revoke_invitation'),
+                icon: const Icon(Icons.cancel_outlined),
+                onPressed: () => guard(() async {
+                  await command({'action': 'revoke', 'invitation_id': invitation['id']});
+                }),
+              ),
+            ),
           AsyncAction(
             label: context.t('invite_member'),
             action: () async {
@@ -133,6 +147,27 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
           },
         ),
         const SizedBox(height: 24),
+        if (current?['role'] != 'owner')
+          AsyncAction(
+            label: context.t('leave_household'),
+            secondary: true,
+            action: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text(context.t('leave_household')),
+                  content: Text(context.t('leave_household_body')),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.pop(context, false), child: Text(context.t('cancel'))),
+                    TextButton(onPressed: () => Navigator.pop(context, true), child: Text(context.t('leave_household'))),
+                  ],
+                ),
+              );
+              if (confirmed != true) return;
+              await command({'action': 'leave'});
+              await ref.read(appProvider.notifier).hydrate();
+            },
+          ),
         for (final home in homes.where((h) => h['id'] != data?['current_id']))
           ListTile(
             title: Text(home['name'] as String? ?? context.t('your_household')),

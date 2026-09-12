@@ -9,7 +9,7 @@ from .engine import amount_milli, compatibility, quantity, requirements
 from .errors import DomainError
 from .providers import OpenFoodFacts, barcode, https_request
 from .storage import decode, encode
-from .validation import integer, new_id, text, valid_uuid
+from .validation import choice, integer, new_id, text, valid_uuid
 
 
 class RecipeParser(HTMLParser):
@@ -88,7 +88,8 @@ class ContentService:
                     if not owned:
                         raise DomainError("forbidden", 403)
                     if tx.one("SELECT 1 FROM cooking_sessions WHERE recipe_id=?", (recipe_id,)):
-                        raise DomainError("recipe_has_cooking_history", 409)
+                        tx.execute("UPDATE recipes SET data=? WHERE id=?", (encode({**recipe, "archived": True}), recipe_id))
+                        return {"archived": True}
                     tx.execute("DELETE FROM content_ownership WHERE kind='recipe' AND content_id=?", (recipe_id,))
                     tx.execute("DELETE FROM recipes WHERE id=?", (recipe_id,))
                     return {"deleted": True}
@@ -146,7 +147,7 @@ class ContentService:
             if foods[item["food_id"]]["unit"] == "pcs" and amount % 1000:
                 raise DomainError("whole_units_required", 422)
             items.append({"food_id": item["food_id"], "quantity": quantity(amount)})
-        return {"title": title, "steps": normalized, "ingredients": items, "servings": integer(value.get("servings"), minimum=1, maximum=20), "minutes": integer(value.get("minutes"), minimum=1, maximum=1440), "cuisine": text(value.get("cuisine", "other"), maximum=60), "provenance": text(value.get("provenance", "user-import"), maximum=60), "source_url": text(value.get("source_url", ""), maximum=2000, empty=True), "nutrition": None}
+        return {"title": title, "steps": normalized, "ingredients": items, "servings": integer(value.get("servings"), minimum=1, maximum=20), "minutes": integer(value.get("minutes"), minimum=1, maximum=1440), "cuisine": text(value.get("cuisine", "other"), maximum=60), "difficulty": choice(value.get("difficulty", "beginner"), {"beginner", "confident", "advanced"}), "provenance": text(value.get("provenance", "user-import"), maximum=60), "source_url": text(value.get("source_url", ""), maximum=2000, empty=True), "nutrition": None}
 
     def import_url(self, user_id, data):
         self._household(user_id)

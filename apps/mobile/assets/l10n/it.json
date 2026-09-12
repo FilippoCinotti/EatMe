@@ -431,5 +431,21 @@
   "remix_prepared": "Ho verificato i passaggi e preparato questo pasto.",
   "leftover_provenance_unavailable": "Non è stato possibile verificare gli ingredienti originali.",
   "batch_not_usable": "Questo lotto ha superato la data di scadenza o corrisponde a un richiamo.",
-  "event_leftover_remix": "Riutilizzato in un pasto"
+  "event_leftover_remix": "Riutilizzato in un pasto",
+  "prepared_meals": "Già preparato",
+  "budget_preference": "Preferenza di spesa",
+  "budget_any": "Ordine standard",
+  "budget_medium": "Preferisci ciò che ho",
+  "budget_low": "Dai priorità a ciò che ho",
+  "budget_notice": "Usa la disponibilità degli ingredienti per ridurre la spesa aggiuntiva. Non è una stima dei prezzi.",
+  "archive_recipe": "Archivia ricetta privata",
+  "report_problem": "Segnala un problema",
+  "report_notice": "Descrivi il problema senza password o dettagli sanitari non necessari.",
+  "report_sent": "La segnalazione è stata inviata.",
+  "remove_favorite": "Rimuovi dai preferiti",
+  "archive_recipe_body": "Rimuovere questa ricetta dalla raccolta? Le preparazioni precedenti saranno conservate.",
+  "pending_invitations": "Inviti in attesa",
+  "revoke_invitation": "Revoca invito",
+  "leave_household": "Lascia questo nucleo",
+  "leave_household_body": "L'inventario condiviso resta in questo nucleo. Tornerai a un altro nucleo o a una nuova cucina personale."
 }

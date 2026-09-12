@@ -15,6 +15,7 @@ class AppState {
     this.diets = const [],
     this.allergens = const [],
     this.inventory = const [],
+    this.leftovers = const [],
     this.recommendations = const [],
     this.theme = ThemeMode.system,
     this.locale,
@@ -29,6 +30,7 @@ class AppState {
   final List<Diet> diets;
   final List<String> allergens;
   final List<Batch> inventory;
+  final List<Json> leftovers;
   final List<Recommendation> recommendations;
   final ThemeMode theme;
   final Locale? locale;
@@ -42,6 +44,7 @@ class AppState {
     List<Diet>? diets,
     List<String>? allergens,
     List<Batch>? inventory,
+    List<Json>? leftovers,
     List<Recommendation>? recommendations,
     ThemeMode? theme,
     Locale? locale,
@@ -56,6 +59,7 @@ class AppState {
     diets: diets ?? this.diets,
     allergens: allergens ?? this.allergens,
     inventory: inventory ?? this.inventory,
+    leftovers: leftovers ?? this.leftovers,
     recommendations: recommendations ?? this.recommendations,
     theme: theme ?? this.theme,
     locale: locale ?? this.locale,
@@ -116,11 +120,12 @@ class AppController extends Notifier<AppState> {
       api.request('GET', '/catalog'),
     ]);
     final profile = responses[0], catalog = responses[1];
-    final switchedUser = state.profile['user_id'] != profile['user_id'];
+    final switchedUser = state.profile['user_id'] != profile['user_id'] || state.profile['household_id'] != profile['household_id'];
     state = state.copy(
       profile: profile,
       isDemo: catalog['is_demo'] == true,
       inventory: switchedUser ? const [] : null,
+      leftovers: switchedUser ? const [] : null,
       recommendations: switchedUser ? const [] : null,
       foods: (catalog['foods'] as List)
           .map((f) => Food.fromJson(Map<String, dynamic>.from(f as Map)))
@@ -147,6 +152,8 @@ class AppController extends Notifier<AppState> {
         offline: api.offline,
         mode: chosenMode,
       );
+      final meals = await api.request('GET', '/leftovers');
+      state = state.copy(leftovers: (meals['items'] as List).map((v) => Map<String, dynamic>.from(v as Map)).toList());
       final recommendations = await api.request(
         'GET',
         '/recommendations?mode=$chosenMode',
@@ -203,7 +210,10 @@ class AppController extends Notifier<AppState> {
       final preferences = Map<String, dynamic>.from(
         notification['preferences'] as Map? ?? {},
       );
-      if (preferences['enabled'] != true) return;
+      if (preferences['enabled'] != true) {
+        await Reminders.clear();
+        return;
+      }
       final plans = await api.request('GET', '/plans', allowCache: false);
       final settings = state.profile['settings'] as Map;
       await Reminders.schedule(

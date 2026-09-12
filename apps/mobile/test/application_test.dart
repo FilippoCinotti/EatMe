@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:convert';
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -17,6 +19,19 @@ import 'package:eatme/features/organize/recipe_library.dart';
 
 const uid = '00000000-0000-4000-8000-000000000001';
 const home = '00000000-0000-4000-8000-000000000002';
+
+class TestStrings extends LocalizationsDelegate<EatMeStrings> {
+  const TestStrings();
+  static final values = EatMeStrings(Map<String, String>.from(
+    jsonDecode(File('assets/l10n/en.json').readAsStringSync()) as Map,
+  ));
+  @override
+  bool isSupported(Locale locale) => locale.languageCode == 'en';
+  @override
+  Future<EatMeStrings> load(Locale locale) => SynchronousFuture(values);
+  @override
+  bool shouldReload(TestStrings old) => false;
+}
 
 class TestApi extends EatMeApi {
   TestApi() {
@@ -127,7 +142,7 @@ Widget harness(
     locale: const Locale('en'),
     supportedLocales: const [Locale('en'), Locale('it')],
     localizationsDelegates: const [
-      EatMeStrings.delegate,
+      TestStrings(),
       GlobalMaterialLocalizations.delegate,
       GlobalWidgetsLocalizations.delegate,
       GlobalCupertinoLocalizations.delegate,
@@ -183,6 +198,7 @@ void main() {
   ) async {
     await tester.pumpWidget(harness(const RecipeEditorPage(), TestApi()));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Save private recipe'), 300);
     final button = tester.widget<FilledButton>(
       find.widgetWithText(FilledButton, 'Save private recipe'),
     );

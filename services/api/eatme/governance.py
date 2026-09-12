@@ -39,6 +39,8 @@ class GovernanceService:
                         raise DomainError('cannot_change_own_role', 409)
                     self._profile(tx, target)
                     assigned = choice(data.get('role'), {'support', 'editor', 'reviewer', 'admin', 'superadmin', 'none'})
+                    if assigned == 'none' and target in os.getenv('ADMIN_USER_IDS', '').split(','):
+                        raise DomainError('bootstrap_role_requires_configuration', 409)
                     if assigned == 'none':
                         tx.execute('DELETE FROM admin_roles WHERE user_id=?', (target,))
                     else:
@@ -116,6 +118,8 @@ class GovernanceService:
                     raise DomainError('invalid_allergen', 422)
             if value.get('intolerances', []) not in ([], ['lactose']):
                 raise DomainError('invalid_intolerance', 422)
+            if 'season_months' in value and (not isinstance(value['season_months'], list) or any(type(m) is not int or not 1 <= m <= 12 for m in value['season_months'])):
+                raise DomainError('invalid_seasonality', 422)
             if value.get('nutrition'):
                 nutrition = value['nutrition']
                 choice(nutrition.get('basis'), {'100g', '100ml'})

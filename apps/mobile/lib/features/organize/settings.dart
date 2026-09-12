@@ -18,9 +18,13 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
   @override
   String get path => '/preferences';
   Future<void> update(String name, dynamic value) async {
+    if (data == null) return;
+    await guard(() async {
     await command({
       'expected_version': data!['version'],
       'data': {...Map<String, dynamic>.from(data!['data'] as Map), name: value},
+    });
+    await ref.read(appProvider.notifier).refresh();
     });
   }
 
@@ -34,6 +38,8 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
           context.t('make_it_yours'),
           style: Theme.of(context).textTheme.headlineMedium,
         ),
+        DropdownButtonFormField<String>(initialValue: prefs['budget'] as String? ?? 'any', decoration: InputDecoration(labelText: context.t('budget_preference')), items: ['any','medium','low'].map((v) => DropdownMenuItem(value: v, child: Text(context.t('budget_$v')))).toList(), onChanged: (v) => update('budget', v)),
+        StatusNote(text: context.t('budget_notice')),
         for (final name in ['learning', 'analytics', 'ai_consent', 'seasonal'])
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
@@ -99,6 +105,8 @@ class _NotificationsState extends ResourceState<NotificationsPage> {
   @override
   String get path => '/notifications';
   Future<void> update(Json changes) async {
+    if (data == null) return;
+    await guard(() async {
     if (changes['enabled'] == true) await Reminders.requestPermission();
     await command({
       'action': 'preferences',
@@ -117,6 +125,7 @@ class _NotificationsState extends ResourceState<NotificationsPage> {
       app.profile['settings']['timezone'] as String,
       app.locale?.languageCode ?? 'en',
     );
+    });
   }
 
   @override
@@ -180,7 +189,9 @@ class _NotificationsState extends ResourceState<NotificationsPage> {
                 ? const Icon(Icons.circle, size: 8)
                 : null,
             onTap: () async {
-              await command({'action': 'read', 'id': item['id']});
+              await guard(() async {
+                await command({'action': 'read', 'id': item['id']});
+              });
             },
           ),
       ]),
@@ -341,7 +352,6 @@ class _SyncState extends ConsumerState<SyncPage> {
                   await ref
                       .read(apiProvider)
                       .discardPending(item['key'] as String);
-                  await load();
                   await load();
                 },
               ),

@@ -72,6 +72,7 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
     def _catalog(self, tx, user_id=None):
         foods = {r["id"]:decode(r["data"]) for r in tx.all("SELECT f.* FROM foods f LEFT JOIN content_ownership o ON o.content_id=f.id AND o.kind='food' WHERE o.content_id IS NULL OR o.user_id=? OR o.household_id IN (SELECT household_id FROM household_members WHERE user_id=?)", (user_id,user_id))}
         recipes = [decode(r["data"]) for r in tx.all("SELECT r.* FROM recipes r LEFT JOIN content_ownership o ON o.content_id=r.id AND o.kind='recipe' WHERE o.content_id IS NULL OR o.user_id=?", (user_id,))]
+        recipes = [recipe for recipe in recipes if not recipe.get("archived")]
         diets = [decode(r["data"]) for r in tx.all("SELECT * FROM diet_definitions")]
         versions = [{**v,"rules":decode(v["rules"])} for v in tx.all("SELECT * FROM diet_versions")]
         retired = tx.all("SELECT DISTINCT g.kind,g.subject_id FROM governed_content g WHERE g.status='DEPRECATED' AND NOT EXISTS (SELECT 1 FROM governed_content p WHERE p.kind=g.kind AND p.subject_id=g.subject_id AND p.status='PUBLISHED')")
@@ -300,11 +301,19 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
             preferences = decode(prefs_row["data"]) if prefs_row else {}
             if preferences.get("max_minutes"):
                 recipes = [r for r in recipes if r["minutes"] <= preferences["max_minutes"]]
+            skill = {'beginner': 0, 'confident': 1, 'advanced': 2}
+            if preferences.get('skill'):
+                recipes = [r for r in recipes if skill.get(r.get('difficulty', 'beginner'), 0) <= skill[preferences['skill']]]
             ranked,rejected = rank(recipes,foods,inventory,profile["settings"],rules,today,mode,size,self.weights)
             feedback = {r["recipe_id"]:r["rating"] for r in tx.all("SELECT recipe_id,rating FROM recipe_feedback WHERE user_id=?",(user_id,))} if preferences.get("learning") else {}
             cuisines = {c.casefold() for c in preferences.get("cuisines",[])}
             for item in ranked:
                 item["preference_adjustment"] = .05 * feedback.get(item["recipe"]["id"],0) + (.03 if item["recipe"].get("cuisine","").casefold() in cuisines else 0)
+                if preferences.get('budget') in {'low', 'medium'}:
+                    item['preference_adjustment'] += item['component_scores']['availability'] * (.06 if preferences['budget'] == 'low' else .03)
+                seasonal = [foods[i['food_id']] for i in item['recipe']['ingredients'] if foods[i['food_id']].get('season_months')]
+                if preferences.get('seasonal') and seasonal:
+                    item['preference_adjustment'] += .03 * sum(today.month in f['season_months'] for f in seasonal) / len(seasonal)
                 item["score"] = round(item["score"]+item["preference_adjustment"],6)
             if any(item['preference_adjustment'] for item in ranked):
                 ranked.sort(key=lambda item:(-item["score"],item["recipe"]["id"]))
@@ -330,7 +339,7 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
             if not recipe:
                 raise DomainError("recipe_not_found",404)
             validation = compatibility([i["food_id"] for i in recipe["ingredients"]],foods,profile["settings"],rules)
-            return {**recipe,"compatibility":validation,"diet_rules_version":versions,"nutrition":self.recipe_nutrition(recipe,foods,recipe["servings"])}
+            return {**recipe,"favorite":bool(tx.one("SELECT 1 FROM recipe_favorites WHERE user_id=? AND recipe_id=?",(user_id,recipe_id))),"compatibility":validation,"diet_rules_version":versions,"nutrition":self.recipe_nutrition(recipe,foods,recipe["servings"])}
 
     def food_compatibility(self,user_id,food_id):
         self._household(user_id)
@@ -415,7 +424,7 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
     def leftovers(self,user_id):
         household_id = self._household(user_id)
         with self.db.transaction() as tx:
-            rows = tx.all("SELECT l.*,COALESCE(s.remaining,l.servings) AS remaining,COALESCE(s.version,1) AS version,r.data AS recipe_data FROM leftovers l LEFT JOIN leftover_state s ON s.leftover_id=l.id JOIN cooking_sessions c ON c.id=l.cooking_id JOIN recipes r ON r.id=c.recipe_id WHERE l.household_id=? ORDER BY l.prepared_at DESC",(household_id,))
+            rows = tx.all("SELECT l.*,COALESCE(s.remaining,l.servings) AS remaining,COALESCE(s.version,1) AS version,r.data AS recipe_data FROM leftovers l LEFT JOIN leftover_state s ON s.leftover_id=l.id JOIN cooking_sessions c ON c.id=l.cooking_id JOIN recipes r ON r.id=c.recipe_id WHERE l.household_id=? AND COALESCE(s.remaining,l.servings)>0 ORDER BY l.prepared_at DESC LIMIT 100",(household_id,))
             return {"items":[{**{k:v for k,v in row.items() if k!="recipe_data"},"recipe_title":decode(row["recipe_data"])["title"]} for row in rows]}
 
     def export(self,user_id):

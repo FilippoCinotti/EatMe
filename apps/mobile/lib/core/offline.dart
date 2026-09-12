@@ -15,6 +15,13 @@ class OfflineStore {
     });
     if (content.length > 400000) return;
     await storage.write(key: '$prefix$path', value: content);
+    final snapshots = (await storage.readAll()).entries.where((entry) => entry.key.startsWith('$prefix/') && entry.key != '${prefix}/profile' && entry.key != '${prefix}/catalog').toList();
+    if (snapshots.length > 40) {
+      snapshots.sort((a, b) => a.value.compareTo(b.value));
+      for (final entry in snapshots.take(snapshots.length - 40)) {
+        await storage.delete(key: entry.key);
+      }
+    }
   }
 
   Future<Json?> read(String path) async {

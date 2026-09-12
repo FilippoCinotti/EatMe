@@ -93,6 +93,7 @@ class EatMeApi {
   OfflineStore? get cache => userId == null ? null : OfflineStore(userId!);
   bool cacheable(String path) =>
       !path.startsWith('/privacy') &&
+      !path.endsWith('/compatibility') &&
       !path.startsWith('/admin') &&
       !path.startsWith('/products') &&
       !path.startsWith('/entitlements') &&
@@ -226,6 +227,10 @@ class EatMeApi {
       final value = Map<String, dynamic>.from(result.data as Map);
       offline = false;
       if (account == userId && epoch == _cacheEpoch) {
+        if ((path == '/profile' && method == 'PUT') || (path == '/preferences' && method == 'POST')) {
+          _cacheEpoch++;
+          await cache?.clearSnapshots();
+        }
         if (path == '/households' &&
             method == 'POST' &&
             ['switch', 'accept', 'leave'].contains(body?['action'])) {

@@ -62,6 +62,30 @@ class DomainCase(unittest.TestCase):
         self.app.household_action(self.guest, {'action': 'share_constraints', 'enabled': True, 'consent_version': 'household-constraints-1'}, new_id())
         self.assertCode('recipe_not_compatible', lambda: self.app.plan_action(self.owner, command, new_id()))
 
+    def test_invitation_listing_is_owner_only_and_revocation_prevents_joining(self):
+        self.join()
+        invite = self.app.household_action(self.owner, {'action': 'invite'}, new_id())
+        listed = self.app.households(self.owner)['invitations']
+        self.assertEqual([row['id'] for row in listed], [invite['id']])
+        self.assertNotIn('token_hash', listed[0])
+        self.assertEqual(self.app.households(self.guest)['invitations'], [])
+        self.app.household_action(self.owner, {'action': 'revoke', 'invitation_id': invite['id']}, new_id())
+        self.assertCode('invitation_unavailable', lambda: self.app.household_action(self.guest, {'action': 'accept', 'token': invite['token']}, new_id()))
+
+    def test_leaving_restores_personal_home_and_revokes_shared_access(self):
+        personal = self.app.get_profile(self.guest)['household_id']
+        self.join()
+        self.app.household_action(self.guest, {'action': 'share_constraints', 'enabled': True, 'consent_version': 'household-constraints-1'}, new_id())
+        self.app.add_inventory(self.owner, {'food_id': identifier('food', 'tomato'), 'quantity': '100'}, new_id())
+        key = new_id()
+        result = self.app.household_action(self.guest, {'action': 'leave'}, key)
+        self.assertEqual(result['household_id'], personal)
+        self.assertEqual(result, self.app.household_action(self.guest, {'action': 'leave'}, key))
+        self.assertEqual(self.app.inventory(self.guest)['items'], [])
+        self.assertEqual(len(self.app.households(self.owner)['members']), 1)
+        with self.db.transaction() as tx:
+            self.assertIsNone(tx.one('SELECT 1 FROM member_permissions WHERE user_id=?', (self.guest,)))
+
     def test_plan_shopping_aggregates_stock_once_and_purchase_is_idempotent(self):
         self.app.add_inventory(self.owner, {'food_id': identifier('food', 'tomato'), 'quantity': '100'}, new_id())
         plan = self.app.plan_action(self.owner, {'action': 'save', 'start_date': '2026-09-11', 'meals': [self.meal(), {**self.meal(), 'date': '2026-09-12'}]}, new_id())
