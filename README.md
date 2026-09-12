@@ -13,7 +13,7 @@ python -m pip install -e 'services/api[dev]'
 python scripts/dev.py
 ```
 
-In a second terminal, generate the native runners and start an emulator:
+In a second terminal, resolve the locked dependencies and start an emulator:
 
 ```bash
 python scripts/bootstrap_mobile.py

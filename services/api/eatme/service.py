@@ -83,7 +83,7 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
                 recipes = [r for r in recipes if r['id'] != row['subject_id']]
         today = self.today({'timezone': 'UTC'}).isoformat()
         current_evidence = {r['subject_id'] for r in tx.all("SELECT subject_id,data FROM governed_content WHERE kind='evidence' AND status='PUBLISHED'") if decode(r['data']).get('review_due', '') >= today}
-        unavailable = {d['id'] for d in diets if not d.get('is_demo', False) and not set(d.get('evidence_references', [])) <= current_evidence}
+        unavailable = {d['id'] for d in diets if not d.get('is_demo', False) and (not d.get('evidence_references') or not set(d['evidence_references']) <= current_evidence)}
         for version in versions:
             if version['diet_id'] in unavailable:
                 version['status'] = 'REVIEW_REQUIRED'

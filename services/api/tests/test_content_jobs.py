@@ -54,6 +54,20 @@ class ContentCase(unittest.TestCase):
         self.app.recipe_action(self.owner, {'action': 'favorite', 'recipe_id': rid, 'enabled': True}, new_id())
         self.assertFalse(next(r for r in self.app.recipes(self.reviewer)['items'] if r['id'] == rid)['favorite'])
 
+    def test_archiving_a_cooked_recipe_preserves_history_and_hides_discovery(self):
+        recipe = self.app.recipe_action(self.owner, {'action': 'save', 'recipe': self.recipe()}, new_id())
+        for ingredient in recipe['ingredients']:
+            self.app.add_inventory(self.owner, ingredient, new_id())
+        meal = {'recipe_id': recipe['id'], 'servings': 1}
+        preview = self.app.cooking_preview(self.owner, meal)
+        self.app.cooking_confirm(self.owner, {**meal, 'profile_version': preview['profile_version'],
+            'diet_rules_version': preview['diet_rules_version'],
+            'batch_versions': {b['batch_id']: b['version'] for b in preview['allocations']}}, new_id())
+        self.app.recipe_action(self.owner, {'action': 'delete', 'recipe_id': recipe['id']}, new_id())
+        self.assertCode('recipe_not_found', lambda: self.app.recipe(self.owner, recipe['id']))
+        self.assertNotIn(recipe['id'], [r['id'] for r in self.app.recipes(self.owner)['items']])
+        self.assertEqual(len(self.app.export_all(self.owner)['cooking_sessions']), 1)
+
     def test_editor_cannot_publish_own_evidence_and_expired_sources_are_excluded(self):
         with patch.dict(os.environ, {'ADMIN_USER_IDS': self.owner + ',' + self.reviewer}):
             draft = self.app.admin_action(self.owner, {'action': 'draft', 'kind': 'evidence', 'data': {'title': 'Synthetic test', 'publisher': 'Test fixture', 'claim': 'Not a real nutrition claim.', 'jurisdiction': 'test', 'strength': 'expert_opinion', 'published_date': '2026-01-01', 'review_due': '2026-09-11', 'url': 'https://example.com/test'}}, new_id())

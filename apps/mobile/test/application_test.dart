@@ -175,9 +175,13 @@ void main() {
     }
     await text.load();
     final icons = FontLoader('MaterialIcons');
-    icons.addFont(Future.value(ByteData.sublistView(
-      File('${fonts.path}/MaterialIcons-Regular.otf').readAsBytesSync(),
-    )));
+    icons.addFont(
+      Future.value(
+        ByteData.sublistView(
+          File('${fonts.path}/MaterialIcons-Regular.otf').readAsBytesSync(),
+        ),
+      ),
+    );
     await icons.load();
   });
   setUp(() {

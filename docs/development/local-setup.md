@@ -53,6 +53,8 @@ For iOS Simulator, use `http://127.0.0.1:8000/api/v1`. On a physical phone use t
 
 Debug builds support breakpoints, Flutter DevTools, hot reload and the widget inspector. Release builds reject development authentication and non-HTTPS API URLs. A scanner's camera needs a physical device or emulator camera input. Gallery import and manual barcode entry provide simulator-friendly paths.
 
+CI publishes Android debug APK and iOS simulator application artifacts when their build succeeds. These development artifacts use the default loopback API address; on Android use `adb reverse tcp:8000 tcp:8000` before launching an installed artifact. Building with `flutter run` and the explicit emulator URL above is the easiest source-debugging path. On macOS, unzip the simulator archive, boot a simulator, then use `xcrun simctl install booted Runner.app` and `xcrun simctl launch booted com.filippocinotti.eatme`. A simulator application cannot be installed on a physical iPhone.
+
 ## Studio
 
 ```bash

@@ -244,7 +244,7 @@ class PlanningService:
                         if plan['shortages']:
                             raise DomainError('insufficient_inventory', 409)
                         recipe_id, cooking_id, stamp = new_id(), new_id(), now()
-                        tx.execute('INSERT INTO recipes VALUES (?,?)', (recipe_id, encode({**recipe, 'id': recipe_id})))
+                        tx.execute('INSERT INTO recipes VALUES (?,?)', (recipe_id, encode({**recipe, 'id': recipe_id, 'private': True, 'is_demo': False})))
                         tx.execute("INSERT INTO content_ownership VALUES ('recipe',?,?,NULL)", (recipe_id, user_id))
                         catalog = self._catalog(tx, user_id)[0]
                         plan['ingredients'] = [{'food_id': i['food_id'], 'quantity': i['quantity'], 'food': catalog[i['food_id']]} for i in recipe['ingredients']]

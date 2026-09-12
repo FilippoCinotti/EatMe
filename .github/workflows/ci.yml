@@ -88,6 +88,24 @@ jobs:
       - if: runner.os == 'macOS'
         run: flutter build ios --simulator --debug
         working-directory: apps/mobile
+      - name: Archive iOS simulator application
+        if: runner.os == 'macOS'
+        run: ditto -c -k --sequesterRsrc --keepParent build/ios/iphonesimulator/Runner.app build/EatMe-iOS-Simulator.zip
+        working-directory: apps/mobile
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'Linux'
+        with:
+          name: EatMe-Android-debug
+          path: apps/mobile/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'macOS'
+        with:
+          name: EatMe-iOS-simulator
+          path: apps/mobile/build/EatMe-iOS-Simulator.zip
+          if-no-files-found: error
+          retention-days: 14
       - name: Prepare Android integration backend
         if: runner.os == 'Linux'
         run: |
@@ -111,6 +129,12 @@ jobs:
       - name: Export UI verification images
         if: always()
         run: python3 scripts/export_ci_review.py mobile
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: interface-review-${{ runner.os }}
+          path: apps/mobile/build/screenshots/*.png
+          retention-days: 14
   admin:
     runs-on: ubuntu-latest
     steps:
