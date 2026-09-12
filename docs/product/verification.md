@@ -2,9 +2,9 @@
 
 ## Application validation
 
-The foundation-only results are superseded by application checks. The latest published implementation is `3c6839fd86abc02b0b0e4ba6a4165568823fa089`.
+The foundation-only results are superseded by application checks. The latest published implementation is `48669f134397c8e0da51d55345b9a32904ab49af`.
 
-[Application CI](https://github.com/FilippoCinotti/EatMe/actions/runs/34688949852) verifies the following:
+[Application CI](https://github.com/FilippoCinotti/EatMe/actions/runs/34689449901) verifies the following:
 
 | Check | Result at this checkpoint |
 | --- | --- |
@@ -13,11 +13,12 @@ The foundation-only results are superseded by application checks. The latest pub
 | API Docker build | Passed |
 | PostgreSQL migrations, RLS and concurrent purchase idempotency | Passed |
 | Studio type checking, production build and dependency audit | Passed |
-| Flutter analysis and 10 widget/workflow tests | Passed on Linux and macOS |
+| Flutter analysis and 12 widget/workflow tests | Passed on Linux and macOS |
 | iOS simulator debug build | Passed; simulator archive uploaded |
-| Android debug build and real API emulator flow | In progress |
+| Android debug build | Passed; APK uploaded |
+| Real API Android emulator flow | Blocked before emulator launch by exhausted runner disk space; the runner preparation now removes unused preinstalled SDKs before building |
 
-The light and dark shopping screens were inspected at 390 × 844 with 1.6× text scaling using real fonts. No overflow or clipped controls were observed. These are interface review images, not store marketing screenshots. Generic foldable display validation is being added and must pass before its behavior is claimed as verified.
+The light and dark shopping screens were inspected at 390 × 844 with 1.6× text scaling using real fonts. No overflow or clipped controls were observed. These are interface review images, not store marketing screenshots. Two additional tests verify that all four navigation destinations remain inside an unobstructed foldable display region at 1.6× text scaling. The exact formatter output for the new test file is included in the runner correction.
 
 ## Local verification limits
 
