@@ -1,17 +1,32 @@
 # Verification report
 
-## Verified foundation
+## Application validation
 
-The initial foundation passed API, PostgreSQL, studio and Android/iOS debug CI on commit `e5bdb7b6557794cf327c8e0f3d3c783c2a61a870`. The report is historical and does not validate later application additions.
+The foundation-only results are superseded by application checks. The latest published implementation is `3c6839fd86abc02b0b0e4ba6a4165568823fa089`.
 
-## Application checks
+[Application CI](https://github.com/FilippoCinotti/EatMe/actions/runs/34688949852) verifies the following:
 
-Commit `db8a4f863ec92102feba84886700509981db87c9` passed all 49 API tests in the dependency-equipped CI environment, including FastAPI. PostgreSQL migrations/RLS and the studio build passed. Mobile formatting and worker lint required fixes.
+| Check | Result at this checkpoint |
+| --- | --- |
+| Python API/domain/HTTP tests | Passed; 58 discovered tests, with the PostgreSQL-specific case run separately |
+| Python lint, static repository checks and dependency audit | Passed |
+| API Docker build | Passed |
+| PostgreSQL migrations, RLS and concurrent purchase idempotency | Passed |
+| Studio type checking, production build and dependency audit | Passed |
+| Flutter analysis and 10 widget/workflow tests | Passed on Linux and macOS |
+| iOS simulator debug build | Passed; simulator archive uploaded |
+| Android debug build and real API emulator flow | In progress |
 
-Commit `b6fb9c3910c55aeb8bbbc20279fc4c09d1417ba5` passed API tests, PostgreSQL and the expanded English studio build. CI identified a Flutter navigation syntax error and an import formatting issue, which are being corrected. Native runners and the Flutter lockfile were generated in CI and retrieved for review.
+The light and dark shopping screens were inspected at 390 × 844 with 1.6× text scaling using real fonts. No overflow or clipped controls were observed. These are interface review images, not store marketing screenshots. Generic foldable display validation is being added and must pass before its behavior is claimed as verified.
 
-The local environment runs the Python domain/HTTP tests but does not contain Flutter, FastAPI or PostgreSQL. Two FastAPI tests are skipped locally and run in CI. Do not describe local static parsing as a native platform build.
+## Local verification limits
 
-## Outstanding gates
+The local workspace runs 58 Python tests with three environment-specific skips: two FastAPI adapter tests and one PostgreSQL case. Those adapters run in the dependency-equipped CI jobs. Local Python parsing does not establish Flutter, TypeScript, native or database compatibility.
 
-CodeQL is blocked until repository Code scanning is enabled. Live provider credentials, scientific publication review, device/OAuth/subscription lifecycle tests, store signing and public release resources require staging/owner configuration. This report must be updated with the final validated commit before any release is declared ready.
+## Release gates
+
+CodeQL cannot upload its results because GitHub reports that Code scanning is not enabled for this repository. The workflow remains enabled; the repository owner must configure the required feature and obtain a successful scan before release.
+
+Live Supabase/Apple/Google credentials, provider configuration, store purchase sandboxes, scientific publication review, physical-device lifecycle tests, signing and hosted operator-specific legal/support pages remain external release prerequisites. RAD and other unreviewed medical profiles remain unavailable. Debug artifacts do not constitute signed store releases.
+
+Record the final tested application commit and close every implementation, verification and deployment gate before describing a release as store-ready.

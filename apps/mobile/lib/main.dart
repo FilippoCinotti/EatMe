@@ -193,6 +193,7 @@ class _EatMeAppState extends ConsumerState<EatMeApp> {
     return MaterialApp.router(
       title: 'EatMe',
       debugShowCheckedModeBanner: false,
+      builder: (context, child) => AdaptiveAppFrame(child: child!),
       theme: Tokens.theme(Brightness.light),
       darkTheme: Tokens.theme(Brightness.dark),
       themeMode: state.theme,

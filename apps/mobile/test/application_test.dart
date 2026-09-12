@@ -14,6 +14,9 @@ import 'package:eatme/core/localization.dart';
 import 'package:eatme/core/models.dart';
 import 'package:eatme/core/state.dart';
 import 'package:eatme/design_system/theme.dart';
+import 'package:eatme/design_system/widgets.dart';
+import 'package:eatme/main.dart';
+import 'package:eatme/features/chef_table/chef_table.dart';
 import 'package:eatme/features/organize/shopping.dart';
 import 'package:eatme/features/organize/household.dart';
 import 'package:eatme/features/organize/recipe_library.dart';
@@ -136,6 +139,7 @@ Widget harness(
   TestApi api, {
   bool dark = false,
   double scale = 1,
+  List<ui.DisplayFeature> features = const [],
 }) => ProviderScope(
   overrides: [
     apiProvider.overrideWithValue(api),
@@ -154,8 +158,8 @@ Widget harness(
     builder: (context, child) => MediaQuery(
       data: MediaQuery.of(
         context,
-      ).copyWith(textScaler: TextScaler.linear(scale)),
-      child: child!,
+      ).copyWith(textScaler: TextScaler.linear(scale), displayFeatures: features),
+      child: AdaptiveAppFrame(child: child!),
     ),
     home: child,
   ),
@@ -274,6 +278,29 @@ void main() {
     },
   );
   for (final dark in [false, true]) {
+    testWidgets('navigation avoids a foldable hinge ${dark ? 'dark' : 'light'}', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(804, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(harness(
+        const AppShell(path: '/chef', child: ChefTablePage()),
+        TestApi(),
+        dark: dark,
+        scale: 1.6,
+        features: const [ui.DisplayFeature(
+          bounds: Rect.fromLTWH(390, 0, 24, 844),
+          type: ui.DisplayFeatureType.hinge,
+          state: ui.DisplayFeatureState.postureFlat,
+        )],
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byType(NavigationDestination), findsNWidgets(4));
+      expect(tester.getRect(find.byType(NavigationBar)).right, lessThanOrEqualTo(390));
+      expect(tester.takeException(), isNull);
+    });
     testWidgets(
       'shopping renders at mobile width with large text ${dark ? 'dark' : 'light'}',
       (tester) async {

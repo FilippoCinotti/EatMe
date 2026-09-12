@@ -20,9 +20,17 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
   String get path => '/entitlements';
   List<Package> packages = [];
   String? managementUrl;
+  bool storeReady = false;
   static bool configured = false;
   @override
   Future<void> load() async {
+    if (mounted) {
+      setState(() {
+        storeReady = false;
+        packages = [];
+        managementUrl = null;
+      });
+    }
     await super.load();
     final key = defaultTargetPlatform == TargetPlatform.iOS
         ? const String.fromEnvironment('REVENUECAT_IOS_KEY')
@@ -42,8 +50,9 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
       }
       final offerings = await Purchases.getOfferings();
       final customer = await Purchases.getCustomerInfo();
-      if (mounted && context.mounted) {
+      if (mounted && ref.read(apiProvider).userId == user) {
         setState(() {
+          storeReady = true;
           packages = offerings.current?.availablePackages ?? [];
           managementUrl = customer.managementURL;
         });
@@ -98,7 +107,7 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
             ),
           ),
         ),
-      if (configured)
+      if (storeReady)
         AsyncAction(
           label: context.t('restore_purchases'),
           secondary: true,
