@@ -184,16 +184,23 @@ class ContentService:
             return {"inventory_event_counts": dict(counts), "cooked_meals": len(sessions), "different_recipes": len({r["recipe_id"] for r in sessions}), "window": "latest_2000_events_and_100_meals", "money_saved": None, "carbon_saved": None}
 
     def recipe_nutrition(self, recipe, foods, servings):
-        totals, missing = {}, []
-        for food_id, amount in requirements(recipe, servings).items():
+        from decimal import Decimal
+        totals, missing, sources, coverage, units = {}, [], {}, {}, {}
+        needed = requirements(recipe, servings)
+        for food_id, amount in needed.items():
             food = foods[food_id]
             nutrients = food.get("nutrition")
-            if not nutrients or food["unit"] == "pcs" or nutrients.get("basis") != "100" + food["unit"]:
+            if not nutrients or not nutrients.get('values') or food["unit"] == "pcs" or nutrients.get("basis") != "100" + food["unit"]:
                 missing.append(food_id)
                 continue
-            for name, value in nutrients.get("values", {}).items():
-                totals[name] = totals.get(name, 0) + float(value["value"]) * amount / 100000
-        return {"totals": totals, "servings": servings, "complete": not missing, "missing_food_ids": missing}
+            sources[food_id] = nutrients.get('source_url')
+            for name, value in nutrients['values'].items():
+                if name in units and units[name] != value['unit']:
+                    raise DomainError('inconsistent_nutrition_units', 409)
+                units[name] = value['unit']
+                totals[name] = totals.get(name, Decimal(0)) + Decimal(str(value['value'])) * amount / 100000
+                coverage[name] = coverage.get(name, 0) + 1
+        return {'totals': {name: {'value': str(amount.quantize(Decimal('0.01'))), 'unit': units[name], 'complete': coverage[name] == len(needed)} for name, amount in totals.items()}, 'servings': servings, 'complete': bool(totals) and not missing and all(n == len(needed) for n in coverage.values()), 'missing_food_ids': missing, 'sources': sources, 'method': 'ingredient_amounts_no_cooking_retention_adjustment'}
 
     def product_stock(self, user_id, data, key):
         home = self._household(user_id, write=True)

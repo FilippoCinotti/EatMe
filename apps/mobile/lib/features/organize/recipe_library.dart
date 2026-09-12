@@ -69,7 +69,7 @@ class _LibraryState extends ResourceState<RecipeLibraryPage> {
                   '/recipes/import-url',
                   body: {'url': url, 'private_use_confirmed': true},
                 );
-            if (mounted) {
+            if (mounted && context.mounted) {
               await context.push('/recipe-editor', extra: draft);
               await load();
             }
@@ -88,13 +88,13 @@ class _LibraryState extends ResourceState<RecipeLibraryPage> {
                       ? Icons.favorite
                       : Icons.favorite_border,
                 ),
-                onPressed: () async {
+                onPressed: () async { await guard(() async {
                   await command({
                     'action': 'favorite',
                     'recipe_id': recipe['id'],
                     'enabled': recipe['favorite'] != true,
                   });
-                },
+                }); },
               ),
               onTap: () => context.push('/recipes/${recipe['id']}'),
             ),
@@ -119,6 +119,7 @@ class _EditorState extends ConsumerState<RecipeEditorPage> {
       minutes = TextEditingController(text: '20');
   final mutation = Mutation();
   List<Json> ingredients = [];
+  bool reviewed = false;
   @override
   void initState() {
     super.initState();
@@ -126,7 +127,13 @@ class _EditorState extends ConsumerState<RecipeEditorPage> {
     if (value != null) {
       final name = value['title'];
       title.text = name is Map ? '${name['en']}' : '${name ?? ''}';
-      final rawSteps = value['steps'];
+      dynamic flatten(dynamic value) {
+        if (value is String) return [value];
+        if (value is List) return value.expand((v) => List<String>.from(flatten(v))).toList();
+        if (value is Map) return value['text'] is String ? [value['text'] as String] : flatten(value['itemListElement']);
+        return <String>[];
+      }
+      final rawSteps = value['steps'] ?? flatten(value['instructions']);
       steps.text = rawSteps is Map
           ? (rawSteps['en'] as List).join('\n')
           : rawSteps is List
@@ -208,14 +215,14 @@ class _EditorState extends ConsumerState<RecipeEditorPage> {
             secondary: true,
             action: () async {
               final food = await chooseFood(context, foods);
-              if (food == null || !mounted) return;
+              if (food == null || !mounted || !context.mounted) return;
               final amount = await askText(
                 context,
                 '${context.t('quantity')} (${food.unit})',
                 initial: food.unit == 'pcs' ? '1' : '100',
                 numeric: true,
               );
-              if (amount != null && mounted)
+              if (amount != null && mounted && context.mounted)
                 setState(
                   () =>
                       ingredients.add({'food_id': food.id, 'quantity': amount}),
@@ -234,9 +241,14 @@ class _EditorState extends ConsumerState<RecipeEditorPage> {
             ),
           ),
           const SizedBox(height: 24),
+          if (widget.initial != null) CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(context.t('review_recipe_steps')),
+            value: reviewed, onChanged: (value) => setState(() => reviewed = value == true),
+          ),
           AsyncAction(
             label: context.t('save_private_recipe'),
-            enabled: ingredients.isNotEmpty,
+            enabled: ingredients.isNotEmpty && (widget.initial == null || reviewed),
             action: () async {
               final result = await mutation.send(
                 ref.read(apiProvider),
@@ -257,7 +269,7 @@ class _EditorState extends ConsumerState<RecipeEditorPage> {
                   },
                 },
               );
-              if (mounted) context.replace('/recipes/${result['id']}');
+              if (mounted && context.mounted) context.replace('/recipes/${result['id']}');
             },
           ),
         ],

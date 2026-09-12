@@ -38,8 +38,11 @@ class GovernanceService:
                     if target == user_id:
                         raise DomainError('cannot_change_own_role', 409)
                     self._profile(tx, target)
-                    assigned = choice(data.get('role'), {'support', 'editor', 'reviewer', 'admin', 'superadmin'})
-                    tx.execute('INSERT INTO admin_roles VALUES (?,?,?) ON CONFLICT(user_id) DO UPDATE SET role=excluded.role,updated_at=excluded.updated_at', (target, assigned, stamp))
+                    assigned = choice(data.get('role'), {'support', 'editor', 'reviewer', 'admin', 'superadmin', 'none'})
+                    if assigned == 'none':
+                        tx.execute('DELETE FROM admin_roles WHERE user_id=?', (target,))
+                    else:
+                        tx.execute('INSERT INTO admin_roles VALUES (?,?,?) ON CONFLICT(user_id) DO UPDATE SET role=excluded.role,updated_at=excluded.updated_at', (target, assigned, stamp))
                 elif command == 'flag':
                     self._admin(tx, user_id, {'admin', 'superadmin'})
                     name = choice(data.get('name'), {'ai_scan', 'ai_recipe', 'receipt_scan', 'barcode_scan', 'subscriptions'})
@@ -60,7 +63,7 @@ class GovernanceService:
                     revision = tx.one('SELECT COALESCE(MAX(revision),0) AS n FROM governed_content WHERE kind=? AND subject_id=?', (kind, subject))['n'] + 1
                     tx.execute('INSERT INTO governed_content VALUES (?,?,?,?,?,?,?,?,?,?,?)', (identifier, kind, subject, revision, 'DRAFT', encode(value), user_id, None, None, stamp, stamp))
                 elif command in {'submit', 'publish', 'deprecate'}:
-                    row = tx.one('SELECT * FROM governed_content WHERE id=?', (valid_uuid(identifier),))
+                    row = tx.one('SELECT * FROM governed_content WHERE id=?' + (' FOR UPDATE' if tx.postgres else ''), (valid_uuid(identifier),))
                     if not row:
                         raise DomainError('content_not_found', 404)
                     if data.get('expected_status') != row['status']:
@@ -75,6 +78,11 @@ class GovernanceService:
                         self._admin(tx, user_id, {'reviewer', 'admin', 'superadmin'})
                         if row['status'] != 'IN_REVIEW' or row['created_by'] == user_id:
                             raise DomainError('independent_review_required', 409)
+                        if tx.postgres:
+                            tx.execute('SELECT pg_advisory_xact_lock(hashtextextended(?,0))', ('content:' + row['kind'] + row['subject_id'],))
+                        latest = tx.one("SELECT MAX(revision) AS revision FROM governed_content WHERE kind=? AND subject_id=? AND status='PUBLISHED'", (row['kind'], row['subject_id']))
+                        if latest['revision'] is not None and latest['revision'] >= row['revision']:
+                            raise DomainError('newer_revision_published', 409)
                         self._validate_publication(tx, row)
                         self._publish(tx, row)
                         tx.execute("UPDATE governed_content SET status='DEPRECATED',updated_at=? WHERE kind=? AND subject_id=? AND status='PUBLISHED'", (stamp, row['kind'], row['subject_id']))
@@ -115,9 +123,13 @@ class GovernanceService:
                 if not isinstance(nutrition.get('values'), dict):
                     raise DomainError('invalid_nutrition', 422)
                 from .validation import decimal
-                for nutrient in nutrition['values'].values():
-                    choice(nutrient.get('unit'), {'g', 'mg', 'kcal', 'kJ'})
+                units = {'energy': 'kcal', 'energy_kj': 'kJ', 'protein': 'g', 'carbohydrates': 'g', 'fat': 'g', 'saturated_fat': 'g', 'sugars': 'g', 'fiber': 'g', 'salt': 'g', 'sodium': 'mg'}
+                for name, nutrient in nutrition['values'].items():
+                    if name not in units or not isinstance(nutrient, dict) or nutrient.get('unit') != units[name]:
+                        raise DomainError('invalid_nutrition', 422)
                     decimal(nutrient.get('value'), maximum=100000)
+                if not nutrition['values']:
+                    raise DomainError('invalid_nutrition', 422)
         elif kind == 'recipe':
             self._validate_recipe(value, self._catalog(tx)[0])
         elif kind == 'diet':
@@ -134,7 +146,8 @@ class GovernanceService:
             if not isinstance(refs, list) or not refs:
                 raise DomainError('approved_evidence_required', 422)
             for ref in refs:
-                if not tx.one("SELECT 1 FROM governed_content WHERE subject_id=? AND kind='evidence' AND status='PUBLISHED'", (valid_uuid(ref),)):
+                evidence = tx.one("SELECT data FROM governed_content WHERE subject_id=? AND kind='evidence' AND status='PUBLISHED'", (valid_uuid(ref),))
+                if not evidence or decode(evidence['data']).get('review_due', '') < self.today({'timezone': 'UTC'}).isoformat():
                     raise DomainError('approved_evidence_required', 422)
             rules = value.get('rules')
             if not isinstance(rules, list) or len(rules) > 100:
@@ -155,6 +168,8 @@ class GovernanceService:
             choice(value.get('strength'), {'guideline', 'systematic_review', 'trial', 'observational', 'expert_opinion'})
             if not valid_date(value.get('published_date')) or not valid_date(value.get('review_due')):
                 raise DomainError('invalid_date', 422)
+            if value['published_date'] > self.today({'timezone': 'UTC'}).isoformat() or value['review_due'] < self.today({'timezone': 'UTC'}).isoformat():
+                raise DomainError('evidence_review_expired', 422)
             self._https(value.get('url'))
         elif kind == 'recall':
             from .providers import barcode

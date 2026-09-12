@@ -26,11 +26,15 @@ class CookingPage extends ConsumerStatefulWidget {
 class _CookingPageState extends ConsumerState<CookingPage> {
   late Future<Recipe> future = load();
   Timer? timer;
+  DateTime? timerEnd;
   int step = 0, remaining = 0;
   bool confirmation = false;
-  Future<Recipe> load() async => Recipe.fromJson(
-    await ref.read(apiProvider).request('GET', '/recipes/${widget.recipeId}'),
-  );
+  Future<Recipe> load() async {
+    final api = ref.read(apiProvider);
+    await api.request('POST', '/cooking/preview', body: {'recipe_id': widget.recipeId,
+      'servings': widget.servings, if (widget.participants != null) 'participants': widget.participants});
+    return Recipe.fromJson(await api.request('GET', '/recipes/${widget.recipeId}', allowCache: false));
+  }
   @override
   void initState() {
     super.initState();
@@ -50,13 +54,14 @@ class _CookingPageState extends ConsumerState<CookingPage> {
       setState(() => remaining = 0);
       return;
     }
+    timerEnd = DateTime.now().add(const Duration(minutes: 5));
     setState(() => remaining = 300);
     timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (!mounted) {
         t.cancel();
         return;
       }
-      setState(() => remaining--);
+      setState(() => remaining = ((timerEnd!.difference(DateTime.now()).inMilliseconds + 999) ~/ 1000).clamp(0, 300));
       if (remaining == 0) {
         t.cancel();
         ScaffoldMessenger.of(

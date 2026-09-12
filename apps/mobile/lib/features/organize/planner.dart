@@ -26,7 +26,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
     await super.load();
     try {
       final result = await ref.read(apiProvider).request('GET', '/recipes');
-      if (mounted)
+      if (mounted && context.mounted)
         setState(() {
           recipes = records(result['items']);
           selected = records(
@@ -34,7 +34,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
           ).where((p) => p['start_date'] == isoDay(start)).firstOrNull;
         });
     } on ApiFailure catch (e) {
-      if (mounted) setState(() => error = e.code);
+      if (mounted && context.mounted) setState(() => error = e.code);
     }
   }
 
@@ -114,10 +114,18 @@ class _PlannerState extends ResourceState<PlannerPage> {
             }
           },
         ),
-        AsyncAction(label: context.t('who_is_eating'), secondary: true, action: () async {
-          final value = await chooseDiners(context, ref.read(apiProvider), participants);
-          if (value != null && mounted) setState(() => participants = value);
-        }),
+        AsyncAction(
+          label: context.t('who_is_eating'),
+          secondary: true,
+          action: () async {
+            final value = await chooseDiners(
+              context,
+              ref.read(apiProvider),
+              participants,
+            );
+            if (value != null && mounted) setState(() => participants = value);
+          },
+        ),
         AsyncAction(
           label: context.t('generate_week'),
           action: () async {
@@ -145,7 +153,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
                 '/shopping',
                 {'action': 'generate', 'plan_id': selected!['id']},
               );
-              if (mounted) context.push('/shopping');
+              if (mounted && context.mounted) context.push('/shopping');
             },
           ),
         const SizedBox(height: 24),

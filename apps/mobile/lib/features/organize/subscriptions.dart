@@ -41,13 +41,13 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
       }
       final offerings = await Purchases.getOfferings();
       final customer = await Purchases.getCustomerInfo();
-      if (mounted)
+      if (mounted && context.mounted)
         setState(() {
           packages = offerings.current?.availablePackages ?? [];
           managementUrl = customer.managementURL;
         });
     } catch (_) {
-      if (mounted) setState(() => error = 'store_unavailable');
+      if (mounted && context.mounted) setState(() => error = 'store_unavailable');
     }
   }
 

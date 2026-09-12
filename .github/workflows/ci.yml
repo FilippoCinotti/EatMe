@@ -48,6 +48,12 @@ jobs:
       - run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/202609110003_domains.sql
       - run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/202609110004_identity.sql
       - run: psql -v ON_ERROR_STOP=1 -f supabase/tests/rls.sql
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: python -m pip install -e services/api
+      - run: python -m unittest discover -s services/api/tests -p test_postgres.py -v
+        env:
+          EATME_TEST_POSTGRES: postgresql://postgres:ephemeral-ci-password@localhost:5432/eatme_test
   mobile:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -60,8 +66,11 @@ jobs:
       - uses: subosito/flutter-action@v2
         with: {channel: stable, flutter-version: '3.47.2', cache: true}
       - run: python3 scripts/bootstrap_mobile.py
+      - name: Apply Dart block formatting
+        run: dart fix --apply --code=curly_braces_in_flow_control_structures
+        working-directory: apps/mobile
       - name: Format Dart sources
-        run: dart format lib test
+        run: dart format lib test integration_test
         working-directory: apps/mobile
       - name: Export generated sources
         if: always()
@@ -82,8 +91,25 @@ jobs:
       - if: runner.os == 'macOS'
         run: flutter build ios --simulator --debug
         working-directory: apps/mobile
+      - name: Prepare Android integration backend
+        if: runner.os == 'Linux'
+        run: |
+          python3 -m pip install -e services/api
+          uvicorn eatme.api:create_app --factory --host 0.0.0.0 --port 8000 --no-access-log > /tmp/eatme-test-api.log 2>&1 &
+          sudo chmod 666 /dev/kvm
+      - name: Android application integration
+        if: runner.os == 'Linux'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7
+          disable-animations: true
+          working-directory: apps/mobile
+          script: flutter test integration_test/kitchen_flow_test.dart --dart-define=API_URL=http://10.0.2.2:8000/api/v1
       - name: Verify Dart formatting
-        run: git diff --exit-code -- lib test
+        run: git diff --exit-code -- lib test integration_test
         working-directory: apps/mobile
       - name: Export UI verification images
         if: always()
@@ -94,7 +120,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: {node-version: '22'}
-      - run: npm install --ignore-scripts
+      - run: npm ci --ignore-scripts
         working-directory: apps/admin
       - run: python3 scripts/export_ci_review.py admin
       - run: npm run typecheck

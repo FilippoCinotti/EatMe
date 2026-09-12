@@ -51,13 +51,15 @@ class Batch {
     this.expiryDate,
     this.expiryKind,
     this.version,
-    this.usable,
+    this.usable, {this.metadata = const {}, this.recalls = const []}
   );
   final String id, quantity, location, expiryKind;
   final Food food;
   final DateTime? expiryDate;
   final int version;
   final bool usable;
+  final Json metadata;
+  final List<Json> recalls;
   factory Batch.fromJson(Json j) => Batch(
     j['id'] as String,
     Food.fromJson(Map<String, dynamic>.from(j['food'] as Map)),
@@ -67,6 +69,8 @@ class Batch {
     j['expiry_kind'] as String,
     j['version'] as int,
     j['usable'] as bool,
+    metadata: Map<String, dynamic>.from(j['metadata'] as Map? ?? {}),
+    recalls: (j['recalls'] as List? ?? []).map((v) => Map<String, dynamic>.from(v as Map)).toList(),
   );
 }
 

@@ -20,6 +20,7 @@ import 'features/organize/settings.dart';
 import 'features/organize/subscriptions.dart';
 import 'core/models.dart';
 import 'features/auth/login.dart';
+import 'features/auth/reauthenticate.dart';
 import 'features/onboarding/onboarding.dart';
 import 'features/chef_table/chef_table.dart';
 import 'features/fridge/fridge.dart';
@@ -91,6 +92,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/profile/edit',
         builder: (_, _) => const OnboardingPage(edit: true),
       ),
+      GoRoute(path: '/reauthenticate', builder: (_, _) => const ReauthenticatePage()),
       GoRoute(path: '/privacy', builder: (_, _) => const PrivacyPage()),
       GoRoute(path: '/shopping', builder: (_, _) => const ShoppingPage()),
       GoRoute(path: '/planner', builder: (_, _) => const PlannerPage()),
@@ -114,7 +116,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/evidence', builder: (_, _) => const EvidencePage()),
       GoRoute(path: '/insights', builder: (_, _) => const InsightsPage()),
       GoRoute(path: '/sync', builder: (_, _) => const SyncPage()),
-      GoRoute(path: '/subscriptions', builder: (_, _) => const SubscriptionsPage()),
+      GoRoute(
+        path: '/subscriptions',
+        builder: (_, _) => const SubscriptionsPage(),
+      ),
       GoRoute(
         path: '/reset-password',
         builder: (_, _) => const ResetPasswordPage(),
@@ -244,33 +249,47 @@ class AppShell extends StatelessWidget {
     body: child,
     bottomNavigationBar: SafeArea(
       minimum: const EdgeInsets.fromLTRB(18, 0, 18, 12),
-      child: Align(heightFactor: 1, child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 620),
-        child: ClipRRect(borderRadius: BorderRadius.circular(30), child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: MediaQuery.highContrastOf(context) ? 0 : 12, sigmaY: MediaQuery.highContrastOf(context) ? 0 : 12),
-          child: NavigationBar(
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainer.withValues(alpha: .92),
-      elevation: 0,
-      selectedIndex: paths.indexOf(path).clamp(0, 3).toInt(),
-      onDestinationSelected: (index) => context.go(paths[index]),
-      destinations: [
-        NavigationDestination(
-          icon: const Icon(Icons.restaurant_menu_outlined),
-          label: context.t('chef_table'),
+      child: Align(
+        heightFactor: 1,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 620),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(30),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: MediaQuery.highContrastOf(context) ? 0 : 12,
+                sigmaY: MediaQuery.highContrastOf(context) ? 0 : 12,
+              ),
+              child: NavigationBar(
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainer.withValues(alpha: .92),
+                elevation: 0,
+                selectedIndex: paths.indexOf(path).clamp(0, 3).toInt(),
+                onDestinationSelected: (index) => context.go(paths[index]),
+                destinations: [
+                  NavigationDestination(
+                    icon: const Icon(Icons.restaurant_menu_outlined),
+                    label: context.t('chef_table'),
+                  ),
+                  NavigationDestination(
+                    icon: const Icon(Icons.kitchen_outlined),
+                    label: context.t('fridge'),
+                  ),
+                  NavigationDestination(
+                    icon: const Icon(Icons.eco_outlined),
+                    label: context.t('healthy_food'),
+                  ),
+                  NavigationDestination(
+                    icon: const Icon(Icons.person_outline),
+                    label: context.t('profile'),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
-        NavigationDestination(
-          icon: const Icon(Icons.kitchen_outlined),
-          label: context.t('fridge'),
-        ),
-        NavigationDestination(
-          icon: const Icon(Icons.eco_outlined),
-          label: context.t('healthy_food'),
-        ),
-        NavigationDestination(
-          icon: const Icon(Icons.person_outline),
-          label: context.t('profile'),
-        ),
-      ],
-    )))))),
+      ),
+    ),
   );
 }

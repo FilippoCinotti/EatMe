@@ -17,7 +17,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
   String get path => '/shopping';
   Future<void> add() async {
     final food = await chooseFood(context, ref.read(appProvider).foods);
-    if (food == null || !mounted) return;
+    if (food == null || !mounted || !context.mounted) return;
     final amount = await askText(
       context,
       '${context.t('quantity')} (${food.unit})',
@@ -83,7 +83,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                           'checked': value,
                         });
                       } catch (_) {
-                        if (mounted)
+                        if (mounted && context.mounted)
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(context.t('retry'))),
                           );

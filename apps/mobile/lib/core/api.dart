@@ -9,6 +9,7 @@ import 'package:uuid/uuid.dart';
 import 'models.dart';
 import 'offline.dart';
 import 'reminders.dart';
+import 'data_export.dart';
 
 class ApiFailure implements Exception {
   const ApiFailure(this.code, {this.offline = false});
@@ -160,9 +161,13 @@ class EatMeApi {
             break;
           }
           try {
-            await request(item['method'] as String, item['path'] as String,
+            await request(
+              item['method'] as String,
+              item['path'] as String,
               body: Map<String, dynamic>.from(item['body'] as Map),
-              operationKey: item['key'] as String, allowCache: false);
+              operationKey: item['key'] as String,
+              allowCache: false,
+            );
             pending.removeAt(0);
             await current.savePending(pending);
           } on ApiFailure catch (error) {
@@ -177,7 +182,11 @@ class EatMeApi {
       }
     });
     _queueWrite = operation.catchError((Object _) {});
-    try { await operation; } finally { syncing = false; }
+    try {
+      await operation;
+    } finally {
+      syncing = false;
+    }
   }
 
   String? localToken, localUserId;
@@ -188,6 +197,7 @@ class EatMeApi {
       development ? localUserId : Supabase.instance.client.auth.currentUser?.id;
 
   Future<void> restore() async {
+    await DataExport.clear();
     localToken = await secure.read(key: 'eatme.token');
     localUserId = await secure.read(key: 'eatme.user');
   }
@@ -216,7 +226,8 @@ class EatMeApi {
       final value = Map<String, dynamic>.from(result.data as Map);
       offline = false;
       if (account == userId && epoch == _cacheEpoch) {
-        if (path == '/households' && method == 'POST' &&
+        if (path == '/households' &&
+            method == 'POST' &&
             ['switch', 'accept', 'leave'].contains(body?['action'])) {
           _cacheEpoch++;
           await cache?.clearSnapshots();
@@ -224,7 +235,8 @@ class EatMeApi {
         }
         if (path == '/profile' && method == 'GET') {
           final previous = await cache?.read('/profile');
-          if (previous != null && previous['household_id'] != value['household_id']) {
+          if (previous != null &&
+              previous['household_id'] != value['household_id']) {
             _cacheEpoch++;
             await cache?.clearSnapshots();
             await secure.delete(key: 'eatme.inventory');
@@ -234,7 +246,9 @@ class EatMeApi {
       }
       return value;
     } on DioException catch (error) {
-      if (account == userId && epoch == _cacheEpoch && error.response == null &&
+      if (account == userId &&
+          epoch == _cacheEpoch &&
+          error.response == null &&
           method == 'GET' &&
           allowCache &&
           cacheable(path)) {
@@ -304,20 +318,35 @@ class EatMeApi {
         throw const ApiFailure('oauth_not_configured');
       }
       final credential = await SignInWithApple.getAppleIDCredential(
-        scopes: [AppleIDAuthorizationScopes.email, AppleIDAuthorizationScopes.fullName],
-        nonce: sha256.convert(utf8.encode(rawNonce)).toString(), state: state,
-        webAuthenticationOptions: android ? WebAuthenticationOptions(
-          clientId: serviceId, redirectUri: Uri.parse(callback)) : null,
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        nonce: sha256.convert(utf8.encode(rawNonce)).toString(),
+        state: state,
+        webAuthenticationOptions: android
+            ? WebAuthenticationOptions(
+                clientId: serviceId,
+                redirectUri: Uri.parse(callback),
+              )
+            : null,
       );
       if (credential.identityToken == null || credential.state != state) {
         throw const ApiFailure('invalid_credentials');
       }
-      await auth.signInWithIdToken(provider: OAuthProvider.apple,
-        idToken: credential.identityToken!, nonce: rawNonce);
-      await request('POST', '/auth/apple-authorization', body: {
-        'authorization_code': credential.authorizationCode,
-        'platform': android ? 'android' : 'ios',
-      });
+      await auth.signInWithIdToken(
+        provider: OAuthProvider.apple,
+        idToken: credential.identityToken!,
+        nonce: rawNonce,
+      );
+      await request(
+        'POST',
+        '/auth/apple-authorization',
+        body: {
+          'authorization_code': credential.authorizationCode,
+          'platform': android ? 'android' : 'ios',
+        },
+      );
       return;
     }
     await Supabase.instance.client.auth.signInWithOAuth(
@@ -348,6 +377,7 @@ class EatMeApi {
     await _queueWrite;
     _cacheEpoch++;
     await Reminders.clear();
+    await DataExport.clear();
     await cache?.clear();
     if (!development && Supabase.instance.client.auth.currentSession != null) {
       await Supabase.instance.client.auth.signOut(scope: SignOutScope.local);

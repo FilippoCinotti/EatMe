@@ -20,6 +20,12 @@ abstract class ResourceState<T extends ConsumerStatefulWidget>
   Json? data;
   String? error;
   final mutation = Mutation();
+  bool updating = false;
+  Future<void> guard(Future<void> Function() action) async {
+    try { await action(); } on ApiFailure catch (e) {
+      if (mounted) setState(() => error = e.code);
+    }
+  }
   @override
   void initState() {
     super.initState();
@@ -29,17 +35,20 @@ abstract class ResourceState<T extends ConsumerStatefulWidget>
   Future<void> load() async {
     try {
       final value = await ref.read(apiProvider).request('GET', path);
-      if (mounted)
+      if (mounted && context.mounted)
         setState(() {
           data = value;
           error = null;
         });
     } on ApiFailure catch (e) {
-      if (mounted) setState(() => error = e.code);
+      if (mounted && context.mounted) setState(() => error = e.code);
     }
   }
 
   Future<Json> command(Json body) async {
+    if (updating) throw const ApiFailure('operation_in_progress');
+    updating = true;
+    try {
     final value = await mutation.send(
       ref.read(apiProvider),
       'POST',
@@ -53,6 +62,7 @@ abstract class ResourceState<T extends ConsumerStatefulWidget>
       ).showSnackBar(SnackBar(content: Text(context.t('queued_offline'))));
     }
     return value;
+    } finally { updating = false; }
   }
 
   Widget content(List<Widget> children) => data == null && error == null
@@ -159,19 +169,62 @@ class _FoodPickerState extends State<FoodPicker> {
   );
 }
 
-Future<List<String>?> chooseDiners(BuildContext context, EatMeApi api, List<String>? initial) async {
+Future<List<String>?> chooseDiners(
+  BuildContext context,
+  EatMeApi api,
+  List<String>? initial,
+) async {
   final home = await api.request('GET', '/households');
   if (!context.mounted) return null;
   final members = records(home['members']);
   final selected = (initial ?? [api.userId!]).toSet();
-  return showDialog<List<String>>(context: context, builder: (context) => StatefulBuilder(builder: (context, update) => AlertDialog(
-    title: Text(context.t('who_is_eating')),
-    content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
-      Text(context.t('diner_consent_notice')),
-      for (final member in members) CheckboxListTile(title: Text(member['name'] as String), value: selected.contains(member['user_id']),
-        subtitle: member['user_id'] != api.userId && member['share_constraints'] != 1 ? Text(context.t('sharing_not_enabled')) : null,
-        onChanged: member['user_id'] != api.userId && member['share_constraints'] != 1 ? null : (value) => update(() { if (value == true) { selected.add(member['user_id'] as String); } else { selected.remove(member['user_id']); } })),
-    ])),
-    actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(context.t('cancel'))), TextButton(onPressed: selected.isEmpty ? null : () => Navigator.pop(context, selected.toList()..sort()), child: Text(context.t('save')))],
-  )));
+  return showDialog<List<String>>(
+    context: context,
+    builder: (context) => StatefulBuilder(
+      builder: (context, update) => AlertDialog(
+        title: Text(context.t('who_is_eating')),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(context.t('diner_consent_notice')),
+              for (final member in members)
+                CheckboxListTile(
+                  title: Text(member['name'] as String),
+                  value: selected.contains(member['user_id']),
+                  subtitle:
+                      member['user_id'] != api.userId &&
+                          member['share_constraints'] != 1
+                      ? Text(context.t('sharing_not_enabled'))
+                      : null,
+                  onChanged:
+                      member['user_id'] != api.userId &&
+                          member['share_constraints'] != 1
+                      ? null
+                      : (value) => update(() {
+                          if (value == true) {
+                            selected.add(member['user_id'] as String);
+                          } else {
+                            selected.remove(member['user_id']);
+                          }
+                        }),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(context.t('cancel')),
+          ),
+          TextButton(
+            onPressed: selected.isEmpty
+                ? null
+                : () => Navigator.pop(context, selected.toList()..sort()),
+            child: Text(context.t('save')),
+          ),
+        ],
+      ),
+    ),
+  );
 }

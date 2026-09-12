@@ -74,6 +74,18 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
         recipes = [decode(r["data"]) for r in tx.all("SELECT r.* FROM recipes r LEFT JOIN content_ownership o ON o.content_id=r.id AND o.kind='recipe' WHERE o.content_id IS NULL OR o.user_id=?", (user_id,))]
         diets = [decode(r["data"]) for r in tx.all("SELECT * FROM diet_definitions")]
         versions = [{**v,"rules":decode(v["rules"])} for v in tx.all("SELECT * FROM diet_versions")]
+        retired = tx.all("SELECT DISTINCT g.kind,g.subject_id FROM governed_content g WHERE g.status='DEPRECATED' AND NOT EXISTS (SELECT 1 FROM governed_content p WHERE p.kind=g.kind AND p.subject_id=g.subject_id AND p.status='PUBLISHED')")
+        for row in retired:
+            if row['kind'] == 'food' and row['subject_id'] in foods:
+                foods[row['subject_id']].update(ingredient_status='unknown', retired=True)
+            if row['kind'] == 'recipe':
+                recipes = [r for r in recipes if r['id'] != row['subject_id']]
+        today = self.today({'timezone': 'UTC'}).isoformat()
+        current_evidence = {r['subject_id'] for r in tx.all("SELECT subject_id,data FROM governed_content WHERE kind='evidence' AND status='PUBLISHED'") if decode(r['data']).get('review_due', '') >= today}
+        unavailable = {d['id'] for d in diets if not d.get('is_demo', False) and not set(d.get('evidence_references', [])) <= current_evidence}
+        for version in versions:
+            if version['diet_id'] in unavailable:
+                version['status'] = 'REVIEW_REQUIRED'
         return foods,recipes,diets,versions
 
     def catalog(self, user_id=None) -> dict:
@@ -87,7 +99,7 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
                 if diet["medical"] and not (diet.get("review_date") and diet.get("evidence_references")):
                     diet["selectable"] = False
             return {"foods":list(foods.values()),"diets":diets,"allergens":ALLERGENS,
-                    "intolerances":["lactose"],"health_consent_version":HEALTH_CONSENT,"is_demo":True}
+                    "intolerances":["lactose"],"health_consent_version":HEALTH_CONSENT,"is_demo":any(f.get("is_demo",False) for f in foods.values())}
 
     def get_profile(self, user_id: str):
         with self.db.transaction() as tx:
@@ -189,7 +201,12 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
             return self._once(tx,user_id,key,"profile",data,save)
 
     def _inventory(self, tx, household_id):
-        return tx.all("SELECT * FROM inventory_batches WHERE household_id=? AND quantity_milli>0 ORDER BY CASE WHEN expiry_date IS NULL THEN 1 ELSE 0 END,expiry_date,created_at,id",(household_id,))
+        rows = tx.all("SELECT b.*,m.data AS metadata FROM inventory_batches b LEFT JOIN inventory_metadata m ON m.batch_id=b.id WHERE household_id=? AND quantity_milli>0 ORDER BY CASE WHEN expiry_date IS NULL THEN 1 ELSE 0 END,expiry_date,created_at,id",(household_id,))
+        recalls = [decode(r['data']) for r in tx.all("SELECT data FROM governed_content WHERE kind='recall' AND status='PUBLISHED'")]
+        for row in rows:
+            row['metadata'] = decode(row['metadata']) if row['metadata'] else {}
+            row['recalls'] = [r for r in recalls if row['metadata'].get('barcode') == r['barcode'] and row['metadata'].get('lot') == r['lot']]
+        return rows
 
     def inventory(self,user_id):
         household_id = self._household(user_id)
@@ -240,6 +257,10 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
                     raise DomainError("stale_inventory",409)
                 action = data.get("action")
                 amount, location, opened = batch["quantity_milli"],batch["location"],batch["opened_at"]
+                if action == 'consumed':
+                    current = next((b for b in self._inventory(tx, household_id) if b['id'] == batch_id), batch)
+                    if not batch_usable(current, self.today(self._profile(tx, user_id)['settings'])):
+                        raise DomainError('batch_not_usable', 409)
                 if action in {"consumed","discarded"}:
                     amount -= amount_milli(data.get("quantity",quantity(amount)))
                     if amount < 0:
@@ -285,14 +306,21 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
             for item in ranked:
                 item["preference_adjustment"] = .05 * feedback.get(item["recipe"]["id"],0) + (.03 if item["recipe"].get("cuisine","").casefold() in cuisines else 0)
                 item["score"] = round(item["score"]+item["preference_adjustment"],6)
-            ranked.sort(key=lambda item:(-item["score"],item["recipe"]["id"]))
+            if any(item['preference_adjustment'] for item in ranked):
+                ranked.sort(key=lambda item:(-item["score"],item["recipe"]["id"]))
+                diverse, repeated, seen = [], [], set()
+                for item in ranked:
+                    primary = item['recipe']['ingredients'][0]['food_id']
+                    (repeated if primary in seen else diverse).append(item)
+                    seen.add(primary)
+                ranked = diverse + repeated
             trace_id = new_id()
             snapshot = [{"id":b["id"],"version":b["version"],"quantity_milli":b["quantity_milli"],
                          "expiry_date":b["expiry_date"],"expiry_kind":b["expiry_kind"]} for b in inventory]
             trace = {"mode":mode,"diet_rules_version":versions,"profile_version":profile["version"],
                      "inventory_snapshot":snapshot,"ranked":ranked,"rejected":rejected,"servings":size}
             tx.execute("INSERT INTO recommendation_traces VALUES (?,?,?,?,?)",(trace_id,user_id,household_id,encode(trace),now()))
-            return {"trace_id":trace_id,"items":ranked[:4],"servings":size,"diet_rules_version":versions,"is_demo":True}
+            return {"trace_id":trace_id,"items":ranked[:4],"servings":size,"diet_rules_version":versions,"is_demo":any(f.get("is_demo",False) for f in foods.values())}
 
     def recipe(self,user_id,recipe_id):
         self._household(user_id)
@@ -302,7 +330,7 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
             if not recipe:
                 raise DomainError("recipe_not_found",404)
             validation = compatibility([i["food_id"] for i in recipe["ingredients"]],foods,profile["settings"],rules)
-            return {**recipe,"compatibility":validation,"diet_rules_version":versions}
+            return {**recipe,"compatibility":validation,"diet_rules_version":versions,"nutrition":self.recipe_nutrition(recipe,foods,recipe["servings"])}
 
     def food_compatibility(self,user_id,food_id):
         self._household(user_id)
@@ -343,7 +371,7 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
             if remaining:
                 shortages.append({"food_id":f,"quantity":quantity(remaining)})
             ingredients.append({"food_id":f,"food":foods[f],"quantity":quantity(total),"available":quantity(total-remaining)})
-        return {"recipe_id":recipe["id"],"servings":data.get("servings",recipe["servings"]),"ingredients":ingredients,
+        return {"recipe_id":recipe["id"],"servings":data.get("servings",recipe["servings"]),"ingredients":ingredients,"nutrition":self.recipe_nutrition(recipe,foods,data.get("servings",recipe["servings"])),
                 "allocations":allocations,"shortages":shortages,"profile_version":profile["version"],"diet_rules_version":versions,"participant_versions":participants}
 
     def cooking_preview(self,user_id,data):

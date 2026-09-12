@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/localization.dart';
 import '../../design_system/widgets.dart';
 import 'shared.dart';
+import 'leftover_remix.dart';
 
 class LeftoversPage extends ConsumerStatefulWidget {
   const LeftoversPage({super.key});
@@ -54,6 +55,10 @@ class _LeftoversState extends ResourceState<LeftoversPage> {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
+                      AsyncAction(label: context.t('remix_leftovers'), secondary: true, action: () async {
+                        await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => LeftoverRemixPage(item: item)));
+                        await load();
+                      }),
                       for (final action in ['consume', 'discard'])
                         AsyncAction(
                           label: context.t(action),

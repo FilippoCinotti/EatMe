@@ -9,7 +9,7 @@ mobile = root / 'apps/mobile'
 excluded = {'.gradle', 'build', 'Pods', '.symlinks', 'ephemeral', '.dart_tool'}
 forbidden = {'local.properties', 'Generated.xcconfig', 'flutter_export_environment.sh', 'GeneratedPluginRegistrant.java', 'GeneratedPluginRegistrant.h', 'GeneratedPluginRegistrant.m'}
 with zipfile.ZipFile(root / 'mobile-sources.zip', 'w', zipfile.ZIP_DEFLATED) as archive:
-    for folder in ('lib', 'test', 'android', 'ios'):
+    for folder in ('lib', 'test', 'integration_test', 'android', 'ios'):
         for path in (mobile / folder).rglob('*'):
             if path.is_file() and not excluded.intersection(path.parts) and path.name not in forbidden and not path.is_symlink():
                 archive.write(path, path.relative_to(root))

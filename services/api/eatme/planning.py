@@ -168,35 +168,99 @@ class PlanningService:
                 return {"id": identifier, "version": version, "start_date": start, "data": value}
             return self._once(tx, user_id, key, "plan", data, save)
 
+    def _leftover_validation(self, tx, user_id, item, participants):
+        profile, foods, _, _, _, today = self._context(tx, user_id)
+        settings, rules, rule_versions, profiles = self._diners(tx, user_id, participants, profile, self._catalog(tx, user_id)[3], today)
+        if item['user_use_date'] and item['user_use_date'] < today.isoformat():
+            raise DomainError('leftover_date_passed', 409)
+        original = decode(item['record'])
+        ingredients = original.get('ingredients', [])
+        if not ingredients:
+            raise DomainError('leftover_provenance_unavailable', 409)
+        food_ids = [i['food_id'] for i in ingredients]
+        historical = {i['food_id']: i['food'] for i in ingredients}
+        for source in (foods, historical):
+            if compatibility(food_ids, source, settings, rules)['reasons']:
+                raise DomainError('recipe_not_compatible', 409)
+        return profile, foods, settings, rules, rule_versions, profiles, today, original
+
+    def _remix(self, tx, user_id, item, data, servings):
+        profile, foods, settings, rules, rules_version, profiles, today, original = self._leftover_validation(tx, user_id, item, data.get('participants'))
+        addition = self._validate_recipe(data.get('recipe'), foods)
+        needed = requirements(addition, addition['servings'])
+        if compatibility(list(needed), foods, settings, rules)['reasons']:
+            raise DomainError('recipe_not_compatible', 409)
+        allocations, shortages = [], []
+        stock = self._inventory(tx, item['household_id'])
+        for food_id, amount in needed.items():
+            remaining = amount
+            for batch in stock:
+                if batch['food_id'] != food_id or not batch_usable(batch, today):
+                    continue
+                used = min(remaining, batch['quantity_milli'])
+                if used:
+                    allocations.append({'batch_id': batch['id'], 'quantity_milli': used, 'version': batch['version']})
+                    remaining -= used
+            if remaining:
+                shortages.append({'food_id': food_id, 'quantity': quantity(remaining)})
+        original_recipe = {'servings': original['servings'], 'ingredients': [{'food_id': i['food_id'], 'quantity': i['quantity']} for i in original['ingredients'] if amount_milli(i['quantity'], zero=True)]}
+        combined = requirements(original_recipe, servings)
+        for food_id, amount in needed.items():
+            combined[food_id] = combined.get(food_id, 0) + amount
+        recipe = {**addition, 'ingredients': [{'food_id': f, 'quantity': quantity(q)} for f, q in combined.items()], 'provenance': 'leftover-remix'}
+        plan = {'allocations': allocations, 'shortages': shortages, 'participant_versions': profiles, 'diet_rules_version': rules_version, 'leftover_id': item['id'], 'reused_servings': servings, 'servings': addition['servings']}
+        return recipe, plan
+
     def leftover_action(self, user_id, data, key):
         home = self._household(user_id, write=True)
         with self.db.transaction(home) as tx:
             def change():
                 self._member(tx, user_id, home, write=True)
-                identifier = valid_uuid(data.get("id"))
-                item = tx.one("SELECT l.*,c.recipe_id FROM leftovers l JOIN cooking_sessions c ON c.id=l.cooking_id WHERE l.id=? AND l.household_id=?", (identifier, home))
+                identifier = valid_uuid(data.get('id'))
+                item = tx.one('SELECT l.*,c.recipe_id,c.data AS record FROM leftovers l JOIN cooking_sessions c ON c.id=l.cooking_id WHERE l.id=? AND l.household_id=?', (identifier, home))
                 if not item:
-                    raise DomainError("leftover_not_found", 404)
-                state = tx.one("SELECT * FROM leftover_state WHERE leftover_id=?", (identifier,)) or {"remaining": item["servings"], "version": 1}
-                if data.get("expected_version") != state["version"]:
-                    raise DomainError("stale_leftover", 409)
-                action = choice(data.get("action"), {"consume", "discard", "move", "date"})
-                remaining = state["remaining"]
-                if action in {"consume", "discard"}:
-                    servings = integer(data.get("servings"), minimum=1, maximum=20)
+                    raise DomainError('leftover_not_found', 404)
+                state = tx.one('SELECT * FROM leftover_state WHERE leftover_id=?', (identifier,)) or {'remaining': item['servings'], 'version': 1}
+                if data.get('expected_version') != state['version']:
+                    raise DomainError('stale_leftover', 409)
+                action = choice(data.get('action'), {'consume', 'discard', 'move', 'date', 'transform_preview', 'transform'})
+                remaining = state['remaining']
+                if action in {'consume', 'discard', 'transform_preview', 'transform'}:
+                    servings = integer(data.get('servings'), minimum=1, maximum=20)
                     if servings > remaining:
-                        raise DomainError("insufficient_leftovers", 409)
-                    if action == "consume":
-                        self._validate_meal(tx, user_id, {"recipe_id": item["recipe_id"], "servings": servings, "participants": data.get("participants")})
-                        if item["user_use_date"] and item["user_use_date"] < self.today(self._profile(tx, user_id)["settings"]).isoformat():
-                            raise DomainError("leftover_date_passed", 409)
+                        raise DomainError('insufficient_leftovers', 409)
+                    if action == 'consume':
+                        self._leftover_validation(tx, user_id, item, data.get('participants'))
+                    if action.startswith('transform'):
+                        recipe, plan = self._remix(tx, user_id, item, data, servings)
+                        if action == 'transform_preview':
+                            return plan
+                        if data.get('preparation_confirmed') is not True:
+                            raise DomainError('preparation_confirmation_required', 422)
+                        if data.get('participant_versions') != plan['participant_versions'] or data.get('diet_rules_version') != plan['diet_rules_version']:
+                            raise DomainError('stale_profile', 409)
+                        if data.get('batch_versions') != {i['batch_id']: i['version'] for i in plan['allocations']}:
+                            raise DomainError('stale_inventory', 409)
+                        if plan['shortages']:
+                            raise DomainError('insufficient_inventory', 409)
+                        recipe_id, cooking_id, stamp = new_id(), new_id(), now()
+                        tx.execute('INSERT INTO recipes VALUES (?,?)', (recipe_id, encode({**recipe, 'id': recipe_id})))
+                        tx.execute("INSERT INTO content_ownership VALUES ('recipe',?,?,NULL)", (recipe_id, user_id))
+                        catalog = self._catalog(tx, user_id)[0]
+                        plan['ingredients'] = [{'food_id': i['food_id'], 'quantity': i['quantity'], 'food': catalog[i['food_id']]} for i in recipe['ingredients']]
+                        for allocation in plan['allocations']:
+                            changed = tx.execute('UPDATE inventory_batches SET quantity_milli=quantity_milli-?,version=version+1,updated_at=? WHERE id=? AND version=? AND quantity_milli>=?', (allocation['quantity_milli'], stamp, allocation['batch_id'], allocation['version'], allocation['quantity_milli']))
+                            if changed.rowcount != 1:
+                                raise DomainError('stale_inventory', 409)
+                            self._event(tx, user_id, home, allocation['batch_id'], 'leftover_remix', -allocation['quantity_milli'], {'cooking_id': cooking_id})
+                        tx.execute('INSERT INTO cooking_sessions VALUES (?,?,?,?,?,?)', (cooking_id, user_id, home, recipe_id, encode(plan), stamp))
                     remaining -= servings
-                    tx.execute("INSERT INTO leftover_events VALUES (?,?,?,?,?,?)", (new_id(), identifier, user_id, action, servings, now()))
-                elif action == "move":
-                    tx.execute("UPDATE leftovers SET location=? WHERE id=?", (choice(data.get("location"), {"fridge", "freezer"}), identifier))
+                    tx.execute('INSERT INTO leftover_events VALUES (?,?,?,?,?,?)', (new_id(), identifier, user_id, action, servings, now()))
+                elif action == 'move':
+                    tx.execute('UPDATE leftovers SET location=? WHERE id=?', (choice(data.get('location'), {'fridge', 'freezer'}), identifier))
                 else:
-                    tx.execute("UPDATE leftovers SET user_use_date=? WHERE id=?", (valid_date(data.get("user_use_date")), identifier))
-                version = state["version"] + 1
-                tx.execute("INSERT INTO leftover_state VALUES (?,?,?,?) ON CONFLICT(leftover_id) DO UPDATE SET remaining=excluded.remaining,version=excluded.version,updated_at=excluded.updated_at", (identifier, remaining, version, now()))
-                return {"id": identifier, "remaining": remaining, "version": version}
-            return self._once(tx, user_id, key, "leftover", data, change)
+                    tx.execute('UPDATE leftovers SET user_use_date=? WHERE id=?', (valid_date(data.get('user_use_date')), identifier))
+                version = state['version'] + 1
+                tx.execute('INSERT INTO leftover_state VALUES (?,?,?,?) ON CONFLICT(leftover_id) DO UPDATE SET remaining=excluded.remaining,version=excluded.version,updated_at=excluded.updated_at', (identifier, remaining, version, now()))
+                return {'id': identifier, 'remaining': remaining, 'version': version}
+            return self._once(tx, user_id, key, 'leftover', data, change)

@@ -89,6 +89,26 @@ class DomainCase(unittest.TestCase):
         self.assertGreater(len({m['recipe_id'] for m in plan['data']['meals']}), 1)
         self.assertCode('plan_not_found', lambda: self.app.plan_action(self.guest, {'action': 'delete', 'id': plan['id']}, new_id()))
 
+    def test_leftover_remix_consumes_only_additions_and_is_idempotent(self):
+        for name in ('chickpea', 'tomato', 'olive-oil'):
+            self.app.add_inventory(self.owner, {'food_id': identifier('food', name), 'quantity': '1000'}, new_id())
+        meal = self.meal()
+        preview = self.app.cooking_preview(self.owner, meal)
+        self.app.cooking_confirm(self.owner, {**meal, 'profile_version': preview['profile_version'], 'diet_rules_version': preview['diet_rules_version'], 'batch_versions': {b['batch_id']: b['version'] for b in preview['allocations']}, 'leftover_servings': 1}, new_id())
+        leftover = self.app.leftovers(self.owner)['items'][0]
+        before = {b['food_id']: b['quantity_milli'] for b in self.app.inventory(self.owner)['items']}
+        body = {'action': 'transform_preview', 'id': leftover['id'], 'expected_version': 1, 'servings': 1, 'recipe': {'title': 'Remix', 'servings': 1, 'minutes': 5, 'ingredients': [{'food_id': identifier('food', 'tomato'), 'quantity': '50'}], 'steps': ['Combine the prepared leftovers with the tomatoes.']}}
+        plan = self.app.leftover_action(self.owner, body, new_id())
+        self.assertEqual(self.app.leftovers(self.owner)['items'][0]['remaining'], 1)
+        body.update(action='transform', preparation_confirmed=True, participant_versions=plan['participant_versions'], diet_rules_version=plan['diet_rules_version'], batch_versions={b['batch_id']: b['version'] for b in plan['allocations']})
+        key = new_id()
+        first = self.app.leftover_action(self.owner, body, key)
+        self.assertEqual(first, self.app.leftover_action(self.owner, body, key))
+        self.assertEqual(first['remaining'], 0)
+        after = {b['food_id']: b['quantity_milli'] for b in self.app.inventory(self.owner)['items']}
+        for food_id in before:
+            self.assertEqual(before[food_id] - after[food_id], 50000 if food_id == identifier('food', 'tomato') else 0)
+
     def test_leftovers_cannot_be_consumed_twice_or_after_personal_use_date(self):
         for food, amount in [('tomato', '300'), ('chickpea', '300'), ('olive-oil', '20')]:
             self.app.add_inventory(self.owner, {'food_id': identifier('food', food), 'quantity': amount}, new_id())

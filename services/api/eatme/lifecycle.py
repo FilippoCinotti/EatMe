@@ -40,6 +40,17 @@ class LifecycleService:
                         for meal in decode(plan['data'])['meals']:
                             if meal['date'] == local.date().isoformat():
                                 candidates.append(('plans', plan['id'] + ':' + meal['date'] + ':' + meal['slot'], {'recipe_id': meal['recipe_id'], 'slot': meal['slot']}))
+                since = local.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc).isoformat()
+                if 'shopping' in prefs['categories']:
+                    for item in tx.all('SELECT id,version FROM shopping_items WHERE household_id=? AND created_by<>? AND updated_at>=? LIMIT 10', (profile['household_id'], user_id, since)):
+                        candidates.append(('shopping', 'shopping:' + item['id'] + ':' + str(item['version']), {'item_id': item['id']}))
+                if 'household' in prefs['categories']:
+                    for invitation in tx.all('SELECT id FROM household_invitations WHERE created_by=? AND accepted_at>=?', (user_id, since)):
+                        candidates.append(('household', 'joined:' + invitation['id'], {'household_id': profile['household_id']}))
+                if 'recalls' in prefs['categories']:
+                    for batch in self._inventory(tx, profile['household_id']):
+                        for recall in batch['recalls']:
+                            candidates.insert(0, ('recalls', 'recall:' + batch['id'] + ':' + recall['published_date'], {'batch_id': batch['id'], 'url': recall['url']}))
                 count = tx.one('SELECT COUNT(*) AS n FROM notification_events WHERE user_id=? AND created_at>=?', (user_id, local.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc).isoformat()))['n']
                 for category, key, value in candidates:
                     if count >= prefs['daily_cap']:

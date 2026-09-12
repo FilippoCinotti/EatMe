@@ -1,5 +1,5 @@
 'use client';
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 
 type RecordData = {id: string; kind: string; subject_id: string; revision: number; status: string; data: Record<string, unknown>; created_by: string; reviewed_by: string | null};
 type Report = {id: string; kind: string; message: string; status: string};
@@ -19,12 +19,17 @@ export default function Review() {
   const [data, setData] = useState<ConsoleData | null>(null), [error, setError] = useState('');
   const [busy, setBusy] = useState(false), [kind, setKind] = useState('food'), [filter, setFilter] = useState('all');
   const [draft, setDraft] = useState(JSON.stringify(templates.food, null, 2)), [subject, setSubject] = useState('');
+  const mutation = useRef<{fingerprint: string; key: string} | null>(null);
+  const [roleUser, setRoleUser] = useState(''), [assignedRole, setAssignedRole] = useState('editor');
   const [selected, setSelected] = useState<RecordData | null>(null);
   const [catalog, setCatalog] = useState<{foods: {id: string; name: Record<string, string>}[]} | null>(null);
   async function request(body?: object) {
-    const result = await fetch('/api/content', body ? {method: 'POST', headers: {'Content-Type': 'application/json', 'Idempotency-Key': crypto.randomUUID()}, body: JSON.stringify(body)} : {cache: 'no-store'});
+    const fingerprint = body ? JSON.stringify(body) : '';
+    if (body && mutation.current?.fingerprint !== fingerprint) mutation.current = {fingerprint, key: crypto.randomUUID()};
+    const result = await fetch('/api/content', body ? {method: 'POST', headers: {'Content-Type': 'application/json', 'Idempotency-Key': mutation.current!.key}, body: fingerprint} : {cache: 'no-store'});
     const value = await result.json();
     if (!result.ok) throw new Error(value.error?.code ?? 'Request failed');
+    if (body) mutation.current = null;
     return value;
   }
   async function run(action: () => Promise<void>) { setBusy(true); setError(''); try { await action(); } catch (e) { setError(e instanceof Error ? e.message : 'Request failed'); } finally { setBusy(false); } }
@@ -55,6 +60,10 @@ export default function Review() {
       <div className="summary"><strong>{data.role}</strong><span>{data.items.length} revisions</span>
         <button className="secondary" disabled={busy} onClick={() => run(refresh)}>Refresh</button>
         <button className="secondary" onClick={async () => { await fetch('/api/session', {method: 'DELETE'}); setData(null); setSelected(null); }}>Sign out</button></div>
+      {data.role === 'superadmin' && <section><h2>Editorial access</h2><form onSubmit={event => {event.preventDefault(); void run(async () => {await request({action: 'role', user_id: roleUser, role: assignedRole}); setRoleUser(''); await refresh();});}}>
+        <label htmlFor="role-user">Existing account UUID</label><input id="role-user" value={roleUser} onChange={event => setRoleUser(event.target.value)} required pattern="[a-f0-9-]{36}" />
+        <label htmlFor="assigned-role">Role</label><select id="assigned-role" value={assignedRole} onChange={event => setAssignedRole(event.target.value)}>{['support','editor','reviewer','admin','superadmin','none'].map(role => <option key={role}>{role}</option>)}</select>
+        <button disabled={busy}>Update access</button></form></section>}
       {data.role !== 'support' && <section className="editor-grid">
         <div><h2>Create a revision</h2><label htmlFor="kind">Content type</label>
           <select id="kind" value={kind} onChange={e => { setKind(e.target.value); setDraft(JSON.stringify(templates[e.target.value], null, 2)); setSubject(''); }}>{Object.keys(templates).map(k => <option key={k}>{k}</option>)}</select>

@@ -310,7 +310,7 @@ class _SyncState extends ConsumerState<SyncPage> {
 
   Future<void> load() async {
     final rows = await ref.read(apiProvider).cache?.pending() ?? [];
-    if (mounted) setState(() => pending = rows);
+    if (mounted && context.mounted) setState(() => pending = rows);
   }
 
   @override
@@ -336,7 +336,9 @@ class _SyncState extends ConsumerState<SyncPage> {
                 tooltip: context.t('discard_change'),
                 icon: const Icon(Icons.delete_outline),
                 onPressed: () async {
-                  await ref.read(apiProvider).discardPending(item['key'] as String);
+                  await ref
+                      .read(apiProvider)
+                      .discardPending(item['key'] as String);
                   await load();
                   await load();
                 },

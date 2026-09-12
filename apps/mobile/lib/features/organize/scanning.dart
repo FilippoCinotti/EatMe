@@ -87,7 +87,7 @@ class _ScanningState extends ResourceState<ScanningPage> {
           'POST',
           '/media',
           body: {
-            'kind': kind,
+            'kind': kind == 'recipe' ? 'photo' : kind,
             'base64': base64Encode(await picked.readAsBytes()),
           },
         );
@@ -126,7 +126,7 @@ class _ScanningState extends ResourceState<ScanningPage> {
         label: context.t('generate_recipe'),
         secondary: true,
         action: () async {
-          if (!await consent() || !mounted) return;
+          if (!await consent() || !mounted || !context.mounted) return;
           final prompt = await askText(context, context.t('recipe_idea'));
           if (prompt != null)
             await command({
@@ -136,6 +136,8 @@ class _ScanningState extends ResourceState<ScanningPage> {
             });
         },
       ),
+      const SizedBox(height: 8),
+      AsyncAction(label: context.t('recipe_photo'), secondary: true, action: () => scan('recipe', ImageSource.gallery)),
       const SizedBox(height: 28),
       for (final job in records(data?['items']))
         Card(
@@ -342,11 +344,11 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
       final result = await ref
           .read(apiProvider)
           .request('GET', '/products/${Uri.encodeComponent(value)}');
-      if (mounted) setState(() => product = result);
+      if (mounted && context.mounted) setState(() => product = result);
     } on ApiFailure catch (e) {
-      if (mounted) setState(() => error = e.code);
+      if (mounted && context.mounted) setState(() => error = e.code);
     } finally {
-      if (mounted) setState(() => busy = false);
+      if (mounted && context.mounted) setState(() => busy = false);
     }
   }
 

@@ -56,10 +56,12 @@ class ContentCase(unittest.TestCase):
 
     def test_editor_cannot_publish_own_evidence_and_expired_sources_are_excluded(self):
         with patch.dict(os.environ, {'ADMIN_USER_IDS': self.owner + ',' + self.reviewer}):
-            draft = self.app.admin_action(self.owner, {'action': 'draft', 'kind': 'evidence', 'data': {'title': 'Synthetic test', 'publisher': 'Test fixture', 'claim': 'Not a real nutrition claim.', 'jurisdiction': 'test', 'strength': 'expert_opinion', 'published_date': '2026-01-01', 'review_due': '2026-09-10', 'url': 'https://example.com/test'}}, new_id())
+            draft = self.app.admin_action(self.owner, {'action': 'draft', 'kind': 'evidence', 'data': {'title': 'Synthetic test', 'publisher': 'Test fixture', 'claim': 'Not a real nutrition claim.', 'jurisdiction': 'test', 'strength': 'expert_opinion', 'published_date': '2026-01-01', 'review_due': '2026-09-11', 'url': 'https://example.com/test'}}, new_id())
             self.app.admin_action(self.owner, {'action': 'submit', 'id': draft['id'], 'expected_status': 'DRAFT'}, new_id())
             self.assertCode('independent_review_required', lambda: self.app.admin_action(self.owner, {'action': 'publish', 'id': draft['id'], 'expected_status': 'IN_REVIEW'}, new_id()))
             self.app.admin_action(self.reviewer, {'action': 'publish', 'id': draft['id'], 'expected_status': 'IN_REVIEW'}, new_id())
+            self.assertEqual(len(self.app.evidence(self.owner)['items']), 1)
+            self.app.clock = lambda: date(2026, 9, 12)
             self.assertEqual(self.app.evidence(self.owner)['items'], [])
 
     def test_jobs_require_consent_and_confirmation_is_atomic_and_idempotent(self):
