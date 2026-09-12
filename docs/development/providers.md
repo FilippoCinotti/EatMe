@@ -6,7 +6,6 @@ Use Supabase JWT authentication outside development. Configure `SUPABASE_URL`, s
 
 Allow the OAuth redirect `com.filippocinotti.eatme://login-callback` in Supabase and configure Apple/Google provider credentials in their consoles. Email verification and password recovery use the same redirect. `SUPABASE_SERVICE_ROLE_KEY` is server-only and enables identity deletion. Validate the complete provider lifecycle, including Apple token revocation, in staging before release.
 
-## Open Food Facts
 ## Sign in with Apple lifecycle
 
 Enable Sign in with Apple for the native App ID `com.filippocinotti.eatme` and in the Xcode signing profile. Create an associated Services ID for Android web authentication. Register the HTTPS return URL `https://YOUR_API_HOST/api/v1/auth/apple/callback` with Apple and use that exact URL in the mobile `APPLE_ANDROID_CALLBACK_URL`. Set the Services ID in both the mobile and server `APPLE_ANDROID_CLIENT_ID`.

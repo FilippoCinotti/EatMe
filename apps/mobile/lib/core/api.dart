@@ -227,7 +227,8 @@ class EatMeApi {
       final value = Map<String, dynamic>.from(result.data as Map);
       offline = false;
       if (account == userId && epoch == _cacheEpoch) {
-        if ((path == '/profile' && method == 'PUT') || (path == '/preferences' && method == 'POST')) {
+        if ((path == '/profile' && method == 'PUT') ||
+            (path == '/preferences' && method == 'POST')) {
           _cacheEpoch++;
           await cache?.clearSnapshots();
         }

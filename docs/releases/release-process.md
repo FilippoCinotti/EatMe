@@ -6,6 +6,8 @@ Require a clean reproducible checkout, reviewed native projects and lockfiles, p
 
 ## Deployment
 
+Follow the [deployment runbook](deployment-runbook.md) for container setup, staging validation, monitoring and recovery. Run `python scripts/check_release_config.py apps/mobile/config/production.json` before producing store binaries.
+
 Deploy the API behind HTTPS with Supabase authentication and PostgreSQL. Apply immutable migrations with the migration credential, then run the API using only its restricted database role. Deploy the worker with the same private media volume and encryption key. Configure backup/retention, health monitoring, gateway rate limiting and alerting. Deploy the studio with its server-only API URL and HTTP-only sessions.
 
 Configure and exercise Google/Apple login, email verification, password recovery, identity deletion, Apple token revocation and provider outages. Publish approved food/recipe/evidence content through the review workflow. Do not enable an unreviewed medical profile. Set the legal operator/contact and publish privacy, terms, support and deletion-request pages.

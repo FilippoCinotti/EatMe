@@ -86,7 +86,10 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
                 tooltip: context.t('revoke_invitation'),
                 icon: const Icon(Icons.cancel_outlined),
                 onPressed: () => guard(() async {
-                  await command({'action': 'revoke', 'invitation_id': invitation['id']});
+                  await command({
+                    'action': 'revoke',
+                    'invitation_id': invitation['id'],
+                  });
                 }),
               ),
             ),
@@ -158,8 +161,14 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
                   title: Text(context.t('leave_household')),
                   content: Text(context.t('leave_household_body')),
                   actions: [
-                    TextButton(onPressed: () => Navigator.pop(context, false), child: Text(context.t('cancel'))),
-                    TextButton(onPressed: () => Navigator.pop(context, true), child: Text(context.t('leave_household'))),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: Text(context.t('cancel')),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: Text(context.t('leave_household')),
+                    ),
                   ],
                 ),
               );

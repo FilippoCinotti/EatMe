@@ -349,7 +349,10 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               label: context.t('report_problem'),
               secondary: true,
               action: () async {
-                final message = await askText(context, context.t('report_notice'));
+                final message = await askText(
+                  context,
+                  context.t('report_notice'),
+                );
                 if (message == null || message.isEmpty) return;
                 await mutation.send(ref.read(apiProvider), 'POST', '/reports', {
                   'kind': 'recipe',
@@ -374,15 +377,24 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                       title: Text(context.t('archive_recipe')),
                       content: Text(context.t('archive_recipe_body')),
                       actions: [
-                        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(context.t('cancel'))),
-                        TextButton(onPressed: () => Navigator.pop(context, true), child: Text(context.t('archive_recipe'))),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text(context.t('cancel')),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: Text(context.t('archive_recipe')),
+                        ),
                       ],
                     ),
                   );
                   if (confirmed != true) return;
-                  await mutation.send(ref.read(apiProvider), 'POST', '/recipes', {
-                    'action': 'delete', 'recipe_id': recipe.id,
-                  });
+                  await mutation.send(
+                    ref.read(apiProvider),
+                    'POST',
+                    '/recipes',
+                    {'action': 'delete', 'recipe_id': recipe.id},
+                  );
                   await ref.read(appProvider.notifier).refresh();
                   if (context.mounted) context.go('/chef');
                 },

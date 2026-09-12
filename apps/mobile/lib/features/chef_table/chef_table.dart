@@ -106,13 +106,27 @@ class ChefTablePage extends ConsumerWidget {
             ),
           if (state.leftovers.isNotEmpty) ...[
             const SizedBox(height: 24),
-            Text(context.t('prepared_meals'), style: Theme.of(context).textTheme.titleMedium),
-            for (final meal in state.leftovers.take(2)) Card(child: ListTile(
-              leading: const Icon(Icons.restaurant_outlined),
-              title: Text(localized(Map<String, dynamic>.from(meal['recipe_title'] as Map), context.language)),
-              subtitle: Text('${meal['remaining']} ${context.t('servings')}'),
-              trailing: const Icon(Icons.chevron_right), onTap: () => context.push('/leftovers'),
-            )),
+            Text(
+              context.t('prepared_meals'),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            for (final meal in state.leftovers.take(2))
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.restaurant_outlined),
+                  title: Text(
+                    localized(
+                      Map<String, dynamic>.from(meal['recipe_title'] as Map),
+                      context.language,
+                    ),
+                  ),
+                  subtitle: Text(
+                    '${meal['remaining']} ${context.t('servings')}',
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push('/leftovers'),
+                ),
+              ),
           ],
           if (soon.isNotEmpty) ...[
             const SizedBox(height: 24),

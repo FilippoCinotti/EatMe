@@ -22,9 +22,11 @@ const home = '00000000-0000-4000-8000-000000000002';
 
 class TestStrings extends LocalizationsDelegate<EatMeStrings> {
   const TestStrings();
-  static final values = EatMeStrings(Map<String, String>.from(
-    jsonDecode(File('assets/l10n/en.json').readAsStringSync()) as Map,
-  ));
+  static final values = EatMeStrings(
+    Map<String, String>.from(
+      jsonDecode(File('assets/l10n/en.json').readAsStringSync()) as Map,
+    ),
+  );
   @override
   bool isSupported(Locale locale) => locale.languageCode == 'en';
   @override

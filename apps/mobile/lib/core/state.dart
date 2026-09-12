@@ -120,7 +120,9 @@ class AppController extends Notifier<AppState> {
       api.request('GET', '/catalog'),
     ]);
     final profile = responses[0], catalog = responses[1];
-    final switchedUser = state.profile['user_id'] != profile['user_id'] || state.profile['household_id'] != profile['household_id'];
+    final switchedUser =
+        state.profile['user_id'] != profile['user_id'] ||
+        state.profile['household_id'] != profile['household_id'];
     state = state.copy(
       profile: profile,
       isDemo: catalog['is_demo'] == true,
@@ -153,7 +155,11 @@ class AppController extends Notifier<AppState> {
         mode: chosenMode,
       );
       final meals = await api.request('GET', '/leftovers');
-      state = state.copy(leftovers: (meals['items'] as List).map((v) => Map<String, dynamic>.from(v as Map)).toList());
+      state = state.copy(
+        leftovers: (meals['items'] as List)
+            .map((v) => Map<String, dynamic>.from(v as Map))
+            .toList(),
+      );
       final recommendations = await api.request(
         'GET',
         '/recommendations?mode=$chosenMode',

@@ -20,11 +20,14 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
   Future<void> update(String name, dynamic value) async {
     if (data == null) return;
     await guard(() async {
-    await command({
-      'expected_version': data!['version'],
-      'data': {...Map<String, dynamic>.from(data!['data'] as Map), name: value},
-    });
-    await ref.read(appProvider.notifier).refresh();
+      await command({
+        'expected_version': data!['version'],
+        'data': {
+          ...Map<String, dynamic>.from(data!['data'] as Map),
+          name: value,
+        },
+      });
+      await ref.read(appProvider.notifier).refresh();
     });
   }
 
@@ -38,7 +41,21 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
           context.t('make_it_yours'),
           style: Theme.of(context).textTheme.headlineMedium,
         ),
-        DropdownButtonFormField<String>(initialValue: prefs['budget'] as String? ?? 'any', decoration: InputDecoration(labelText: context.t('budget_preference')), items: ['any','medium','low'].map((v) => DropdownMenuItem(value: v, child: Text(context.t('budget_$v')))).toList(), onChanged: (v) => update('budget', v)),
+        DropdownButtonFormField<String>(
+          initialValue: prefs['budget'] as String? ?? 'any',
+          decoration: InputDecoration(
+            labelText: context.t('budget_preference'),
+          ),
+          items: ['any', 'medium', 'low']
+              .map(
+                (v) => DropdownMenuItem(
+                  value: v,
+                  child: Text(context.t('budget_$v')),
+                ),
+              )
+              .toList(),
+          onChanged: (v) => update('budget', v),
+        ),
         StatusNote(text: context.t('budget_notice')),
         for (final name in ['learning', 'analytics', 'ai_consent', 'seasonal'])
           SwitchListTile(
@@ -107,24 +124,24 @@ class _NotificationsState extends ResourceState<NotificationsPage> {
   Future<void> update(Json changes) async {
     if (data == null) return;
     await guard(() async {
-    if (changes['enabled'] == true) await Reminders.requestPermission();
-    await command({
-      'action': 'preferences',
-      'expected_version': data!['version'],
-      'preferences': {
-        ...Map<String, dynamic>.from(data!['preferences'] as Map),
-        ...changes,
-      },
-    });
-    final app = ref.read(appProvider);
-    final plans = await ref.read(apiProvider).request('GET', '/plans');
-    await Reminders.schedule(
-      Map<String, dynamic>.from(data!['preferences'] as Map),
-      app.inventory,
-      records(plans['items']),
-      app.profile['settings']['timezone'] as String,
-      app.locale?.languageCode ?? 'en',
-    );
+      if (changes['enabled'] == true) await Reminders.requestPermission();
+      await command({
+        'action': 'preferences',
+        'expected_version': data!['version'],
+        'preferences': {
+          ...Map<String, dynamic>.from(data!['preferences'] as Map),
+          ...changes,
+        },
+      });
+      final app = ref.read(appProvider);
+      final plans = await ref.read(apiProvider).request('GET', '/plans');
+      await Reminders.schedule(
+        Map<String, dynamic>.from(data!['preferences'] as Map),
+        app.inventory,
+        records(plans['items']),
+        app.profile['settings']['timezone'] as String,
+        app.locale?.languageCode ?? 'en',
+      );
     });
   }
 
