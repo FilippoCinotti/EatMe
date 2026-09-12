@@ -39,7 +39,7 @@ Run the worker in another terminal with `python services/worker/main.py` when us
 
 ## Flutter
 
-Run `python scripts/bootstrap_mobile.py` once after a fresh checkout. It generates missing native runners, applies permissions and identifiers, creates original icons, and resolves Flutter dependencies. Existing native projects are preserved. Review and commit generated source and lockfile changes whenever the Flutter version changes.
+Run `python scripts/bootstrap_mobile.py` once after a fresh checkout. It verifies the committed native projects and resolves dependencies with the committed lockfile. Restore missing native files from Git; a generic Flutter runner does not contain EatMe's permissions, privacy manifest, signing or authentication capabilities. Review native source and lockfile changes whenever the Flutter version changes.
 
 ```bash
 cd apps/mobile
@@ -57,7 +57,7 @@ Debug builds support breakpoints, Flutter DevTools, hot reload and the widget in
 
 ```bash
 cd apps/admin
-npm install --ignore-scripts
+npm ci --ignore-scripts
 npm run dev
 ```
 

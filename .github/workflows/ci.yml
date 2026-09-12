@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with: {python-version: '3.12'}
       - run: python -m pip install -e 'services/api[dev]'
       - run: python -m unittest discover -s services/api/tests -v
@@ -48,7 +48,7 @@ jobs:
       - run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/202609110003_domains.sql
       - run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/202609110004_identity.sql
       - run: psql -v ON_ERROR_STOP=1 -f supabase/tests/rls.sql
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with: {python-version: '3.12'}
       - run: python -m pip install -e services/api
       - run: python -m unittest discover -s services/api/tests -p test_postgres.py -v
@@ -61,7 +61,7 @@ jobs:
       matrix: {os: [ubuntu-latest, macos-latest]}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with: {distribution: temurin, java-version: '17'}
       - uses: subosito/flutter-action@v2
         with: {channel: stable, flutter-version: '3.47.2', cache: true}
@@ -115,8 +115,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with: {node-version: '22'}
+      - run: npm install --package-lock-only --ignore-scripts
+        working-directory: apps/admin
       - run: npm ci --ignore-scripts
         working-directory: apps/admin
       - run: python3 scripts/export_ci_review.py admin
