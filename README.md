@@ -2,6 +2,18 @@
 
 EatMe is a Flutter application for Android and iOS that connects household food inventory, recipe discovery, cooking, shopping and meal planning. A Python API owns dietary validation and inventory transactions. A Next.js studio manages catalog and evidence review.
 
+## Screenshots
+
+The shopping screen in light and dark themes. These are actual Flutter widget-test renders with demonstration data, captured at 390 × 844 with 1.6× text scaling to exercise accessibility. They are not design mockups or store marketing screenshots.
+
+| Light theme | Dark theme |
+| :---: | :---: |
+| <img src="docs/screenshots/shopping-light.png" width="280" alt="EatMe shopping list in the light theme, showing an unchecked 300 g tomato item and add, edit and delete controls." /> | <img src="docs/screenshots/shopping-dark.png" width="280" alt="The same EatMe shopping list in the dark theme with large text and pale green controls." /> |
+
+The images are stored in this repository, so they remain available after CI artifacts expire. To regenerate them, run `flutter test test/application_test.dart` from `apps/mobile`; the images are written to `build/screenshots/`.
+
+The [verified application CI](https://github.com/FilippoCinotti/EatMe/actions/runs/34704572429) passed API, database, studio and Flutter checks, both native debug builds, and the real API Android emulator workflow. See the [verification report](docs/product/verification.md) for the tested commit and remaining store release gates.
+
 ## Run on a simulator
 
 Install **Flutter 3.47.2**, **Python 3.12**, and Git. Android development also needs Android Studio, an Android SDK/emulator and JDK 17. iOS development needs a Mac with Xcode, its simulator runtimes and CocoaPods where required by Flutter plugins.
