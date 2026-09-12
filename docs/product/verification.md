@@ -2,9 +2,13 @@
 
 ## Application validation
 
-The foundation-only results are superseded by application checks. The last implementation to receive runtime checks is `bf967a785a9df9bc2c6c3ae1d8bc0c06aae8c442`. Commit `bdd6175a3cfefb314be82adeaf85d9c4b0c86032` adds bounded integration-test waits and the CI-generated TypeScript 7 lockfile; its runtime verification is blocked as described below.
+The foundation-only results are superseded by application checks. The tested implementation is `46ce8d7009e9e478518b179457be95261e1c41ca`, including the corrected integration-test synchronization and committed TypeScript 7 lockfile.
 
-[Application CI](https://github.com/FilippoCinotti/EatMe/actions/runs/34703254730) verifies the following:
+[Application CI](https://github.com/FilippoCinotti/EatMe/actions/runs/34704572429) completed successfully. This report-only update does not change the tested application source or workflow configuration.
+
+Debug artifacts: [Android APK](https://github.com/FilippoCinotti/EatMe/actions/runs/34704572429/artifacts/10301554361) and [iOS simulator application](https://github.com/FilippoCinotti/EatMe/actions/runs/34704572429/artifacts/10305546772). Artifacts expire after 14 days; a new build can recreate them from the tested commit. Follow the [local setup guide](../development/local-setup.md) for installation and backend connectivity.
+
+The completed run verifies the following:
 
 | Check | Result at this checkpoint |
 | --- | --- |
@@ -16,11 +20,11 @@ The foundation-only results are superseded by application checks. The last imple
 | Flutter analysis and 12 widget/workflow tests | Passed on Linux and macOS |
 | iOS simulator debug build | Passed; simulator archive uploaded |
 | Android debug build | Passed; APK uploaded |
-| Real API Android emulator flow | Emulator launch and app startup passed; the test reached shopping but raced the checkbox response before locating the purchase button. Bounded waits for rendered network results are now included for the next run |
+| Real API Android emulator flow | Passed: registration, profile setup, inventory seeding, shopping purchase, seven-dinner planning, cooking confirmation, data export and account deletion |
 
-## Current CI blocker
+## CI billing interruption
 
-[The correction run](https://github.com/FilippoCinotti/EatMe/actions/runs/34704386990) failed every job before executing any steps. Retrying the Android job produced the same result within two seconds, with no runner logs. The connected GitHub interface exposes an annotation count but cannot read its diagnostic text. No billing, quota or runner cause has been confirmed. The owner must inspect the run's annotation in GitHub Actions, resolve the reported account or runner issue, and rerun the application workflow. Do not interpret this infrastructure failure as a test result or mark the Android integration gate as passed.
+[The earlier correction run](https://github.com/FilippoCinotti/EatMe/actions/runs/34704386990) failed before executing any steps. The owner supplied GitHub's annotation confirming that recent account payments had failed or the spending limit needed increasing. On the owner's request, the Android job was retried and passed the entire workflow, including the corrected real API integration test. Only the remaining failed jobs were then retried, preserving the successful Android result. The earlier billing failures are not application test results.
 
 The TypeScript lockfile in `bdd6175` is the exact file generated and successfully installed by the preceding CI run. Its temporary lock-resolution step has been removed; subsequent runs use `npm ci`. The application source and native projects are unchanged from the successfully compiled revision.
 
