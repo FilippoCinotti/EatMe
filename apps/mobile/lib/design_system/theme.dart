@@ -38,24 +38,30 @@ abstract final class Tokens {
         );
     final base = ThemeData(
       useMaterial3: true,
+      fontFamily: 'EatMeSans',
       colorScheme: scheme,
       scaffoldBackgroundColor: scheme.surface,
     );
     return base.copyWith(
       textTheme: base.textTheme.copyWith(
         displaySmall: base.textTheme.displaySmall?.copyWith(
-          fontSize: 30,
+          fontFamily: 'EatMeDisplay',
+          height: 1.02,
+          fontSize: 38,
           fontWeight: FontWeight.w700,
-          letterSpacing: -1.0,
+          letterSpacing: -1.1,
         ),
         headlineMedium: base.textTheme.headlineMedium?.copyWith(
-          fontSize: 24,
+          fontFamily: 'EatMeDisplay',
+          height: 1.08,
+          fontSize: 28,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.7,
         ),
         titleLarge: base.textTheme.titleLarge?.copyWith(
-          fontSize: 22,
-          fontWeight: FontWeight.w600,
+          fontFamily: 'EatMeDisplay',
+          fontSize: 24,
+          fontWeight: FontWeight.w700,
         ),
         titleMedium: base.textTheme.titleMedium?.copyWith(
           fontSize: 16,
@@ -85,7 +91,7 @@ abstract final class Tokens {
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: scheme.outlineVariant.withValues(alpha: .6)),
+          side: BorderSide.none,
         ),
       ),
       listTileTheme: ListTileThemeData(
@@ -127,7 +133,7 @@ abstract final class Tokens {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: scheme.surfaceContainerHighest,
+        fillColor: scheme.surfaceContainer,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
@@ -150,7 +156,8 @@ abstract final class Tokens {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(64, 48),
-          side: BorderSide(color: scheme.outlineVariant),
+          side: BorderSide.none,
+          backgroundColor: scheme.surfaceContainer,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(28),
           ),

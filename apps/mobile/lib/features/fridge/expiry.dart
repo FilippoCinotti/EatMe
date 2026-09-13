@@ -35,7 +35,7 @@ class _ExpiryState extends ConsumerState<ExpiryPage> {
       groups.putIfAbsent(label, () => []).add(batch);
     }
     return Scaffold(
-      appBar: AppBar(title: Text(context.t('expiry_view'))),
+      appBar: EatMeAppBar(title: Text(context.t('expiry_view'))),
       body: PageBody(
         onRefresh: () => ref.read(appProvider.notifier).refresh(),
         children: [
@@ -99,10 +99,10 @@ Future<void> showAddFoodMethods(
           ('search_food', Icons.search, 'search'),
           ('custom_food', Icons.add, 'custom'),
         ])
-          ListTile(
-            leading: IconBadge(item.$2),
-            title: Text(context.t(item.$1)),
-            trailing: const Icon(Icons.chevron_right),
+          SettingRow(
+            icon: item.$2,
+            title: context.t(item.$1),
+            
             onTap: () => Navigator.pop(context, item.$3),
           ),
       ],

@@ -22,7 +22,7 @@ class _LeftoversState extends ResourceState<LeftoversPage> {
       data?['items'],
     ).where((i) => (i['remaining'] as int) > 0).toList();
     return Scaffold(
-      appBar: AppBar(
+      appBar: EatMeAppBar(
         title: Text(context.t('leftovers')),
         actions: [
           IconButton(
@@ -188,7 +188,7 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
   bool confirmed = false, saved = false;
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.t('add_leftovers'))),
+    appBar: EatMeAppBar(title: Text(context.t('add_leftovers'))),
     body: content([
       StatusNote(text: context.t('external_leftovers_notice')),
       if (records(data?['items']).isEmpty)

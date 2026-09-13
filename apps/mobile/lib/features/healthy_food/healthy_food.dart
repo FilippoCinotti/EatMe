@@ -38,160 +38,21 @@ class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
         .toList();
     final groups = state.foods.map((food) => food.group).toSet().toList()
       ..sort();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.t('healthy_food')),
-        actions: [
-          IconButton(
-            tooltip: context.t('wellbeing'),
-            onPressed: () => context.push('/wellbeing'),
-            icon: const Icon(Icons.insights_outlined),
-          ),
-        ],
-      ),
-      body: PageBody(
-        children: [
-          if (error != null) StatusNote(text: context.t(error!), warning: true),
-          FilterChip(
-            label: Text(context.t('favorites')),
-            selected: favoritesOnly,
-            onSelected: (v) => setState(() => favoritesOnly = v),
-          ),
-          Text(
-            context.t('discover_food'),
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            decoration: InputDecoration(
-              hintText: context.t('search_food'),
-              prefixIcon: const Icon(Icons.search),
-            ),
-            onChanged: (value) => setState(() => query = value),
-          ),
-          const SizedBox(height: 14),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                for (final value in ['all', ...groups])
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      showCheckmark: false,
-                      label: Text(context.t('food_group_$value')),
-                      selected: group == value,
-                      onSelected: (_) => setState(() => group = value),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          SectionHeading(title: context.t('explore_foods')),
-          if (state.offline)
-            StatusNote(text: context.t('online_required'), warning: true),
-          if (foods.isEmpty)
-            EmptyMessage(
-              title: context.t('no_food_results'),
-              body: context.t('try_another_search'),
-            ),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final columns =
-                  constraints.maxWidth >= 330 &&
-                      MediaQuery.textScalerOf(context).scale(16) <= 23
-                  ? 2
-                  : 1;
-              final width =
-                  (constraints.maxWidth - (columns - 1) * 12) / columns;
-              return Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  for (final food in foods)
-                    SizedBox(
-                      width: width,
-                      child: Card(
-                        margin: EdgeInsets.zero,
-                        child: InkWell(
-                          onTap: state.offline
-                              ? null
-                              : () =>
-                                    sheet(context, FoodAssessment(food: food)),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              FoodImage(
-                                id: food.id,
-                                photoId: food.photoId,
-                                height: columns == 2 ? 136 : 180,
-                                radius: 0,
-                                fallback: Icons.eco_outlined,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      localized(food.name, context.language),
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium,
-                                    ),
-                                    AsyncAction(
-                                      label: context.t(
-                                        favorites.contains(food.id)
-                                            ? 'remove_favorite'
-                                            : 'add_favorite',
-                                      ),
-                                      secondary: true,
-                                      enabled: !state.offline && data != null,
-                                      action: () async {
-                                        await Mutation().send(
-                                          ref.read(apiProvider),
-                                          'POST',
-                                          '/foods',
-                                          {
-                                            'action': 'favorite',
-                                            'food_id': food.id,
-                                            'enabled': !favorites.contains(
-                                              food.id,
-                                            ),
-                                          },
-                                        );
-                                        await load();
-                                      },
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      context.t('food_group_${food.group}'),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
-    );
+    return Scaffold(body: PageBody(children: [
+      EditorialHeader(eyebrow: context.t('healthy_eyebrow'), title: context.t('healthy_editorial'), subtitle: context.t('healthy_support'), actions: [RoundAction(icon: Icons.insights_outlined, label: context.t('wellbeing'), onPressed: () => context.push('/wellbeing')), RoundAction(icon: Icons.person_outline, label: context.t('profile'), onPressed: () => context.go('/profile'))]),
+      if (error != null) StatusNote(text: context.t(error!), warning: true),
+      SearchPill(hint: context.t('search_food'), onChanged: (value) => setState(() => query = value), onFilter: () => sheet(context, Column(mainAxisSize: MainAxisSize.min, children: [ListTile(title: Text(context.t('all_foods')), trailing: !favoritesOnly ? const Icon(Icons.check) : null, onTap: () {setState(() => favoritesOnly = false); Navigator.pop(context);}), ListTile(title: Text(context.t('favorites')), trailing: favoritesOnly ? const Icon(Icons.check) : null, onTap: () {setState(() => favoritesOnly = true); Navigator.pop(context);})]))),
+      const SizedBox(height: 20),
+      SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        for (final value in ['all', ...groups]) Padding(padding: const EdgeInsets.only(right: 10), child: CategoryTile(label: context.t('food_group_$value'), foodId: (value == 'all' ? state.foods.firstOrNull : state.foods.where((f) => f.group == value).firstOrNull)?.id ?? '', selected: group == value, onTap: () => setState(() => group = value))),
+      ])),
+      SectionHeading(title: context.t(favoritesOnly ? 'favorites' : 'explore_foods')),
+      if (state.offline) StatusNote(text: context.t('online_required'), warning: true),
+      if (foods.isEmpty) EmptyMessage(title: context.t('no_food_results'), body: context.t('try_another_search')),
+      AdaptivePhotoGrid(children: [for (final food in foods) FoodPhotoCard(id: food.id, photoId: food.photoId, title: localized(food.name, context.language), subtitle: context.t('food_group_${food.group}'), onTap: () {if (!state.offline) {sheet(context, FoodAssessment(food: food));}}, actionIcon: favorites.contains(food.id) ? Icons.favorite : Icons.favorite_border, actionLabel: context.t(favorites.contains(food.id) ? 'remove_favorite' : 'add_favorite'), onAction: state.offline || data == null || updating ? null : () => guard(() async {await Mutation().send(ref.read(apiProvider), 'POST', '/foods', {'action': 'favorite', 'food_id': food.id, 'enabled': !favorites.contains(food.id)}); await load();}))]),
+      const SizedBox(height: 24),
+      InformationPanel(child: SettingRow(title: context.t('diet_health'), subtitle: context.t('healthy_profile_hint'), icon: Icons.shield_outlined, onTap: () => context.push('/profile/edit'))),
+    ]));
   }
 }
 

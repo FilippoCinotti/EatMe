@@ -64,7 +64,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(appProvider);
     return Scaffold(
-      appBar: AppBar(
+      appBar: EatMeAppBar(
         title: Text(context.t(widget.edit ? 'edit_profile' : 'make_it_yours')),
         leading: step > 0
             ? IconButton(

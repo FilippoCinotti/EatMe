@@ -33,7 +33,7 @@ class _LibraryState extends ResourceState<RecipeLibraryPage> {
         )
         .toList();
     return Scaffold(
-      appBar: AppBar(title: Text(context.t('recipe_library'))),
+      appBar: EatMeAppBar(title: Text(context.t('recipe_library'))),
       body: content([
         TextField(
           decoration: InputDecoration(
@@ -173,7 +173,7 @@ class _EditorState extends ConsumerState<RecipeEditorPage> {
   Widget build(BuildContext context) {
     final foods = ref.watch(appProvider).foods;
     return Scaffold(
-      appBar: AppBar(title: Text(context.t('create_recipe'))),
+      appBar: EatMeAppBar(title: Text(context.t('create_recipe'))),
       body: PageBody(
         children: [
           TextField(

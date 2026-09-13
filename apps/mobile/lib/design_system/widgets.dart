@@ -5,6 +5,7 @@ import '../core/localization.dart';
 import '../core/models.dart';
 import 'food_image.dart';
 export 'food_image.dart';
+export 'premium.dart';
 
 class AsyncAction extends StatefulWidget {
   const AsyncAction({
@@ -74,11 +75,12 @@ class PageBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = ListView(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+      padding: EdgeInsets.fromLTRB(20, 12, 20, 28 + MediaQuery.paddingOf(context).bottom),
       physics: const AlwaysScrollableScrollPhysics(),
       children: children,
     );
     return SafeArea(
+      bottom: false,
       child: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
@@ -143,7 +145,7 @@ class SectionHeading extends StatelessWidget {
     child: Row(
       children: [
         Expanded(
-          child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+          child: Text(title, style: Theme.of(context).textTheme.titleLarge),
         ),
         if (actionLabel != null && onAction != null)
           TextButton(onPressed: onAction, child: Text(actionLabel!)),

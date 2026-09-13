@@ -71,7 +71,7 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.t('subscriptions'))),
+    appBar: EatMeAppBar(title: Text(context.t('subscriptions'))),
     body: content([
       Text(
         context.t('your_membership'),

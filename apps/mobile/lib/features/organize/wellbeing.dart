@@ -50,7 +50,7 @@ class _WellbeingState extends ResourceState<WellbeingPage> {
   Widget build(BuildContext context) {
     final goals = records(data?['goals']);
     return Scaffold(
-      appBar: AppBar(title: Text(context.t('wellbeing'))),
+      appBar: EatMeAppBar(title: Text(context.t('wellbeing'))),
       body: content([
         Text(
           context.t('your_goals'),
@@ -158,7 +158,7 @@ class _ActivityState extends ResourceState<HouseholdActivityPage> {
   String get path => '/households/activity';
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.t('recent_activity'))),
+    appBar: EatMeAppBar(title: Text(context.t('recent_activity'))),
     body: content([
       if (records(data?['items']).isEmpty)
         StatusNote(text: context.t('activity_empty')),

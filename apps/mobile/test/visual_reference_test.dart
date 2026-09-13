@@ -1,3 +1,4 @@
+import 'premium_fonts.dart';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -101,6 +102,7 @@ class VisualController extends support.TestController {
 }
 
 Future<void> loadFonts() async {
+  await loadEatMeFonts();
   final sdk = Platform.environment['FLUTTER_ROOT'];
   if (sdk == null) return;
   final directory = Directory('$sdk/bin/cache/artifacts/material_fonts');

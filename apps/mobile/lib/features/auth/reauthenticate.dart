@@ -31,7 +31,7 @@ class _ReauthenticateState extends ConsumerState<ReauthenticatePage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.t('reauthenticate'))),
+    appBar: EatMeAppBar(title: Text(context.t('reauthenticate'))),
     body: PageBody(
       children: [
         Text(context.t('reauthenticate_body')),

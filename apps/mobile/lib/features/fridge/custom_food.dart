@@ -56,7 +56,7 @@ class _CustomFoodState extends ConsumerState<CustomFoodPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.t('custom_food'))),
+    appBar: EatMeAppBar(title: Text(context.t('custom_food'))),
     body: Form(
       key: form,
       child: PageBody(

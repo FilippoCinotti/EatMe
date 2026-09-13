@@ -50,7 +50,7 @@ class _BatchDetailsState extends ConsumerState<BatchDetailsPage> {
   );
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.t('edit_batch_details'))),
+    appBar: EatMeAppBar(title: Text(context.t('edit_batch_details'))),
     body: PageBody(
       children: [
         Text(

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -270,6 +269,7 @@ class AppShell extends StatelessWidget {
   static const paths = ['/chef', '/fridge', '/healthy-food', '/profile'];
   @override
   Widget build(BuildContext context) => Scaffold(
+    extendBody: true,
     body: child,
     bottomNavigationBar: SafeArea(
       minimum: const EdgeInsets.fromLTRB(18, 0, 18, 12),
@@ -277,17 +277,9 @@ class AppShell extends StatelessWidget {
         heightFactor: 1,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 620),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(30),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(
-                sigmaX: MediaQuery.highContrastOf(context) ? 0 : 12,
-                sigmaY: MediaQuery.highContrastOf(context) ? 0 : 12,
-              ),
-              child: NavigationBar(
-                backgroundColor: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainer.withValues(alpha: .92),
+          child: GlassSurface(
+            child: NavigationBar(
+                backgroundColor: Colors.transparent,
                 elevation: 0,
                 selectedIndex: paths.indexOf(path).clamp(0, 3).toInt(),
                 onDestinationSelected: (index) => context.go(paths[index]),
@@ -313,7 +305,6 @@ class AppShell extends StatelessWidget {
                     label: context.t('profile'),
                   ),
                 ],
-              ),
             ),
           ),
         ),

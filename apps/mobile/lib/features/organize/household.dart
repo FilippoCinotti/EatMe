@@ -26,7 +26,7 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
     final userId = ref.watch(appProvider).profile['user_id'];
     final me = members.where((m) => m['user_id'] == userId).firstOrNull;
     return Scaffold(
-      appBar: AppBar(title: Text(context.t('household'))),
+      appBar: EatMeAppBar(title: Text(context.t('household'))),
       body: content([
         Text(
           current?['name'] as String? ?? context.t('your_household'),

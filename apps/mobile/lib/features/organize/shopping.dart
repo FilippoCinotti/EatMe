@@ -47,7 +47,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
           ..sort();
     final checked = items.where((i) => i['checked'] == true).length;
     return Scaffold(
-      appBar: AppBar(
+      appBar: EatMeAppBar(
         title: Text(context.t('shopping_list')),
         actions: [
           IconButton(

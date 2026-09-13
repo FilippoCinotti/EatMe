@@ -101,7 +101,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
       );
     }
     return Scaffold(
-      appBar: AppBar(title: Text(context.t('cooking_mode'))),
+      appBar: EatMeAppBar(title: Text(context.t('cooking_mode'))),
       body: FutureBuilder<Recipe>(
         future: future,
         builder: (context, snapshot) {
@@ -291,7 +291,7 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.t('confirm_cooking'))),
+    appBar: EatMeAppBar(title: Text(context.t('confirm_cooking'))),
     body: FutureBuilder<Json>(
       future: future,
       builder: (context, snapshot) {
@@ -420,7 +420,7 @@ class CookingCompletePage extends StatelessWidget {
   final int leftovers;
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(),
+    appBar: const EatMeAppBar(),
     body: PageBody(
       children: [
         Icon(

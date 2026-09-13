@@ -121,7 +121,7 @@ class _ScanningState extends ResourceState<ScanningPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.t('scan_and_import'))),
+    appBar: EatMeAppBar(title: Text(context.t('scan_and_import'))),
     body: content([
       Text(
         context.t('less_typing'),
@@ -256,7 +256,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
   Widget build(BuildContext context) {
     final foods = ref.watch(appProvider).foods;
     return Scaffold(
-      appBar: AppBar(title: Text(context.t('review_results'))),
+      appBar: EatMeAppBar(title: Text(context.t('review_results'))),
       body: PageBody(
         children: [
           StatusNote(text: context.t('scan_review_notice')),
@@ -408,7 +408,7 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.t('scan_barcode'))),
+    appBar: EatMeAppBar(title: Text(context.t('scan_barcode'))),
     body: PageBody(
       children: [
         if (product == null)

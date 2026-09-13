@@ -36,12 +36,18 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
   Widget build(BuildContext context) {
     final prefs = data?['data'] as Map? ?? {};
     return Scaffold(
-      appBar: AppBar(title: Text(context.t('preferences'))),
+      appBar: EatMeAppBar(title: Text(context.t('preferences'))),
       body: content([
+        SettingsGroup(title: context.t('appearance'), children: [
+          DropdownButtonFormField<ThemeMode>(initialValue: ref.watch(appProvider).theme, decoration: InputDecoration(labelText: context.t('appearance')), items: ThemeMode.values.map((t) => DropdownMenuItem(value: t, child: Text(context.t(t.name)))).toList(), onChanged: (t) => ref.read(appProvider.notifier).setTheme(t!)),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<String>(initialValue: context.language, decoration: InputDecoration(labelText: context.t('language')), items: ['it','en'].map((l) => DropdownMenuItem(value: l, child: Text(context.t('language_$l')))).toList(), onChanged: (l) => ref.read(appProvider.notifier).setLocale(l!)),
+        ]),
         Text(
           context.t('make_it_yours'),
           style: Theme.of(context).textTheme.headlineMedium,
         ),
+        SettingsGroup(children: [
         DropdownButtonFormField<String>(
           initialValue: prefs['budget'] as String? ?? 'any',
           decoration: InputDecoration(
@@ -66,7 +72,9 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
             subtitle: Text(context.t('pref_${name}_body')),
             onChanged: data == null ? null : (v) => update(name, v),
           ),
+        ]),
         const SizedBox(height: 24),
+        SettingsGroup(children: [
         DropdownButtonFormField<String>(
           initialValue: prefs['skill'] as String? ?? 'beginner',
           decoration: InputDecoration(labelText: context.t('cooking_skill')),
@@ -108,6 +116,7 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
             }
           },
         ),
+        ]),
       ]),
     );
   }
@@ -151,8 +160,9 @@ class _NotificationsState extends ResourceState<NotificationsPage> {
     final prefs = data?['preferences'] as Map? ?? {};
     final categories = List<String>.from(prefs['categories'] as List? ?? []);
     return Scaffold(
-      appBar: AppBar(title: Text(context.t('notifications'))),
+      appBar: EatMeAppBar(title: Text(context.t('notifications'))),
       body: content([
+        SettingsGroup(children: [
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           value: prefs['enabled'] == true,
@@ -197,7 +207,8 @@ class _NotificationsState extends ResourceState<NotificationsPage> {
               }
             },
           ),
-        const Divider(),
+        ]),
+
         for (final item in records(data?['items']))
           ListTile(
             leading: const Icon(Icons.notifications_none),
@@ -229,7 +240,7 @@ class _EvidenceState extends ResourceState<EvidencePage> {
   String get path => '/evidence?q=${Uri.encodeQueryComponent(query)}';
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.t('evidence_library'))),
+    appBar: EatMeAppBar(title: Text(context.t('evidence_library'))),
     body: content([
       TextField(
         decoration: InputDecoration(
@@ -292,7 +303,7 @@ class _InsightsState extends ResourceState<InsightsPage> {
   String get path => '/insights';
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.t('insights'))),
+    appBar: EatMeAppBar(title: Text(context.t('insights'))),
     body: content([
       Text(
         context.t('small_habits'),
@@ -406,7 +417,7 @@ class _SyncState extends ConsumerState<SyncPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.t('offline_sync'))),
+    appBar: EatMeAppBar(title: Text(context.t('offline_sync'))),
     body: PageBody(
       children: [
         StatusNote(text: context.t('sync_notice')),

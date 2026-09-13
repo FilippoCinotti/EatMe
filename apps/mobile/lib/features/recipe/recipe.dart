@@ -80,7 +80,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(),
+    appBar: const EatMeAppBar(),
     body: FutureBuilder<(Recipe, Json)>(
       future: future,
       builder: (context, snapshot) {
@@ -115,13 +115,13 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 text: context.t(plan['preview_unavailable'] as String),
                 warning: true,
               ),
-            Text(
-              localized(recipe.title, context.language),
-              style: Theme.of(context).textTheme.displaySmall,
-            ),
-            const SizedBox(height: 16),
-            FoodImage(id: recipe.id, height: 230, radius: 22),
-            const SizedBox(height: 16),
+            FoodImage(id: recipe.id, height: 280, radius: 28),
+            const SizedBox(height: 20),
+            Text(localized(recipe.title, context.language), style: Theme.of(context).textTheme.displaySmall),
+            const SizedBox(height: 12),
+            Wrap(spacing: 8, runSpacing: 8, children: [StatusBadge(label: context.t('minutes', {'minutes': recipe.minutes}), icon: Icons.schedule), StatusBadge(label: context.t('portions', {'count': servings}), icon: Icons.restaurant)]),
+            const SizedBox(height: 20),
+            ExpansionTile(tilePadding: EdgeInsets.zero, title: Text(context.t('recipe_actions')), children: [
             AsyncAction(
               label: context.t(favorite ? 'remove_favorite' : 'favorite'),
               secondary: true,
@@ -146,6 +146,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 }).join('\n')}\n\n${recipe.instructions(context.language).asMap().entries.map((s) => '${s.key + 1}. ${s.value}').join('\n')}',
               ),
             ),
+            ]),
             Text(context.t('minutes', {'minutes': recipe.minutes})),
             const SizedBox(height: 16),
             Row(
@@ -283,6 +284,19 @@ class _RecipePageState extends ConsumerState<RecipePage> {
             if ((plan['shortages'] as List).isNotEmpty)
               StatusNote(text: context.t('missing_ingredients_notice')),
             const SizedBox(height: 24),
+            FilledButton(
+              onPressed:
+                  ref.watch(appProvider).offline ||
+                      plan['preview_unavailable'] != null
+                  ? null
+                  : () => context.push(
+                      '/cook/${recipe.id}?servings=$servings',
+                      extra: participants,
+                    ),
+              child: Text(context.t('start_cooking')),
+            ),
+            const SizedBox(height: 20),
+            ExpansionTile(tilePadding: EdgeInsets.zero, title: Text(context.t('more_recipe_tools')), children: [
             AsyncAction(
               label: context.t('build_shopping_list'),
               secondary: true,
@@ -414,17 +428,8 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                   if (context.mounted) context.go('/chef');
                 },
               ),
-            FilledButton(
-              onPressed:
-                  ref.watch(appProvider).offline ||
-                      plan['preview_unavailable'] != null
-                  ? null
-                  : () => context.push(
-                      '/cook/${recipe.id}?servings=$servings',
-                      extra: participants,
-                    ),
-              child: Text(context.t('start_cooking')),
-            ),
+
+            ]),
           ],
         );
       },

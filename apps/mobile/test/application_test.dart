@@ -1,3 +1,4 @@
+import 'premium_fonts.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'dart:ui' as ui;
@@ -170,6 +171,7 @@ Widget harness(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
+    await loadEatMeFonts();
     final sdk = Platform.environment['FLUTTER_ROOT'];
     if (sdk == null) return;
     final fonts = Directory('$sdk/bin/cache/artifacts/material_fonts');
