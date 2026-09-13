@@ -79,6 +79,7 @@ class _LibraryState extends ResourceState<RecipeLibraryPage> {
         for (final recipe in items)
           Card(
             child: ListTile(
+              leading: FoodImage(id: '${recipe['id']}', width: 60, height: 60, radius: 14),
               title: Text(labelOf(recipe['title'], context)),
               subtitle: Text('${recipe['minutes']} min'),
               trailing: IconButton(

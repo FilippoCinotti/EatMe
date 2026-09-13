@@ -128,12 +128,21 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                 }),
                 style: Theme.of(context).textTheme.labelLarge,
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 16),
+              FoodImage(id: widget.recipeId, height: 190, radius: 22),
+              const SizedBox(height: 20),
               Text(
                 steps[step],
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
-              const SizedBox(height: 48),
+              const SizedBox(height: 24),
+              if (remaining > 0) ...[
+                Center(child: SizedBox(width: 104, height: 104, child: Stack(alignment: Alignment.center, children: [
+                  SizedBox.expand(child: CircularProgressIndicator(value: remaining / 300, strokeWidth: 7, backgroundColor: Theme.of(context).colorScheme.primaryContainer)),
+                  const Icon(Icons.timer_outlined, size: 32),
+                ]))),
+                const SizedBox(height: 20),
+              ],
               OutlinedButton.icon(
                 onPressed: toggleTimer,
                 icon: const Icon(Icons.timer_outlined),

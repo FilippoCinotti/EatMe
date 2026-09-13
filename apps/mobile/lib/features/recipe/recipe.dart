@@ -119,6 +119,8 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               style: Theme.of(context).textTheme.displaySmall,
             ),
             const SizedBox(height: 16),
+            FoodImage(id: recipe.id, height: 230, radius: 22),
+            const SizedBox(height: 16),
             AsyncAction(
               label: context.t(favorite ? 'remove_favorite' : 'favorite'),
               secondary: true,

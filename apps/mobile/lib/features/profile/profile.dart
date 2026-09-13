@@ -49,6 +49,7 @@ class ProfilePage extends ConsumerWidget {
           const SizedBox(height: 32),
           ListTile(
             contentPadding: EdgeInsets.zero,
+            leading: const IconBadge(Icons.eco_outlined),
             title: Text(context.t('diet')),
             subtitle: Text(
               dietNames.isEmpty ? context.t('no_diet') : dietNames,
@@ -59,6 +60,7 @@ class ProfilePage extends ConsumerWidget {
           const Divider(),
           ListTile(
             contentPadding: EdgeInsets.zero,
+            leading: const IconBadge(Icons.shield_outlined),
             title: Text(context.t('allergies_intolerances')),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/profile/edit'),
@@ -75,6 +77,7 @@ class ProfilePage extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/profile/edit'),
           ),
+          SectionHeading(title: context.t('your_kitchen')),
           for (final item in [
             ('household', '/household', Icons.group_outlined),
             ('preferences', '/preferences', Icons.tune),
@@ -88,12 +91,12 @@ class ProfilePage extends ConsumerWidget {
             ('offline_sync', '/sync', Icons.sync),
             ('evidence_library', '/evidence', Icons.library_books_outlined),
           ])
-            ListTile(
-              leading: Icon(item.$3),
+            Card(child: ListTile(
+              leading: IconBadge(item.$3),
               title: Text(context.t(item.$1)),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push(item.$2),
-            ),
+            )),
           const SizedBox(height: 28),
           Text(
             context.t('preferences'),

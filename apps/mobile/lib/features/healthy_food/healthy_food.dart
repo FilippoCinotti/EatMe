@@ -13,46 +13,44 @@ class HealthyFoodPage extends ConsumerStatefulWidget {
 }
 
 class _HealthyFoodPageState extends ConsumerState<HealthyFoodPage> {
-  String query = '';
+  String query = '', group = 'all';
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(appProvider);
+    final foods = state.foods.where((food) => (group == 'all' || food.group == group) && localized(food.name, context.language).toLowerCase().contains(query.toLowerCase())).toList();
+    final groups = state.foods.map((food) => food.group).toSet().toList()..sort();
     return Scaffold(
       appBar: AppBar(title: Text(context.t('healthy_food'))),
-      body: PageBody(
-        children: [
-          Text(
-            context.t('fits_me_question'),
-            style: Theme.of(context).textTheme.displaySmall,
-          ),
-          const SizedBox(height: 24),
-          TextField(
-            decoration: InputDecoration(
-              hintText: context.t('search_food'),
-              prefixIcon: const Icon(Icons.search),
-            ),
-            onChanged: (s) => setState(() => query = s),
-          ),
-          const SizedBox(height: 20),
-          for (final food in state.foods.where(
-            (f) => localized(
-              f.name,
-              context.language,
-            ).toLowerCase().contains(query.toLowerCase()),
-          ))
-            ListTile(
-              contentPadding: const EdgeInsets.symmetric(vertical: 6),
-              leading: FoodMark(food: food),
-              title: Text(localized(food.name, context.language)),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: state.offline
-                  ? null
-                  : () => sheet(context, FoodAssessment(food: food)),
-            ),
-          if (state.offline)
-            StatusNote(text: context.t('online_required'), warning: true),
-        ],
-      ),
+      body: PageBody(children: [
+        Text(context.t('discover_food'), style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        const SizedBox(height: 16),
+        TextField(decoration: InputDecoration(hintText: context.t('search_food'), prefixIcon: const Icon(Icons.search)), onChanged: (value) => setState(() => query = value)),
+        const SizedBox(height: 14),
+        SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(children: [
+          for (final value in ['all', ...groups]) Padding(padding: const EdgeInsets.only(right: 8), child: ChoiceChip(
+            showCheckmark: false, label: Text(context.t('food_group_$value')), selected: group == value,
+            onSelected: (_) => setState(() => group = value),
+          )),
+        ])),
+        SectionHeading(title: context.t('explore_foods')),
+        if (state.offline) StatusNote(text: context.t('online_required'), warning: true),
+        if (foods.isEmpty) EmptyMessage(title: context.t('no_food_results'), body: context.t('try_another_search')),
+        LayoutBuilder(builder: (context, constraints) {
+          final columns = constraints.maxWidth >= 330 && MediaQuery.textScalerOf(context).scale(16) <= 23 ? 2 : 1;
+          final width = (constraints.maxWidth - (columns - 1) * 12) / columns;
+          return Wrap(spacing: 12, runSpacing: 12, children: [for (final food in foods) SizedBox(width: width, child: Card(
+            margin: EdgeInsets.zero,
+            child: InkWell(onTap: state.offline ? null : () => sheet(context, FoodAssessment(food: food)), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              FoodImage(id: food.id, height: columns == 2 ? 136 : 180, radius: 0, fallback: Icons.eco_outlined),
+              Padding(padding: const EdgeInsets.all(12), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(localized(food.name, context.language), style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 4),
+                Text(context.t('food_group_${food.group}'), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              ])),
+            ])),
+          ))]);
+        }),
+      ]),
     );
   }
 }
@@ -108,7 +106,7 @@ class _FoodAssessmentState extends ConsumerState<FoodAssessment> {
         shrinkWrap: true,
         padding: const EdgeInsets.fromLTRB(24, 4, 24, 28),
         children: [
-          FoodMark(food: widget.food, size: 64),
+          FoodImage(id: widget.food.id, height: 220, radius: 22, fallback: Icons.eco_outlined),
           const SizedBox(height: 20),
           Text(
             localized(widget.food.name, context.language),
