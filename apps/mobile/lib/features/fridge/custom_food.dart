@@ -176,6 +176,13 @@ class _CustomFoodState extends ConsumerState<CustomFoodPage> {
                 if (context.mounted) Navigator.pop(context);
                 return;
               }
+              if (name.text.trim().isEmpty) {
+                throw const ApiFailure('required_field');
+              }
+              final quantity = double.tryParse(amount.text.trim().replaceAll(',', '.'));
+              if (quantity == null || !quantity.isFinite || quantity <= 0 || (unit == 'pcs' && quantity != quantity.roundToDouble())) {
+                throw const ApiFailure('invalid_quantity');
+              }
               if (!form.currentState!.validate()) return;
               final api = ref.read(apiProvider);
               if (photo != null && mediaId == null) {

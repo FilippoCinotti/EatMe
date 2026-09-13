@@ -73,10 +73,21 @@ class _FridgePageState extends ConsumerState<FridgePage> {
       body: PageBody(
         onRefresh: () => ref.read(appProvider.notifier).refresh(),
         children: [
-          Wrap(spacing: 8, runSpacing: 8, children: [
-            for (final value in ['all', 'fridge', 'freezer', 'pantry'])
-              ChoiceChip(showCheckmark: false, label: Text(context.t(value == 'all' ? 'food_group_all' : value)), selected: location == value, onSelected: (_) => setState(() => location = value)),
-          ]),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final value in ['all', 'fridge', 'freezer', 'pantry'])
+                ChoiceChip(
+                  showCheckmark: false,
+                  label: Text(
+                    context.t(value == 'all' ? 'food_group_all' : value),
+                  ),
+                  selected: location == value,
+                  onSelected: (_) => setState(() => location = value),
+                ),
+            ],
+          ),
           const SizedBox(height: 16),
           if (dueSoon > 0) ...[
             HighlightPanel(
