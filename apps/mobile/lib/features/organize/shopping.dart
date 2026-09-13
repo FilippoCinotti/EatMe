@@ -57,7 +57,14 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
           }),
         ),
         const SizedBox(height: 10),
-        ClipRRect(borderRadius: BorderRadius.circular(6), child: LinearProgressIndicator(value: items.isEmpty ? 0 : checked / items.length, minHeight: 5, backgroundColor: Theme.of(context).colorScheme.primaryContainer)),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: LinearProgressIndicator(
+            value: items.isEmpty ? 0 : checked / items.length,
+            minHeight: 5,
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          ),
+        ),
         const SizedBox(height: 20),
         AsyncAction(label: context.t('add_food'), action: add),
         if (items.isEmpty)
@@ -73,7 +80,13 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                 children: [
                   CheckboxListTile(
                     contentPadding: EdgeInsets.zero,
-                    secondary: FoodImage(id: '${item['food_id'] ?? ''}', width: 48, height: 48, radius: 12, fallback: Icons.shopping_bag_outlined),
+                    secondary: FoodImage(
+                      id: '${item['food_id'] ?? ''}',
+                      width: 48,
+                      height: 48,
+                      radius: 12,
+                      fallback: Icons.shopping_bag_outlined,
+                    ),
                     value: item['checked'] == true,
                     title: Text(item['label'] as String),
                     subtitle: Text('${item['quantity']} ${item['unit']}'),

@@ -31,7 +31,15 @@ class _FridgePageState extends ConsumerState<FridgePage> {
         )
         .toList();
     final today = DateUtils.dateOnly(DateTime.now());
-    final dueSoon = items.where((batch) => batch.usable && batch.expiryDate != null && batch.expiryDate!.difference(today).inDays >= 0 && batch.expiryDate!.difference(today).inDays <= 3).length;
+    final dueSoon = items
+        .where(
+          (batch) =>
+              batch.usable &&
+              batch.expiryDate != null &&
+              batch.expiryDate!.difference(today).inDays >= 0 &&
+              batch.expiryDate!.difference(today).inDays <= 3,
+        )
+        .length;
     return Scaffold(
       appBar: AppBar(
         title: Text(context.t('my_fridge')),
@@ -64,7 +72,11 @@ class _FridgePageState extends ConsumerState<FridgePage> {
           ),
           const SizedBox(height: 16),
           if (dueSoon > 0) ...[
-            HighlightPanel(icon: Icons.schedule, title: context.t('use_these_first'), body: context.t('expiry_summary', {'count': dueSoon})),
+            HighlightPanel(
+              icon: Icons.schedule,
+              title: context.t('use_these_first'),
+              body: context.t('expiry_summary', {'count': dueSoon}),
+            ),
             const SizedBox(height: 12),
           ],
           TextField(
@@ -83,8 +95,7 @@ class _FridgePageState extends ConsumerState<FridgePage> {
             ),
           if (state.offline)
             StatusNote(text: context.t('offline_inventory'), warning: true),
-          if (items.isNotEmpty)
-            SectionHeading(title: context.t('all_foods')),
+          if (items.isNotEmpty) SectionHeading(title: context.t('all_foods')),
           if (items.isEmpty)
             EmptyMessage(
               title: context.t('empty_fridge'),
@@ -97,21 +108,23 @@ class _FridgePageState extends ConsumerState<FridgePage> {
               ),
             ),
           for (final batch in items)
-            Card(child: ListTile(
-              leading: FoodMark(food: batch.food, size: 60),
-              title: Text(localized(batch.food.name, context.language)),
-              subtitle: Text(
-                '${batch.quantity} ${batch.food.unit}\n${expiryLabel(context, batch)}',
-                style: TextStyle(
-                  color: batch.usable
-                      ? null
-                      : Theme.of(context).colorScheme.error,
+            Card(
+              child: ListTile(
+                leading: FoodMark(food: batch.food, size: 60),
+                title: Text(localized(batch.food.name, context.language)),
+                subtitle: Text(
+                  '${batch.quantity} ${batch.food.unit}\n${expiryLabel(context, batch)}',
+                  style: TextStyle(
+                    color: batch.usable
+                        ? null
+                        : Theme.of(context).colorScheme.error,
+                  ),
                 ),
+                isThreeLine: true,
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => sheet(context, BatchSheet(batch: batch)),
               ),
-              isThreeLine: true,
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => sheet(context, BatchSheet(batch: batch)),
-            )),
+            ),
         ],
       ),
     );

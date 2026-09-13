@@ -137,10 +137,27 @@ class _CookingPageState extends ConsumerState<CookingPage> {
               ),
               const SizedBox(height: 24),
               if (remaining > 0) ...[
-                Center(child: SizedBox(width: 104, height: 104, child: Stack(alignment: Alignment.center, children: [
-                  SizedBox.expand(child: CircularProgressIndicator(value: remaining / 300, strokeWidth: 7, backgroundColor: Theme.of(context).colorScheme.primaryContainer)),
-                  const Icon(Icons.timer_outlined, size: 32),
-                ]))),
+                Center(
+                  child: SizedBox(
+                    width: 104,
+                    height: 104,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SizedBox.expand(
+                          child: CircularProgressIndicator(
+                            value: remaining / 300,
+                            strokeWidth: 7,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                          ),
+                        ),
+                        const Icon(Icons.timer_outlined, size: 32),
+                      ],
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 20),
               ],
               OutlinedButton.icon(

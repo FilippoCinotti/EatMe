@@ -4,7 +4,14 @@ import 'package:flutter/material.dart';
 /// Illustrative photography is mapped only to the bundled demo catalog IDs.
 /// Unknown or private content keeps an honest icon fallback, never a wrong dish.
 class FoodImage extends StatelessWidget {
-  const FoodImage({super.key, required this.id, this.height = 160, this.width, this.radius = 16, this.fallback = Icons.restaurant_outlined});
+  const FoodImage({
+    super.key,
+    required this.id,
+    this.height = 160,
+    this.width,
+    this.radius = 16,
+    this.fallback = Icons.restaurant_outlined,
+  });
   final String id;
   final double height, radius;
   final double? width;
@@ -33,22 +40,50 @@ class FoodImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final cell = cells[id];
     final scheme = Theme.of(context).colorScheme;
-    return ExcludeSemantics(child: ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: SizedBox(width: width, height: height, child: LayoutBuilder(builder: (context, constraints) {
-        if (cell == null) {
-          return ColoredBox(color: scheme.primaryContainer, child: Center(child: Icon(fallback, size: math.min(height * .4, 64), color: scheme.primary)));
-        }
-        final side = math.max(constraints.maxWidth, height);
-        return Stack(clipBehavior: Clip.hardEdge, children: [Positioned(
-          left: -(cell % 4) * side + (constraints.maxWidth - side) / 2,
-          top: -(cell ~/ 4) * side + (height - side) / 2,
-          width: side * 4,
-          height: side * 4,
-          child: Image.asset(asset, fit: BoxFit.fill, filterQuality: FilterQuality.medium,
-            errorBuilder: (context, error, stack) => ColoredBox(color: scheme.primaryContainer)),
-        )]);
-      })),
-    ));
+    return ExcludeSemantics(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: SizedBox(
+          width: width,
+          height: height,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              if (cell == null) {
+                return ColoredBox(
+                  color: scheme.primaryContainer,
+                  child: Center(
+                    child: Icon(
+                      fallback,
+                      size: math.min(height * .4, 64),
+                      color: scheme.primary,
+                    ),
+                  ),
+                );
+              }
+              final side = math.max(constraints.maxWidth, height);
+              return Stack(
+                clipBehavior: Clip.hardEdge,
+                children: [
+                  Positioned(
+                    left:
+                        -(cell % 4) * side + (constraints.maxWidth - side) / 2,
+                    top: -(cell ~/ 4) * side + (height - side) / 2,
+                    width: side * 4,
+                    height: side * 4,
+                    child: Image.asset(
+                      asset,
+                      fit: BoxFit.fill,
+                      filterQuality: FilterQuality.medium,
+                      errorBuilder: (context, error, stack) =>
+                          ColoredBox(color: scheme.primaryContainer),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
   }
 }

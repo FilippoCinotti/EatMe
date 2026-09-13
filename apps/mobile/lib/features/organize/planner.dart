@@ -179,7 +179,14 @@ class _PlannerState extends ResourceState<PlannerPage> {
                     .firstOrNull;
                 return Card(
                   child: ListTile(
-                    leading: meal == null ? null : FoodImage(id: '${meal['recipe_id']}', width: 56, height: 56, radius: 12),
+                    leading: meal == null
+                        ? null
+                        : FoodImage(
+                            id: '${meal['recipe_id']}',
+                            width: 56,
+                            height: 56,
+                            radius: 12,
+                          ),
                     title: Text(context.t(slot)),
                     subtitle: meal == null
                         ? null

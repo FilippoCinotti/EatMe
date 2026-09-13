@@ -18,12 +18,22 @@ abstract final class Tokens {
           onPrimary: dark ? graphite : Colors.white,
           surface: dark ? graphite : cream,
           surfaceContainer: dark ? const Color(0xff1b211e) : Colors.white,
-          surfaceContainerHighest: dark ? const Color(0xff242c27) : const Color(0xffedf1eb),
+          surfaceContainerHighest: dark
+              ? const Color(0xff242c27)
+              : const Color(0xffedf1eb),
           onSurface: dark ? const Color(0xfff0f3ee) : const Color(0xff17221b),
-          onSurfaceVariant: dark ? const Color(0xffbac4bd) : const Color(0xff626d66),
-          outlineVariant: dark ? const Color(0xff323c35) : const Color(0xffe4e9e2),
-          primaryContainer: dark ? const Color(0xff203b2b) : const Color(0xffe6f1e6),
-          onPrimaryContainer: dark ? const Color(0xffc3edcd) : const Color(0xff235a35),
+          onSurfaceVariant: dark
+              ? const Color(0xffbac4bd)
+              : const Color(0xff626d66),
+          outlineVariant: dark
+              ? const Color(0xff323c35)
+              : const Color(0xffe4e9e2),
+          primaryContainer: dark
+              ? const Color(0xff203b2b)
+              : const Color(0xffe6f1e6),
+          onPrimaryContainer: dark
+              ? const Color(0xffc3edcd)
+              : const Color(0xff235a35),
           error: dark ? const Color(0xffffb4a9) : critical,
         );
     final base = ThemeData(
@@ -47,7 +57,10 @@ abstract final class Tokens {
           fontSize: 22,
           fontWeight: FontWeight.w600,
         ),
-        titleMedium: base.textTheme.titleMedium?.copyWith(fontSize: 16, fontWeight: FontWeight.w600),
+        titleMedium: base.textTheme.titleMedium?.copyWith(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
         bodyLarge: base.textTheme.bodyLarge?.copyWith(
           fontSize: 16,
           height: 1.35,
@@ -57,7 +70,12 @@ abstract final class Tokens {
         backgroundColor: scheme.surface,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        titleTextStyle: TextStyle(color: scheme.onSurface, fontSize: 22, fontWeight: FontWeight.w700, letterSpacing: -0.6),
+        titleTextStyle: base.textTheme.titleLarge?.copyWith(
+          color: scheme.onSurface,
+          fontSize: 22,
+          fontWeight: FontWeight.w700,
+          letterSpacing: -0.6,
+        ),
       ),
       cardTheme: CardThemeData(
         color: scheme.surfaceContainer,
@@ -65,23 +83,44 @@ abstract final class Tokens {
         elevation: 0,
         margin: const EdgeInsets.symmetric(vertical: 5),
         clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: scheme.outlineVariant.withValues(alpha: .6))),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: scheme.outlineVariant.withValues(alpha: .6)),
+        ),
       ),
-      listTileTheme: ListTileThemeData(contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5), iconColor: scheme.primary),
+      listTileTheme: ListTileThemeData(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+        iconColor: scheme.primary,
+      ),
       chipTheme: base.chipTheme.copyWith(
         backgroundColor: scheme.surfaceContainerHighest,
         selectedColor: scheme.primaryContainer,
         side: BorderSide.none,
         shape: const StadiumBorder(),
-        labelStyle: TextStyle(color: scheme.onSurface, fontSize: 13),
+        labelStyle: base.textTheme.labelLarge?.copyWith(
+          color: scheme.onSurface,
+          fontSize: 13,
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 7),
       ),
-      segmentedButtonTheme: SegmentedButtonThemeData(style: ButtonStyle(
-        side: const WidgetStatePropertyAll(BorderSide.none),
-        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(24))),
-        backgroundColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.selected) ? scheme.primaryContainer : scheme.surfaceContainerHighest),
-        foregroundColor: WidgetStateProperty.resolveWith((states) => states.contains(WidgetState.selected) ? scheme.onPrimaryContainer : scheme.onSurfaceVariant),
-      )),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          side: const WidgetStatePropertyAll(BorderSide.none),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          ),
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? scheme.primaryContainer
+                : scheme.surfaceContainerHighest,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? scheme.onPrimaryContainer
+                : scheme.onSurfaceVariant,
+          ),
+        ),
+      ),
       dividerTheme: DividerThemeData(
         color: scheme.onSurface.withValues(alpha: 0.10),
         space: 1,
@@ -89,7 +128,10 @@ abstract final class Tokens {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: scheme.surfaceContainerHighest,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
@@ -126,7 +168,17 @@ abstract final class Tokens {
         indicatorColor: scheme.primary.withValues(alpha: 0.12),
         elevation: 0,
         height: 72,
-        labelTextStyle: WidgetStateProperty.resolveWith((states) => TextStyle(fontSize: 11, fontWeight: states.contains(WidgetState.selected) ? FontWeight.w700 : FontWeight.w400, color: states.contains(WidgetState.selected) ? scheme.primary : scheme.onSurfaceVariant)),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => TextStyle(
+            fontSize: 11,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w700
+                : FontWeight.w400,
+            color: states.contains(WidgetState.selected)
+                ? scheme.primary
+                : scheme.onSurfaceVariant,
+          ),
+        ),
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       ),
     );

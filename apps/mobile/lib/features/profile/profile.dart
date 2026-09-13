@@ -91,12 +91,14 @@ class ProfilePage extends ConsumerWidget {
             ('offline_sync', '/sync', Icons.sync),
             ('evidence_library', '/evidence', Icons.library_books_outlined),
           ])
-            Card(child: ListTile(
-              leading: IconBadge(item.$3),
-              title: Text(context.t(item.$1)),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push(item.$2),
-            )),
+            Card(
+              child: ListTile(
+                leading: IconBadge(item.$3),
+                title: Text(context.t(item.$1)),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(item.$2),
+              ),
+            ),
           const SizedBox(height: 28),
           Text(
             context.t('preferences'),
