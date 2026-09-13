@@ -10,7 +10,7 @@
   "email": "Email",
   "password": "Password",
   "password_hint": "Da 12 a 128 caratteri",
-  "create_account": "Crea account",
+  "create_account": "Crea il tuo account",
   "login": "Accedi",
   "have_account": "Hai già un account? Accedi",
   "new_account": "Nuovo su EatMe? Registrati",
@@ -593,5 +593,18 @@
   "recipe_actions": "Salva e condividi",
   "more_recipe_tools": "Personalizza questa ricetta",
   "saved_restrictions_notice": "Queste sono le preferenze salvate. Rivedile prima di consultare le valutazioni alimentari.",
-  "none_recorded": "Nessuna registrata"
+  "none_recorded": "Nessuna registrata",
+  "best_match": "Migliore corrispondenza",
+  "sort": "Ordina la dispensa",
+  "your_favorites": "I tuoi preferiti",
+  "household_members_count": "{count} membri in casa",
+  "privacy_and_data": "Privacy e dati",
+  "privacy_profile_hint": "Esportazione, consenso e controllo account",
+  "notification_controls": "Controlli dei promemoria",
+  "notification_categories": "Avvisi che ricevi",
+  "add_food_method_support": "Scegli il modo più rapido per aggiungere un alimento alla tua cucina.",
+  "or_continue_with": "oppure continua con",
+  "account_and_consent": "Account e consenso",
+  "consent_controls_hint": "Controlla come EatMe usa le informazioni facoltative del tuo profilo.",
+  "danger_zone": "Zona critica"
 }

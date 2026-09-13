@@ -61,12 +61,12 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
             subtitle: context.t('chef_editorial'),
             actions: [
               RoundAction(
-                icon: Icons.notifications_none,
+                icon: EatMeGlyph.bell,
                 label: context.t('notifications'),
                 onPressed: () => context.push('/notifications'),
               ),
               RoundAction(
-                icon: Icons.person_outline,
+                icon: EatMeGlyph.userRound,
                 label: context.t('profile'),
                 onPressed: () => context.go('/profile'),
               ),
@@ -114,7 +114,7 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                   ),
                   const SizedBox(height: 12),
                   _Reason(
-                    icon: Icons.kitchen_outlined,
+                    icon: EatMeGlyph.house,
                     text: context.t('ingredients_at_home', {
                       'available': pick.available,
                       'total': pick.total,
@@ -122,13 +122,13 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                   ),
                   if (pick.useSoon.isNotEmpty)
                     _Reason(
-                      icon: Icons.schedule,
+                      icon: EatMeGlyph.clockAlert,
                       text: context.t('uses_expiring', {
                         'count': pick.useSoon.length,
                       }),
                     ),
                   _Reason(
-                    icon: Icons.timer_outlined,
+                    icon: EatMeGlyph.timer,
                     text: context.t('minutes_value', {
                       'minutes': pick.recipe.minutes,
                     }),
@@ -159,7 +159,7 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                     imageHeight: 110,
                     badge: StatusBadge(
                       label: expiryLabel(context, batch),
-                      icon: Icons.schedule,
+                      icon: EatMeGlyph.clock,
                     ),
                     onTap: () => sheet(context, BatchSheet(batch: batch)),
                   ),
@@ -168,16 +168,34 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
           ],
           if (pick != null) ...[
             const SizedBox(height: 20),
-            FilledButton.icon(
-              onPressed: () => context.push('/recipes/${pick.recipe.id}'),
-              icon: const Icon(Icons.restaurant),
-              label: Text(context.t('cook_now')),
-            ),
-            const SizedBox(height: 10),
-            OutlinedButton.icon(
-              onPressed: () => context.push('/recipe-library'),
-              icon: const Icon(Icons.format_list_bulleted),
-              label: Text(context.t('see_alternatives')),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final stack = constraints.maxWidth < 340 ||
+                    MediaQuery.textScalerOf(context).scale(16) > 22;
+                final cook = FilledButton.icon(
+                  onPressed: () => context.push('/recipes/${pick.recipe.id}'),
+                  icon: const EatMeIcon(EatMeGlyph.chefHat, size: 20),
+                  label: Text(context.t('cook_now')),
+                );
+                final alternatives = OutlinedButton.icon(
+                  onPressed: () => context.push('/recipe-library'),
+                  icon: const EatMeIcon(EatMeGlyph.listFilter, size: 20),
+                  label: Text(context.t('see_alternatives')),
+                );
+                if (stack) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [cook, const SizedBox(height: 10), alternatives],
+                  );
+                }
+                return Row(
+                  children: [
+                    Expanded(flex: 6, child: cook),
+                    const SizedBox(width: 10),
+                    Expanded(flex: 4, child: alternatives),
+                  ],
+                );
+              },
             ),
           ],
           if (recommendations.length > 1) ...[
@@ -185,27 +203,33 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
             for (final recommendation in recommendations.skip(1))
               RecipeCard(recommendation: recommendation),
           ],
-          const SizedBox(height: 24),
-          SettingsGroup(
+          SectionHeading(
             title: context.t('your_kitchen'),
-            children: [
-              for (final item in [
-                (
-                  'favorites',
-                  '/recipe-library?favorites=true',
-                  Icons.favorite_outline,
-                ),
-                ('leftovers', '/leftovers', Icons.takeout_dining_outlined),
-                ('meal_planner', '/planner', Icons.calendar_month_outlined),
-                ('shopping_list', '/shopping', Icons.shopping_bag_outlined),
-                ('recipe_library', '/recipe-library', Icons.menu_book_outlined),
-              ])
-                SettingRow(
-                  title: context.t(item.$1),
-                  icon: item.$3,
-                  onTap: () => context.push(item.$2),
-                ),
-            ],
+            actionLabel: context.t('view_all'),
+            onAction: () => sheet(context, const _KitchenToolsSheet()),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (final item in [
+                  (
+                    'favorites',
+                    '/recipe-library?favorites=true',
+                    EatMeGlyph.heart,
+                  ),
+                  ('leftovers', '/leftovers', EatMeGlyph.packageOpen),
+                  ('meal_planner', '/planner', EatMeGlyph.calendarDays),
+                ]) ...[
+                  CompactShortcut(
+                    title: context.t(item.$1),
+                    icon: item.$3,
+                    onTap: () => context.push(item.$2),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+              ],
+            ),
           ),
         ],
       ),
@@ -215,7 +239,7 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
 
 class _Reason extends StatelessWidget {
   const _Reason({required this.icon, required this.text});
-  final IconData icon;
+  final EatMeGlyph icon;
   final String text;
   @override
   Widget build(BuildContext context) => Padding(
@@ -223,7 +247,12 @@ class _Reason extends StatelessWidget {
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 19, color: Theme.of(context).colorScheme.primary),
+        EatMeIcon(
+          icon,
+          size: 19,
+          color: Theme.of(context).colorScheme.primary,
+          strokeWidth: 2,
+        ),
         const SizedBox(width: 10),
         Expanded(child: Text(text)),
       ],
@@ -259,26 +288,19 @@ class _ChefFiltersState extends ConsumerState<ChefFilters> {
       ])
         Padding(
           padding: const EdgeInsets.only(bottom: 10),
-          child: Semantics(
+          child: EatMeSelectionRow(
+            icon: switch (value) {
+              'for_you' => EatMeGlyph.sparkles,
+              'quick' => EatMeGlyph.timer,
+              'use_soon' => EatMeGlyph.clockAlert,
+              'no_shopping' => EatMeGlyph.refrigerator,
+              'health_first' => EatMeGlyph.heartPulse,
+              _ => EatMeGlyph.sprout,
+            },
+            title: context.t(value),
+            subtitle: context.t('mode_description_$value'),
             selected: mode == value,
-            child: Material(
-              color: mode == value
-                  ? Theme.of(context).colorScheme.primaryContainer
-                  : Theme.of(context).colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.circular(20),
-              child: ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                title: Text(context.t(value)),
-                subtitle: Text(context.t('mode_description_$value')),
-                trailing: Icon(
-                  mode == value ? Icons.check_circle : Icons.circle_outlined,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                onTap: () => setState(() => mode = value),
-              ),
-            ),
+            onTap: () => setState(() => mode = value),
           ),
         ),
       TextButton(
@@ -343,22 +365,22 @@ class RecipeCard extends StatelessWidget {
       title: localized(r.recipe.title, context.language),
       onTap: () => context.push('/recipes/${r.recipe.id}'),
       badge: StatusBadge(
-        label: context.t('today_pick'),
-        icon: Icons.auto_awesome,
+        label: context.t('best_match'),
+        icon: EatMeGlyph.sparkles,
         emphasis: true,
       ),
       action: RecipeFavorite(recipeId: r.recipe.id),
       metadata: [
         StatusBadge(
           label: context.t('minutes', {'minutes': r.recipe.minutes}),
-          icon: Icons.schedule,
+          icon: EatMeGlyph.clock,
         ),
         StatusBadge(
           label: context.t('ingredients_at_home', {
             'available': r.available,
             'total': r.total,
           }),
-          icon: Icons.kitchen_outlined,
+          icon: EatMeGlyph.house,
         ),
       ],
       footer: r.warnings.isEmpty
@@ -366,4 +388,40 @@ class RecipeCard extends StatelessWidget {
           : StatusNote(text: context.t('preference_warning'), warning: true),
     );
   }
+}
+
+class _KitchenToolsSheet extends StatelessWidget {
+  const _KitchenToolsSheet();
+
+  @override
+  Widget build(BuildContext context) => ListView(
+    shrinkWrap: true,
+    padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
+    children: [
+      Text(
+        context.t('your_kitchen'),
+        style: Theme.of(context).textTheme.headlineMedium,
+      ),
+      const SizedBox(height: 16),
+      for (final item in [
+        (
+          'favorites',
+          '/recipe-library?favorites=true',
+          EatMeGlyph.heart,
+        ),
+        ('leftovers', '/leftovers', EatMeGlyph.packageOpen),
+        ('meal_planner', '/planner', EatMeGlyph.calendarDays),
+        ('shopping_list', '/shopping', EatMeGlyph.shoppingBasket),
+        ('recipe_library', '/recipe-library', EatMeGlyph.bookOpen),
+      ])
+        SettingRow(
+          title: context.t(item.$1),
+          icon: item.$3,
+          onTap: () {
+            Navigator.pop(context);
+            context.push(item.$2);
+          },
+        ),
+    ],
+  );
 }

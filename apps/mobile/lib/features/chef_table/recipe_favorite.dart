@@ -4,6 +4,7 @@ import '../../core/api.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
+import '../../design_system/icons.dart';
 
 final _favoriteRecipe = FutureProvider.autoDispose.family<Json, String>((
   ref,
@@ -28,25 +29,25 @@ class _RecipeFavoriteState extends ConsumerState<RecipeFavorite> {
     final resource = ref.watch(_favoriteRecipe(widget.recipeId));
     return resource.when(
       loading: () => const SizedBox.shrink(),
-      error: (_, _) => IconButton.filledTonal(
-        tooltip: context.t('retry'),
+      error: (_, _) => EatMeIconButton(
+        glyph: EatMeGlyph.refreshCw,
+        label: context.t('retry'),
         onPressed: () => ref.invalidate(_favoriteRecipe(widget.recipeId)),
-        icon: const Icon(Icons.refresh),
       ),
       data: (value) {
         if (value['favorite'] is! bool) {
           return const SizedBox.shrink();
         }
         final favorite = value['favorite'] == true;
-        return IconButton.filledTonal(
-          tooltip: context.t(favorite ? 'remove_favorite' : 'add_favorite'),
-          style: IconButton.styleFrom(
-            minimumSize: const Size(48, 48),
-            backgroundColor: Theme.of(
-              context,
-            ).colorScheme.surfaceContainer.withValues(alpha: .94),
-          ),
-          icon: Icon(favorite ? Icons.favorite : Icons.favorite_outline),
+        return EatMeIconButton(
+          glyph: EatMeGlyph.heart,
+          label: context.t(favorite ? 'remove_favorite' : 'add_favorite'),
+          foregroundColor: favorite
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.onSurface,
+          backgroundColor: Theme.of(
+            context,
+          ).colorScheme.surfaceContainer.withValues(alpha: .94),
           onPressed: busy || ref.watch(appProvider).offline
               ? null
               : () async {

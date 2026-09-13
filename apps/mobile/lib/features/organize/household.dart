@@ -33,48 +33,36 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         StatusNote(text: context.t('household_privacy')),
-        ListTile(
-          leading: const IconBadge(Icons.history),
-          title: Text(context.t('recent_activity')),
-          trailing: const Icon(Icons.chevron_right),
+        SettingRow(
+          icon: EatMeGlyph.history,
+          title: context.t('recent_activity'),
           onTap: () => context.push('/household-activity'),
         ),
         SettingsGroup(
           children: [
             for (final member in members)
-              ListTile(
-                leading: const CircleAvatar(child: Icon(Icons.person_outline)),
-                title: Text(member['name'] as String),
-                subtitle: Text(context.t('role_${member['role']}')),
-                trailing:
-                    current?['role'] != 'owner' || member['user_id'] == userId
-                    ? null
-                    : PopupMenuButton<String>(
-                        onSelected: (role) async {
-                          await guard(() async {
-                            await command({
-                              'action': role == 'owner' ? 'transfer' : 'role',
-                              'role': role,
-                              'user_id': member['user_id'],
-                            });
-                          });
-                        },
-                        itemBuilder: (context) => [
-                          for (final role in ['member', 'viewer', 'owner'])
-                            PopupMenuItem(
-                              value: role,
-                              child: Text(context.t('role_$role')),
-                            ),
-                        ],
-                      ),
+              _HouseholdMemberRow(
+                name: member['name'] as String,
+                role: context.t('role_${member['role']}'),
+                canManage:
+                    current?['role'] == 'owner' && member['user_id'] != userId,
+                onRole: (role) async {
+                  await guard(() async {
+                    await command({
+                      'action': role == 'owner' ? 'transfer' : 'role',
+                      'role': role,
+                      'user_id': member['user_id'],
+                    });
+                  });
+                },
               ),
           ],
         ),
         const SizedBox(height: 24),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Text(context.t('share_constraints')),
-          subtitle: Text(context.t('share_constraints_body')),
+        EatMeToggleRow(
+          title: context.t('share_constraints'),
+          subtitle: context.t('share_constraints_body'),
+          icon: EatMeGlyph.shieldCheck,
           value: me?['share_constraints'] == 1,
           onChanged: (value) async {
             await guard(() async {
@@ -91,12 +79,13 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
           if (records(data?['invitations']).isNotEmpty)
             Text(context.t('pending_invitations')),
           for (final invitation in records(data?['invitations']))
-            ListTile(
-              title: Text(context.t('role_${invitation['role']}')),
-              subtitle: Text('${invitation['expires_at']}'.substring(0, 10)),
-              trailing: IconButton(
-                tooltip: context.t('revoke_invitation'),
-                icon: const Icon(Icons.cancel_outlined),
+            SettingRow(
+              icon: EatMeGlyph.clock,
+              title: context.t('role_${invitation['role']}'),
+              subtitle: '${invitation['expires_at']}'.substring(0, 10),
+              trailing: EatMeIconButton(
+                glyph: EatMeGlyph.trash2,
+                label: context.t('revoke_invitation'),
                 onPressed: () => guard(() async {
                   await command({
                     'action': 'revoke',
@@ -190,10 +179,10 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
             },
           ),
         for (final home in homes.where((h) => h['id'] != data?['current_id']))
-          ListTile(
-            title: Text(home['name'] as String? ?? context.t('your_household')),
-            subtitle: Text(context.t('role_${home['role']}')),
-            trailing: const Icon(Icons.swap_horiz),
+          SettingRow(
+            icon: EatMeGlyph.refreshCw,
+            title: home['name'] as String? ?? context.t('your_household'),
+            subtitle: context.t('role_${home['role']}'),
             onTap: () async {
               await guard(() async {
                 await command({'action': 'switch', 'household_id': home['id']});
@@ -202,6 +191,81 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
             },
           ),
       ]),
+    );
+  }
+}
+
+class _HouseholdMemberRow extends StatelessWidget {
+  const _HouseholdMemberRow({
+    required this.name,
+    required this.role,
+    required this.canManage,
+    required this.onRole,
+  });
+
+  final String name, role;
+  final bool canManage;
+  final ValueChanged<String> onRole;
+
+  @override
+  Widget build(BuildContext context) {
+    final initials = name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .take(2)
+        .map((part) => part.substring(0, 1).toUpperCase())
+        .join();
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Theme.of(context).colorScheme.primaryContainer,
+            ),
+            child: Text(
+              initials,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 3),
+                Text(
+                  role,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (canManage)
+            PopupMenuButton<String>(
+              tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+              icon: const EatMeIcon(EatMeGlyph.ellipsis),
+              onSelected: onRole,
+              itemBuilder: (context) => [
+                for (final role in ['member', 'viewer', 'owner'])
+                  PopupMenuItem(
+                    value: role,
+                    child: Text(context.t('role_$role')),
+                  ),
+              ],
+            ),
+        ],
+      ),
     );
   }
 }

@@ -130,11 +130,11 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               children: [
                 StatusBadge(
                   label: context.t('minutes', {'minutes': recipe.minutes}),
-                  icon: Icons.schedule,
+                  icon: EatMeGlyph.clock,
                 ),
                 StatusBadge(
                   label: context.t('portions', {'count': servings}),
-                  icon: Icons.restaurant,
+                  icon: EatMeGlyph.utensils,
                 ),
               ],
             ),
@@ -216,18 +216,13 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 }
               },
             ),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
+            EatMeTabStrip(
+              values: [
                 for (final value in ['ingredients', 'overview', 'why'])
-                  ChoiceChip(
-                    showCheckmark: false,
-                    label: Text(context.t(value)),
-                    selected: tab == value,
-                    onSelected: (_) => setState(() => tab = value),
-                  ),
+                  (value, context.t(value)),
               ],
+              selected: tab,
+              onSelected: (value) => setState(() => tab = value),
             ),
             const SizedBox(height: 20),
             if (tab == 'ingredients')

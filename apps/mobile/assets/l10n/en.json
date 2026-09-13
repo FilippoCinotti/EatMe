@@ -10,7 +10,7 @@
   "email": "Email",
   "password": "Password",
   "password_hint": "12 to 128 characters",
-  "create_account": "Create account",
+  "create_account": "Create your account",
   "login": "Sign in",
   "have_account": "Already have an account? Sign in",
   "new_account": "New to EatMe? Create an account",
@@ -593,5 +593,18 @@
   "recipe_actions": "Save & share",
   "more_recipe_tools": "Make this recipe yours",
   "saved_restrictions_notice": "These are your saved preferences. Review them before relying on food assessments.",
-  "none_recorded": "None recorded"
+  "none_recorded": "None recorded",
+  "best_match": "Best match",
+  "sort": "Sort inventory",
+  "your_favorites": "Your favorites",
+  "household_members_count": "{count} household members",
+  "privacy_and_data": "Privacy & data",
+  "privacy_profile_hint": "Export, consent and account controls",
+  "notification_controls": "Reminder controls",
+  "notification_categories": "Alerts you receive",
+  "add_food_method_support": "Choose the fastest way to add food to your kitchen.",
+  "or_continue_with": "or continue with",
+  "account_and_consent": "Account & consent",
+  "consent_controls_hint": "Review how EatMe uses your optional profile information.",
+  "danger_zone": "Danger zone"
 }

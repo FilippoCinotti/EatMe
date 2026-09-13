@@ -84,7 +84,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             subtitle: context.t('lifestyle_tagline'),
             actions: [
               RoundAction(
-                icon: Icons.arrow_back,
+                icon: EatMeGlyph.chevronLeft,
                 label: context.t('back'),
                 onPressed: () => setState(() => welcome = true),
               ),
@@ -109,16 +109,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         : AutofillHints.password,
                   ],
                   decoration: InputDecoration(
-                    suffixIcon: IconButton(
-                      tooltip: context.t(
+                    suffixIcon: EatMeIconButton(
+                      glyph: obscure ? EatMeGlyph.eye : EatMeGlyph.eyeOff,
+                      label: context.t(
                         obscure ? 'show_password' : 'hide_password',
                       ),
                       onPressed: () => setState(() => obscure = !obscure),
-                      icon: Icon(
-                        obscure
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                      ),
+                      size: 44,
+                      backgroundColor: Colors.transparent,
                     ),
                     labelText: context.t('password'),
                     helperText: context.t('password_hint'),
@@ -165,6 +163,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
             ],
           ],
+          if (!register && !EatMeApi.development)
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () async {
+                  await api.resetPassword(email.text.trim());
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(context.t('reset_sent'))),
+                    );
+                  }
+                },
+                child: Text(context.t('forgot_password')),
+              ),
+            ),
           const SizedBox(height: 24),
           AsyncAction(
             label: context.t(register ? 'create_account' : 'login'),
@@ -198,21 +211,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             child: Text(context.t(register ? 'have_account' : 'new_account')),
           ),
           if (verificationSent) StatusNote(text: context.t('verify_email')),
-          if (!EatMeApi.development)
-            AsyncAction(
-              label: context.t('forgot_password'),
-              secondary: true,
-              action: () async {
-                await api.resetPassword(email.text.trim());
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(context.t('reset_sent'))),
-                  );
-                }
-              },
-            ),
           if (!EatMeApi.development && EatMeApi.oauthEnabled) ...[
             const SizedBox(height: 24),
+            Row(
+              children: [
+                const Expanded(child: Divider()),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Text(context.t('or_continue_with')),
+                ),
+                const Expanded(child: Divider()),
+              ],
+            ),
+            const SizedBox(height: 16),
             AsyncAction(
               label: context.t('google'),
               secondary: true,

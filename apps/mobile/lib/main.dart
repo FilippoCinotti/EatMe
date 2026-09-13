@@ -280,33 +280,24 @@ class AppShell extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 620),
           child: GlassSurface(
-            child: NavigationBar(
-              animationDuration: MediaQuery.disableAnimationsOf(context)
-                  ? Duration.zero
-                  : const Duration(milliseconds: 220),
-              backgroundColor: Colors.transparent,
-              elevation: 0,
+            child: EatMeNavigationBar(
               selectedIndex: paths.indexOf(path).clamp(0, 3).toInt(),
               onDestinationSelected: (index) => context.go(paths[index]),
               destinations: [
-                NavigationDestination(
-                  icon: const Icon(Icons.restaurant_menu_outlined),
-                  selectedIcon: const Icon(Icons.restaurant_menu),
+                EatMeNavigationItem(
+                  icon: EatMeGlyph.chefHat,
                   label: context.t('chef_table'),
                 ),
-                NavigationDestination(
-                  icon: const Icon(Icons.kitchen_outlined),
-                  selectedIcon: const Icon(Icons.kitchen),
+                EatMeNavigationItem(
+                  icon: EatMeGlyph.refrigerator,
                   label: context.t('fridge'),
                 ),
-                NavigationDestination(
-                  icon: const Icon(Icons.eco_outlined),
-                  selectedIcon: const Icon(Icons.eco),
+                EatMeNavigationItem(
+                  icon: EatMeGlyph.leaf,
                   label: context.t('healthy_food'),
                 ),
-                NavigationDestination(
-                  icon: const Icon(Icons.person_outline),
-                  selectedIcon: const Icon(Icons.person),
+                EatMeNavigationItem(
+                  icon: EatMeGlyph.userRound,
                   label: context.t('profile'),
                 ),
               ],

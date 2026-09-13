@@ -113,6 +113,14 @@ class VisualApi extends support.TestApi {
     if (method == 'GET' && path.startsWith('/recipes/')) {
       return {'favorite': false};
     }
+    if (method == 'GET' && path == '/preferences') {
+      return {
+        'version': 1,
+        'data': {
+          'favorite_foods': [tomato.id, zucchini.id],
+        },
+      };
+    }
     return super.request(
       method,
       path,
@@ -184,7 +192,7 @@ void main() {
               ),
             );
             await tester.pumpAndSettle();
-            expect(find.byType(NavigationDestination), findsNWidgets(4));
+            expect(find.byType(EatMeNavigationBar), findsOneWidget);
             expect(tester.takeException(), isNull);
             if (scale == 1) {
               await tester.runAsync(() async {

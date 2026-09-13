@@ -70,7 +70,7 @@ class _FridgePageState extends ConsumerState<FridgePage> {
             subtitle: context.t('fridge_support'),
             actions: [
               RoundAction(
-                icon: Icons.add,
+                icon: EatMeGlyph.plus,
                 label: context.t('add_food'),
                 primary: true,
                 onPressed: state.offline
@@ -84,13 +84,27 @@ class _FridgePageState extends ConsumerState<FridgePage> {
             onChanged: (s) => setState(() => search = s),
             onFilter: () => sheet(
               context,
-              Column(
-                mainAxisSize: MainAxisSize.min,
+              ListView(
+                shrinkWrap: true,
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
                 children: [
+                  Text(
+                    context.t('sort'),
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 12),
                   for (final value in ['expiry', 'name'])
-                    ListTile(
-                      title: Text(context.t('sort_$value')),
-                      trailing: sort == value ? const Icon(Icons.check) : null,
+                    SettingRow(
+                      title: context.t('sort_$value'),
+                      icon: value == 'expiry'
+                          ? EatMeGlyph.clockAlert
+                          : EatMeGlyph.listFilter,
+                      trailing: sort == value
+                          ? EatMeIcon(
+                              EatMeGlyph.check,
+                              color: Theme.of(context).colorScheme.primary,
+                            )
+                          : null,
                       onTap: () {
                         setState(() => sort = value);
                         Navigator.pop(context);
@@ -135,7 +149,9 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                     imageHeight: 125,
                     badge: StatusBadge(
                       label: expiryLabel(context, batch),
-                      icon: Icons.schedule,
+                      icon: EatMeGlyph.clock,
+                      urgent: batch.expiryDate!.difference(today).inDays == 0,
+                      warning: batch.expiryDate!.difference(today).inDays > 0,
                     ),
                     onTap: () => sheet(context, BatchSheet(batch: batch)),
                   ),
@@ -171,7 +187,12 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                   badge: StatusBadge(
                     label: expiryLabel(context, batch),
                     urgent: !batch.usable,
-                    icon: batch.usable ? Icons.schedule : Icons.warning_amber,
+                    warning: batch.usable &&
+                        batch.expiryDate != null &&
+                        batch.expiryDate!.difference(today).inDays <= 3,
+                    icon: batch.usable
+                        ? EatMeGlyph.clock
+                        : EatMeGlyph.triangleAlert,
                   ),
                   onTap: () => sheet(context, BatchSheet(batch: batch)),
                   onAction: () => sheet(context, BatchSheet(batch: batch)),
@@ -184,18 +205,18 @@ class _FridgePageState extends ConsumerState<FridgePage> {
             children: [
               SettingRow(
                 title: context.t('expiry_view'),
-                icon: Icons.schedule,
+                icon: EatMeGlyph.clockAlert,
                 onTap: () => context.push('/expiry'),
               ),
               if (['all', 'fridge'].contains(location) && !state.offline)
                 SettingRow(
                   title: context.t('leftovers'),
-                  icon: Icons.takeout_dining_outlined,
+                  icon: EatMeGlyph.packageOpen,
                   onTap: () => context.push('/leftovers'),
                 ),
               SettingRow(
                 title: context.t('scan_and_import'),
-                icon: Icons.document_scanner_outlined,
+                icon: EatMeGlyph.scanLine,
                 onTap: () => context.push('/scanning'),
               ),
             ],

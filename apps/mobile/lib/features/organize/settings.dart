@@ -41,34 +41,31 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
         SettingsGroup(
           title: context.t('appearance'),
           children: [
-            DropdownButtonFormField<ThemeMode>(
-              isExpanded: true,
-              initialValue: ref.watch(appProvider).theme,
-              decoration: InputDecoration(labelText: context.t('appearance')),
-              items: ThemeMode.values
-                  .map(
-                    (t) => DropdownMenuItem(
-                      value: t,
-                      child: Text(context.t(t.name)),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (t) => ref.read(appProvider.notifier).setTheme(t!),
+            _ControlLabel(
+              label: context.t('appearance'),
+              child: EatMeTabStrip(
+                values: [
+                  for (final theme in ThemeMode.values)
+                    (theme.name, context.t(theme.name)),
+                ],
+                selected: ref.watch(appProvider).theme.name,
+                onSelected: (value) => ref
+                    .read(appProvider.notifier)
+                    .setTheme(ThemeMode.values.byName(value)),
+              ),
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              isExpanded: true,
-              initialValue: context.language,
-              decoration: InputDecoration(labelText: context.t('language')),
-              items: ['it', 'en']
-                  .map(
-                    (l) => DropdownMenuItem(
-                      value: l,
-                      child: Text(context.t('language_$l')),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (l) => ref.read(appProvider.notifier).setLocale(l!),
+            _ControlLabel(
+              label: context.t('language'),
+              child: EatMeTabStrip(
+                values: [
+                  for (final language in ['it', 'en'])
+                    (language, context.t('language_$language')),
+                ],
+                selected: context.language,
+                onSelected: (value) =>
+                    ref.read(appProvider.notifier).setLocale(value),
+              ),
             ),
           ],
         ),
@@ -78,21 +75,16 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
         ),
         SettingsGroup(
           children: [
-            DropdownButtonFormField<String>(
-              isExpanded: true,
-              initialValue: prefs['budget'] as String? ?? 'any',
-              decoration: InputDecoration(
-                labelText: context.t('budget_preference'),
+            _ControlLabel(
+              label: context.t('budget_preference'),
+              child: EatMeTabStrip(
+                values: [
+                  for (final value in ['any', 'medium', 'low'])
+                    (value, context.t('budget_$value')),
+                ],
+                selected: prefs['budget'] as String? ?? 'any',
+                onSelected: (value) => update('budget', value),
               ),
-              items: ['any', 'medium', 'low']
-                  .map(
-                    (v) => DropdownMenuItem(
-                      value: v,
-                      child: Text(context.t('budget_$v')),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (v) => update('budget', v),
             ),
             StatusNote(text: context.t('budget_notice')),
             for (final name in [
@@ -101,11 +93,10 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
               'ai_consent',
               'seasonal',
             ])
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
+              EatMeToggleRow(
                 value: prefs[name] == true,
-                title: Text(context.t('pref_$name')),
-                subtitle: Text(context.t('pref_${name}_body')),
+                title: context.t('pref_$name'),
+                subtitle: context.t('pref_${name}_body'),
                 onChanged: data == null ? null : (v) => update(name, v),
               ),
           ],
@@ -113,17 +104,16 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
         const SizedBox(height: 24),
         SettingsGroup(
           children: [
-            DropdownButtonFormField<String>(
-              isExpanded: true,
-              initialValue: prefs['skill'] as String? ?? 'beginner',
-              decoration: InputDecoration(
-                labelText: context.t('cooking_skill'),
+            _ControlLabel(
+              label: context.t('cooking_skill'),
+              child: EatMeTabStrip(
+                values: [
+                  for (final level in ['beginner', 'confident', 'advanced'])
+                    (level, context.t(level)),
+                ],
+                selected: prefs['skill'] as String? ?? 'beginner',
+                onSelected: (value) => update('skill', value),
               ),
-              items: [
-                for (final level in ['beginner', 'confident', 'advanced'])
-                  DropdownMenuItem(value: level, child: Text(context.t(level))),
-              ],
-              onChanged: (v) => update('skill', v),
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<int>(
@@ -171,6 +161,23 @@ class NotificationsPage extends ConsumerStatefulWidget {
   ConsumerState<NotificationsPage> createState() => _NotificationsState();
 }
 
+class _ControlLabel extends StatelessWidget {
+  const _ControlLabel({required this.label, required this.child});
+
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label, style: Theme.of(context).textTheme.titleSmall),
+      const SizedBox(height: 10),
+      child,
+    ],
+  );
+}
+
 class _NotificationsState extends ResourceState<NotificationsPage> {
   @override
   String get path => '/notifications';
@@ -206,14 +213,20 @@ class _NotificationsState extends ResourceState<NotificationsPage> {
       appBar: EatMeAppBar(title: Text(context.t('notifications'))),
       body: content([
         SettingsGroup(
+          title: context.t('notification_controls'),
           children: [
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
+            EatMeToggleRow(
               value: prefs['enabled'] == true,
-              title: Text(context.t('enable_reminders')),
+              title: context.t('enable_reminders'),
+              icon: EatMeGlyph.bell,
               onChanged: data == null ? null : (v) => update({'enabled': v}),
             ),
             StatusNote(text: context.t('notification_privacy')),
+          ],
+        ),
+        SettingsGroup(
+          title: context.t('notification_categories'),
+          children: [
             for (final category in [
               'expiry',
               'plans',
@@ -221,12 +234,13 @@ class _NotificationsState extends ResourceState<NotificationsPage> {
               'household',
               'recalls',
             ])
-              CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(context.t('notify_$category')),
+              EatMeToggleRow(
+                title: context.t('notify_$category'),
                 value: categories.contains(category),
-                onChanged: (v) async {
-                  if (v == true) {
+                onChanged: data == null
+                    ? null
+                    : (v) async {
+                  if (v) {
                     categories.add(category);
                   } else {
                     categories.remove(category);
@@ -235,9 +249,11 @@ class _NotificationsState extends ResourceState<NotificationsPage> {
                 },
               ),
             for (final setting in ['quiet_start', 'quiet_end', 'daily_cap'])
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(context.t(setting)),
+              SettingRow(
+                title: context.t(setting),
+                icon: setting == 'daily_cap'
+                    ? EatMeGlyph.settings
+                    : EatMeGlyph.clock,
                 trailing: Text('${prefs[setting] ?? ''}'),
                 onTap: () async {
                   final value = await askText(
@@ -255,12 +271,19 @@ class _NotificationsState extends ResourceState<NotificationsPage> {
         ),
 
         for (final item in records(data?['items']))
-          ListTile(
-            leading: const Icon(Icons.notifications_none),
-            title: Text(context.t('notify_${item['category']}')),
-            subtitle: Text('${item['created_at']}'.substring(0, 10)),
+          SettingRow(
+            icon: EatMeGlyph.bell,
+            title: context.t('notify_${item['category']}'),
+            subtitle: '${item['created_at']}'.substring(0, 10),
             trailing: item['read_at'] == null
-                ? const Icon(Icons.circle, size: 8)
+                ? Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  )
                 : null,
             onTap: () async {
               await guard(() async {

@@ -10,6 +10,7 @@ import 'package:eatme/design_system/widgets.dart';
 import 'package:eatme/features/auth/login.dart';
 import 'package:eatme/features/chef_table/chef_table.dart';
 import 'package:eatme/features/fridge/fridge.dart';
+import 'package:eatme/features/fridge/expiry.dart';
 import 'package:eatme/features/profile/diet_health.dart';
 import 'package:eatme/features/organize/settings.dart';
 import 'package:eatme/features/organize/household.dart';
@@ -156,6 +157,10 @@ void main() {
           'add-ingredient',
           const Scaffold(body: AddFoodSheet(initialFood: visual.zucchini)),
         ),
+        (
+          'add-methods',
+          Scaffold(body: AddFoodMethodsPanel(onSelected: (_) {})),
+        ),
       ]) {
         testWidgets('${page.$1} ${dark ? 'dark' : 'light'} scale $scale', (
           tester,
@@ -207,6 +212,14 @@ void main() {
                 boundary,
                 'login-${dark ? 'dark' : 'light'}',
               );
+              await tester.tap(find.text('New to EatMe? Create an account'));
+              await tester.pumpAndSettle();
+              expect(find.text('Create your account'), findsOneWidget);
+              await capture(
+                tester,
+                boundary,
+                'sign-up-${dark ? 'dark' : 'light'}',
+              );
             }
           }
           // Exercise lower content instead of validating only the first viewport.
@@ -234,7 +247,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     for (final tab in ['Information', 'Nutrition', 'For you']) {
-      final choice = find.widgetWithText(ChoiceChip, tab);
+      final choice = find.text(tab);
       await tester.ensureVisible(choice);
       await tester.tap(choice);
       await tester.pumpAndSettle();
