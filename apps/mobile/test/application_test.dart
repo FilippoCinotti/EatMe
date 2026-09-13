@@ -30,7 +30,18 @@ class TestStrings extends LocalizationsDelegate<EatMeStrings> {
   @override
   bool isSupported(Locale locale) => ['en', 'it'].contains(locale.languageCode);
   @override
-  Future<EatMeStrings> load(Locale locale) => SynchronousFuture(EatMeStrings(Map<String, String>.from(jsonDecode(File('assets/l10n/${locale.languageCode}.json').readAsStringSync()) as Map)));
+  Future<EatMeStrings> load(Locale locale) => SynchronousFuture(
+    EatMeStrings(
+      Map<String, String>.from(
+        jsonDecode(
+              File(
+                'assets/l10n/${locale.languageCode}.json',
+              ).readAsStringSync(),
+            )
+            as Map,
+      ),
+    ),
+  );
   @override
   bool shouldReload(TestStrings old) => false;
 }

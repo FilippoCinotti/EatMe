@@ -131,7 +131,9 @@ class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
                   photoId: food.photoId,
                   title: localized(food.name, context.language),
                   subtitle: context.t('food_group_${food.group}'),
-                  onTap: state.offline ? null : () => sheet(context, FoodAssessment(food: food)),
+                  onTap: state.offline
+                      ? null
+                      : () => sheet(context, FoodAssessment(food: food)),
                   actionIcon: favorites.contains(food.id)
                       ? Icons.favorite
                       : Icons.favorite_border,
@@ -145,14 +147,18 @@ class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
                       : () => guard(() async {
                           setState(() => savingFavorite = true);
                           try {
-                          await Mutation()
-                              .send(ref.read(apiProvider), 'POST', '/foods', {
-                                'action': 'favorite',
-                                'food_id': food.id,
-                                'enabled': !favorites.contains(food.id),
-                              });
-                          await load();
-                          } finally { if (mounted) { setState(() => savingFavorite = false); } }
+                            await Mutation()
+                                .send(ref.read(apiProvider), 'POST', '/foods', {
+                                  'action': 'favorite',
+                                  'food_id': food.id,
+                                  'enabled': !favorites.contains(food.id),
+                                });
+                            await load();
+                          } finally {
+                            if (mounted) {
+                              setState(() => savingFavorite = false);
+                            }
+                          }
                         }),
                 ),
             ],
@@ -241,18 +247,18 @@ class _FoodAssessmentState extends ConsumerState<FoodAssessment> {
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 16),
-            Text(
-              context.t(compatible ? 'no_known_conflict' : 'not_compatible'),
-              style: Theme.of(context).textTheme.titleLarge,
+          Text(
+            context.t(compatible ? 'no_known_conflict' : 'not_compatible'),
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          for (final reason in records(assessment['reasons']))
+            StatusNote(
+              text: context.t(reason['code'] as String),
+              warning: true,
             ),
-            for (final reason in records(assessment['reasons']))
-              StatusNote(
-                text: context.t(reason['code'] as String),
-                warning: true,
-              ),
-            for (final warning in records(assessment['warnings']))
-              StatusNote(text: context.t(warning['code'] as String)),
-            StatusNote(text: context.t(assessment['notice'] as String)),
+          for (final warning in records(assessment['warnings']))
+            StatusNote(text: context.t(warning['code'] as String)),
+          StatusNote(text: context.t(assessment['notice'] as String)),
           Wrap(
             spacing: 8,
             children: [

@@ -21,43 +21,112 @@ import 'visual_reference_test.dart' as visual;
 /// Explicit test-only household state; no synthetic metrics enter production.
 class JourneyController extends visual.VisualController {
   @override
-  AppState build() => super.build().copy(profile: {
-    ...super.build().profile,
-    'household_size': 2,
-    'settings': {
-      'timezone': 'Europe/Rome',
-      'diets': <Json>[],
-      'allergies': <String>[],
-      'intolerances': <String>[],
+  AppState build() => super.build().copy(
+    profile: {
+      ...super.build().profile,
+      'household_size': 2,
+      'settings': {
+        'timezone': 'Europe/Rome',
+        'diets': <Json>[],
+        'allergies': <String>[],
+        'intolerances': <String>[],
+      },
     },
-  });
+  );
 }
 
 class JourneyApi extends support.TestApi {
   @override
-  Future<Json> request(String method, String path, {Json? body, String? operationKey, bool allowCache = true}) async {
+  Future<Json> request(
+    String method,
+    String path, {
+    Json? body,
+    String? operationKey,
+    bool allowCache = true,
+  }) async {
     if (path.endsWith('/compatibility')) {
-      return {'food': {'ingredient_status': 'known', 'allergens': ['milk']}, 'assessment': {'status': 'blocked', 'reasons': [{'code': 'contains_allergen'}], 'warnings': <Json>[], 'notice': 'demo_data_not_a_safety_guarantee'}, 'nutrition': null, 'evidence': <Json>[]};
+      return {
+        'food': {
+          'ingredient_status': 'known',
+          'allergens': ['milk'],
+        },
+        'assessment': {
+          'status': 'blocked',
+          'reasons': [
+            {'code': 'contains_allergen'},
+          ],
+          'warnings': <Json>[],
+          'notice': 'demo_data_not_a_safety_guarantee',
+        },
+        'nutrition': null,
+        'evidence': <Json>[],
+      };
     }
     if (path == '/preferences') {
       return {'version': 1, 'data': <String, dynamic>{}};
     }
     if (path == '/notifications') {
-      return {'version': 1, 'preferences': {'enabled': false, 'categories': <String>[], 'quiet_start': 22, 'quiet_end': 7, 'daily_cap': 3}, 'items': <Json>[]};
+      return {
+        'version': 1,
+        'preferences': {
+          'enabled': false,
+          'categories': <String>[],
+          'quiet_start': 22,
+          'quiet_end': 7,
+          'daily_cap': 3,
+        },
+        'items': <Json>[],
+      };
     }
     if (path.startsWith('/recipes/')) {
-      return {'id': '50773917-c954-51f2-a53b-1cf4b3c00690', 'title': {'en': 'Zucchini & spinach pasta'}, 'minutes': 25, 'servings': 2, 'ingredients': [{'food_id': visual.zucchini.id, 'quantity': '250'}], 'steps': {'en': ['Prepare the ingredients.', 'Cook and serve.']}, 'favorite': false};
+      return {
+        'id': '50773917-c954-51f2-a53b-1cf4b3c00690',
+        'title': {'en': 'Zucchini & spinach pasta'},
+        'minutes': 25,
+        'servings': 2,
+        'ingredients': [
+          {'food_id': visual.zucchini.id, 'quantity': '250'},
+        ],
+        'steps': {
+          'en': ['Prepare the ingredients.', 'Cook and serve.'],
+        },
+        'favorite': false,
+      };
     }
     if (path == '/cooking/preview') {
-      return {'ingredients': [{'food': {'name': visual.zucchini.name, 'unit': 'g'}, 'quantity': '250', 'available': '250'}], 'shortages': <Json>[], 'diet_rules_version': <String, dynamic>{}, 'nutrition': null};
+      return {
+        'ingredients': [
+          {
+            'food': {'name': visual.zucchini.name, 'unit': 'g'},
+            'quantity': '250',
+            'available': '250',
+          },
+        ],
+        'shortages': <Json>[],
+        'diet_rules_version': <String, dynamic>{},
+        'nutrition': null,
+      };
     }
-    return super.request(method, path, body: body, operationKey: operationKey, allowCache: allowCache);
+    return super.request(
+      method,
+      path,
+      body: body,
+      operationKey: operationKey,
+      allowCache: allowCache,
+    );
   }
 }
 
-Future<void> capture(WidgetTester tester, GlobalKey boundary, String name) async {
+Future<void> capture(
+  WidgetTester tester,
+  GlobalKey boundary,
+  String name,
+) async {
   await tester.runAsync(() async {
-    final image = await (boundary.currentContext!.findRenderObject()! as RenderRepaintBoundary).toImage();
+    final image =
+        await (boundary.currentContext!.findRenderObject()!
+                as RenderRepaintBoundary)
+            .toImage();
     final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
     final file = File('build/screenshots/$name.png');
     await file.parent.create(recursive: true);
@@ -78,38 +147,74 @@ void main() {
         ('household', const HouseholdPage()),
         ('privacy', const PrivacyPage()),
         ('diet-health', const DietHealthPage()),
-        ('recipe', const RecipePage(recipeId: '50773917-c954-51f2-a53b-1cf4b3c00690')),
+        (
+          'recipe',
+          const RecipePage(recipeId: '50773917-c954-51f2-a53b-1cf4b3c00690'),
+        ),
         ('filters', const Scaffold(body: ChefFilters())),
-        ('add-ingredient', const Scaffold(body: AddFoodSheet(initialFood: visual.zucchini))),
+        (
+          'add-ingredient',
+          const Scaffold(body: AddFoodSheet(initialFood: visual.zucchini)),
+        ),
       ]) {
-        testWidgets('${page.$1} ${dark ? 'dark' : 'light'} scale $scale', (tester) async {
+        testWidgets('${page.$1} ${dark ? 'dark' : 'light'} scale $scale', (
+          tester,
+        ) async {
           tester.view.physicalSize = const Size(390, 844);
           tester.view.devicePixelRatio = 1;
           addTearDown(tester.view.resetPhysicalSize);
           addTearDown(tester.view.resetDevicePixelRatio);
           final boundary = GlobalKey();
-          await tester.pumpWidget(support.harness(RepaintBoundary(key: boundary, child: page.$2), JourneyApi(), dark: dark, scale: scale, controller: JourneyController.new));
-          await tester.runAsync(() => precacheImage(const AssetImage(FoodImage.asset), tester.element(find.byType(MaterialApp))));
+          await tester.pumpWidget(
+            support.harness(
+              RepaintBoundary(key: boundary, child: page.$2),
+              JourneyApi(),
+              dark: dark,
+              scale: scale,
+              controller: JourneyController.new,
+            ),
+          );
+          await tester.runAsync(
+            () => precacheImage(
+              const AssetImage(FoodImage.asset),
+              tester.element(find.byType(MaterialApp)),
+            ),
+          );
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull);
           if (scale == 1) {
-            await capture(tester, boundary, '${page.$1}-${dark ? 'dark' : 'light'}');
+            await capture(
+              tester,
+              boundary,
+              '${page.$1}-${dark ? 'dark' : 'light'}',
+            );
           }
           if (page.$1 == 'welcome') {
             final login = find.text('I already have an account');
-            await tester.scrollUntilVisible(login, 250, scrollable: find.byType(Scrollable).first);
+            await tester.scrollUntilVisible(
+              login,
+              250,
+              scrollable: find.byType(Scrollable).first,
+            );
             await tester.tap(login);
             await tester.pumpAndSettle();
             expect(find.byType(AutofillGroup), findsOneWidget);
             expect(find.text('Welcome back'), findsOneWidget);
             expect(tester.takeException(), isNull);
             if (scale == 1) {
-              await capture(tester, boundary, 'login-${dark ? 'dark' : 'light'}');
+              await capture(
+                tester,
+                boundary,
+                'login-${dark ? 'dark' : 'light'}',
+              );
             }
           }
           // Exercise lower content instead of validating only the first viewport.
           if (find.byType(Scrollable).evaluate().isNotEmpty) {
-            await tester.drag(find.byType(Scrollable).first, const Offset(0, -550));
+            await tester.drag(
+              find.byType(Scrollable).first,
+              const Offset(0, -550),
+            );
             await tester.pumpAndSettle();
             expect(tester.takeException(), isNull);
           }
@@ -117,26 +222,52 @@ void main() {
       }
     }
   }
-  testWidgets('allergen conflict stays visible on every assessment tab', (tester) async {
-    await tester.pumpWidget(support.harness(const Scaffold(body: FoodAssessment(food: visual.feta)), JourneyApi(), controller: JourneyController.new));
+  testWidgets('allergen conflict stays visible on every assessment tab', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      support.harness(
+        const Scaffold(body: FoodAssessment(food: visual.feta)),
+        JourneyApi(),
+        controller: JourneyController.new,
+      ),
+    );
     await tester.pumpAndSettle();
     for (final tab in ['Information', 'Nutrition', 'For you']) {
       final choice = find.widgetWithText(ChoiceChip, tab);
       await tester.ensureVisible(choice);
       await tester.tap(choice);
       await tester.pumpAndSettle();
-      expect(find.text('Contains an allergen declared in your profile.'), findsOneWidget);
+      expect(
+        find.text('Contains an allergen declared in your profile.'),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
     }
   });
 
-  for (final page in <Widget>[const ChefTablePage(), const FridgePage(), const HealthyFoodPage(), const ProfilePage()]) {
-    testWidgets('${page.runtimeType} Italian compact phone with large text', (tester) async {
+  for (final page in <Widget>[
+    const ChefTablePage(),
+    const FridgePage(),
+    const HealthyFoodPage(),
+    const ProfilePage(),
+  ]) {
+    testWidgets('${page.runtimeType} Italian compact phone with large text', (
+      tester,
+    ) async {
       tester.view.physicalSize = const Size(320, 568);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      await tester.pumpWidget(support.harness(page, JourneyApi(), language: 'it', scale: 1.6, controller: JourneyController.new));
+      await tester.pumpWidget(
+        support.harness(
+          page,
+          JourneyApi(),
+          language: 'it',
+          scale: 1.6,
+          controller: JourneyController.new,
+        ),
+      );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       await tester.drag(find.byType(Scrollable).first, const Offset(0, -500));
@@ -144,5 +275,4 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
-
 }

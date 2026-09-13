@@ -1,5 +1,17 @@
 # Verification report
 
+## Premium UI and reconciled feature delivery
+
+The active delivery is [PR #15](https://github.com/FilippoCinotti/EatMe/pull/15), on `feat/reference-features`. Phase 0 inspected main `9e556323b00e9e2d0f6da914f4b0b464db70b893`, preserved the unfinished feature branch and verified its functional scope at `87c23995af16c6ae3789b7e350b5ee8878a49251` in [run 34776802964](https://github.com/FilippoCinotti/EatMe/actions/runs/34776802964). All application CI jobs passed at that functional baseline, including Android emulator integration and iOS simulator compilation.
+
+Premium presentation source `bf02052411ce68566e546a67746ff9d8bfd1fcdf` was rendered and reviewed in [run 34778268952](https://github.com/FilippoCinotti/EatMe/actions/runs/34778268952). The source passed Flutter analysis and all 81 Flutter tests on macOS; both Android APK and iOS simulator debug builds were produced. The delivery checkpoint includes the exact CI formatter output for three Dart files and does not change their behavior or the reviewed layout. Final branch-level status and native integration results are recorded on the PR checks and delivery summary; historical runs below remain as traceability records.
+
+The local API suite passed 67 tests with three environment-specific skips; dependency-equipped CI additionally passed the API adapters, PostgreSQL/RLS tests, studio checks and audits. No backend contract or database migration was introduced by the premium presentation commits.
+
+Real screenshots cover the four main destinations, welcome/login, recipe detail, filters, add ingredient, dietary summary, preferences, notifications, household, privacy, custom food and wellbeing. All 34 PNGs were inspected as real Flutter renders, with 32 WebP gallery copies and two large-text shopping PNGs committed. Tests cover 1.6× text scaling, compact Italian layouts, existing hinge-safe navigation, transactional workflows and persistent allergen warnings across assessment tabs. See the [gallery](../screenshots/README.md), [design system](visual-design.md) and [reconciliation](premium-redesign-reconciliation.md).
+
+The separate CodeQL upload remains blocked by repository code-scanning configuration. Production provider credentials, signing, store purchase sandboxes and operator-hosted legal/support endpoints remain external release prerequisites. Successful debug builds do not mean a signed store release has been produced.
+
 ## Mobile visual refresh
 
 The visual refresh is tracked in [PR #14](https://github.com/FilippoCinotti/EatMe/pull/14). Application source commit `17773d8d7a54e8e0d8c8a0e4db22d58ed4c4737e` applies the exact Dart formatter output and preserves the theme font family in app-bar titles and category chips.
