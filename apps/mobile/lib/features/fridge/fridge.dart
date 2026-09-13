@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'batch_details.dart';
+import 'expiry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/api.dart';
@@ -16,20 +17,21 @@ class FridgePage extends ConsumerStatefulWidget {
 }
 
 class _FridgePageState extends ConsumerState<FridgePage> {
-  String location = 'fridge', search = '';
+  String location = 'all', search = '', sort = 'expiry';
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(appProvider);
     final items = state.inventory
         .where(
           (b) =>
-              b.location == location &&
+              (location == 'all' || b.location == location) &&
               localized(
                 b.food.name,
                 context.language,
               ).toLowerCase().contains(search.toLowerCase()),
         )
         .toList();
+    items.sort((a,b) => sort == 'name' ? localized(a.food.name, context.language).compareTo(localized(b.food.name, context.language)) : (a.expiryDate ?? DateTime(9999)).compareTo(b.expiryDate ?? DateTime(9999)));
     final today = DateUtils.dateOnly(DateTime.now());
     final dueSoon = items
         .where(
@@ -54,7 +56,7 @@ class _FridgePageState extends ConsumerState<FridgePage> {
             tooltip: context.t('add_food'),
             onPressed: state.offline
                 ? null
-                : () => sheet(context, AddFoodSheet(location: location)),
+                : () => showAddFoodMethods(context, location: location),
             icon: const Icon(Icons.add),
           ),
         ],
@@ -64,8 +66,8 @@ class _FridgePageState extends ConsumerState<FridgePage> {
         children: [
           SegmentedButton<String>(
             showSelectedIcon: false,
-            segments: ['fridge', 'freezer', 'pantry']
-                .map((s) => ButtonSegment(value: s, label: Text(context.t(s))))
+            segments: ['all', 'fridge', 'freezer', 'pantry']
+                .map((s) => ButtonSegment(value: s, label: Text(context.t(s == 'all' ? 'food_group_all' : s))))
                 .toList(),
             selected: {location},
             onSelectionChanged: (v) => setState(() => location = v.first),
@@ -87,7 +89,7 @@ class _FridgePageState extends ConsumerState<FridgePage> {
             onChanged: (s) => setState(() => search = s),
           ),
           const SizedBox(height: 16),
-          if (location == 'fridge' && !state.offline)
+          if (['all', 'fridge'].contains(location) && !state.offline)
             TextButton.icon(
               onPressed: () => context.push('/leftovers'),
               icon: const Icon(Icons.takeout_dining_outlined),
@@ -95,6 +97,10 @@ class _FridgePageState extends ConsumerState<FridgePage> {
             ),
           if (state.offline)
             StatusNote(text: context.t('offline_inventory'), warning: true),
+          Wrap(spacing: 8, children: [
+            TextButton.icon(onPressed: () => context.push('/expiry'), icon: const Icon(Icons.schedule), label: Text(context.t('expiry_view'))),
+            TextButton.icon(onPressed: () => setState(() => sort = sort == 'expiry' ? 'name' : 'expiry'), icon: const Icon(Icons.sort), label: Text(context.t('sort_$sort'))),
+          ]),
           if (items.isNotEmpty) SectionHeading(title: context.t('all_foods')),
           if (items.isEmpty)
             EmptyMessage(
@@ -103,7 +109,7 @@ class _FridgePageState extends ConsumerState<FridgePage> {
               action: FilledButton(
                 onPressed: state.offline
                     ? null
-                    : () => sheet(context, AddFoodSheet(location: location)),
+                    : () => showAddFoodMethods(context, location: location),
                 child: Text(context.t('add_food')),
               ),
             ),
@@ -132,7 +138,8 @@ class _FridgePageState extends ConsumerState<FridgePage> {
 }
 
 class AddFoodSheet extends ConsumerStatefulWidget {
-  const AddFoodSheet({super.key, this.location = 'fridge'});
+  const AddFoodSheet({super.key, this.location = 'fridge', this.initialFood});
+  final Food? initialFood;
   final String location;
   @override
   ConsumerState<AddFoodSheet> createState() => _AddFoodSheetState();
@@ -210,7 +217,7 @@ class _LeftoversSheetState extends ConsumerState<LeftoversSheet> {
 class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
   final amount = TextEditingController();
   final mutation = Mutation();
-  Food? food;
+  late Food? food = widget.initialFood;
   DateTime? date;
   String expiryKind = 'best_before', search = '';
   late String location = widget.location;
@@ -389,7 +396,7 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
       shrinkWrap: true,
       padding: const EdgeInsets.fromLTRB(24, 4, 24, 28),
       children: [
-        FoodImage(id: batch.food.id, height: 200, radius: 22),
+        FoodImage(id: batch.food.id, photoId: batch.food.photoId, height: 200, radius: 22),
         const SizedBox(height: 20),
         Text(
           localized(batch.food.name, context.language),

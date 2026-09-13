@@ -11,6 +11,7 @@ import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
 import 'shared.dart';
+import '../fridge/custom_food.dart';
 
 class ScanningPage extends ConsumerStatefulWidget {
   const ScanningPage({super.key});
@@ -73,6 +74,13 @@ class _ScanningState extends ResourceState<ScanningPage> {
     return true;
   }
 
+  Future<void> chooseSource(String kind) async {
+    final source = await showModalBottomSheet<ImageSource>(context: context, useSafeArea: true, builder: (context) => Column(mainAxisSize: MainAxisSize.min, children: [
+      ListTile(leading: const Icon(Icons.camera_alt_outlined), title: Text(context.t('take_photo')), onTap: () => Navigator.pop(context, ImageSource.camera)),
+      ListTile(leading: const Icon(Icons.photo_library_outlined), title: Text(context.t('choose_photo')), onTap: () => Navigator.pop(context, ImageSource.gallery)),
+    ]));
+    if (source != null) await scan(kind, source);
+  }
   Future<void> scan(String kind, ImageSource source) async {
     if (!await consent()) return;
     final picked = await ImagePicker().pickImage(
@@ -114,13 +122,13 @@ class _ScanningState extends ResourceState<ScanningPage> {
       AsyncAction(
         label: context.t('food_photo'),
         secondary: true,
-        action: () => scan('photo', ImageSource.camera),
+        action: () => chooseSource('photo'),
       ),
       const SizedBox(height: 8),
       AsyncAction(
         label: context.t('receipt_photo'),
         secondary: true,
-        action: () => scan('receipt', ImageSource.gallery),
+        action: () => chooseSource('receipt'),
       ),
       const SizedBox(height: 8),
       AsyncAction(
@@ -142,7 +150,7 @@ class _ScanningState extends ResourceState<ScanningPage> {
       AsyncAction(
         label: context.t('recipe_photo'),
         secondary: true,
-        action: () => scan('recipe', ImageSource.gallery),
+        action: () => chooseSource('recipe'),
       ),
       const SizedBox(height: 28),
       for (final job in records(data?['items']))
@@ -238,6 +246,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
           StatusNote(text: context.t('scan_review_notice')),
           for (final item in items)
             Card(
+              key: ObjectKey(item),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -288,6 +297,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                         item['quantity'] = v;
                       },
                     ),
+                    StorageDateFields(location: item['location'] as String? ?? 'fridge', date: DateTime.tryParse(item['expiry_date'] as String? ?? ''), kind: item['expiry_kind'] == 'unknown' ? 'estimated' : item['expiry_kind'] as String? ?? 'estimated', onChanged: (l,d,k) { if (mounted) setState(() { item['location'] = l; item['expiry_date'] = d == null ? null : isoDay(d); item['expiry_kind'] = d == null ? 'unknown' : k == 'unknown' ? 'estimated' : k; }); }),
                     CheckboxListTile(
                       title: Text(context.t('confirm_identification')),
                       value: item['confirmed'] == true,
@@ -378,6 +388,10 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
               ),
             ),
           ),
+        Wrap(spacing: 8, children: [
+          AsyncAction(label: context.t('toggle_torch'), secondary: true, action: () => controller.toggleTorch()),
+          AsyncAction(label: context.t('scan_again'), secondary: true, enabled: !busy, action: () async { setState(() { product = null; error = null; }); await controller.start(); }),
+        ]),
         const SizedBox(height: 16),
         TextField(
           controller: code,

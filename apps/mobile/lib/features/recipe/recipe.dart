@@ -7,6 +7,7 @@ import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
 import '../organize/shared.dart';
+import '../../core/share_text.dart';
 
 class RecipePage extends ConsumerStatefulWidget {
   const RecipePage({super.key, required this.recipeId});
@@ -133,6 +134,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 if (mounted) setState(() => favorite = !favorite);
               },
             ),
+            AsyncAction(label: context.t('share_recipe'), secondary: true, action: () => shareText(context, localized(recipe.title, context.language), '${localized(recipe.title,context.language)}\n${context.t('portions', {'count': recipe.servings})}\n${recipe.ingredients.map((i) { final food = ref.read(appProvider).foods.where((f) => f.id == i['food_id']).firstOrNull; return '${food == null ? context.t('food_unavailable') : localized(food.name,context.language)}: ${i['quantity']} ${food?.unit ?? ''}'; }).join('\n')}\n\n${recipe.instructions(context.language).asMap().entries.map((s) => '${s.key+1}. ${s.value}').join('\n')}')),
             Text(context.t('minutes', {'minutes': recipe.minutes})),
             const SizedBox(height: 16),
             Row(

@@ -116,7 +116,7 @@ class DevelopmentAIProvider:
 class IntelligenceService:
     def media_upload(self, user_id, data):
         self._household(user_id)
-        kind = choice(data.get('kind'), {'photo', 'receipt', 'avatar', 'recipe'})
+        kind = choice(data.get('kind'), {'photo', 'receipt', 'avatar', 'recipe', 'food'})
         with self.db.transaction() as tx:
             if tx.one('SELECT COUNT(*) AS n FROM media_objects WHERE user_id=?', (user_id,))['n'] >= 30:
                 raise DomainError('media_quota_exceeded', 429)
@@ -124,7 +124,7 @@ class IntelligenceService:
             raw = base64.b64decode(data.get('base64', ''), validate=True)
         except (ValueError, TypeError):
             raise DomainError('invalid_image', 422) from None
-        normalized = normalize_image(raw, kind == 'avatar')
+        normalized = normalize_image(raw, kind in {'avatar', 'food'})
         storage, identifier = PrivateMedia(), new_id()
         storage.write(identifier, normalized)
         try:

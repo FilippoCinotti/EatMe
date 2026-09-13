@@ -167,6 +167,12 @@ class GovernanceService:
                 for field in ('clinical_limitations', 'reviewer_qualification', 'context'):
                     text(value.get(field), maximum=4000)
         elif kind == 'evidence':
+            food_ids = value.get('food_ids', [])
+            if not isinstance(food_ids, list) or len(food_ids) > 100:
+                raise DomainError('invalid_food', 422)
+            for food_id in food_ids:
+                if not tx.one('SELECT 1 FROM foods WHERE id=?', (valid_uuid(food_id),)):
+                    raise DomainError('invalid_food', 422)
             for field in ('title', 'publisher', 'claim', 'jurisdiction'):
                 text(value.get(field), maximum=4000)
             choice(value.get('strength'), {'guideline', 'systematic_review', 'trial', 'observational', 'expert_opinion'})

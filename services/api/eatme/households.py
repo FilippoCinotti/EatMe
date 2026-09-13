@@ -155,8 +155,16 @@ class HouseholdService:
                 if data.get("expected_version") != (row["version"] if row else 0):
                     raise DomainError("stale_preferences", 409)
                 value = data.get("data", {})
-                if not isinstance(value, dict) or set(value) - {"goals", "cuisines", "skill", "max_minutes", "learning", "analytics", "ai_consent", "budget", "seasonal"}:
+                reserved = {'favorite_foods', 'habit_targets', 'habit_log'}
+                if not isinstance(value, dict) or set(value) - {"goals", "cuisines", "skill", "max_minutes", "learning", "analytics", "ai_consent", "budget", "seasonal"} - reserved:
                     raise DomainError("invalid_preferences", 422)
+                previous = decode(row['data']) if row else {}
+                value = dict(value)
+                for field in reserved:
+                    if field in value and value[field] != previous.get(field):
+                        raise DomainError('invalid_preferences', 422)
+                    if field in previous:
+                        value[field] = previous[field]
                 for name in ("learning", "analytics", "ai_consent", "seasonal"):
                     if name in value and type(value[name]) is not bool:
                         raise DomainError("invalid_preferences", 422)

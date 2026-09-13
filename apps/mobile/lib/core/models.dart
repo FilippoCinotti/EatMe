@@ -9,14 +9,17 @@ class Food {
     required this.name,
     required this.unit,
     required this.group,
+    this.photoId,
   });
   final String id, unit, group;
+  final String? photoId;
   final Json name;
   factory Food.fromJson(Json j) => Food(
     id: j['id'] as String,
     name: Map<String, dynamic>.from(j['name'] as Map),
     unit: j['unit'] as String,
     group: j['group'] as String,
+    photoId: j['photo_id'] as String?,
   );
 }
 

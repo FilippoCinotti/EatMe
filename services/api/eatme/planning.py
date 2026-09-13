@@ -22,16 +22,15 @@ class PlanningService:
                 action = data.get("action")
                 if action == "add":
                     food_id = data.get("food_id")
-                    food = tx.one("SELECT data FROM foods WHERE id=?", (food_id,)) if food_id else None
+                    food = self._catalog(tx, user_id)[0].get(valid_uuid(food_id)) if food_id else None
                     if food_id and not food:
                         raise DomainError("food_not_found", 404)
-                    food = decode(food["data"]) if food else None
                     unit = food["unit"] if food else choice(data.get("unit", "pcs"), {"pcs", "g", "ml"})
                     label = text(data.get("label") or (food["name"]["en"] if food else None), maximum=120)
                     amount = amount_milli(data.get("quantity"))
                     if unit == "pcs" and amount % 1000:
                         raise DomainError("whole_units_required", 422)
-                    identifier = self._shopping_insert(tx, user_id, home, food_id, label, amount, unit, text(data.get("category", "other"), maximum=40), "manual")
+                    identifier = self._shopping_insert(tx, user_id, home, food_id, label, amount, unit, text(data.get("category", food.get("group", "other") if food else "other"), maximum=40), "manual")
                     return {"id": identifier, "version": 1}
                 if action == "generate":
                     meals = data.get("meals")
@@ -216,6 +215,24 @@ class PlanningService:
         with self.db.transaction(home) as tx:
             def change():
                 self._member(tx, user_id, home, write=True)
+                if data.get('action') == 'create':
+                    if data.get('ingredients_confirmed') is not True:
+                        raise DomainError('preparation_confirmation_required', 422)
+                    recipe, foods = self._validate_meal(tx, user_id, data)
+                    prepared = valid_date(data.get('prepared_at'))
+                    today = self.today(self._profile(tx, user_id)['settings']).isoformat()
+                    use_date = valid_date(data.get('user_use_date'))
+                    if not prepared or prepared > today or (use_date and use_date < prepared):
+                        raise DomainError('invalid_date', 422)
+                    location = choice(data.get('location', 'fridge'), {'fridge', 'freezer'})
+                    cooking_id, identifier, stamp = new_id(), new_id(), now()
+                    servings = data['servings']
+                    snapshot = {'servings': servings, 'source': 'external-preparation', 'allocations': [],
+                                'ingredients': [{'food_id': f, 'quantity': quantity(q), 'food': foods[f]}
+                                                for f, q in requirements(recipe, servings).items()]}
+                    tx.execute('INSERT INTO cooking_sessions VALUES (?,?,?,?,?,?)', (cooking_id, user_id, home, recipe['id'], encode(snapshot), stamp))
+                    tx.execute('INSERT INTO leftovers VALUES (?,?,?,?,?,?,?,?)', (identifier, home, cooking_id, servings, prepared, location, use_date, 'external-preparation'))
+                    return {'id': identifier, 'remaining': servings, 'version': 1}
                 identifier = valid_uuid(data.get('id'))
                 item = tx.one('SELECT l.*,c.recipe_id,c.data AS record FROM leftovers l JOIN cooking_sessions c ON c.id=l.cooking_id WHERE l.id=? AND l.household_id=?', (identifier, home))
                 if not item:

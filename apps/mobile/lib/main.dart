@@ -24,6 +24,9 @@ import 'features/auth/reauthenticate.dart';
 import 'features/onboarding/onboarding.dart';
 import 'features/chef_table/chef_table.dart';
 import 'features/fridge/fridge.dart';
+import 'features/fridge/custom_food.dart';
+import 'features/fridge/expiry.dart';
+import 'features/organize/wellbeing.dart';
 import 'features/healthy_food/healthy_food.dart';
 import 'features/profile/profile.dart';
 import 'features/recipe/recipe.dart';
@@ -97,13 +100,18 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, _) => const ReauthenticatePage(),
       ),
       GoRoute(path: '/privacy', builder: (_, _) => const PrivacyPage()),
+      GoRoute(path: '/cooking-complete', builder: (_, state) => CookingCompletePage(recipeId: state.uri.queryParameters['recipe'] ?? '', leftovers: int.tryParse(state.uri.queryParameters['leftovers'] ?? '0') ?? 0)),
+      GoRoute(path: '/custom-food', builder: (_, _) => const CustomFoodPage()),
+      GoRoute(path: '/expiry', builder: (_, _) => const ExpiryPage()),
+      GoRoute(path: '/wellbeing', builder: (_, _) => const WellbeingPage()),
+      GoRoute(path: '/household-activity', builder: (_, _) => const HouseholdActivityPage()),
       GoRoute(path: '/shopping', builder: (_, _) => const ShoppingPage()),
       GoRoute(path: '/planner', builder: (_, _) => const PlannerPage()),
       GoRoute(path: '/household', builder: (_, _) => const HouseholdPage()),
       GoRoute(path: '/leftovers', builder: (_, _) => const LeftoversPage()),
       GoRoute(
         path: '/recipe-library',
-        builder: (_, _) => const RecipeLibraryPage(),
+        builder: (_, state) => RecipeLibraryPage(initialFavorites: state.uri.queryParameters['favorites'] == 'true'),
       ),
       GoRoute(
         path: '/recipe-editor',

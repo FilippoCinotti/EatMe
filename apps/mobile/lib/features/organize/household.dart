@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/localization.dart';
@@ -32,6 +33,7 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         StatusNote(text: context.t('household_privacy')),
+        ListTile(leading: const IconBadge(Icons.history), title: Text(context.t('recent_activity')), trailing: const Icon(Icons.chevron_right), onTap: () => context.push('/household-activity')),
         for (final member in members)
           ListTile(
             leading: const CircleAvatar(child: Icon(Icons.person_outline)),

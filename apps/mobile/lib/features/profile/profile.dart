@@ -21,6 +21,7 @@ class ProfilePage extends ConsumerWidget {
     final ids = (settings['diets'] as List? ?? [])
         .map((d) => d['diet_id'])
         .toSet();
+    final primaryName = state.diets.where((d) => d.id == settings['primary_diet']).map((d) => localized(d.name, context.language)).firstOrNull;
     final dietNames = state.diets
         .where((d) => ids.contains(d.id))
         .map((d) => localized(d.name, context.language))
@@ -52,7 +53,7 @@ class ProfilePage extends ConsumerWidget {
             leading: const IconBadge(Icons.eco_outlined),
             title: Text(context.t('diet')),
             subtitle: Text(
-              dietNames.isEmpty ? context.t('no_diet') : dietNames,
+              dietNames.isEmpty ? context.t('no_diet') : '${primaryName == null ? '' : '${context.t('primary_diet')}: $primaryName\n'}$dietNames',
             ),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push('/profile/edit'),
@@ -80,6 +81,8 @@ class ProfilePage extends ConsumerWidget {
           SectionHeading(title: context.t('your_kitchen')),
           for (final item in [
             ('household', '/household', Icons.group_outlined),
+            ('wellbeing', '/wellbeing', Icons.favorite_outline),
+            ('recent_activity', '/household-activity', Icons.history),
             ('preferences', '/preferences', Icons.tune),
             ('notifications', '/notifications', Icons.notifications_none),
             ('insights', '/insights', Icons.insights_outlined),

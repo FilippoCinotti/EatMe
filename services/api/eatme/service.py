@@ -11,6 +11,7 @@ from .governance import GovernanceService
 from .content import ContentService
 from .households import HouseholdService
 from .planning import PlanningService
+from .reference_features import ReferenceFeaturesService, GOALS
 from .auth import now
 from .catalog import ALLERGENS
 from .engine import active_rules, amount_milli, batch_usable, compatibility, quantity, rank, requirements
@@ -44,7 +45,7 @@ def valid_date(value) -> str | None:
         raise DomainError("invalid_date",422) from None
 
 
-class Service(HouseholdService, PlanningService, ContentService, GovernanceService, IntelligenceService, LifecycleService):
+class Service(ReferenceFeaturesService, HouseholdService, PlanningService, ContentService, GovernanceService, IntelligenceService, LifecycleService):
     def __init__(self, db: Database, *, clock=None, weights=None):
         self.db, self.clock, self.weights = db, clock, weights
 
@@ -156,6 +157,12 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
             valid_uuid(assignment.get("diet_id"))
         if len({a["diet_id"] for a in assignments}) != len(assignments):
             raise DomainError("duplicate_diet",422)
+        primary_goal = data.get('primary_goal')
+        if primary_goal is not None and (not isinstance(primary_goal, str) or primary_goal not in GOALS):
+            raise DomainError('invalid_goal', 422)
+        primary_diet = data.get('primary_diet')
+        if primary_diet is not None and (not isinstance(primary_diet, str) or primary_diet not in {a['diet_id'] for a in assignments}):
+            raise DomainError('invalid_diet', 422)
         with self.db.transaction() as tx:
             def save():
                 if tx.one("SELECT 1 FROM account_deletions WHERE user_id=? AND status IN ('pending','completed')", (user_id,)):
@@ -173,7 +180,8 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
                 if not isinstance(never,list) or any(f not in foods for f in never):
                     raise DomainError("invalid_food",422)
                 settings = {"diets":assignments,"allergies":sorted(set(allergies)),"intolerances":sorted(set(intolerances)),
-                            "never_suggest":never,"timezone":timezone,"adult_confirmed":True}
+                            "never_suggest":never,"timezone":timezone,"adult_confirmed":True,
+                            "primary_goal":primary_goal,"primary_diet":primary_diet}
                 existing = tx.one("SELECT * FROM profiles WHERE user_id=?",(user_id,))
                 stamp = now()
                 if existing:
@@ -234,10 +242,10 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
         with self.db.transaction(household_id) as tx:
             def add():
                 self._member(tx,user_id,household_id,write=True)
-                food = tx.one("SELECT data FROM foods WHERE id=?",(data.get("food_id"),))
+                food = self._catalog(tx, user_id)[0].get(valid_uuid(data.get("food_id")))
                 if not food:
                     raise DomainError("food_not_found",404)
-                if decode(food["data"])["unit"]=="pcs" and amount%1000:
+                if food["unit"]=="pcs" and amount%1000:
                     raise DomainError("whole_units_required",422)
                 batch_id, stamp = new_id(),now()
                 tx.execute("INSERT INTO inventory_batches VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
@@ -348,7 +356,9 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
             if food_id not in foods:
                 raise DomainError("food_not_found",404)
             return {"food":foods[food_id],"assessment":compatibility([food_id],foods,profile["settings"],rules),
-                    "diet_rules_version":versions,"nutrition":foods[food_id].get("nutrition"),"evidence":[]}
+                    "diet_rules_version":versions,"nutrition":foods[food_id].get("nutrition"),
+                    "evidence":[decode(row['data']) for row in tx.all("SELECT data FROM governed_content WHERE kind='evidence' AND status='PUBLISHED'")
+                                if food_id in decode(row['data']).get('food_ids', []) and decode(row['data'])['review_due'] >= self.today(profile['settings']).isoformat()]}
 
     def _preview(self,tx,user_id,data):
         profile,foods,recipes,rules,versions,today = self._context(tx,user_id)
@@ -424,7 +434,7 @@ class Service(HouseholdService, PlanningService, ContentService, GovernanceServi
     def leftovers(self,user_id):
         household_id = self._household(user_id)
         with self.db.transaction() as tx:
-            rows = tx.all("SELECT l.*,COALESCE(s.remaining,l.servings) AS remaining,COALESCE(s.version,1) AS version,r.data AS recipe_data FROM leftovers l LEFT JOIN leftover_state s ON s.leftover_id=l.id JOIN cooking_sessions c ON c.id=l.cooking_id JOIN recipes r ON r.id=c.recipe_id WHERE l.household_id=? AND COALESCE(s.remaining,l.servings)>0 ORDER BY l.prepared_at DESC LIMIT 100",(household_id,))
+            rows = tx.all("SELECT l.*,COALESCE(s.remaining,l.servings) AS remaining,COALESCE(s.version,1) AS version,c.recipe_id,r.data AS recipe_data FROM leftovers l LEFT JOIN leftover_state s ON s.leftover_id=l.id JOIN cooking_sessions c ON c.id=l.cooking_id JOIN recipes r ON r.id=c.recipe_id WHERE l.household_id=? AND COALESCE(s.remaining,l.servings)>0 ORDER BY l.prepared_at DESC LIMIT 100",(household_id,))
             return {"items":[{**{k:v for k,v in row.items() if k!="recipe_data"},"recipe_title":decode(row["recipe_data"])["title"]} for row in rows]}
 
     def export(self,user_id):

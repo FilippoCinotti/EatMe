@@ -8,6 +8,7 @@ import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
+import '../organize/shared.dart';
 
 class CookingPage extends ConsumerStatefulWidget {
   const CookingPage({
@@ -27,7 +28,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
   late Future<Recipe> future = load();
   Timer? timer;
   DateTime? timerEnd;
-  int step = 0, remaining = 0;
+  int step = 0, remaining = 0, durationMinutes = 5;
   bool confirmation = false;
   Future<Recipe> load() async {
     final api = ref.read(apiProvider);
@@ -68,8 +69,8 @@ class _CookingPageState extends ConsumerState<CookingPage> {
       setState(() => remaining = 0);
       return;
     }
-    timerEnd = DateTime.now().add(const Duration(minutes: 5));
-    setState(() => remaining = 300);
+    timerEnd = DateTime.now().add(Duration(minutes: durationMinutes));
+    setState(() => remaining = durationMinutes * 60);
     timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (!mounted) {
         t.cancel();
@@ -79,7 +80,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
         () => remaining =
             ((timerEnd!.difference(DateTime.now()).inMilliseconds + 999) ~/
                     1000)
-                .clamp(0, 300),
+                .clamp(0, durationMinutes * 60),
       );
       if (remaining == 0) {
         t.cancel();
@@ -146,7 +147,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                       children: [
                         SizedBox.expand(
                           child: CircularProgressIndicator(
-                            value: remaining / 300,
+                            value: remaining / (durationMinutes * 60),
                             strokeWidth: 7,
                             backgroundColor: Theme.of(
                               context,
@@ -160,12 +161,19 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                 ),
                 const SizedBox(height: 20),
               ],
+              if (remaining == 0) AsyncAction(label: context.t('set_timer'), secondary: true, action: () async {
+                final value = await askText(context, context.t('timer_minutes'), initial: '$durationMinutes', numeric: true);
+                if (value == null) return;
+                final minutes = int.tryParse(value);
+                if (minutes == null || minutes < 1 || minutes > 180) throw const ApiFailure('invalid_timer');
+                if (mounted) setState(() => durationMinutes = minutes);
+              }),
               OutlinedButton.icon(
                 onPressed: toggleTimer,
                 icon: const Icon(Icons.timer_outlined),
                 label: Text(
                   remaining == 0
-                      ? context.t('five_min_timer')
+                      ? context.t('start_timer_minutes', {'count': durationMinutes})
                       : '${(remaining ~/ 60).toString().padLeft(2, '0')}:${(remaining % 60).toString().padLeft(2, '0')}',
                 ),
               ),
@@ -173,6 +181,8 @@ class _CookingPageState extends ConsumerState<CookingPage> {
               FilledButton(
                 onPressed: () => setState(() {
                   if (step == steps.length - 1) {
+                    timer?.cancel();
+                    remaining = 0;
                     confirmation = true;
                   } else {
                     step++;
@@ -362,7 +372,7 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
                 );
                 await ref.read(appProvider.notifier).refresh();
                 if (context.mounted) {
-                  context.go('/fridge');
+                  context.go('/cooking-complete?recipe=${widget.recipeId}&leftovers=$leftovers');
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(context.t('fridge_updated'))),
                   );
@@ -378,4 +388,26 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
       },
     ),
   );
+}
+
+class CookingCompletePage extends StatelessWidget {
+  const CookingCompletePage({super.key, required this.recipeId, required this.leftovers});
+  final String recipeId;
+  final int leftovers;
+  @override
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(), body: PageBody(children: [
+    Icon(Icons.check_circle_outline, size: 88, color: Theme.of(context).colorScheme.primary),
+    const SizedBox(height: 24),
+    Text(context.t('cooking_complete'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineLarge),
+    Text(context.t('cooking_saved'), textAlign: TextAlign.center),
+    const SizedBox(height: 24),
+    if (leftovers > 0) ...[
+      StatusNote(text: context.t('saved_leftover_count', {'count': leftovers})),
+      FilledButton(onPressed: () => context.push('/leftovers'), child: Text(context.t('manage_leftovers'))),
+    ],
+    OutlinedButton(onPressed: () => context.push('/recipes/$recipeId'), child: Text(context.t('share_recipe'))),
+    const SizedBox(height: 16),
+    FilledButton(onPressed: () => context.go('/chef'), child: Text(context.t('back_home'))),
+    TextButton(onPressed: () => context.go('/fridge'), child: Text(context.t('my_fridge'))),
+  ]));
 }

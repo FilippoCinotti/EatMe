@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/localization.dart';
 import '../../core/reminders.dart';
 import '../../core/models.dart';
@@ -286,6 +287,7 @@ class InsightsPage extends ConsumerStatefulWidget {
 }
 
 class _InsightsState extends ResourceState<InsightsPage> {
+  String tab = 'overview';
   @override
   String get path => '/insights';
   @override
@@ -297,6 +299,18 @@ class _InsightsState extends ResourceState<InsightsPage> {
         style: Theme.of(context).textTheme.headlineMedium,
       ),
       const SizedBox(height: 24),
+      Wrap(spacing: 8, children: [for (final value in ['overview','alerts','tips']) ChoiceChip(label: Text(context.t('insights_$value')), selected: tab == value, onSelected: (_) => setState(() => tab = value))]),
+      if (tab == 'alerts') ...[
+        for (final batch in ref.watch(appProvider).inventory.where((b) => b.expiryDate != null && b.expiryDate!.difference(DateTime.now()).inDays <= 3)) Card(child: ListTile(leading: FoodMark(food: batch.food), title: Text(localized(batch.food.name,context.language)), subtitle: Text(expiryLabel(context,batch)), onTap: () => context.push('/expiry'))),
+        TextButton(onPressed: () => context.push('/notifications'), child: Text(context.t('notifications'))),
+      ],
+      if (tab == 'tips') ...[
+        StatusNote(text: context.t('practical_tips')),
+        TextButton(onPressed: () => context.push('/planner'), child: Text(context.t('meal_planner'))),
+        TextButton(onPressed: () => context.push('/leftovers'), child: Text(context.t('leftovers'))),
+        TextButton(onPressed: () => context.push('/wellbeing'), child: Text(context.t('wellbeing'))),
+      ],
+      if (tab == 'overview') ...[
       for (final metric in ['cooked_meals', 'different_recipes'])
         Card(
           child: Padding(
@@ -319,7 +333,10 @@ class _InsightsState extends ResourceState<InsightsPage> {
           title: Text(context.t('event_${entry.key}')),
           trailing: Text('${entry.value}'),
         ),
+      for (final unit in (data?['recorded_quantities'] as Map? ?? {}).entries) ListTile(title: Text(context.t('recorded_use')), subtitle: Text('${unit.value['used']} ${unit.key} · ${context.t('discarded_amount')}: ${unit.value['discarded']} ${unit.key}')),
+      StatusNote(text: context.t('recorded_quantities_notice')),
       StatusNote(text: context.t('insights_method')),
+      ],
     ]),
   );
 }

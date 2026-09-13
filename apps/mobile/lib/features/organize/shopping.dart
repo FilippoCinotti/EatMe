@@ -5,6 +5,7 @@ import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
 import 'shared.dart';
+import '../../core/share_text.dart';
 
 class ShoppingPage extends ConsumerStatefulWidget {
   const ShoppingPage({super.key});
@@ -41,9 +42,12 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
   @override
   Widget build(BuildContext context) {
     final items = records(data?['items']);
+    final categories = items.map((i) => i['category'] as String).toSet().toList()..sort();
     final checked = items.where((i) => i['checked'] == true).length;
     return Scaffold(
-      appBar: AppBar(title: Text(context.t('shopping_list'))),
+      appBar: AppBar(title: Text(context.t('shopping_list')), actions: [
+        IconButton(tooltip: context.t('share'), icon: const Icon(Icons.ios_share), onPressed: items.isEmpty ? null : () => shareText(context, context.t('shopping_list'), categories.map((category) => '${context.t('food_group_$category')}\n${items.where((i) => i['category'] == category).map((i) => "${i['checked'] == true ? '✓' : '☐'} ${i['label']} — ${i['quantity']} ${i['unit']}").join('\n')}').join('\n\n'))),
+      ]),
       body: content([
         Text(
           context.t('shopping_intro'),
@@ -72,7 +76,10 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
             title: context.t('shopping_empty'),
             body: context.t('shopping_empty_body'),
           ),
-        for (final item in items)
+        for (final category in categories) ...[
+          SectionHeading(title: context.t('food_group_$category')),
+          Text(context.t('shopping_progress', {'done': items.where((i) => i['category'] == category && i['checked'] == true).length, 'total': items.where((i) => i['category'] == category).length})),
+          for (final item in items.where((i) => i['category'] == category))
           Card(
             child: Padding(
               padding: const EdgeInsets.all(12),
@@ -152,6 +159,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
               ),
             ),
           ),
+        ],
       ]),
     );
   }
