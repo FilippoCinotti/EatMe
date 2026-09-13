@@ -42,12 +42,31 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
   @override
   Widget build(BuildContext context) {
     final items = records(data?['items']);
-    final categories = items.map((i) => i['category'] as String).toSet().toList()..sort();
+    final categories =
+        items.map((i) => i['category'] as String? ?? 'other').toSet().toList()..sort();
     final checked = items.where((i) => i['checked'] == true).length;
     return Scaffold(
-      appBar: AppBar(title: Text(context.t('shopping_list')), actions: [
-        IconButton(tooltip: context.t('share'), icon: const Icon(Icons.ios_share), onPressed: items.isEmpty ? null : () => shareText(context, context.t('shopping_list'), categories.map((category) => '${context.t('food_group_$category')}\n${items.where((i) => i['category'] == category).map((i) => "${i['checked'] == true ? '✓' : '☐'} ${i['label']} — ${i['quantity']} ${i['unit']}").join('\n')}').join('\n\n'))),
-      ]),
+      appBar: AppBar(
+        title: Text(context.t('shopping_list')),
+        actions: [
+          IconButton(
+            tooltip: context.t('share'),
+            icon: const Icon(Icons.ios_share),
+            onPressed: items.isEmpty
+                ? null
+                : () => shareText(
+                    context,
+                    context.t('shopping_list'),
+                    categories
+                        .map(
+                          (category) =>
+                              '${context.t('food_group_$category')}\n${items.where((i) => (i['category'] ?? 'other') == category).map((i) => "${i['checked'] == true ? '✓' : '☐'} ${i['label']} — ${i['quantity']} ${i['unit']}").join('\n')}',
+                        )
+                        .join('\n\n'),
+                  ),
+          ),
+        ],
+      ),
       body: content([
         Text(
           context.t('shopping_intro'),
@@ -78,87 +97,96 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
           ),
         for (final category in categories) ...[
           SectionHeading(title: context.t('food_group_$category')),
-          Text(context.t('shopping_progress', {'done': items.where((i) => i['category'] == category && i['checked'] == true).length, 'total': items.where((i) => i['category'] == category).length})),
-          for (final item in items.where((i) => i['category'] == category))
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                children: [
-                  CheckboxListTile(
-                    contentPadding: EdgeInsets.zero,
-                    secondary: FoodImage(
-                      id: '${item['food_id'] ?? ''}',
-                      width: 48,
-                      height: 48,
-                      radius: 12,
-                      fallback: Icons.shopping_bag_outlined,
-                    ),
-                    value: item['checked'] == true,
-                    title: Text(item['label'] as String),
-                    subtitle: Text('${item['quantity']} ${item['unit']}'),
-                    onChanged: (value) async {
-                      try {
-                        await command({
-                          'action': 'check',
-                          'id': item['id'],
-                          'expected_version': item['version'],
-                          'checked': value,
-                        });
-                      } catch (_) {
-                        if (mounted && context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(context.t('retry'))),
-                          );
-                        }
-                      }
-                    },
-                  ),
-                  Wrap(
-                    spacing: 8,
-                    children: [
-                      if (item['checked'] == true)
-                        AsyncAction(
-                          label: context.t('put_in_fridge'),
-                          action: () => purchase(item),
-                        ),
-                      AsyncAction(
-                        label: context.t('edit'),
-                        secondary: true,
-                        action: () async {
-                          final amount = await askText(
-                            context,
-                            context.t('quantity'),
-                            initial: item['quantity'] as String,
-                            numeric: true,
-                          );
-                          if (amount != null) {
-                            await command({
-                              'action': 'edit',
-                              'id': item['id'],
-                              'expected_version': item['version'],
-                              'quantity': amount,
-                            });
-                          }
-                        },
+          Text(
+            context.t('shopping_progress', {
+              'done': items
+                  .where(
+                    (i) => (i['category'] ?? 'other') == category && i['checked'] == true,
+                  )
+                  .length,
+              'total': items.where((i) => (i['category'] ?? 'other') == category).length,
+            }),
+          ),
+          for (final item in items.where((i) => (i['category'] ?? 'other') == category))
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      secondary: FoodImage(
+                        id: '${item['food_id'] ?? ''}',
+                        width: 48,
+                        height: 48,
+                        radius: 12,
+                        fallback: Icons.shopping_bag_outlined,
                       ),
-                      AsyncAction(
-                        label: context.t('delete'),
-                        secondary: true,
-                        action: () async {
+                      value: item['checked'] == true,
+                      title: Text(item['label'] as String),
+                      subtitle: Text('${item['quantity']} ${item['unit']}'),
+                      onChanged: (value) async {
+                        try {
                           await command({
-                            'action': 'delete',
+                            'action': 'check',
                             'id': item['id'],
                             'expected_version': item['version'],
+                            'checked': value,
                           });
-                        },
-                      ),
-                    ],
-                  ),
-                ],
+                        } catch (_) {
+                          if (mounted && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(context.t('retry'))),
+                            );
+                          }
+                        }
+                      },
+                    ),
+                    Wrap(
+                      spacing: 8,
+                      children: [
+                        if (item['checked'] == true)
+                          AsyncAction(
+                            label: context.t('put_in_fridge'),
+                            action: () => purchase(item),
+                          ),
+                        AsyncAction(
+                          label: context.t('edit'),
+                          secondary: true,
+                          action: () async {
+                            final amount = await askText(
+                              context,
+                              context.t('quantity'),
+                              initial: item['quantity'] as String,
+                              numeric: true,
+                            );
+                            if (amount != null) {
+                              await command({
+                                'action': 'edit',
+                                'id': item['id'],
+                                'expected_version': item['version'],
+                                'quantity': amount,
+                              });
+                            }
+                          },
+                        ),
+                        AsyncAction(
+                          label: context.t('delete'),
+                          secondary: true,
+                          action: () async {
+                            await command({
+                              'action': 'delete',
+                              'id': item['id'],
+                              'expected_version': item['version'],
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ]),
     );

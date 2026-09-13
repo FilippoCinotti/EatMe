@@ -118,7 +118,7 @@ class FoodMark extends StatelessWidget {
     };
     return FoodImage(
       id: food.id,
-    photoId: food.photoId,
+      photoId: food.photoId,
       width: size,
       height: size,
       radius: 13,

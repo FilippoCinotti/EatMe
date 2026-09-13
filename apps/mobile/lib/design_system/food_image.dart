@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +9,6 @@ final _privatePhoto = FutureProvider.autoDispose.family<String?, String>((ref, k
   final value = await ref.read(apiProvider).request('GET', '/foods/${key.split('|').last}/photo', allowCache: false);
   return value['base64'] as String?;
 });
-import 'package:flutter/material.dart';
 
 /// Illustrative photography is mapped only to the bundled demo catalog IDs.
 /// Unknown or private content keeps an honest icon fallback, never a wrong dish.

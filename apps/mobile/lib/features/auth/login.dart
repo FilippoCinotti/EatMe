@@ -15,7 +15,11 @@ class LoginPage extends ConsumerStatefulWidget {
 
 class _LoginPageState extends ConsumerState<LoginPage> {
   final email = TextEditingController(), password = TextEditingController();
-  bool register = false, verificationSent = false, welcome = true, obscure = true, accepted = false;
+  bool register = false,
+      verificationSent = false,
+      welcome = true,
+      obscure = true,
+      accepted = false;
   final confirmation = TextEditingController();
   @override
   void dispose() {
@@ -28,18 +32,42 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final api = ref.read(apiProvider);
-    if (welcome) return Scaffold(body: PageBody(children: [
-      const SizedBox(height: 48),
-      Icon(Icons.eco, size: 72, color: Theme.of(context).colorScheme.primary),
-      Text('EatMe', textAlign: TextAlign.center, style: Theme.of(context).textTheme.displayMedium),
-      Text(context.t('tagline'), textAlign: TextAlign.center),
-      const SizedBox(height: 24),
-      const FoodImage(id: '913a438b-0805-543d-8719-c0253f8f103a', height: 260, radius: 28),
-      const SizedBox(height: 24),
-      Text(context.t('welcome_promise'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineMedium),
-      const SizedBox(height: 24),
-      FilledButton(onPressed: () => setState(() => welcome = false), child: Text(context.t('start_now'))),
-    ]));
+    if (welcome)
+      return Scaffold(
+        body: PageBody(
+          children: [
+            const SizedBox(height: 48),
+            Icon(
+              Icons.eco,
+              size: 72,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            Text(
+              'EatMe',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.displayMedium,
+            ),
+            Text(context.t('tagline'), textAlign: TextAlign.center),
+            const SizedBox(height: 24),
+            const FoodImage(
+              id: '913a438b-0805-543d-8719-c0253f8f103a',
+              height: 260,
+              radius: 28,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              context.t('welcome_promise'),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: () => setState(() => welcome = false),
+              child: Text(context.t('start_now')),
+            ),
+          ],
+        ),
+      );
     return Scaffold(
       body: PageBody(
         children: [
@@ -81,7 +109,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         : AutofillHints.password,
                   ],
                   decoration: InputDecoration(
-                    suffixIcon: IconButton(tooltip: context.t(obscure ? 'show_password' : 'hide_password'), onPressed: () => setState(() => obscure = !obscure), icon: Icon(obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined)),
+                    suffixIcon: IconButton(
+                      tooltip: context.t(
+                        obscure ? 'show_password' : 'hide_password',
+                      ),
+                      onPressed: () => setState(() => obscure = !obscure),
+                      icon: Icon(
+                        obscure
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
+                    ),
                     labelText: context.t('password'),
                     helperText: context.t('password_hint'),
                   ),
@@ -91,20 +129,54 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ),
           if (register) ...[
             const SizedBox(height: 12),
-            TextField(controller: confirmation, obscureText: obscure, decoration: InputDecoration(labelText: context.t('confirm_password'))),
+            TextField(
+              controller: confirmation,
+              obscureText: obscure,
+              decoration: InputDecoration(
+                labelText: context.t('confirm_password'),
+              ),
+            ),
             if (!EatMeApi.development) ...[
-              CheckboxListTile(value: accepted, title: Text(context.t('accept_terms_privacy')), onChanged: (v) => setState(() => accepted = v ?? false)),
-              Wrap(spacing: 8, children: [for (final link in [('terms',const String.fromEnvironment('TERMS_URL')),('privacy',const String.fromEnvironment('PRIVACY_URL'))]) TextButton(onPressed: () async { final uri = Uri.tryParse(link.$2); if (uri != null && uri.scheme == 'https') await launchUrl(uri, mode: LaunchMode.externalApplication); }, child: Text(context.t(link.$1)))]),
+              CheckboxListTile(
+                value: accepted,
+                title: Text(context.t('accept_terms_privacy')),
+                onChanged: (v) => setState(() => accepted = v ?? false),
+              ),
+              Wrap(
+                spacing: 8,
+                children: [
+                  for (final link in [
+                    ('terms', const String.fromEnvironment('TERMS_URL')),
+                    ('privacy', const String.fromEnvironment('PRIVACY_URL')),
+                  ])
+                    TextButton(
+                      onPressed: () async {
+                        final uri = Uri.tryParse(link.$2);
+                        if (uri != null && uri.scheme == 'https')
+                          await launchUrl(
+                            uri,
+                            mode: LaunchMode.externalApplication,
+                          );
+                      },
+                      child: Text(context.t(link.$1)),
+                    ),
+                ],
+              ),
             ],
           ],
           const SizedBox(height: 24),
           AsyncAction(
             label: context.t(register ? 'create_account' : 'login'),
             action: () async {
-              if (register && password.text != confirmation.text) throw const ApiFailure('password_mismatch');
+              if (register && password.text != confirmation.text)
+                throw const ApiFailure('password_mismatch');
               if (register && !EatMeApi.development) {
                 if (!accepted) throw const ApiFailure('terms_required');
-                if (![const String.fromEnvironment('TERMS_URL'),const String.fromEnvironment('PRIVACY_URL')].every((v) => Uri.tryParse(v)?.scheme == 'https')) throw const ApiFailure('legal_configuration_required');
+                if (![
+                  const String.fromEnvironment('TERMS_URL'),
+                  const String.fromEnvironment('PRIVACY_URL'),
+                ].every((v) => Uri.tryParse(v)?.scheme == 'https'))
+                  throw const ApiFailure('legal_configuration_required');
               }
               final signedIn = await api.login(
                 email.text.trim(),

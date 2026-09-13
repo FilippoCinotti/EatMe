@@ -4,7 +4,7 @@ from datetime import date
 from eatme.catalog import identifier, seed_catalog
 from eatme.errors import DomainError
 from eatme.service import Service, new_id
-from eatme.storage import Database, decode
+from eatme.storage import Database
 
 
 class ReferenceFeatureTests(unittest.TestCase):
@@ -101,3 +101,42 @@ class ReferenceFeatureTests(unittest.TestCase):
 
     def test_invalid_primary_goal_is_domain_error(self):
         self.assertCode('invalid_goal',lambda:self.app.save_profile(new_id(),{'name':'Diner','adult_confirmed':True,'primary_goal':[]},new_id()))
+
+    def test_photo_access_is_revoked_after_leaving_and_deletion_keeps_shared_food_private(self):
+        import base64
+        import io
+        import os
+        from unittest.mock import patch
+        from PIL import Image
+        with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {'MEDIA_DIRECTORY':directory}):
+            buffer=io.BytesIO()
+            Image.new('RGB',(120,120),'green').save(buffer,format='PNG')
+            media=self.app.media_upload(self.owner,{'kind':'food','base64':base64.b64encode(buffer.getvalue()).decode()})
+            food_id=self.create(media_id=media['id'])['food']['id']
+            invite=self.app.household_action(self.guest,{'action':'invite'},new_id())
+            self.app.household_action(self.owner,{'action':'accept','token':invite['token']},new_id())
+            # The creator deliberately shares this custom ingredient to another household.
+            self.app.add_inventory(self.owner,{'food_id':food_id,'quantity':'100'},new_id())
+            self.app.delete_account(self.owner)
+            self.assertIsNone(self.app.food_photo(self.guest,food_id)['base64'])
+            outsider=new_id()
+            self.app.save_profile(outsider,{'name':'Other','adult_confirmed':True},new_id())
+            self.assertCode('food_not_found',lambda:self.app.food_compatibility(outsider,food_id))
+            self.assertEqual(self.app.inventory(self.guest)['items'][0]['food_id'],food_id)
+
+    def test_household_photo_is_not_readable_after_member_leaves(self):
+        import base64
+        import io
+        import os
+        from unittest.mock import patch
+        from PIL import Image
+        with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {'MEDIA_DIRECTORY':directory}):
+            buffer=io.BytesIO()
+            Image.new('RGB',(120,120),'green').save(buffer,format='PNG')
+            media=self.app.media_upload(self.owner,{'kind':'food','base64':base64.b64encode(buffer.getvalue()).decode()})
+            food_id=self.create(media_id=media['id'])['food']['id']
+            invite=self.app.household_action(self.owner,{'action':'invite'},new_id())
+            self.app.household_action(self.guest,{'action':'accept','token':invite['token']},new_id())
+            self.assertTrue(self.app.food_photo(self.guest,food_id)['base64'])
+            self.app.household_action(self.guest,{'action':'leave'},new_id())
+            self.assertCode('invalid_food',lambda:self.app.food_photo(self.guest,food_id))

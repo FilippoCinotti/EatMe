@@ -98,7 +98,11 @@ class ChefTablePage extends ConsumerWidget {
               featured: true,
             ),
           SectionHeading(title: context.t('cooking_your_way')),
-          TextButton.icon(onPressed: () => context.push('/recipe-library?favorites=true'), icon: const Icon(Icons.favorite_outline), label: Text(context.t('favorites'))),
+          TextButton.icon(
+            onPressed: () => context.push('/recipe-library?favorites=true'),
+            icon: const Icon(Icons.favorite_outline),
+            label: Text(context.t('favorites')),
+          ),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -209,7 +213,14 @@ class RecipeCard extends StatelessWidget {
             radius: 14,
           ),
           title: Text(localized(r.recipe.title, context.language)),
-          subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(meta), if (r.warnings.isNotEmpty) StatusNote(text: context.t('preference_warning'))]),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(meta),
+              if (r.warnings.isNotEmpty)
+                StatusNote(text: context.t('preference_warning')),
+            ],
+          ),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => context.push('/recipes/${r.recipe.id}'),
         ),

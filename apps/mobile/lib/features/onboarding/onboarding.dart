@@ -87,8 +87,21 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               style: Theme.of(context).textTheme.displaySmall,
             ),
             const SizedBox(height: 28),
-            Text(context.t('primary_goal'), style: Theme.of(context).textTheme.titleLarge),
-            Wrap(spacing: 8, children: [for (final goal in ['eat_better','waste_less','follow_diet']) ChoiceChip(label: Text(context.t('goal_$goal')), selected: primaryGoal == goal, onSelected: (_) => setState(() => primaryGoal = goal))]),
+            Text(
+              context.t('primary_goal'),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            Wrap(
+              spacing: 8,
+              children: [
+                for (final goal in ['eat_better', 'waste_less', 'follow_diet'])
+                  ChoiceChip(
+                    label: Text(context.t('goal_$goal')),
+                    selected: primaryGoal == goal,
+                    onSelected: (_) => setState(() => primaryGoal = goal),
+                  ),
+              ],
+            ),
             const SizedBox(height: 16),
             TextField(
               controller: name,
@@ -142,11 +155,31 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     selected.add(diet.id);
                   } else {
                     selected.remove(diet.id);
-                    if (primaryDiet == diet.id) primaryDiet = selected.firstOrNull;
+                    if (primaryDiet == diet.id)
+                      primaryDiet = selected.firstOrNull;
                   }
                 }),
               ),
-            if (selected.isNotEmpty) DropdownButtonFormField<String>(key: ValueKey(selected.join(',')), initialValue: selected.contains(primaryDiet) ? primaryDiet : selected.first, decoration: InputDecoration(labelText: context.t('primary_diet')), items: state.diets.where((d) => selected.contains(d.id)).map((d) => DropdownMenuItem(value: d.id, child: Text(localized(d.name, context.language)))).toList(), onChanged: (v) => setState(() => primaryDiet = v)),
+            if (selected.isNotEmpty)
+              DropdownButtonFormField<String>(
+                key: ValueKey(selected.join(',')),
+                initialValue: selected.contains(primaryDiet)
+                    ? primaryDiet
+                    : selected.first,
+                decoration: InputDecoration(
+                  labelText: context.t('primary_diet'),
+                ),
+                items: state.diets
+                    .where((d) => selected.contains(d.id))
+                    .map(
+                      (d) => DropdownMenuItem(
+                        value: d.id,
+                        child: Text(localized(d.name, context.language)),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (v) => setState(() => primaryDiet = v),
+              ),
             const SizedBox(height: 20),
             DropdownButtonFormField<String>(
               initialValue: strictness,
@@ -275,7 +308,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   'name': name.text.trim(),
                   'adult_confirmed': adult,
                   'primary_goal': primaryGoal,
-                  'primary_diet': selected.contains(primaryDiet) ? primaryDiet : selected.firstOrNull,
+                  'primary_diet': selected.contains(primaryDiet)
+                      ? primaryDiet
+                      : selected.firstOrNull,
                   'household_size': size,
                   'timezone': timezone.text.trim(),
                   'diets': selected

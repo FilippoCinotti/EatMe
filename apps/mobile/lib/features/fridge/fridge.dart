@@ -31,7 +31,16 @@ class _FridgePageState extends ConsumerState<FridgePage> {
               ).toLowerCase().contains(search.toLowerCase()),
         )
         .toList();
-    items.sort((a,b) => sort == 'name' ? localized(a.food.name, context.language).compareTo(localized(b.food.name, context.language)) : (a.expiryDate ?? DateTime(9999)).compareTo(b.expiryDate ?? DateTime(9999)));
+    items.sort(
+      (a, b) => sort == 'name'
+          ? localized(
+              a.food.name,
+              context.language,
+            ).compareTo(localized(b.food.name, context.language))
+          : (a.expiryDate ?? DateTime(9999)).compareTo(
+              b.expiryDate ?? DateTime(9999),
+            ),
+    );
     final today = DateUtils.dateOnly(DateTime.now());
     final dueSoon = items
         .where(
@@ -67,7 +76,12 @@ class _FridgePageState extends ConsumerState<FridgePage> {
           SegmentedButton<String>(
             showSelectedIcon: false,
             segments: ['all', 'fridge', 'freezer', 'pantry']
-                .map((s) => ButtonSegment(value: s, label: Text(context.t(s == 'all' ? 'food_group_all' : s))))
+                .map(
+                  (s) => ButtonSegment(
+                    value: s,
+                    label: Text(context.t(s == 'all' ? 'food_group_all' : s)),
+                  ),
+                )
                 .toList(),
             selected: {location},
             onSelectionChanged: (v) => setState(() => location = v.first),
@@ -97,10 +111,22 @@ class _FridgePageState extends ConsumerState<FridgePage> {
             ),
           if (state.offline)
             StatusNote(text: context.t('offline_inventory'), warning: true),
-          Wrap(spacing: 8, children: [
-            TextButton.icon(onPressed: () => context.push('/expiry'), icon: const Icon(Icons.schedule), label: Text(context.t('expiry_view'))),
-            TextButton.icon(onPressed: () => setState(() => sort = sort == 'expiry' ? 'name' : 'expiry'), icon: const Icon(Icons.sort), label: Text(context.t('sort_$sort'))),
-          ]),
+          Wrap(
+            spacing: 8,
+            children: [
+              TextButton.icon(
+                onPressed: () => context.push('/expiry'),
+                icon: const Icon(Icons.schedule),
+                label: Text(context.t('expiry_view')),
+              ),
+              TextButton.icon(
+                onPressed: () =>
+                    setState(() => sort = sort == 'expiry' ? 'name' : 'expiry'),
+                icon: const Icon(Icons.sort),
+                label: Text(context.t('sort_$sort')),
+              ),
+            ],
+          ),
           if (items.isNotEmpty) SectionHeading(title: context.t('all_foods')),
           if (items.isEmpty)
             EmptyMessage(
@@ -396,7 +422,12 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
       shrinkWrap: true,
       padding: const EdgeInsets.fromLTRB(24, 4, 24, 28),
       children: [
-        FoodImage(id: batch.food.id, photoId: batch.food.photoId, height: 200, radius: 22),
+        FoodImage(
+          id: batch.food.id,
+          photoId: batch.food.photoId,
+          height: 200,
+          radius: 22,
+        ),
         const SizedBox(height: 20),
         Text(
           localized(batch.food.name, context.language),

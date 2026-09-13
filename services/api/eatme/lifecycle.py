@@ -196,16 +196,19 @@ class LifecycleService:
             for row in private:
                 tx.execute('DELETE FROM recipes WHERE id=?', (row['content_id'],))
             private_foods = tx.all("SELECT o.content_id,o.household_id,h.owner_id,f.data FROM content_ownership o JOIN foods f ON f.id=o.content_id LEFT JOIN households h ON h.id=o.household_id WHERE o.kind='food' AND o.user_id=?", (user_id,))
-            # Keep shared food scoped after its creator leaves; never expose an orphan as public catalog content.
+            # Preserve food already shared to another household when its creator deletes their account.
+            retained = set()
             for food in private_foods:
-                if food['owner_id'] and food['owner_id'] != user_id:
+                target = {'id': food['household_id'], 'owner_id': food['owner_id']} if food['owner_id'] and food['owner_id'] != user_id else tx.one("SELECT h.id,h.owner_id FROM households h WHERE h.owner_id<>? AND (h.id IN (SELECT household_id FROM inventory_batches WHERE food_id=?) OR h.id IN (SELECT household_id FROM shopping_items WHERE food_id=?)) ORDER BY h.id LIMIT 1", (user_id, food['content_id'], food['content_id']))
+                if target:
                     value = decode(food['data'])
                     value['photo_id'] = None
                     tx.execute('UPDATE foods SET data=? WHERE id=?', (encode(value), food['content_id']))
-                    tx.execute("UPDATE content_ownership SET user_id=? WHERE kind='food' AND content_id=?", (food['owner_id'], food['content_id']))
+                    tx.execute("UPDATE content_ownership SET user_id=?,household_id=? WHERE kind='food' AND content_id=?", (target['owner_id'], target['id'], food['content_id']))
+                    retained.add(food['content_id'])
             tx.execute('DELETE FROM households WHERE owner_id=?', (user_id,))
             for food in private_foods:
-                if not food['owner_id'] or food['owner_id'] == user_id:
+                if food['content_id'] not in retained:
                     tx.execute('DELETE FROM foods WHERE id=?', (food['content_id'],))
             tx.execute('UPDATE inventory_events SET actor_id=NULL WHERE actor_id=?', (user_id,))
             tx.execute('UPDATE shopping_items SET created_by=NULL WHERE created_by=?', (user_id,))
