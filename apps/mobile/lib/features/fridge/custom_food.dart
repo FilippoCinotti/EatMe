@@ -46,13 +46,12 @@ class _CustomFoodState extends ConsumerState<CustomFoodPage> {
     );
     if (image == null) return;
     final bytes = await image.readAsBytes();
-    if (mounted)
-      {
+    if (mounted) {
       setState(() {
         photo = bytes;
         mediaId = null;
       });
-      }
+    }
   }
 
   @override

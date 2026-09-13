@@ -32,8 +32,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final api = ref.read(apiProvider);
-    if (welcome)
-      {
+    if (welcome) {
       return Scaffold(
         body: PageBody(
           children: [
@@ -69,7 +68,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           ],
         ),
       );
-      }
+    }
     return Scaffold(
       body: PageBody(
         children: [
@@ -154,13 +153,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     TextButton(
                       onPressed: () async {
                         final uri = Uri.tryParse(link.$2);
-                        if (uri != null && uri.scheme == 'https')
-                          {
+                        if (uri != null && uri.scheme == 'https') {
                           await launchUrl(
                             uri,
                             mode: LaunchMode.externalApplication,
                           );
-                          }
+                        }
                       },
                       child: Text(context.t(link.$1)),
                     ),
@@ -172,19 +170,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           AsyncAction(
             label: context.t(register ? 'create_account' : 'login'),
             action: () async {
-              if (register && password.text != confirmation.text)
-                {
+              if (register && password.text != confirmation.text) {
                 throw const ApiFailure('password_mismatch');
-                }
+              }
               if (register && !EatMeApi.development) {
                 if (!accepted) throw const ApiFailure('terms_required');
                 if (![
                   const String.fromEnvironment('TERMS_URL'),
                   const String.fromEnvironment('PRIVACY_URL'),
-                ].every((v) => Uri.tryParse(v)?.scheme == 'https'))
-                  {
+                ].every((v) => Uri.tryParse(v)?.scheme == 'https')) {
                   throw const ApiFailure('legal_configuration_required');
-                  }
+                }
               }
               final signedIn = await api.login(
                 email.text.trim(),

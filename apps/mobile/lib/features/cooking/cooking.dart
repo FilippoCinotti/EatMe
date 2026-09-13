@@ -174,10 +174,9 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                     );
                     if (value == null) return;
                     final minutes = int.tryParse(value);
-                    if (minutes == null || minutes < 1 || minutes > 180)
-                      {
+                    if (minutes == null || minutes < 1 || minutes > 180) {
                       throw const ApiFailure('invalid_timer');
-                      }
+                    }
                     if (mounted) setState(() => durationMinutes = minutes);
                   },
                 ),
@@ -381,13 +380,13 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
                   'leftover_servings': leftovers,
                 };
                 if (savedLeftovers == null) {
-                await mutation.send(
-                  ref.read(apiProvider),
-                  'POST',
-                  '/cooking/confirm',
-                  data,
-                );
-                savedLeftovers = leftovers;
+                  await mutation.send(
+                    ref.read(apiProvider),
+                    'POST',
+                    '/cooking/confirm',
+                    data,
+                  );
+                  savedLeftovers = leftovers;
                 }
                 await ref.read(appProvider.notifier).refresh();
                 if (context.mounted) {

@@ -58,8 +58,7 @@ class FoodImage extends ConsumerWidget {
       final key =
           '${ref.read(apiProvider).userId}|${state.profile['household_id']}|$photoId|$id';
       final photo = ref.watch(_privatePhoto(key)).asData?.value;
-      if (photo != null)
-        {
+      if (photo != null) {
         return ExcludeSemantics(
           child: ClipRRect(
             borderRadius: BorderRadius.circular(radius),
@@ -73,7 +72,7 @@ class FoodImage extends ConsumerWidget {
             ),
           ),
         );
-        }
+      }
     }
     final cell = cells[id];
     final scheme = Theme.of(context).colorScheme;

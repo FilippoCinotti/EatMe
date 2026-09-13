@@ -1,3 +1,7 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+import 'package:flutter/rendering.dart';
+import 'visual_reference_test.dart' as visual;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:eatme/core/models.dart';
@@ -52,6 +56,34 @@ class FeatureApi extends support.TestApi {
 }
 
 void main() {
+  setUpAll(visual.loadFonts);
+  for (final dark in [false, true]) {
+    for (final page in [('wellbeing', const WellbeingPage()), ('custom-food', const CustomFoodPage())]) {
+      for (final scale in [1.0, 1.6]) {
+        testWidgets('${page.$1} mobile layout dark=$dark scale=$scale', (tester) async {
+          tester.view.physicalSize = const Size(390,844);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.resetPhysicalSize);
+          addTearDown(tester.view.resetDevicePixelRatio);
+          final boundary = GlobalKey();
+          await tester.pumpWidget(support.harness(RepaintBoundary(key:boundary,child:page.$2),FeatureApi(),dark:dark,scale:scale));
+          await tester.pumpAndSettle();
+          expect(tester.takeException(),isNull);
+          if (scale == 1) {
+            await tester.runAsync(() async {
+              final image = await (boundary.currentContext!.findRenderObject()! as RenderRepaintBoundary).toImage();
+              final bytes = await image.toByteData(format:ui.ImageByteFormat.png);
+              final file = File('build/screenshots/${page.$1}-${dark ? 'dark' : 'light'}.png');
+              await file.parent.create(recursive:true);
+              await file.writeAsBytes(bytes!.buffer.asUint8List());
+              image.dispose();
+            });
+          }
+        });
+      }
+    }
+  }
+
   testWidgets(
     'habit check-in and undo use the latest version and reload progress',
     (tester) async {

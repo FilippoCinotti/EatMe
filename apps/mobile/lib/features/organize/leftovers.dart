@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/localization.dart';
 import '../../design_system/widgets.dart';
 import 'shared.dart';
-import '../../core/api.dart';
 import '../../core/state.dart';
 import 'leftover_remix.dart';
 
@@ -243,13 +242,12 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
             firstDate: DateTime(2000),
             lastDate: DateTime.now(),
           );
-          if (date != null && mounted)
-            {
+          if (date != null && mounted) {
             setState(() {
               prepared = date;
               if (useDate != null && useDate!.isBefore(date)) useDate = null;
             });
-            }
+          }
         },
       ),
       ListTile(
