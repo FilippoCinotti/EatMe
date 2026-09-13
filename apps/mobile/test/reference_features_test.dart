@@ -132,7 +132,11 @@ void main() {
     await tester.pumpWidget(support.harness(const CustomFoodPage(), api));
     await tester.pumpAndSettle();
     final button = find.text('Add to Fridge');
-    await tester.scrollUntilVisible(button, 300);
+    await tester.scrollUntilVisible(
+      button,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(button);
     await tester.pumpAndSettle();
     expect(api.calls.where((c) => c['method'] == 'POST'), isEmpty);

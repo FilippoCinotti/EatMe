@@ -179,8 +179,13 @@ class _CustomFoodState extends ConsumerState<CustomFoodPage> {
               if (name.text.trim().isEmpty) {
                 throw const ApiFailure('required_field');
               }
-              final quantity = double.tryParse(amount.text.trim().replaceAll(',', '.'));
-              if (quantity == null || !quantity.isFinite || quantity <= 0 || (unit == 'pcs' && quantity != quantity.roundToDouble())) {
+              final quantity = double.tryParse(
+                amount.text.trim().replaceAll(',', '.'),
+              );
+              if (quantity == null ||
+                  !quantity.isFinite ||
+                  quantity <= 0 ||
+                  (unit == 'pcs' && quantity != quantity.roundToDouble())) {
                 throw const ApiFailure('invalid_quantity');
               }
               if (!form.currentState!.validate()) return;
