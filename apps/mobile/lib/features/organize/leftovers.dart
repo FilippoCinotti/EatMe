@@ -186,7 +186,7 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
   int servings = 1;
   DateTime prepared = DateUtils.dateOnly(DateTime.now());
   DateTime? useDate;
-  bool confirmed = false;
+  bool confirmed = false, saved = false;
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: Text(context.t('add_leftovers'))),
@@ -244,10 +244,12 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
             lastDate: DateTime.now(),
           );
           if (date != null && mounted)
+            {
             setState(() {
               prepared = date;
               if (useDate != null && useDate!.isBefore(date)) useDate = null;
             });
+            }
         },
       ),
       ListTile(
@@ -300,7 +302,12 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
         label: context.t('save'),
         enabled: recipeId != null && confirmed,
         action: () async {
-          await Mutation().send(ref.read(apiProvider), 'POST', '/leftovers', {
+          if (saved) {
+            await ref.read(appProvider.notifier).refresh();
+            if (context.mounted) Navigator.pop(context);
+            return;
+          }
+          await mutation.send(ref.read(apiProvider), 'POST', '/leftovers', {
             'action': 'create',
             'recipe_id': recipeId,
             'servings': servings,
@@ -309,6 +316,7 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
             'user_use_date': useDate == null ? null : isoDay(useDate!),
             'ingredients_confirmed': confirmed,
           });
+          saved = true;
           await ref.read(appProvider.notifier).refresh();
           if (context.mounted) Navigator.pop(context);
         },

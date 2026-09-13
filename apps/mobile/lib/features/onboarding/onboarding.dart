@@ -156,7 +156,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   } else {
                     selected.remove(diet.id);
                     if (primaryDiet == diet.id)
+                      {
                       primaryDiet = selected.firstOrNull;
+                      }
                   }
                 }),
               ),

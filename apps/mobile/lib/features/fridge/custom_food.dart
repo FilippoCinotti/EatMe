@@ -28,6 +28,7 @@ class _CustomFoodState extends ConsumerState<CustomFoodPage> {
   DateTime? date;
   Uint8List? photo;
   String? mediaId;
+  bool saved = false;
   @override
   void dispose() {
     name.dispose();
@@ -46,10 +47,12 @@ class _CustomFoodState extends ConsumerState<CustomFoodPage> {
     if (image == null) return;
     final bytes = await image.readAsBytes();
     if (mounted)
+      {
       setState(() {
         photo = bytes;
         mediaId = null;
       });
+      }
   }
 
   @override
@@ -169,6 +172,11 @@ class _CustomFoodState extends ConsumerState<CustomFoodPage> {
           AsyncAction(
             label: context.t('add_to_fridge'),
             action: () async {
+              if (saved) {
+                await ref.read(appProvider.notifier).hydrate();
+                if (context.mounted) Navigator.pop(context);
+                return;
+              }
               if (!form.currentState!.validate()) return;
               final api = ref.read(apiProvider);
               if (photo != null && mediaId == null) {
@@ -191,6 +199,7 @@ class _CustomFoodState extends ConsumerState<CustomFoodPage> {
                 'notes': notes.text.trim(),
                 if (mediaId != null) 'media_id': mediaId,
               });
+              saved = true;
               await ref.read(appProvider.notifier).hydrate();
               if (context.mounted) Navigator.pop(context);
             },

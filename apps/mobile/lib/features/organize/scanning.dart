@@ -310,7 +310,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                             '${context.t('quantity')} (${item['unit'] ?? ''})',
                       ),
                       onChanged: (v) {
-                        item['quantity'] = v;
+                        item['quantity'] = v.replaceAll(',', '.');
                       },
                     ),
                     StorageDateFields(
@@ -323,6 +323,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                           : item['expiry_kind'] as String? ?? 'estimated',
                       onChanged: (l, d, k) {
                         if (mounted)
+                          {
                           setState(() {
                             item['location'] = l;
                             item['expiry_date'] = d == null ? null : isoDay(d);
@@ -332,6 +333,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                                 ? 'estimated'
                                 : k;
                           });
+                          }
                       },
                     ),
                     CheckboxListTile(

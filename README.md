@@ -17,12 +17,18 @@ The images are stored in this repository, so they remain available after CI arti
 
 The [verified visual refresh CI](https://github.com/FilippoCinotti/EatMe/actions/runs/34739280871) passed API, database, studio and Flutter checks, both native debug builds, and the real API Android emulator workflow. See the [verification report](docs/product/verification.md) for the tested commit and remaining store release gates.
 
+## Reference feature additions
+
+The current feature branch adds custom household foods with private photos, food favorites, weekly habit check-ins, an expiry browser, pantry sorting, category-grouped shopping and sharing, complete scan date/storage review, external leftover entry, configurable cooking timers, a completion screen and recent household activity. See the [feature coverage and API contracts](docs/product/reference-feature-parity.md) for implementation details and explicit provider/data limitations.
+
+The screenshots and successful visual-refresh run above describe the previously verified baseline. New feature validation is tracked in [PR #15](https://github.com/FilippoCinotti/EatMe/pull/15).
+
 ## Run on a simulator
 
 Install **Flutter 3.47.2**, **Python 3.12**, and Git. Android development also needs Android Studio, an Android SDK/emulator and JDK 17. iOS development needs a Mac with Xcode, its simulator runtimes and CocoaPods where required by Flutter plugins.
 
 ```bash
-git clone --branch feat/eatme-visual-refresh https://github.com/FilippoCinotti/EatMe.git
+git clone --branch feat/reference-features https://github.com/FilippoCinotti/EatMe.git
 cd EatMe
 python -m pip install -e 'services/api[dev]'
 python scripts/dev.py

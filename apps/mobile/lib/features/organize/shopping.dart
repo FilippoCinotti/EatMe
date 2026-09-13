@@ -43,7 +43,8 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
   Widget build(BuildContext context) {
     final items = records(data?['items']);
     final categories =
-        items.map((i) => i['category'] as String? ?? 'other').toSet().toList()..sort();
+        items.map((i) => i['category'] as String? ?? 'other').toSet().toList()
+          ..sort();
     final checked = items.where((i) => i['checked'] == true).length;
     return Scaffold(
       appBar: AppBar(
@@ -101,13 +102,19 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
             context.t('shopping_progress', {
               'done': items
                   .where(
-                    (i) => (i['category'] ?? 'other') == category && i['checked'] == true,
+                    (i) =>
+                        (i['category'] ?? 'other') == category &&
+                        i['checked'] == true,
                   )
                   .length,
-              'total': items.where((i) => (i['category'] ?? 'other') == category).length,
+              'total': items
+                  .where((i) => (i['category'] ?? 'other') == category)
+                  .length,
             }),
           ),
-          for (final item in items.where((i) => (i['category'] ?? 'other') == category))
+          for (final item in items.where(
+            (i) => (i['category'] ?? 'other') == category,
+          ))
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(12),

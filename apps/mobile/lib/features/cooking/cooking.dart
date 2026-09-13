@@ -175,7 +175,9 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                     if (value == null) return;
                     final minutes = int.tryParse(value);
                     if (minutes == null || minutes < 1 || minutes > 180)
+                      {
                       throw const ApiFailure('invalid_timer');
+                      }
                     if (mounted) setState(() => durationMinutes = minutes);
                   },
                 ),
@@ -238,6 +240,7 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
   final mutation = Mutation();
   final Map<String, String> overrides = {};
   int leftovers = 0;
+  int? savedLeftovers;
   late Future<Json> future = load();
   Json get request => {
     'recipe_id': widget.recipeId,
@@ -377,16 +380,19 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
                   },
                   'leftover_servings': leftovers,
                 };
+                if (savedLeftovers == null) {
                 await mutation.send(
                   ref.read(apiProvider),
                   'POST',
                   '/cooking/confirm',
                   data,
                 );
+                savedLeftovers = leftovers;
+                }
                 await ref.read(appProvider.notifier).refresh();
                 if (context.mounted) {
                   context.go(
-                    '/cooking-complete?recipe=${widget.recipeId}&leftovers=$leftovers',
+                    '/cooking-complete?recipe=${widget.recipeId}&leftovers=$savedLeftovers',
                   );
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(context.t('fridge_updated'))),

@@ -37,12 +37,14 @@ class _WellbeingState extends ResourceState<WellbeingPage> {
       ),
     );
     if (result != null)
+      {
       await command({
         'action': 'target',
         'goal': goal,
         'target': result,
         'expected_version': data!['version'],
       });
+      }
   }
 
   @override

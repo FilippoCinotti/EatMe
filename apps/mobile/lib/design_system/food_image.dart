@@ -3,10 +3,14 @@ import 'dart:math' as math;
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/state.dart';
-import '../core/api.dart';
 
-final _privatePhoto = FutureProvider.autoDispose.family<String?, String>((ref, key) async {
-  final value = await ref.read(apiProvider).request('GET', '/foods/${key.split('|').last}/photo', allowCache: false);
+final _privatePhoto = FutureProvider.autoDispose.family<String?, String>((
+  ref,
+  key,
+) async {
+  final value = await ref
+      .read(apiProvider)
+      .request('GET', '/foods/${key.split('|').last}/photo', allowCache: false);
   return value['base64'] as String?;
 });
 
@@ -51,9 +55,25 @@ class FoodImage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (photoId != null) {
       final state = ref.watch(appProvider);
-      final key = '${ref.read(apiProvider).userId}|${state.profile['household_id']}|$photoId|$id';
+      final key =
+          '${ref.read(apiProvider).userId}|${state.profile['household_id']}|$photoId|$id';
       final photo = ref.watch(_privatePhoto(key)).asData?.value;
-      if (photo != null) return ExcludeSemantics(child: ClipRRect(borderRadius: BorderRadius.circular(radius), child: Image.memory(base64Decode(photo), width: width, height: height, fit: BoxFit.cover, errorBuilder: (_, _, _) => SizedBox(width: width, height: height, child: Icon(fallback)))));
+      if (photo != null)
+        {
+        return ExcludeSemantics(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: Image.memory(
+              base64Decode(photo),
+              width: width,
+              height: height,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) =>
+                  SizedBox(width: width, height: height, child: Icon(fallback)),
+            ),
+          ),
+        );
+        }
     }
     final cell = cells[id];
     final scheme = Theme.of(context).colorScheme;
