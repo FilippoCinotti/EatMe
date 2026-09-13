@@ -1,3 +1,4 @@
+import 'package:eatme/features/healthy_food/healthy_food.dart';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -35,6 +36,9 @@ class JourneyController extends visual.VisualController {
 class JourneyApi extends support.TestApi {
   @override
   Future<Json> request(String method, String path, {Json? body, String? operationKey, bool allowCache = true}) async {
+    if (path.endsWith('/compatibility')) {
+      return {'food': {'ingredient_status': 'known', 'allergens': ['milk']}, 'assessment': {'status': 'blocked', 'reasons': [{'code': 'contains_allergen'}], 'warnings': <Json>[], 'notice': 'demo_data_not_a_safety_guarantee'}, 'nutrition': null, 'evidence': <Json>[]};
+    }
     if (path == '/preferences') {
       return {'version': 1, 'data': <String, dynamic>{}};
     }
@@ -113,4 +117,32 @@ void main() {
       }
     }
   }
+  testWidgets('allergen conflict stays visible on every assessment tab', (tester) async {
+    await tester.pumpWidget(support.harness(const Scaffold(body: FoodAssessment(food: visual.feta)), JourneyApi(), controller: JourneyController.new));
+    await tester.pumpAndSettle();
+    for (final tab in ['Information', 'Nutrition', 'For you']) {
+      final choice = find.widgetWithText(ChoiceChip, tab);
+      await tester.ensureVisible(choice);
+      await tester.tap(choice);
+      await tester.pumpAndSettle();
+      expect(find.text('Contains an allergen declared in your profile.'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    }
+  });
+
+  for (final page in <Widget>[const ChefTablePage(), const FridgePage(), const HealthyFoodPage(), const ProfilePage()]) {
+    testWidgets('${page.runtimeType} Italian compact phone with large text', (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(support.harness(page, JourneyApi(), language: 'it', scale: 1.6, controller: JourneyController.new));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -500));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    });
+  }
+
 }

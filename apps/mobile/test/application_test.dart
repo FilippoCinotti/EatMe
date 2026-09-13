@@ -27,15 +27,10 @@ const home = '00000000-0000-4000-8000-000000000002';
 
 class TestStrings extends LocalizationsDelegate<EatMeStrings> {
   const TestStrings();
-  static final values = EatMeStrings(
-    Map<String, String>.from(
-      jsonDecode(File('assets/l10n/en.json').readAsStringSync()) as Map,
-    ),
-  );
   @override
-  bool isSupported(Locale locale) => locale.languageCode == 'en';
+  bool isSupported(Locale locale) => ['en', 'it'].contains(locale.languageCode);
   @override
-  Future<EatMeStrings> load(Locale locale) => SynchronousFuture(values);
+  Future<EatMeStrings> load(Locale locale) => SynchronousFuture(EatMeStrings(Map<String, String>.from(jsonDecode(File('assets/l10n/${locale.languageCode}.json').readAsStringSync()) as Map)));
   @override
   bool shouldReload(TestStrings old) => false;
 }
@@ -139,6 +134,7 @@ Widget harness(
   Widget child,
   TestApi api, {
   bool dark = false,
+  String language = 'en',
   double scale = 1,
   List<ui.DisplayFeature> features = const [],
   AppController Function()? controller,
@@ -148,7 +144,7 @@ Widget harness(
     appProvider.overrideWith(controller ?? TestController.new),
   ],
   child: MaterialApp(
-    locale: const Locale('en'),
+    locale: Locale(language),
     supportedLocales: const [Locale('en'), Locale('it')],
     localizationsDelegates: const [
       TestStrings(),

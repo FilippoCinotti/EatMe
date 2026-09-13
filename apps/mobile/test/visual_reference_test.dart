@@ -103,9 +103,23 @@ class VisualController extends support.TestController {
 
 class VisualApi extends support.TestApi {
   @override
-  Future<Json> request(String method, String path, {Json? body, String? operationKey, bool allowCache = true}) async {
-    if (method == 'GET' && path.startsWith('/recipes/')) { return {'favorite': false}; }
-    return super.request(method, path, body: body, operationKey: operationKey, allowCache: allowCache);
+  Future<Json> request(
+    String method,
+    String path, {
+    Json? body,
+    String? operationKey,
+    bool allowCache = true,
+  }) async {
+    if (method == 'GET' && path.startsWith('/recipes/')) {
+      return {'favorite': false};
+    }
+    return super.request(
+      method,
+      path,
+      body: body,
+      operationKey: operationKey,
+      allowCache: allowCache,
+    );
   }
 }
 

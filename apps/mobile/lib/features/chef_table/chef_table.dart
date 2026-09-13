@@ -342,13 +342,28 @@ class RecipeCard extends StatelessWidget {
       imageId: r.recipe.id,
       title: localized(r.recipe.title, context.language),
       onTap: () => context.push('/recipes/${r.recipe.id}'),
-      badge: StatusBadge(label: context.t('today_pick'), icon: Icons.auto_awesome, emphasis: true),
+      badge: StatusBadge(
+        label: context.t('today_pick'),
+        icon: Icons.auto_awesome,
+        emphasis: true,
+      ),
       action: RecipeFavorite(recipeId: r.recipe.id),
       metadata: [
-        StatusBadge(label: context.t('minutes', {'minutes': r.recipe.minutes}), icon: Icons.schedule),
-        StatusBadge(label: context.t('ingredients_at_home', {'available': r.available, 'total': r.total}), icon: Icons.kitchen_outlined),
+        StatusBadge(
+          label: context.t('minutes', {'minutes': r.recipe.minutes}),
+          icon: Icons.schedule,
+        ),
+        StatusBadge(
+          label: context.t('ingredients_at_home', {
+            'available': r.available,
+            'total': r.total,
+          }),
+          icon: Icons.kitchen_outlined,
+        ),
       ],
-      footer: r.warnings.isEmpty ? null : StatusNote(text: context.t('preference_warning'), warning: true),
+      footer: r.warnings.isEmpty
+          ? null
+          : StatusNote(text: context.t('preference_warning'), warning: true),
     );
   }
 }

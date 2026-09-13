@@ -42,7 +42,7 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
           title: context.t('appearance'),
           children: [
             DropdownButtonFormField<ThemeMode>(
-            isExpanded: true,
+              isExpanded: true,
               initialValue: ref.watch(appProvider).theme,
               decoration: InputDecoration(labelText: context.t('appearance')),
               items: ThemeMode.values
@@ -57,7 +57,7 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-            isExpanded: true,
+              isExpanded: true,
               initialValue: context.language,
               decoration: InputDecoration(labelText: context.t('language')),
               items: ['it', 'en']
@@ -79,7 +79,7 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
         SettingsGroup(
           children: [
             DropdownButtonFormField<String>(
-            isExpanded: true,
+              isExpanded: true,
               initialValue: prefs['budget'] as String? ?? 'any',
               decoration: InputDecoration(
                 labelText: context.t('budget_preference'),
@@ -114,7 +114,7 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
         SettingsGroup(
           children: [
             DropdownButtonFormField<String>(
-            isExpanded: true,
+              isExpanded: true,
               initialValue: prefs['skill'] as String? ?? 'beginner',
               decoration: InputDecoration(
                 labelText: context.t('cooking_skill'),
@@ -127,7 +127,7 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<int>(
-            isExpanded: true,
+              isExpanded: true,
               initialValue: prefs['max_minutes'] as int? ?? 30,
               decoration: InputDecoration(labelText: context.t('cooking_time')),
               items: [

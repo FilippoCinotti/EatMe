@@ -240,7 +240,7 @@ class StorageDateFields extends StatelessWidget {
     children: [
       const SizedBox(height: 16),
       DropdownButtonFormField<String>(
-            isExpanded: true,
+        isExpanded: true,
         initialValue: location,
         decoration: InputDecoration(labelText: context.t('storage')),
         items: ['fridge', 'freezer', 'pantry']
@@ -269,7 +269,7 @@ class StorageDateFields extends StatelessWidget {
       ),
       if (date != null) ...[
         DropdownButtonFormField<String>(
-            isExpanded: true,
+          isExpanded: true,
           initialValue: kind,
           decoration: InputDecoration(labelText: context.t('date_type')),
           items: ['use_by', 'best_before', 'estimated']

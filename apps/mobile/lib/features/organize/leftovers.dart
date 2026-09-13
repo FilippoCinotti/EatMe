@@ -194,9 +194,8 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
       if (records(data?['items']).isEmpty)
         StatusNote(text: context.t('create_recipe_first')),
       DropdownButtonFormField<String>(
-            isExpanded: true,
-        initialValue: recipeId,
         isExpanded: true,
+        initialValue: recipeId,
         decoration: InputDecoration(labelText: context.t('recipe')),
         items: records(data?['items'])
             .map(
@@ -216,7 +215,7 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
       ),
       const SizedBox(height: 16),
       DropdownButtonFormField<int>(
-            isExpanded: true,
+        isExpanded: true,
         initialValue: servings,
         decoration: InputDecoration(labelText: context.t('servings')),
         items: List.generate(
@@ -226,7 +225,7 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
         onChanged: (v) => setState(() => servings = v!),
       ),
       DropdownButtonFormField<String>(
-            isExpanded: true,
+        isExpanded: true,
         initialValue: location,
         decoration: InputDecoration(labelText: context.t('storage')),
         items: ['fridge', 'freezer']

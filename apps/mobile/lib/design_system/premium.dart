@@ -190,7 +190,9 @@ class InformationPanel extends StatelessWidget {
   Widget build(BuildContext context) => SizedBox(
     width: double.infinity,
     child: Material(
-      color: tinted ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: .6) : Theme.of(context).colorScheme.surfaceContainer,
+      color: tinted
+          ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: .6)
+          : Theme.of(context).colorScheme.surfaceContainer,
       borderRadius: BorderRadius.circular(26),
       clipBehavior: Clip.antiAlias,
       child: Padding(padding: padding, child: child),

@@ -59,7 +59,7 @@ class _BatchDetailsState extends ConsumerState<BatchDetailsPage> {
         ),
         const SizedBox(height: 20),
         DropdownButtonFormField<String>(
-            isExpanded: true,
+          isExpanded: true,
           initialValue: kind,
           decoration: InputDecoration(labelText: context.t('expiry_kind')),
           items: ['unknown', 'use_by', 'best_before', 'estimated']
@@ -118,7 +118,7 @@ class _BatchDetailsState extends ConsumerState<BatchDetailsPage> {
           decoration: InputDecoration(labelText: context.t('purchase_cost')),
         ),
         DropdownButtonFormField<String>(
-            isExpanded: true,
+          isExpanded: true,
           initialValue: currency,
           items: ['EUR', 'USD', 'GBP', 'CHF']
               .map(

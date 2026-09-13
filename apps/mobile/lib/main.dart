@@ -281,7 +281,9 @@ class AppShell extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 620),
           child: GlassSurface(
             child: NavigationBar(
-              animationDuration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 220),
+              animationDuration: MediaQuery.disableAnimationsOf(context)
+                  ? Duration.zero
+                  : const Duration(milliseconds: 220),
               backgroundColor: Colors.transparent,
               elevation: 0,
               selectedIndex: paths.indexOf(path).clamp(0, 3).toInt(),

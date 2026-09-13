@@ -163,7 +163,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               ),
             if (selected.isNotEmpty)
               DropdownButtonFormField<String>(
-            isExpanded: true,
+                isExpanded: true,
                 key: ValueKey(selected.join(',')),
                 initialValue: selected.contains(primaryDiet)
                     ? primaryDiet
@@ -184,7 +184,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               ),
             const SizedBox(height: 20),
             DropdownButtonFormField<String>(
-            isExpanded: true,
+              isExpanded: true,
               initialValue: strictness,
               decoration: InputDecoration(labelText: context.t('strictness')),
               items: ['flexible', 'standard', 'strict']

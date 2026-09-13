@@ -19,7 +19,7 @@ class HealthyFoodPage extends ConsumerStatefulWidget {
 class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
   @override
   String get path => "/preferences";
-  bool favoritesOnly = false;
+  bool favoritesOnly = false, savingFavorite = false;
   String query = '', group = 'all';
   @override
   Widget build(BuildContext context) {
@@ -131,11 +131,7 @@ class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
                   photoId: food.photoId,
                   title: localized(food.name, context.language),
                   subtitle: context.t('food_group_${food.group}'),
-                  onTap: () {
-                    if (!state.offline) {
-                      sheet(context, FoodAssessment(food: food));
-                    }
-                  },
+                  onTap: state.offline ? null : () => sheet(context, FoodAssessment(food: food)),
                   actionIcon: favorites.contains(food.id)
                       ? Icons.favorite
                       : Icons.favorite_border,
@@ -144,9 +140,11 @@ class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
                         ? 'remove_favorite'
                         : 'add_favorite',
                   ),
-                  onAction: state.offline || data == null || updating
+                  onAction: state.offline || data == null || savingFavorite
                       ? null
                       : () => guard(() async {
+                          setState(() => savingFavorite = true);
+                          try {
                           await Mutation()
                               .send(ref.read(apiProvider), 'POST', '/foods', {
                                 'action': 'favorite',
@@ -154,6 +152,7 @@ class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
                                 'enabled': !favorites.contains(food.id),
                               });
                           await load();
+                          } finally { if (mounted) { setState(() => savingFavorite = false); } }
                         }),
                 ),
             ],
