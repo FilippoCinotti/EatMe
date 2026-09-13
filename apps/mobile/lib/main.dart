@@ -1,3 +1,4 @@
+import 'features/profile/diet_health.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -98,6 +99,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/reauthenticate',
         builder: (_, _) => const ReauthenticatePage(),
       ),
+      GoRoute(path: '/diet-health', builder: (_, _) => const DietHealthPage()),
       GoRoute(path: '/privacy', builder: (_, _) => const PrivacyPage()),
       GoRoute(
         path: '/cooking-complete',
@@ -279,6 +281,7 @@ class AppShell extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 620),
           child: GlassSurface(
             child: NavigationBar(
+              animationDuration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 220),
               backgroundColor: Colors.transparent,
               elevation: 0,
               selectedIndex: paths.indexOf(path).clamp(0, 3).toInt(),

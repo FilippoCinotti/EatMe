@@ -347,6 +347,7 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
+            isExpanded: true,
             initialValue: location,
             decoration: InputDecoration(labelText: context.t('storage')),
             items: ['fridge', 'freezer', 'pantry']
@@ -378,6 +379,7 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
           ),
           if (date != null) ...[
             DropdownButtonFormField<String>(
+            isExpanded: true,
               initialValue: expiryKind,
               decoration: InputDecoration(labelText: context.t('date_type')),
               items: ['use_by', 'best_before', 'estimated']
@@ -536,6 +538,7 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
+            isExpanded: true,
               initialValue: location,
               items: ['fridge', 'freezer', 'pantry']
                   .map(

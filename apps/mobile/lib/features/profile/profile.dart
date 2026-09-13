@@ -87,7 +87,7 @@ class ProfilePage extends ConsumerWidget {
                 title: context.t('diet_health'),
                 subtitle: context.t('allergies_intolerances'),
                 icon: Icons.shield_outlined,
-                onTap: () => context.push('/profile/edit'),
+                onTap: () => context.push('/diet-health'),
               ),
               SettingRow(
                 title: context.t('household'),

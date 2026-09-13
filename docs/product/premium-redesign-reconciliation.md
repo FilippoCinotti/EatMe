@@ -18,3 +18,7 @@ Continue `feat/reference-features` and PR #15. Commit the final functional test/
 Three images are available in this request: standalone ChefTable, Fridge comparison and HealthyFood comparison. Only the redesigned comparison screens are targets. Profile, submenus and authentication follow the owner's detailed written specification; their two additional boards were not attached in this message. No old comparison screen is used as a design target.
 
 The visual references guide layout, imagery and hierarchy. Displayed account, dietary, nutrition, compatibility, expiry, ranking and subscription information must come from existing application state or clearly isolated test fixtures.
+
+## Functional scope verification
+
+Commit `87c23995af16c6ae3789b7e350b5ee8878a49251` completed the remaining test correction. All EatMe CI jobs passed in run `34776802964`: API, PostgreSQL/RLS, studio, Flutter analysis/tests/formatting, Android debug build and real emulator integration, and iOS simulator debug build. This is the verified functional baseline before the premium presentation commits. The separate CodeQL upload requires code scanning to be enabled for this repository.

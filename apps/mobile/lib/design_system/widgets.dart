@@ -6,6 +6,7 @@ import '../core/models.dart';
 import 'food_image.dart';
 export 'food_image.dart';
 export 'premium.dart';
+export 'recipe_hero.dart';
 
 class AsyncAction extends StatefulWidget {
   const AsyncAction({

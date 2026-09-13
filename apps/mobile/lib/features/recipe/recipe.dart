@@ -22,6 +22,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
   late Future<(Recipe, Json)> future = load();
   String tab = 'ingredients';
   bool favorite = false;
+  List<Json> compatibilityWarnings = [];
   bool privateRecipe = false;
   final mutation = Mutation();
   List<String>? participants;
@@ -31,6 +32,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
     if (mounted) {
       setState(() {
         favorite = recipe['favorite'] == true;
+        compatibilityWarnings = records(recipe['compatibility']?['warnings']);
         privateRecipe = recipe['private'] == true;
       });
     }
@@ -168,7 +170,6 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 ),
               ],
             ),
-            Text(context.t('minutes', {'minutes': recipe.minutes})),
             const SizedBox(height: 16),
             Row(
               children: [
@@ -215,15 +216,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 }
               },
             ),
-            SegmentedButton<String>(
-              segments: ['ingredients', 'overview', 'why']
-                  .map(
-                    (s) => ButtonSegment(value: s, label: Text(context.t(s))),
-                  )
-                  .toList(),
-              selected: {tab},
-              onSelectionChanged: (s) => setState(() => tab = s.first),
-            ),
+            Wrap(spacing: 8, runSpacing: 8, children: [for (final value in ['ingredients', 'overview', 'why']) ChoiceChip(showCheckmark: false, label: Text(context.t(value)), selected: tab == value, onSelected: (_) => setState(() => tab = value))]),
             const SizedBox(height: 20),
             if (tab == 'ingredients')
               for (final item in (plan['ingredients'] as List))
@@ -305,6 +298,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
             if ((plan['shortages'] as List).isNotEmpty)
               StatusNote(text: context.t('missing_ingredients_notice')),
             const SizedBox(height: 24),
+            for (final warning in compatibilityWarnings) StatusNote(text: context.t(warning['code'] as String), warning: true),
             FilledButton(
               onPressed:
                   ref.watch(appProvider).offline ||

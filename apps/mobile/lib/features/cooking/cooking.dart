@@ -347,6 +347,7 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
               ),
             const SizedBox(height: 12),
             DropdownButtonFormField<int>(
+            isExpanded: true,
               initialValue: leftovers,
               decoration: InputDecoration(
                 labelText: context.t('leftover_servings'),

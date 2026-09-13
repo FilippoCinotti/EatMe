@@ -9,7 +9,7 @@ import 'package:eatme/design_system/widgets.dart';
 import 'package:eatme/features/auth/login.dart';
 import 'package:eatme/features/chef_table/chef_table.dart';
 import 'package:eatme/features/fridge/fridge.dart';
-import 'package:eatme/features/onboarding/onboarding.dart';
+import 'package:eatme/features/profile/diet_health.dart';
 import 'package:eatme/features/organize/settings.dart';
 import 'package:eatme/features/organize/household.dart';
 import 'package:eatme/features/profile/profile.dart';
@@ -73,7 +73,7 @@ void main() {
         ('notifications', const NotificationsPage()),
         ('household', const HouseholdPage()),
         ('privacy', const PrivacyPage()),
-        ('diet-health', const OnboardingPage(edit: true)),
+        ('diet-health', const DietHealthPage()),
         ('recipe', const RecipePage(recipeId: '50773917-c954-51f2-a53b-1cf4b3c00690')),
         ('filters', const Scaffold(body: ChefFilters())),
         ('add-ingredient', const Scaffold(body: AddFoodSheet(initialFood: visual.zucchini))),

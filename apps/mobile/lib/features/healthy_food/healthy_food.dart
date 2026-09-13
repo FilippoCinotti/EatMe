@@ -242,6 +242,18 @@ class _FoodAssessmentState extends ConsumerState<FoodAssessment> {
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 16),
+            Text(
+              context.t(compatible ? 'no_known_conflict' : 'not_compatible'),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            for (final reason in records(assessment['reasons']))
+              StatusNote(
+                text: context.t(reason['code'] as String),
+                warning: true,
+              ),
+            for (final warning in records(assessment['warnings']))
+              StatusNote(text: context.t(warning['code'] as String)),
+            StatusNote(text: context.t(assessment['notice'] as String)),
           Wrap(
             spacing: 8,
             children: [
@@ -255,18 +267,6 @@ class _FoodAssessmentState extends ConsumerState<FoodAssessment> {
           ),
           const SizedBox(height: 16),
           if (tab == 'for_you') ...[
-            Text(
-              context.t(compatible ? 'no_known_conflict' : 'not_compatible'),
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            for (final reason in records(assessment['reasons']))
-              StatusNote(
-                text: context.t(reason['code'] as String),
-                warning: true,
-              ),
-            for (final warning in records(assessment['warnings']))
-              StatusNote(text: context.t(warning['code'] as String)),
-            StatusNote(text: context.t(assessment['notice'] as String)),
             TextButton(
               onPressed: () => context.push('/profile/edit'),
               child: Text(context.t('edit_profile')),

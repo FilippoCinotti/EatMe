@@ -318,7 +318,7 @@ class FoodPhotoCard extends StatelessWidget {
   });
   final String id, title, subtitle;
   final String? photoId, actionLabel;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final VoidCallback? onAction;
   final IconData actionIcon;
   final Widget? badge;

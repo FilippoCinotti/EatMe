@@ -101,6 +101,14 @@ class VisualController extends support.TestController {
   }
 }
 
+class VisualApi extends support.TestApi {
+  @override
+  Future<Json> request(String method, String path, {Json? body, String? operationKey, bool allowCache = true}) async {
+    if (method == 'GET' && path.startsWith('/recipes/')) { return {'favorite': false}; }
+    return super.request(method, path, body: body, operationKey: operationKey, allowCache: allowCache);
+  }
+}
+
 Future<void> loadFonts() async {
   await loadEatMeFonts();
   final sdk = Platform.environment['FLUTTER_ROOT'];
@@ -149,7 +157,7 @@ void main() {
                   key: boundary,
                   child: AppShell(path: page.$2, child: page.$3),
                 ),
-                support.TestApi(),
+                VisualApi(),
                 dark: dark,
                 scale: scale,
                 controller: VisualController.new,
@@ -192,7 +200,7 @@ void main() {
     await tester.pumpWidget(
       support.harness(
         const FoodImage(id: 'private-recipe', width: 100, height: 100),
-        support.TestApi(),
+        VisualApi(),
       ),
     );
     await tester.pumpAndSettle();

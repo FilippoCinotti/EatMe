@@ -1,3 +1,4 @@
+import 'recipe_favorite.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -337,71 +338,17 @@ class RecipeCard extends StatelessWidget {
         ),
       );
     }
-    return Card(
-      child: InkWell(
-        onTap: () => context.push('/recipes/${r.recipe.id}'),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Stack(
-              children: [
-                FoodImage(id: r.recipe.id, height: 250, radius: 0),
-                Positioned(
-                  left: 16,
-                  top: 16,
-                  child: StatusBadge(
-                    label: context.t('today_pick'),
-                    icon: Icons.auto_awesome,
-                    emphasis: true,
-                  ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    localized(r.recipe.title, context.language),
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.schedule,
-                        size: 17,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          meta,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (r.useSoon.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Text(
-                        context.t('uses_expiring', {'count': r.useSoon.length}),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                    ),
-                  if (r.warnings.isNotEmpty)
-                    StatusNote(text: context.t('preference_warning')),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+    return HeroRecipeCard(
+      imageId: r.recipe.id,
+      title: localized(r.recipe.title, context.language),
+      onTap: () => context.push('/recipes/${r.recipe.id}'),
+      badge: StatusBadge(label: context.t('today_pick'), icon: Icons.auto_awesome, emphasis: true),
+      action: RecipeFavorite(recipeId: r.recipe.id),
+      metadata: [
+        StatusBadge(label: context.t('minutes', {'minutes': r.recipe.minutes}), icon: Icons.schedule),
+        StatusBadge(label: context.t('ingredients_at_home', {'available': r.available, 'total': r.total}), icon: Icons.kitchen_outlined),
+      ],
+      footer: r.warnings.isEmpty ? null : StatusNote(text: context.t('preference_warning'), warning: true),
     );
   }
 }

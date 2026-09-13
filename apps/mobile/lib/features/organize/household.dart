@@ -39,34 +39,37 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
           trailing: const Icon(Icons.chevron_right),
           onTap: () => context.push('/household-activity'),
         ),
-        SettingsGroup(children: [
-        for (final member in members)
-          ListTile(
-            leading: const CircleAvatar(child: Icon(Icons.person_outline)),
-            title: Text(member['name'] as String),
-            subtitle: Text(context.t('role_${member['role']}')),
-            trailing: current?['role'] != 'owner' || member['user_id'] == userId
-                ? null
-                : PopupMenuButton<String>(
-                    onSelected: (role) async {
-                      await guard(() async {
-                        await command({
-                          'action': role == 'owner' ? 'transfer' : 'role',
-                          'role': role,
-                          'user_id': member['user_id'],
-                        });
-                      });
-                    },
-                    itemBuilder: (context) => [
-                      for (final role in ['member', 'viewer', 'owner'])
-                        PopupMenuItem(
-                          value: role,
-                          child: Text(context.t('role_$role')),
-                        ),
-                    ],
-                  ),
-          ),
-        ]),
+        SettingsGroup(
+          children: [
+            for (final member in members)
+              ListTile(
+                leading: const CircleAvatar(child: Icon(Icons.person_outline)),
+                title: Text(member['name'] as String),
+                subtitle: Text(context.t('role_${member['role']}')),
+                trailing:
+                    current?['role'] != 'owner' || member['user_id'] == userId
+                    ? null
+                    : PopupMenuButton<String>(
+                        onSelected: (role) async {
+                          await guard(() async {
+                            await command({
+                              'action': role == 'owner' ? 'transfer' : 'role',
+                              'role': role,
+                              'user_id': member['user_id'],
+                            });
+                          });
+                        },
+                        itemBuilder: (context) => [
+                          for (final role in ['member', 'viewer', 'owner'])
+                            PopupMenuItem(
+                              value: role,
+                              child: Text(context.t('role_$role')),
+                            ),
+                        ],
+                      ),
+              ),
+          ],
+        ),
         const SizedBox(height: 24),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,

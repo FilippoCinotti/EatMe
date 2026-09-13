@@ -99,6 +99,7 @@ class _CustomFoodState extends ConsumerState<CustomFoodPage> {
                 : null,
           ),
           DropdownButtonFormField<String>(
+            isExpanded: true,
             initialValue: group,
             decoration: InputDecoration(labelText: context.t('category')),
             items:
@@ -143,6 +144,7 @@ class _CustomFoodState extends ConsumerState<CustomFoodPage> {
             },
           ),
           DropdownButtonFormField<String>(
+            isExpanded: true,
             initialValue: unit,
             decoration: InputDecoration(labelText: context.t('unit')),
             items: [
@@ -238,6 +240,7 @@ class StorageDateFields extends StatelessWidget {
     children: [
       const SizedBox(height: 16),
       DropdownButtonFormField<String>(
+            isExpanded: true,
         initialValue: location,
         decoration: InputDecoration(labelText: context.t('storage')),
         items: ['fridge', 'freezer', 'pantry']
@@ -266,6 +269,7 @@ class StorageDateFields extends StatelessWidget {
       ),
       if (date != null) ...[
         DropdownButtonFormField<String>(
+            isExpanded: true,
           initialValue: kind,
           decoration: InputDecoration(labelText: context.t('date_type')),
           items: ['use_by', 'best_before', 'estimated']

@@ -85,10 +85,10 @@
   "hello": "Ciao, {name}.",
   "dinner_question": "Cosa portiamo in tavola?",
   "for_you": "Per te",
-  "quick": "15 minuti",
+  "quick": "Veloci",
   "use_soon": "Da usare presto",
   "no_shopping": "Senza fare la spesa",
-  "health_first": "Segui la dieta",
+  "health_first": "Prima il benessere",
   "use_these_first": "Da usare per primi",
   "start_with_fridge": "Cominciamo dal Fridge.",
   "no_recipes": "Nessuna ricetta per questi filtri.",
@@ -151,7 +151,7 @@
   "no_diet": "Nessuno stile selezionato",
   "allergies_intolerances": "Allergie e intolleranze",
   "household": "Persone a tavola",
-  "preferences": "PREFERENZE",
+  "preferences": "Preferenze",
   "appearance": "Aspetto",
   "system": "Sistema",
   "light": "Chiaro",
@@ -591,5 +591,7 @@
   "already_account": "Ho già un account",
   "welcome_back": "Bentornato",
   "recipe_actions": "Salva e condividi",
-  "more_recipe_tools": "Personalizza questa ricetta"
+  "more_recipe_tools": "Personalizza questa ricetta",
+  "saved_restrictions_notice": "Queste sono le preferenze salvate. Rivedile prima di consultare le valutazioni alimentari.",
+  "none_recorded": "Nessuna registrata"
 }
