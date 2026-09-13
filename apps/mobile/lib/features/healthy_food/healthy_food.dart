@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../fridge/fridge.dart';
+import '../organize/shared.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/api.dart';
 import '../../core/localization.dart';
@@ -12,14 +16,19 @@ class HealthyFoodPage extends ConsumerStatefulWidget {
   ConsumerState<HealthyFoodPage> createState() => _HealthyFoodPageState();
 }
 
-class _HealthyFoodPageState extends ConsumerState<HealthyFoodPage> {
+class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
+  @override
+  String get path => "/preferences";
+  bool favoritesOnly = false, savingFavorite = false;
   String query = '', group = 'all';
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(appProvider);
+    final favorites = (data?['data']?['favorite_foods'] as List? ?? []).toSet();
     final foods = state.foods
         .where(
           (food) =>
+              (!favoritesOnly || favorites.contains(food.id)) &&
               (group == 'all' || food.group == group) &&
               localized(
                 food.name,
@@ -30,42 +39,83 @@ class _HealthyFoodPageState extends ConsumerState<HealthyFoodPage> {
     final groups = state.foods.map((food) => food.group).toSet().toList()
       ..sort();
     return Scaffold(
-      appBar: AppBar(title: Text(context.t('healthy_food'))),
       body: PageBody(
         children: [
-          Text(
-            context.t('discover_food'),
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+          EditorialHeader(
+            eyebrow: context.t('healthy_eyebrow'),
+            title: context.t('healthy_editorial'),
+            subtitle: context.t('healthy_support'),
+            actions: [
+              RoundAction(
+                icon: Icons.insights_outlined,
+                label: context.t('wellbeing'),
+                onPressed: () => context.push('/wellbeing'),
+              ),
+              RoundAction(
+                icon: Icons.person_outline,
+                label: context.t('profile'),
+                onPressed: () => context.go('/profile'),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          TextField(
-            decoration: InputDecoration(
-              hintText: context.t('search_food'),
-              prefixIcon: const Icon(Icons.search),
-            ),
+          if (error != null) StatusNote(text: context.t(error!), warning: true),
+          SearchPill(
+            hint: context.t('search_food'),
             onChanged: (value) => setState(() => query = value),
+            onFilter: () => sheet(
+              context,
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    title: Text(context.t('all_foods')),
+                    trailing: !favoritesOnly ? const Icon(Icons.check) : null,
+                    onTap: () {
+                      setState(() => favoritesOnly = false);
+                      Navigator.pop(context);
+                    },
+                  ),
+                  ListTile(
+                    title: Text(context.t('favorites')),
+                    trailing: favoritesOnly ? const Icon(Icons.check) : null,
+                    onTap: () {
+                      setState(() => favoritesOnly = true);
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 20),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 for (final value in ['all', ...groups])
                   Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      showCheckmark: false,
-                      label: Text(context.t('food_group_$value')),
+                    padding: const EdgeInsets.only(right: 10),
+                    child: CategoryTile(
+                      label: context.t('food_group_$value'),
+                      foodId:
+                          (value == 'all'
+                                  ? state.foods.firstOrNull
+                                  : state.foods
+                                        .where((f) => f.group == value)
+                                        .firstOrNull)
+                              ?.id ??
+                          '',
                       selected: group == value,
-                      onSelected: (_) => setState(() => group = value),
+                      onTap: () => setState(() => group = value),
                     ),
                   ),
               ],
             ),
           ),
-          SectionHeading(title: context.t('explore_foods')),
+          SectionHeading(
+            title: context.t(favoritesOnly ? 'favorites' : 'explore_foods'),
+          ),
           if (state.offline)
             StatusNote(text: context.t('online_required'), warning: true),
           if (foods.isEmpty)
@@ -73,72 +123,54 @@ class _HealthyFoodPageState extends ConsumerState<HealthyFoodPage> {
               title: context.t('no_food_results'),
               body: context.t('try_another_search'),
             ),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final columns =
-                  constraints.maxWidth >= 330 &&
-                      MediaQuery.textScalerOf(context).scale(16) <= 23
-                  ? 2
-                  : 1;
-              final width =
-                  (constraints.maxWidth - (columns - 1) * 12) / columns;
-              return Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: [
-                  for (final food in foods)
-                    SizedBox(
-                      width: width,
-                      child: Card(
-                        margin: EdgeInsets.zero,
-                        child: InkWell(
-                          onTap: state.offline
-                              ? null
-                              : () =>
-                                    sheet(context, FoodAssessment(food: food)),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              FoodImage(
-                                id: food.id,
-                                height: columns == 2 ? 136 : 180,
-                                radius: 0,
-                                fallback: Icons.eco_outlined,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      localized(food.name, context.language),
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      context.t('food_group_${food.group}'),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              );
-            },
+          AdaptivePhotoGrid(
+            children: [
+              for (final food in foods)
+                FoodPhotoCard(
+                  id: food.id,
+                  photoId: food.photoId,
+                  title: localized(food.name, context.language),
+                  subtitle: context.t('food_group_${food.group}'),
+                  onTap: state.offline
+                      ? null
+                      : () => sheet(context, FoodAssessment(food: food)),
+                  actionIcon: favorites.contains(food.id)
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                  actionLabel: context.t(
+                    favorites.contains(food.id)
+                        ? 'remove_favorite'
+                        : 'add_favorite',
+                  ),
+                  onAction: state.offline || data == null || savingFavorite
+                      ? null
+                      : () => guard(() async {
+                          setState(() => savingFavorite = true);
+                          try {
+                            await Mutation()
+                                .send(ref.read(apiProvider), 'POST', '/foods', {
+                                  'action': 'favorite',
+                                  'food_id': food.id,
+                                  'enabled': !favorites.contains(food.id),
+                                });
+                            await load();
+                          } finally {
+                            if (mounted) {
+                              setState(() => savingFavorite = false);
+                            }
+                          }
+                        }),
+                ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          InformationPanel(
+            child: SettingRow(
+              title: context.t('diet_health'),
+              subtitle: context.t('healthy_profile_hint'),
+              icon: Icons.shield_outlined,
+              onTap: () => context.push('/profile/edit'),
+            ),
           ),
         ],
       ),
@@ -154,6 +186,7 @@ class FoodAssessment extends ConsumerStatefulWidget {
 }
 
 class _FoodAssessmentState extends ConsumerState<FoodAssessment> {
+  String tab = 'information';
   late Future<Json> future = load();
   Future<Json> load() => ref
       .read(apiProvider)
@@ -192,6 +225,10 @@ class _FoodAssessmentState extends ConsumerState<FoodAssessment> {
       }
       final data = snapshot.data!,
           assessment = Map<String, dynamic>.from(data['assessment'] as Map);
+      final food = Map<String, dynamic>.from(data['food'] as Map);
+      final nutrition = data['nutrition'] as Map?;
+      final values = nutrition?['values'] as Map? ?? {};
+      final evidence = records(data['evidence']);
       final compatible = assessment['status'] == 'no_known_conflict';
       return ListView(
         shrinkWrap: true,
@@ -199,56 +236,116 @@ class _FoodAssessmentState extends ConsumerState<FoodAssessment> {
         children: [
           FoodImage(
             id: widget.food.id,
+            photoId: widget.food.photoId,
             height: 220,
             radius: 22,
             fallback: Icons.eco_outlined,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Text(
             localized(widget.food.name, context.language),
             style: Theme.of(context).textTheme.headlineMedium,
           ),
-          const SizedBox(height: 24),
-          Text(
-            context.t('for_you'),
-            style: Theme.of(context).textTheme.labelLarge,
-          ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           Text(
             context.t(compatible ? 'no_known_conflict' : 'not_compatible'),
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: compatible
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.error,
-            ),
+            style: Theme.of(context).textTheme.titleLarge,
           ),
-          for (final reason in (assessment['reasons'] as List))
+          for (final reason in records(assessment['reasons']))
             StatusNote(
               text: context.t(reason['code'] as String),
               warning: true,
             ),
-          for (final warning in (assessment['warnings'] as List))
+          for (final warning in records(assessment['warnings']))
             StatusNote(text: context.t(warning['code'] as String)),
           StatusNote(text: context.t(assessment['notice'] as String)),
-          const Divider(),
-          ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            title: Text(context.t('nutrition')),
-            children: [StatusNote(text: context.t('nutrition_unavailable'))],
-          ),
-          ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            title: Text(context.t('ingredients_allergens')),
+          Wrap(
+            spacing: 8,
             children: [
-              for (final allergen in (data['food']['allergens'] as List))
-                ListTile(title: Text(context.t('allergen_$allergen'))),
-              StatusNote(text: context.t('check_package')),
+              for (final value in ['information', 'nutrition', 'for_you'])
+                ChoiceChip(
+                  label: Text(context.t(value)),
+                  selected: tab == value,
+                  onSelected: (_) => setState(() => tab = value),
+                ),
             ],
           ),
-          ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            title: Text(context.t('scientific_evidence')),
-            children: [StatusNote(text: context.t('evidence_unavailable'))],
+          const SizedBox(height: 16),
+          if (tab == 'for_you') ...[
+            TextButton(
+              onPressed: () => context.push('/profile/edit'),
+              child: Text(context.t('edit_profile')),
+            ),
+          ],
+          if (tab == 'nutrition') ...[
+            if (values.isEmpty)
+              StatusNote(text: context.t('nutrition_unavailable')),
+            if (values.isNotEmpty)
+              Text('${context.t('nutrition_basis')}: ${nutrition!['basis']}'),
+            for (final entry in values.entries)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(context.t('nutrient_${entry.key}')),
+                trailing: Text(
+                  '${entry.value['value']} ${entry.value['unit']}',
+                ),
+              ),
+            if (nutrition?['source_url'] is String)
+              TextButton(
+                onPressed: () => launchUrl(
+                  Uri.parse(nutrition!['source_url'] as String),
+                  mode: LaunchMode.externalApplication,
+                ),
+                child: Text(context.t('read_source')),
+              ),
+            StatusNote(text: context.t('nutrition_score_unavailable')),
+          ],
+          if (tab == 'information') ...[
+            SectionHeading(title: context.t('ingredients_allergens')),
+            Text(localized(widget.food.name, context.language)),
+            if (food['ingredient_status'] != 'known')
+              StatusNote(text: context.t('unknown_ingredients'), warning: true),
+            for (final allergen in (food['allergens'] as List? ?? []))
+              ListTile(title: Text(context.t('allergen_$allergen'))),
+            for (final allergen in (food['may_contain'] as List? ?? []))
+              StatusNote(
+                text:
+                    '${context.t('may_contain')}: ${context.t('allergen_$allergen')}',
+              ),
+            StatusNote(text: context.t('check_package')),
+            SectionHeading(title: context.t('scientific_evidence')),
+            if (evidence.isEmpty)
+              StatusNote(text: context.t('evidence_unavailable')),
+            for (final item in evidence)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item['title'] as String,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      Text(item['claim'] as String),
+                      Text('${item['publisher']} · ${item['published_date']}'),
+                      TextButton(
+                        onPressed: () => launchUrl(
+                          Uri.parse(item['url'] as String),
+                          mode: LaunchMode.externalApplication,
+                        ),
+                        child: Text(context.t('read_source')),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+          const SizedBox(height: 16),
+          AsyncAction(
+            label: context.t('add_to_fridge'),
+            action: () =>
+                sheet(context, AddFoodSheet(initialFood: widget.food)),
           ),
         ],
       );

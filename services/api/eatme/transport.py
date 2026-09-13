@@ -74,12 +74,14 @@ class Router:
                 self.auth.logout(token)
             return {"logged_out":True}
         reads = {"/shopping":self.service.shopping, "/plans":self.service.plans,
+                 "/wellbeing":self.service.wellbeing, "/households/activity":self.service.household_activity,
                  "/households":self.service.households, "/preferences":self.service.preferences,
                  "/recipes":self.service.recipes, "/jobs":self.service.jobs,
                  "/notifications":self.service.notifications, "/insights":self.service.insights,
                  "/entitlements":self.service.entitlements, "/recalls":self.service.recalls,
                  "/admin/content":self.service.admin_content}
         actions = {"/shopping":self.service.shopping_action, "/plans":self.service.plan_action,
+                   "/foods":self.service.food_action, "/wellbeing":self.service.wellbeing_action,
                    "/households":self.service.household_action, "/preferences":self.service.preferences,
                    "/leftovers":self.service.leftover_action, "/recipes":self.service.recipe_action,
                    "/jobs":self.service.job_action, "/notifications":self.service.notification_action,
@@ -137,6 +139,9 @@ class Router:
         match = re.fullmatch(r"/api/v1/foods/([a-f0-9-]{36})/compatibility",route)
         if match and method=="GET":
             return self.service.food_compatibility(user_id,match[1])
+        match = re.fullmatch(r"/api/v1/foods/([a-f0-9-]{36})/photo",route)
+        if match and method=="GET":
+            return self.service.food_photo(user_id,match[1])
         if route=="/api/v1/cooking/preview" and method=="POST":
             return self.service.cooking_preview(user_id,body)
         if route=="/api/v1/cooking/confirm" and method=="POST":

@@ -181,8 +181,16 @@ class ContentService:
         with self.db.transaction() as tx:
             rows = tx.all("SELECT kind,delta_milli,created_at FROM inventory_events WHERE household_id=? ORDER BY created_at DESC LIMIT 2000", (home,))
             counts = Counter(r["kind"] for r in rows)
-            sessions = tx.all("SELECT recipe_id FROM cooking_sessions WHERE user_id=? ORDER BY created_at DESC LIMIT 100", (user_id,))
-            return {"inventory_event_counts": dict(counts), "cooked_meals": len(sessions), "different_recipes": len({r["recipe_id"] for r in sessions}), "window": "latest_2000_events_and_100_meals", "money_saved": None, "carbon_saved": None}
+            sessions = tx.all("SELECT recipe_id,data FROM cooking_sessions WHERE user_id=? ORDER BY created_at DESC LIMIT 100", (user_id,))
+            sessions = [row for row in sessions if decode(row['data']).get('source') != 'external-preparation']
+            amounts = tx.all("SELECT e.kind,f.data AS food_data,e.delta_milli FROM inventory_events e JOIN inventory_batches b ON b.id=e.batch_id JOIN foods f ON f.id=b.food_id WHERE e.household_id=? AND e.kind IN ('consumed','discarded','cooked','leftover_remix') ORDER BY e.created_at DESC LIMIT 2000", (home,))
+            recorded = {}
+            for row in amounts:
+                unit = decode(row['food_data'])['unit']
+                kind = 'discarded' if row['kind'] == 'discarded' else 'used'
+                recorded.setdefault(unit, {'used': 0, 'discarded': 0})[kind] += abs(row['delta_milli'])
+            recorded = {unit: {kind: quantity(value) for kind, value in values.items()} for unit, values in recorded.items()}
+            return {"recorded_quantities": recorded, "inventory_event_counts": dict(counts), "cooked_meals": len(sessions), "different_recipes": len({r["recipe_id"] for r in sessions}), "window": "latest_2000_events_and_100_meals", "money_saved": None, "carbon_saved": None}
 
     def recipe_nutrition(self, recipe, foods, servings):
         from decimal import Decimal

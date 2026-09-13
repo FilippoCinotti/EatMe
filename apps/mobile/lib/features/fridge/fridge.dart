@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'batch_details.dart';
+import 'expiry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/api.dart';
@@ -16,20 +17,30 @@ class FridgePage extends ConsumerStatefulWidget {
 }
 
 class _FridgePageState extends ConsumerState<FridgePage> {
-  String location = 'fridge', search = '';
+  String location = 'all', search = '', sort = 'expiry';
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(appProvider);
     final items = state.inventory
         .where(
           (b) =>
-              b.location == location &&
+              (location == 'all' || b.location == location) &&
               localized(
                 b.food.name,
                 context.language,
               ).toLowerCase().contains(search.toLowerCase()),
         )
         .toList();
+    items.sort(
+      (a, b) => sort == 'name'
+          ? localized(
+              a.food.name,
+              context.language,
+            ).compareTo(localized(b.food.name, context.language))
+          : (a.expiryDate ?? DateTime(9999)).compareTo(
+              b.expiryDate ?? DateTime(9999),
+            ),
+    );
     final today = DateUtils.dateOnly(DateTime.now());
     final dueSoon = items
         .where(
@@ -40,62 +51,103 @@ class _FridgePageState extends ConsumerState<FridgePage> {
               batch.expiryDate!.difference(today).inDays <= 3,
         )
         .length;
+    final expiring = items
+        .where(
+          (batch) =>
+              batch.usable &&
+              batch.expiryDate != null &&
+              batch.expiryDate!.difference(today).inDays >= 0 &&
+              batch.expiryDate!.difference(today).inDays <= 3,
+        )
+        .toList();
     return Scaffold(
-      appBar: AppBar(
-        title: Text(context.t('my_fridge')),
-        actions: [
-          IconButton(
-            tooltip: context.t('scan_and_import'),
-            icon: const Icon(Icons.document_scanner_outlined),
-            onPressed: () => context.push('/scanning'),
-          ),
-
-          IconButton.filled(
-            tooltip: context.t('add_food'),
-            onPressed: state.offline
-                ? null
-                : () => sheet(context, AddFoodSheet(location: location)),
-            icon: const Icon(Icons.add),
-          ),
-        ],
-      ),
       body: PageBody(
         onRefresh: () => ref.read(appProvider.notifier).refresh(),
         children: [
-          SegmentedButton<String>(
-            showSelectedIcon: false,
-            segments: ['fridge', 'freezer', 'pantry']
-                .map((s) => ButtonSegment(value: s, label: Text(context.t(s))))
-                .toList(),
-            selected: {location},
-            onSelectionChanged: (v) => setState(() => location = v.first),
+          EditorialHeader(
+            eyebrow: context.t('fridge_eyebrow'),
+            title: context.t('fridge_editorial'),
+            subtitle: context.t('fridge_support'),
+            actions: [
+              RoundAction(
+                icon: Icons.add,
+                label: context.t('add_food'),
+                primary: true,
+                onPressed: state.offline
+                    ? null
+                    : () => showAddFoodMethods(context, location: location),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          if (dueSoon > 0) ...[
-            HighlightPanel(
-              icon: Icons.schedule,
-              title: context.t('use_these_first'),
-              body: context.t('expiry_summary', {'count': dueSoon}),
-            ),
-            const SizedBox(height: 12),
-          ],
-          TextField(
-            decoration: InputDecoration(
-              hintText: context.t('search_food'),
-              prefixIcon: const Icon(Icons.search),
-            ),
+          SearchPill(
+            hint: context.t('inventory_search_hint'),
             onChanged: (s) => setState(() => search = s),
+            onFilter: () => sheet(
+              context,
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final value in ['expiry', 'name'])
+                    ListTile(
+                      title: Text(context.t('sort_$value')),
+                      trailing: sort == value ? const Icon(Icons.check) : null,
+                      onTap: () {
+                        setState(() => sort = value);
+                        Navigator.pop(context);
+                      },
+                    ),
+                ],
+              ),
+            ),
           ),
           const SizedBox(height: 16),
-          if (location == 'fridge' && !state.offline)
-            TextButton.icon(
-              onPressed: () => context.push('/leftovers'),
-              icon: const Icon(Icons.takeout_dining_outlined),
-              label: Text(context.t('leftovers')),
-            ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final value in ['all', 'fridge', 'freezer', 'pantry'])
+                ChoiceChip(
+                  showCheckmark: false,
+                  label: Text(
+                    context.t(value == 'all' ? 'food_group_all' : value),
+                  ),
+                  selected: location == value,
+                  onSelected: (_) => setState(() => location = value),
+                ),
+            ],
+          ),
           if (state.offline)
             StatusNote(text: context.t('offline_inventory'), warning: true),
-          if (items.isNotEmpty) SectionHeading(title: context.t('all_foods')),
+          if (dueSoon > 0) ...[
+            SectionHeading(
+              title: context.t('use_these_first'),
+              actionLabel: context.t('view_all'),
+              onAction: () => context.push('/expiry'),
+            ),
+            HorizontalFoodRail(
+              children: [
+                for (final batch in expiring)
+                  FoodPhotoCard(
+                    id: batch.food.id,
+                    photoId: batch.food.photoId,
+                    title: localized(batch.food.name, context.language),
+                    subtitle: '${batch.quantity} ${batch.food.unit}',
+                    imageHeight: 125,
+                    badge: StatusBadge(
+                      label: expiryLabel(context, batch),
+                      icon: Icons.schedule,
+                    ),
+                    onTap: () => sheet(context, BatchSheet(batch: batch)),
+                  ),
+              ],
+            ),
+          ],
+          SectionHeading(
+            title: context.t('all_foods'),
+            actionLabel: context.t('sort_$sort'),
+            onAction: () =>
+                setState(() => sort = sort == 'expiry' ? 'name' : 'expiry'),
+          ),
           if (items.isEmpty)
             EmptyMessage(
               title: context.t('empty_fridge'),
@@ -103,28 +155,51 @@ class _FridgePageState extends ConsumerState<FridgePage> {
               action: FilledButton(
                 onPressed: state.offline
                     ? null
-                    : () => sheet(context, AddFoodSheet(location: location)),
+                    : () => showAddFoodMethods(context, location: location),
                 child: Text(context.t('add_food')),
               ),
             ),
-          for (final batch in items)
-            Card(
-              child: ListTile(
-                leading: FoodMark(food: batch.food, size: 60),
-                title: Text(localized(batch.food.name, context.language)),
-                subtitle: Text(
-                  '${batch.quantity} ${batch.food.unit}\n${expiryLabel(context, batch)}',
-                  style: TextStyle(
-                    color: batch.usable
-                        ? null
-                        : Theme.of(context).colorScheme.error,
+          AdaptivePhotoGrid(
+            children: [
+              for (final batch in items)
+                FoodPhotoCard(
+                  id: batch.food.id,
+                  photoId: batch.food.photoId,
+                  title: localized(batch.food.name, context.language),
+                  subtitle:
+                      '${batch.quantity} ${batch.food.unit} · ${context.t(batch.location)}',
+                  badge: StatusBadge(
+                    label: expiryLabel(context, batch),
+                    urgent: !batch.usable,
+                    icon: batch.usable ? Icons.schedule : Icons.warning_amber,
                   ),
+                  onTap: () => sheet(context, BatchSheet(batch: batch)),
+                  onAction: () => sheet(context, BatchSheet(batch: batch)),
+                  actionLabel: context.t('manage_food'),
                 ),
-                isThreeLine: true,
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => sheet(context, BatchSheet(batch: batch)),
+            ],
+          ),
+          const SizedBox(height: 24),
+          SettingsGroup(
+            children: [
+              SettingRow(
+                title: context.t('expiry_view'),
+                icon: Icons.schedule,
+                onTap: () => context.push('/expiry'),
               ),
-            ),
+              if (['all', 'fridge'].contains(location) && !state.offline)
+                SettingRow(
+                  title: context.t('leftovers'),
+                  icon: Icons.takeout_dining_outlined,
+                  onTap: () => context.push('/leftovers'),
+                ),
+              SettingRow(
+                title: context.t('scan_and_import'),
+                icon: Icons.document_scanner_outlined,
+                onTap: () => context.push('/scanning'),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -132,7 +207,8 @@ class _FridgePageState extends ConsumerState<FridgePage> {
 }
 
 class AddFoodSheet extends ConsumerStatefulWidget {
-  const AddFoodSheet({super.key, this.location = 'fridge'});
+  const AddFoodSheet({super.key, this.location = 'fridge', this.initialFood});
+  final Food? initialFood;
   final String location;
   @override
   ConsumerState<AddFoodSheet> createState() => _AddFoodSheetState();
@@ -210,7 +286,7 @@ class _LeftoversSheetState extends ConsumerState<LeftoversSheet> {
 class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
   final amount = TextEditingController();
   final mutation = Mutation();
-  Food? food;
+  late Food? food = widget.initialFood;
   DateTime? date;
   String expiryKind = 'best_before', search = '';
   late String location = widget.location;
@@ -271,6 +347,7 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
+            isExpanded: true,
             initialValue: location,
             decoration: InputDecoration(labelText: context.t('storage')),
             items: ['fridge', 'freezer', 'pantry']
@@ -302,6 +379,7 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
           ),
           if (date != null) ...[
             DropdownButtonFormField<String>(
+              isExpanded: true,
               initialValue: expiryKind,
               decoration: InputDecoration(labelText: context.t('date_type')),
               items: ['use_by', 'best_before', 'estimated']
@@ -389,7 +467,12 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
       shrinkWrap: true,
       padding: const EdgeInsets.fromLTRB(24, 4, 24, 28),
       children: [
-        FoodImage(id: batch.food.id, height: 200, radius: 22),
+        FoodImage(
+          id: batch.food.id,
+          photoId: batch.food.photoId,
+          height: 200,
+          radius: 22,
+        ),
         const SizedBox(height: 20),
         Text(
           localized(batch.food.name, context.language),
@@ -455,6 +538,7 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
+              isExpanded: true,
               initialValue: location,
               items: ['fridge', 'freezer', 'pantry']
                   .map(

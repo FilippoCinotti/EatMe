@@ -90,7 +90,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
   Widget build(BuildContext context) {
     final meals = records(selected?['data']?['meals']);
     return Scaffold(
-      appBar: AppBar(title: Text(context.t('meal_planner'))),
+      appBar: EatMeAppBar(title: Text(context.t('meal_planner'))),
       body: content([
         Text(
           context.t('week_at_a_glance'),

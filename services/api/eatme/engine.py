@@ -101,7 +101,8 @@ DEFAULT_WEIGHTS = {
 def rank(recipes: list[dict], foods: dict, inventory: list[dict], profile: dict, rules: list[dict],
          today: date, mode: str, servings: int, weights: dict | None = None) -> tuple[list[dict],list[dict]]:
     profiles = weights if weights is not None else DEFAULT_WEIGHTS
-    if mode not in profiles:
+    weight_mode = "for_you" if mode == "plant_based" else mode
+    if weight_mode not in profiles:
         raise DomainError("unknown_mode",422)
     available: dict[str,int] = {}
     soon = set()
@@ -118,6 +119,8 @@ def rank(recipes: list[dict], foods: dict, inventory: list[dict], profile: dict,
         if validation["status"] == "not_compatible":
             rejected.append({"recipe_id":recipe["id"],"filters_failed":validation["reasons"]})
             continue
+        if mode == 'plant_based' and any(foods[f].get('group') not in {'vegetable', 'fruit', 'legume', 'grain', 'oil', 'nuts', 'seed', 'herb'} for f in needed):
+            continue
         coverage = sum(min(available.get(f,0)/q,1) for f,q in needed.items()) / max(len(needed),1)
         fully_available = sum(available.get(f,0) >= q for f,q in needed.items())
         if mode == "no_shopping" and fully_available < len(needed):
@@ -129,7 +132,7 @@ def rank(recipes: list[dict], foods: dict, inventory: list[dict], profile: dict,
         components = {"availability":coverage,"expiry":len(expiring)/max(len(needed),1),
                       "diet":max(0,min(validation["preference_matches"]/max(len(needed),1),1)-0.3*len(validation["warnings"])),
                       "speed":max(0,1-recipe["minutes"]/60)}
-        score = sum(components[k]*v for k,v in profiles[mode].items())
+        score = sum(components[k]*v for k,v in profiles[weight_mode].items())
         ranked.append({"recipe":recipe,"score":round(score,6),"component_scores":components,
                        "available_count":fully_available,"ingredient_count":len(needed),"use_soon_food_ids":expiring,
                        "filters_passed":["canonical_ingredients","allergens","intolerances","published_diet_rules"],

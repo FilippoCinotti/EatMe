@@ -9,7 +9,8 @@ import '../../design_system/widgets.dart';
 import 'shared.dart';
 
 class RecipeLibraryPage extends ConsumerStatefulWidget {
-  const RecipeLibraryPage({super.key});
+  const RecipeLibraryPage({super.key, this.initialFavorites = false});
+  final bool initialFavorites;
   @override
   ConsumerState<RecipeLibraryPage> createState() => _LibraryState();
 }
@@ -17,7 +18,7 @@ class RecipeLibraryPage extends ConsumerStatefulWidget {
 class _LibraryState extends ResourceState<RecipeLibraryPage> {
   @override
   String get path => '/recipes';
-  bool favorites = false;
+  late bool favorites = widget.initialFavorites;
   String query = '';
   @override
   Widget build(BuildContext context) {
@@ -32,7 +33,7 @@ class _LibraryState extends ResourceState<RecipeLibraryPage> {
         )
         .toList();
     return Scaffold(
-      appBar: AppBar(title: Text(context.t('recipe_library'))),
+      appBar: EatMeAppBar(title: Text(context.t('recipe_library'))),
       body: content([
         TextField(
           decoration: InputDecoration(
@@ -172,7 +173,7 @@ class _EditorState extends ConsumerState<RecipeEditorPage> {
   Widget build(BuildContext context) {
     final foods = ref.watch(appProvider).foods;
     return Scaffold(
-      appBar: AppBar(title: Text(context.t('create_recipe'))),
+      appBar: EatMeAppBar(title: Text(context.t('create_recipe'))),
       body: PageBody(
         children: [
           TextField(

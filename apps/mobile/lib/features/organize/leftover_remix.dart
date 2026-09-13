@@ -49,7 +49,7 @@ class _RemixState extends ConsumerState<LeftoverRemixPage> {
   };
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.t('remix_leftovers'))),
+    appBar: EatMeAppBar(title: Text(context.t('remix_leftovers'))),
     body: PageBody(
       children: [
         Text(

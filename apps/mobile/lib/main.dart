@@ -1,5 +1,5 @@
+import 'features/profile/diet_health.dart';
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,6 +24,9 @@ import 'features/auth/reauthenticate.dart';
 import 'features/onboarding/onboarding.dart';
 import 'features/chef_table/chef_table.dart';
 import 'features/fridge/fridge.dart';
+import 'features/fridge/custom_food.dart';
+import 'features/fridge/expiry.dart';
+import 'features/organize/wellbeing.dart';
 import 'features/healthy_food/healthy_food.dart';
 import 'features/profile/profile.dart';
 import 'features/recipe/recipe.dart';
@@ -96,14 +99,32 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/reauthenticate',
         builder: (_, _) => const ReauthenticatePage(),
       ),
+      GoRoute(path: '/diet-health', builder: (_, _) => const DietHealthPage()),
       GoRoute(path: '/privacy', builder: (_, _) => const PrivacyPage()),
+      GoRoute(
+        path: '/cooking-complete',
+        builder: (_, state) => CookingCompletePage(
+          recipeId: state.uri.queryParameters['recipe'] ?? '',
+          leftovers:
+              int.tryParse(state.uri.queryParameters['leftovers'] ?? '0') ?? 0,
+        ),
+      ),
+      GoRoute(path: '/custom-food', builder: (_, _) => const CustomFoodPage()),
+      GoRoute(path: '/expiry', builder: (_, _) => const ExpiryPage()),
+      GoRoute(path: '/wellbeing', builder: (_, _) => const WellbeingPage()),
+      GoRoute(
+        path: '/household-activity',
+        builder: (_, _) => const HouseholdActivityPage(),
+      ),
       GoRoute(path: '/shopping', builder: (_, _) => const ShoppingPage()),
       GoRoute(path: '/planner', builder: (_, _) => const PlannerPage()),
       GoRoute(path: '/household', builder: (_, _) => const HouseholdPage()),
       GoRoute(path: '/leftovers', builder: (_, _) => const LeftoversPage()),
       GoRoute(
         path: '/recipe-library',
-        builder: (_, _) => const RecipeLibraryPage(),
+        builder: (_, state) => RecipeLibraryPage(
+          initialFavorites: state.uri.queryParameters['favorites'] == 'true',
+        ),
       ),
       GoRoute(
         path: '/recipe-editor',
@@ -250,6 +271,7 @@ class AppShell extends StatelessWidget {
   static const paths = ['/chef', '/fridge', '/healthy-food', '/profile'];
   @override
   Widget build(BuildContext context) => Scaffold(
+    extendBody: true,
     body: child,
     bottomNavigationBar: SafeArea(
       minimum: const EdgeInsets.fromLTRB(18, 0, 18, 12),
@@ -257,43 +279,37 @@ class AppShell extends StatelessWidget {
         heightFactor: 1,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 620),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(30),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(
-                sigmaX: MediaQuery.highContrastOf(context) ? 0 : 12,
-                sigmaY: MediaQuery.highContrastOf(context) ? 0 : 12,
-              ),
-              child: NavigationBar(
-                backgroundColor: Theme.of(
-                  context,
-                ).colorScheme.surfaceContainer.withValues(alpha: .92),
-                elevation: 0,
-                selectedIndex: paths.indexOf(path).clamp(0, 3).toInt(),
-                onDestinationSelected: (index) => context.go(paths[index]),
-                destinations: [
-                  NavigationDestination(
-                    icon: const Icon(Icons.restaurant_menu_outlined),
-                    selectedIcon: const Icon(Icons.restaurant_menu),
-                    label: context.t('chef_table'),
-                  ),
-                  NavigationDestination(
-                    icon: const Icon(Icons.kitchen_outlined),
-                    selectedIcon: const Icon(Icons.kitchen),
-                    label: context.t('fridge'),
-                  ),
-                  NavigationDestination(
-                    icon: const Icon(Icons.eco_outlined),
-                    selectedIcon: const Icon(Icons.eco),
-                    label: context.t('healthy_food'),
-                  ),
-                  NavigationDestination(
-                    icon: const Icon(Icons.person_outline),
-                    selectedIcon: const Icon(Icons.person),
-                    label: context.t('profile'),
-                  ),
-                ],
-              ),
+          child: GlassSurface(
+            child: NavigationBar(
+              animationDuration: MediaQuery.disableAnimationsOf(context)
+                  ? Duration.zero
+                  : const Duration(milliseconds: 220),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              selectedIndex: paths.indexOf(path).clamp(0, 3).toInt(),
+              onDestinationSelected: (index) => context.go(paths[index]),
+              destinations: [
+                NavigationDestination(
+                  icon: const Icon(Icons.restaurant_menu_outlined),
+                  selectedIcon: const Icon(Icons.restaurant_menu),
+                  label: context.t('chef_table'),
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.kitchen_outlined),
+                  selectedIcon: const Icon(Icons.kitchen),
+                  label: context.t('fridge'),
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.eco_outlined),
+                  selectedIcon: const Icon(Icons.eco),
+                  label: context.t('healthy_food'),
+                ),
+                NavigationDestination(
+                  icon: const Icon(Icons.person_outline),
+                  selectedIcon: const Icon(Icons.person),
+                  label: context.t('profile'),
+                ),
+              ],
             ),
           ),
         ),

@@ -21,131 +21,140 @@ class ProfilePage extends ConsumerWidget {
     final ids = (settings['diets'] as List? ?? [])
         .map((d) => d['diet_id'])
         .toSet();
+    final primaryName = state.diets
+        .where((d) => d.id == settings['primary_diet'])
+        .map((d) => localized(d.name, context.language))
+        .firstOrNull;
     final dietNames = state.diets
         .where((d) => ids.contains(d.id))
         .map((d) => localized(d.name, context.language))
         .join(' · ');
+    final name = state.profile['name'] as String? ?? '';
     return Scaffold(
-      appBar: AppBar(title: Text(context.t('profile'))),
       body: PageBody(
         children: [
-          CircleAvatar(
-            radius: 32,
-            backgroundColor: Theme.of(
-              context,
-            ).colorScheme.primary.withValues(alpha: 0.12),
-            child: Icon(
-              Icons.person_outline,
-              size: 32,
-              color: Theme.of(context).colorScheme.primary,
+          EditorialHeader(
+            eyebrow: context.t('profile_eyebrow'),
+            title: context.t('profile_editorial'),
+            subtitle: context.t('profile_support'),
+          ),
+          InformationPanel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 28,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      child: Icon(
+                        Icons.person_outline,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        name.isEmpty ? context.t('profile') : name,
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  primaryName ??
+                      (dietNames.isEmpty ? context.t('no_diet') : dietNames),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                if (state.profile['household_size'] is int)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      context.t('portions', {
+                        'count': state.profile['household_size'] as int,
+                      }),
+                    ),
+                  ),
+              ],
             ),
           ),
-          const SizedBox(height: 20),
-          Text(
-            state.profile['name'] as String? ?? '',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 32),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const IconBadge(Icons.eco_outlined),
-            title: Text(context.t('diet')),
-            subtitle: Text(
-              dietNames.isEmpty ? context.t('no_diet') : dietNames,
-            ),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/profile/edit'),
-          ),
-          const Divider(),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const IconBadge(Icons.shield_outlined),
-            title: Text(context.t('allergies_intolerances')),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/profile/edit'),
-          ),
-          const Divider(),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(context.t('household')),
-            subtitle: Text(
-              context.t('portions', {
-                'count': state.profile['household_size'] as int? ?? 1,
-              }),
-            ),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/profile/edit'),
+          const SizedBox(height: 24),
+          SettingsGroup(
+            children: [
+              SettingRow(
+                title: context.t('diet_health'),
+                subtitle: context.t('allergies_intolerances'),
+                icon: Icons.shield_outlined,
+                onTap: () => context.push('/diet-health'),
+              ),
+              SettingRow(
+                title: context.t('household'),
+                icon: Icons.group_outlined,
+                onTap: () => context.push('/household'),
+              ),
+              SettingRow(
+                title: context.t('preferences'),
+                icon: Icons.tune,
+                onTap: () => context.push('/preferences'),
+              ),
+              SettingRow(
+                title: context.t('notifications'),
+                icon: Icons.notifications_none,
+                onTap: () => context.push('/notifications'),
+              ),
+            ],
           ),
           SectionHeading(title: context.t('your_kitchen')),
-          for (final item in [
-            ('household', '/household', Icons.group_outlined),
-            ('preferences', '/preferences', Icons.tune),
-            ('notifications', '/notifications', Icons.notifications_none),
-            ('insights', '/insights', Icons.insights_outlined),
-            (
-              'subscriptions',
-              '/subscriptions',
-              Icons.workspace_premium_outlined,
-            ),
-            ('offline_sync', '/sync', Icons.sync),
-            ('evidence_library', '/evidence', Icons.library_books_outlined),
-          ])
-            Card(
-              child: ListTile(
-                leading: IconBadge(item.$3),
-                title: Text(context.t(item.$1)),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push(item.$2),
-              ),
-            ),
+          AdaptivePhotoGrid(
+            children: [
+              for (final item in [
+                ('meal_planner', '/planner', Icons.calendar_month_outlined),
+                ('shopping_list', '/shopping', Icons.shopping_bag_outlined),
+                ('recipe_library', '/recipe-library', Icons.menu_book_outlined),
+                ('leftovers', '/leftovers', Icons.takeout_dining_outlined),
+                (
+                  'scan_and_import',
+                  '/scanning',
+                  Icons.document_scanner_outlined,
+                ),
+                ('wellbeing', '/wellbeing', Icons.favorite_outline),
+              ])
+                ShortcutTile(
+                  title: context.t(item.$1),
+                  icon: item.$3,
+                  onTap: () => context.push(item.$2),
+                ),
+            ],
+          ),
           const SizedBox(height: 28),
-          Text(
-            context.t('preferences'),
-            style: Theme.of(context).textTheme.labelLarge,
+          SettingsGroup(
+            children: [
+              for (final item in [
+                ('privacy', '/privacy', Icons.lock_outline),
+                (
+                  'subscriptions',
+                  '/subscriptions',
+                  Icons.workspace_premium_outlined,
+                ),
+                ('offline_sync', '/sync', Icons.sync),
+                ('recent_activity', '/household-activity', Icons.history),
+                ('insights', '/insights', Icons.insights_outlined),
+                ('evidence_library', '/evidence', Icons.library_books_outlined),
+              ])
+                SettingRow(
+                  title: context.t(item.$1),
+                  icon: item.$3,
+                  onTap: () => context.push(item.$2),
+                ),
+            ],
           ),
-          DropdownButtonFormField<ThemeMode>(
-            initialValue: state.theme,
-            decoration: InputDecoration(labelText: context.t('appearance')),
-            items: ThemeMode.values
-                .map(
-                  (t) => DropdownMenuItem(
-                    value: t,
-                    child: Text(context.t(t.name)),
-                  ),
-                )
-                .toList(),
-            onChanged: (t) => ref.read(appProvider.notifier).setTheme(t!),
-          ),
-          const SizedBox(height: 12),
-          DropdownButtonFormField<String>(
-            initialValue: context.language,
-            decoration: InputDecoration(labelText: context.t('language')),
-            items: ['it', 'en']
-                .map(
-                  (l) => DropdownMenuItem(
-                    value: l,
-                    child: Text(context.t('language_$l')),
-                  ),
-                )
-                .toList(),
-            onChanged: (l) => ref.read(appProvider.notifier).setLocale(l!),
-          ),
-          const SizedBox(height: 24),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(context.t('privacy')),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push('/privacy'),
-          ),
-          const Divider(),
-          const SizedBox(height: 24),
           AsyncAction(
             label: context.t('logout'),
             secondary: true,
             action: () => ref.read(appProvider.notifier).logout(),
           ),
-          const SizedBox(height: 16),
           if (state.isDemo) StatusNote(text: context.t('development_catalog')),
         ],
       ),
@@ -157,7 +166,7 @@ class PrivacyPage extends ConsumerWidget {
   const PrivacyPage({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
-    appBar: AppBar(title: Text(context.t('privacy'))),
+    appBar: EatMeAppBar(title: Text(context.t('privacy'))),
     body: PageBody(
       children: [
         Text(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/localization.dart';
@@ -25,39 +26,50 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
     final userId = ref.watch(appProvider).profile['user_id'];
     final me = members.where((m) => m['user_id'] == userId).firstOrNull;
     return Scaffold(
-      appBar: AppBar(title: Text(context.t('household'))),
+      appBar: EatMeAppBar(title: Text(context.t('household'))),
       body: content([
         Text(
           current?['name'] as String? ?? context.t('your_household'),
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         StatusNote(text: context.t('household_privacy')),
-        for (final member in members)
-          ListTile(
-            leading: const CircleAvatar(child: Icon(Icons.person_outline)),
-            title: Text(member['name'] as String),
-            subtitle: Text(context.t('role_${member['role']}')),
-            trailing: current?['role'] != 'owner' || member['user_id'] == userId
-                ? null
-                : PopupMenuButton<String>(
-                    onSelected: (role) async {
-                      await guard(() async {
-                        await command({
-                          'action': role == 'owner' ? 'transfer' : 'role',
-                          'role': role,
-                          'user_id': member['user_id'],
-                        });
-                      });
-                    },
-                    itemBuilder: (context) => [
-                      for (final role in ['member', 'viewer', 'owner'])
-                        PopupMenuItem(
-                          value: role,
-                          child: Text(context.t('role_$role')),
-                        ),
-                    ],
-                  ),
-          ),
+        ListTile(
+          leading: const IconBadge(Icons.history),
+          title: Text(context.t('recent_activity')),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => context.push('/household-activity'),
+        ),
+        SettingsGroup(
+          children: [
+            for (final member in members)
+              ListTile(
+                leading: const CircleAvatar(child: Icon(Icons.person_outline)),
+                title: Text(member['name'] as String),
+                subtitle: Text(context.t('role_${member['role']}')),
+                trailing:
+                    current?['role'] != 'owner' || member['user_id'] == userId
+                    ? null
+                    : PopupMenuButton<String>(
+                        onSelected: (role) async {
+                          await guard(() async {
+                            await command({
+                              'action': role == 'owner' ? 'transfer' : 'role',
+                              'role': role,
+                              'user_id': member['user_id'],
+                            });
+                          });
+                        },
+                        itemBuilder: (context) => [
+                          for (final role in ['member', 'viewer', 'owner'])
+                            PopupMenuItem(
+                              value: role,
+                              child: Text(context.t('role_$role')),
+                            ),
+                        ],
+                      ),
+              ),
+          ],
+        ),
         const SizedBox(height: 24),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,

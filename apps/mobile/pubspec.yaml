@@ -37,3 +37,14 @@ flutter:
   assets:
     - assets/l10n/
     - assets/images/
+  fonts:
+    - family: EatMeDisplay
+      fonts:
+        - asset: assets/fonts/EatMeDisplay-Regular.ttf
+        - asset: assets/fonts/EatMeDisplay-Bold.ttf
+          weight: 700
+    - family: EatMeSans
+      fonts:
+        - asset: assets/fonts/EatMeSans-Regular.ttf
+        - asset: assets/fonts/EatMeSans-Bold.ttf
+          weight: 700

@@ -1,3 +1,4 @@
+import 'premium_fonts.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'dart:ui' as ui;
@@ -26,15 +27,21 @@ const home = '00000000-0000-4000-8000-000000000002';
 
 class TestStrings extends LocalizationsDelegate<EatMeStrings> {
   const TestStrings();
-  static final values = EatMeStrings(
-    Map<String, String>.from(
-      jsonDecode(File('assets/l10n/en.json').readAsStringSync()) as Map,
+  @override
+  bool isSupported(Locale locale) => ['en', 'it'].contains(locale.languageCode);
+  @override
+  Future<EatMeStrings> load(Locale locale) => SynchronousFuture(
+    EatMeStrings(
+      Map<String, String>.from(
+        jsonDecode(
+              File(
+                'assets/l10n/${locale.languageCode}.json',
+              ).readAsStringSync(),
+            )
+            as Map,
+      ),
     ),
   );
-  @override
-  bool isSupported(Locale locale) => locale.languageCode == 'en';
-  @override
-  Future<EatMeStrings> load(Locale locale) => SynchronousFuture(values);
   @override
   bool shouldReload(TestStrings old) => false;
 }
@@ -138,6 +145,7 @@ Widget harness(
   Widget child,
   TestApi api, {
   bool dark = false,
+  String language = 'en',
   double scale = 1,
   List<ui.DisplayFeature> features = const [],
   AppController Function()? controller,
@@ -147,7 +155,7 @@ Widget harness(
     appProvider.overrideWith(controller ?? TestController.new),
   ],
   child: MaterialApp(
-    locale: const Locale('en'),
+    locale: Locale(language),
     supportedLocales: const [Locale('en'), Locale('it')],
     localizationsDelegates: const [
       TestStrings(),
@@ -170,6 +178,7 @@ Widget harness(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(() async {
+    await loadEatMeFonts();
     final sdk = Platform.environment['FLUTTER_ROOT'];
     if (sdk == null) return;
     final fonts = Directory('$sdk/bin/cache/artifacts/material_fonts');

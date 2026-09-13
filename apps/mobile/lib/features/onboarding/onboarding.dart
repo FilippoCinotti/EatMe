@@ -19,7 +19,8 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   final mutation = Mutation();
   int step = 0, size = 1;
   bool adult = false, consent = false, medicalConsent = false;
-  String strictness = 'standard';
+  String strictness = 'standard', primaryGoal = 'eat_better';
+  String? primaryDiet;
   final Set<String> selected = {}, allergies = {}, intolerances = {};
   @override
   void initState() {
@@ -31,6 +32,8 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       size = profile['household_size'] as int? ?? 1;
       final settings = Map<String, dynamic>.from(profile['settings'] as Map);
       timezone.text = settings['timezone'] as String;
+      primaryGoal = settings['primary_goal'] as String? ?? 'eat_better';
+      primaryDiet = settings['primary_diet'] as String?;
       selected.addAll(
         (settings['diets'] as List).map((d) => d['diet_id'] as String),
       );
@@ -61,7 +64,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(appProvider);
     return Scaffold(
-      appBar: AppBar(
+      appBar: EatMeAppBar(
         title: Text(context.t(widget.edit ? 'edit_profile' : 'make_it_yours')),
         leading: step > 0
             ? IconButton(
@@ -84,6 +87,22 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               style: Theme.of(context).textTheme.displaySmall,
             ),
             const SizedBox(height: 28),
+            Text(
+              context.t('primary_goal'),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            Wrap(
+              spacing: 8,
+              children: [
+                for (final goal in ['eat_better', 'waste_less', 'follow_diet'])
+                  ChoiceChip(
+                    label: Text(context.t('goal_$goal')),
+                    selected: primaryGoal == goal,
+                    onSelected: (_) => setState(() => primaryGoal = goal),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
             TextField(
               controller: name,
               decoration: InputDecoration(labelText: context.t('name')),
@@ -136,11 +155,36 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     selected.add(diet.id);
                   } else {
                     selected.remove(diet.id);
+                    if (primaryDiet == diet.id) {
+                      primaryDiet = selected.firstOrNull;
+                    }
                   }
                 }),
               ),
+            if (selected.isNotEmpty)
+              DropdownButtonFormField<String>(
+                isExpanded: true,
+                key: ValueKey(selected.join(',')),
+                initialValue: selected.contains(primaryDiet)
+                    ? primaryDiet
+                    : selected.first,
+                decoration: InputDecoration(
+                  labelText: context.t('primary_diet'),
+                ),
+                items: state.diets
+                    .where((d) => selected.contains(d.id))
+                    .map(
+                      (d) => DropdownMenuItem(
+                        value: d.id,
+                        child: Text(localized(d.name, context.language)),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (v) => setState(() => primaryDiet = v),
+              ),
             const SizedBox(height: 20),
             DropdownButtonFormField<String>(
+              isExpanded: true,
               initialValue: strictness,
               decoration: InputDecoration(labelText: context.t('strictness')),
               items: ['flexible', 'standard', 'strict']
@@ -266,6 +310,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 final data = <String, dynamic>{
                   'name': name.text.trim(),
                   'adult_confirmed': adult,
+                  'primary_goal': primaryGoal,
+                  'primary_diet': selected.contains(primaryDiet)
+                      ? primaryDiet
+                      : selected.firstOrNull,
                   'household_size': size,
                   'timezone': timezone.text.trim(),
                   'diets': selected
