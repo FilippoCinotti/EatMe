@@ -274,18 +274,22 @@ class AppShell extends StatelessWidget {
                 destinations: [
                   NavigationDestination(
                     icon: const Icon(Icons.restaurant_menu_outlined),
+                    selectedIcon: const Icon(Icons.restaurant_menu),
                     label: context.t('chef_table'),
                   ),
                   NavigationDestination(
                     icon: const Icon(Icons.kitchen_outlined),
+                    selectedIcon: const Icon(Icons.kitchen),
                     label: context.t('fridge'),
                   ),
                   NavigationDestination(
                     icon: const Icon(Icons.eco_outlined),
+                    selectedIcon: const Icon(Icons.eco),
                     label: context.t('healthy_food'),
                   ),
                   NavigationDestination(
                     icon: const Icon(Icons.person_outline),
+                    selectedIcon: const Icon(Icons.person),
                     label: context.t('profile'),
                   ),
                 ],

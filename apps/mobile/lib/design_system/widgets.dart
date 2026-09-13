@@ -3,6 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../core/api.dart';
 import '../core/localization.dart';
 import '../core/models.dart';
+import 'food_image.dart';
+export 'food_image.dart';
 
 class AsyncAction extends StatefulWidget {
   const AsyncAction({
@@ -72,7 +74,7 @@ class PageBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = ListView(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
       physics: const AlwaysScrollableScrollPhysics(),
       children: children,
     );
@@ -114,22 +116,83 @@ class FoodMark extends StatelessWidget {
       'egg' => Icons.egg_outlined,
       _ => Icons.eco_outlined,
     };
-    return ExcludeSemantics(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Icon(
-          icon,
-          color: Theme.of(context).colorScheme.primary,
-          size: size * 0.45,
-        ),
-      ),
+    return FoodImage(
+      id: food.id,
+      width: size,
+      height: size,
+      radius: 13,
+      fallback: icon,
     );
   }
+}
+
+class SectionHeading extends StatelessWidget {
+  const SectionHeading({
+    super.key,
+    required this.title,
+    this.actionLabel,
+    this.onAction,
+  });
+  final String title;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: 18, bottom: 10),
+    child: Row(
+      children: [
+        Expanded(
+          child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+        ),
+        if (actionLabel != null && onAction != null)
+          TextButton(onPressed: onAction, child: Text(actionLabel!)),
+      ],
+    ),
+  );
+}
+
+class IconBadge extends StatelessWidget {
+  const IconBadge(this.icon, {super.key, this.size = 44});
+  final IconData icon;
+  final double size;
+  @override
+  Widget build(BuildContext context) => Container(
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.primaryContainer,
+      shape: BoxShape.circle,
+    ),
+    child: Icon(
+      icon,
+      color: Theme.of(context).colorScheme.primary,
+      size: size * .5,
+    ),
+  );
+}
+
+class HighlightPanel extends StatelessWidget {
+  const HighlightPanel({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.body,
+    this.onTap,
+  });
+  final IconData icon;
+  final String title, body;
+  final VoidCallback? onTap;
+  @override
+  Widget build(BuildContext context) => Card(
+    color: Theme.of(context).colorScheme.primaryContainer,
+    child: ListTile(
+      leading: IconBadge(icon),
+      title: Text(title),
+      subtitle: Text(body),
+      trailing: onTap == null ? null : const Icon(Icons.chevron_right),
+      onTap: onTap,
+    ),
+  );
 }
 
 class EmptyMessage extends StatelessWidget {

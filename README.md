@@ -2,12 +2,27 @@
 
 EatMe is a Flutter application for Android and iOS that connects household food inventory, recipe discovery, cooking, shopping and meal planning. A Python API owns dietary validation and inventory transactions. A Next.js studio manages catalog and evidence review.
 
+## Screenshots
+
+ChefTable, Fridge, HealthyFood and Profile in light and dark themes. These are actual Flutter widget-test renders with demonstration data, captured at 390 × 844 with real fonts. The food images are AI-generated illustrations bundled with the demo catalog; they do not represent a user's food or recognition results.
+
+| Light theme | Dark theme |
+| :---: | :---: |
+| <img src="docs/screenshots/chef-light.webp" width="280" alt="ChefTable with nearby recorded food dates and a zucchini and spinach pasta suggestion." /> | <img src="docs/screenshots/chef-dark.webp" width="280" alt="ChefTable in the dark theme." /> |
+| <img src="docs/screenshots/fridge-light.webp" width="280" alt="Fridge with storage filters, search and photographed inventory cards." /> | <img src="docs/screenshots/fridge-dark.webp" width="280" alt="Fridge in the dark theme." /> |
+| <img src="docs/screenshots/healthy-food-light.webp" width="280" alt="HealthyFood with ingredient categories and a photographic food grid." /> | <img src="docs/screenshots/healthy-food-dark.webp" width="280" alt="HealthyFood in the dark theme." /> |
+| <img src="docs/screenshots/profile-light.webp" width="280" alt="Profile with dietary settings and kitchen tools." /> | <img src="docs/screenshots/profile-dark.webp" width="280" alt="Profile in the dark theme." /> |
+
+The images are stored in this repository, so they remain available after CI artifacts expire. To regenerate them, run `flutter test test/visual_reference_test.dart` from `apps/mobile` with `FLUTTER_ROOT` pointing to the Flutter SDK; PNG renders are written to `build/screenshots/`. The README copies are encoded as WebP without resizing. The tests also exercise all four screens at 1.6× text scaling. See the [visual design notes](docs/product/visual-design.md) for the reference direction and asset provenance.
+
+The [verified visual refresh CI](https://github.com/FilippoCinotti/EatMe/actions/runs/34739280871) passed API, database, studio and Flutter checks, both native debug builds, and the real API Android emulator workflow. See the [verification report](docs/product/verification.md) for the tested commit and remaining store release gates.
+
 ## Run on a simulator
 
 Install **Flutter 3.47.2**, **Python 3.12**, and Git. Android development also needs Android Studio, an Android SDK/emulator and JDK 17. iOS development needs a Mac with Xcode, its simulator runtimes and CocoaPods where required by Flutter plugins.
 
 ```bash
-git clone --branch feat/eatme-app https://github.com/FilippoCinotti/EatMe.git
+git clone --branch feat/eatme-visual-refresh https://github.com/FilippoCinotti/EatMe.git
 cd EatMe
 python -m pip install -e 'services/api[dev]'
 python scripts/dev.py

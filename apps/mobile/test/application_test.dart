@@ -140,10 +140,11 @@ Widget harness(
   bool dark = false,
   double scale = 1,
   List<ui.DisplayFeature> features = const [],
+  AppController Function()? controller,
 }) => ProviderScope(
   overrides: [
     apiProvider.overrideWithValue(api),
-    appProvider.overrideWith(TestController.new),
+    appProvider.overrideWith(controller ?? TestController.new),
   ],
   child: MaterialApp(
     locale: const Locale('en'),
