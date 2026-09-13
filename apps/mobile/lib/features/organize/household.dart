@@ -39,6 +39,7 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
           trailing: const Icon(Icons.chevron_right),
           onTap: () => context.push('/household-activity'),
         ),
+        SettingsGroup(children: [
         for (final member in members)
           ListTile(
             leading: const CircleAvatar(child: Icon(Icons.person_outline)),
@@ -65,6 +66,7 @@ class _HouseholdState extends ResourceState<HouseholdPage> {
                     ],
                   ),
           ),
+        ]),
         const SizedBox(height: 24),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,

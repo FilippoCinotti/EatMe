@@ -39,7 +39,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             const SizedBox(height: 32),
             const Center(child: EatMeWordmark(large: true)),
             const SizedBox(height: 24),
-            Text(context.t('lifestyle_tagline'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineMedium),
+            Text(
+              context.t('lifestyle_tagline'),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
             const SizedBox(height: 28),
             const FoodImage(
               id: '913a438b-0805-543d-8719-c0253f8f103a',
@@ -54,10 +58,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ),
             const SizedBox(height: 24),
             FilledButton(
-              onPressed: () => setState(() { welcome = false; register = true; }),
+              onPressed: () => setState(() {
+                welcome = false;
+                register = true;
+              }),
               child: Text(context.t('start_now')),
             ),
-            TextButton(onPressed: () => setState(() { welcome = false; register = false; }), child: Text(context.t('already_account'))),
+            TextButton(
+              onPressed: () => setState(() {
+                welcome = false;
+                register = false;
+              }),
+              child: Text(context.t('already_account')),
+            ),
           ],
         ),
       );
@@ -65,7 +78,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     return Scaffold(
       body: PageBody(
         children: [
-          EditorialHeader(eyebrow: context.t('eatme'), title: context.t(register ? 'create_account' : 'welcome_back'), subtitle: context.t('lifestyle_tagline'), actions: [RoundAction(icon: Icons.arrow_back, label: context.t('back'), onPressed: () => setState(() => welcome = true))]),
+          EditorialHeader(
+            eyebrow: context.t('eatme'),
+            title: context.t(register ? 'create_account' : 'welcome_back'),
+            subtitle: context.t('lifestyle_tagline'),
+            actions: [
+              RoundAction(
+                icon: Icons.arrow_back,
+                label: context.t('back'),
+                onPressed: () => setState(() => welcome = true),
+              ),
+            ],
+          ),
           AutofillGroup(
             child: Column(
               children: [

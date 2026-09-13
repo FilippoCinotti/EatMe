@@ -30,42 +30,135 @@ class ProfilePage extends ConsumerWidget {
         .map((d) => localized(d.name, context.language))
         .join(' · ');
     final name = state.profile['name'] as String? ?? '';
-    return Scaffold(body: PageBody(children: [
-      EditorialHeader(eyebrow: context.t('profile_eyebrow'), title: context.t('profile_editorial'), subtitle: context.t('profile_support')),
-      InformationPanel(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [CircleAvatar(radius: 28, backgroundColor: Theme.of(context).colorScheme.primary, child: Icon(Icons.person_outline, color: Theme.of(context).colorScheme.onPrimary, size: 28)), const SizedBox(width: 16), Expanded(child: Text(name.isEmpty ? context.t('profile') : name, style: Theme.of(context).textTheme.headlineMedium))]),
-        const SizedBox(height: 20),
-        Text(primaryName ?? (dietNames.isEmpty ? context.t('no_diet') : dietNames), style: Theme.of(context).textTheme.titleMedium),
-        if (state.profile['household_size'] is int) Padding(padding: const EdgeInsets.only(top: 8), child: Text(context.t('portions', {'count': state.profile['household_size'] as int}))),
-      ])),
-      const SizedBox(height: 24),
-      SettingsGroup(children: [
-        SettingRow(title: context.t('diet_health'), subtitle: context.t('allergies_intolerances'), icon: Icons.shield_outlined, onTap: () => context.push('/profile/edit')),
-        SettingRow(title: context.t('household'), icon: Icons.group_outlined, onTap: () => context.push('/household')),
-        SettingRow(title: context.t('preferences'), icon: Icons.tune, onTap: () => context.push('/preferences')),
-        SettingRow(title: context.t('notifications'), icon: Icons.notifications_none, onTap: () => context.push('/notifications')),
-      ]),
-      SectionHeading(title: context.t('your_kitchen')),
-      AdaptivePhotoGrid(children: [for (final item in [
-        ('meal_planner','/planner',Icons.calendar_month_outlined),
-        ('shopping_list','/shopping',Icons.shopping_bag_outlined),
-        ('recipe_library','/recipe-library',Icons.menu_book_outlined),
-        ('leftovers','/leftovers',Icons.takeout_dining_outlined),
-        ('scan_and_import','/scanning',Icons.document_scanner_outlined),
-        ('wellbeing','/wellbeing',Icons.favorite_outline),
-      ]) ShortcutTile(title: context.t(item.$1), icon: item.$3, onTap: () => context.push(item.$2))]),
-      const SizedBox(height: 28),
-      SettingsGroup(children: [for (final item in [
-        ('privacy','/privacy',Icons.lock_outline),
-        ('subscriptions','/subscriptions',Icons.workspace_premium_outlined),
-        ('offline_sync','/sync',Icons.sync),
-        ('recent_activity','/household-activity',Icons.history),
-        ('insights','/insights',Icons.insights_outlined),
-        ('evidence_library','/evidence',Icons.library_books_outlined),
-      ]) SettingRow(title: context.t(item.$1), icon: item.$3, onTap: () => context.push(item.$2))]),
-      AsyncAction(label: context.t('logout'), secondary: true, action: () => ref.read(appProvider.notifier).logout()),
-      if (state.isDemo) StatusNote(text: context.t('development_catalog')),
-    ]));
+    return Scaffold(
+      body: PageBody(
+        children: [
+          EditorialHeader(
+            eyebrow: context.t('profile_eyebrow'),
+            title: context.t('profile_editorial'),
+            subtitle: context.t('profile_support'),
+          ),
+          InformationPanel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 28,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      child: Icon(
+                        Icons.person_outline,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        name.isEmpty ? context.t('profile') : name,
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  primaryName ??
+                      (dietNames.isEmpty ? context.t('no_diet') : dietNames),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                if (state.profile['household_size'] is int)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      context.t('portions', {
+                        'count': state.profile['household_size'] as int,
+                      }),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          SettingsGroup(
+            children: [
+              SettingRow(
+                title: context.t('diet_health'),
+                subtitle: context.t('allergies_intolerances'),
+                icon: Icons.shield_outlined,
+                onTap: () => context.push('/profile/edit'),
+              ),
+              SettingRow(
+                title: context.t('household'),
+                icon: Icons.group_outlined,
+                onTap: () => context.push('/household'),
+              ),
+              SettingRow(
+                title: context.t('preferences'),
+                icon: Icons.tune,
+                onTap: () => context.push('/preferences'),
+              ),
+              SettingRow(
+                title: context.t('notifications'),
+                icon: Icons.notifications_none,
+                onTap: () => context.push('/notifications'),
+              ),
+            ],
+          ),
+          SectionHeading(title: context.t('your_kitchen')),
+          AdaptivePhotoGrid(
+            children: [
+              for (final item in [
+                ('meal_planner', '/planner', Icons.calendar_month_outlined),
+                ('shopping_list', '/shopping', Icons.shopping_bag_outlined),
+                ('recipe_library', '/recipe-library', Icons.menu_book_outlined),
+                ('leftovers', '/leftovers', Icons.takeout_dining_outlined),
+                (
+                  'scan_and_import',
+                  '/scanning',
+                  Icons.document_scanner_outlined,
+                ),
+                ('wellbeing', '/wellbeing', Icons.favorite_outline),
+              ])
+                ShortcutTile(
+                  title: context.t(item.$1),
+                  icon: item.$3,
+                  onTap: () => context.push(item.$2),
+                ),
+            ],
+          ),
+          const SizedBox(height: 28),
+          SettingsGroup(
+            children: [
+              for (final item in [
+                ('privacy', '/privacy', Icons.lock_outline),
+                (
+                  'subscriptions',
+                  '/subscriptions',
+                  Icons.workspace_premium_outlined,
+                ),
+                ('offline_sync', '/sync', Icons.sync),
+                ('recent_activity', '/household-activity', Icons.history),
+                ('insights', '/insights', Icons.insights_outlined),
+                ('evidence_library', '/evidence', Icons.library_books_outlined),
+              ])
+                SettingRow(
+                  title: context.t(item.$1),
+                  icon: item.$3,
+                  onTap: () => context.push(item.$2),
+                ),
+            ],
+          ),
+          AsyncAction(
+            label: context.t('logout'),
+            secondary: true,
+            action: () => ref.read(appProvider.notifier).logout(),
+          ),
+          if (state.isDemo) StatusNote(text: context.t('development_catalog')),
+        ],
+      ),
+    );
   }
 }
 

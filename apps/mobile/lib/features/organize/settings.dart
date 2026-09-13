@@ -38,85 +38,123 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
     return Scaffold(
       appBar: EatMeAppBar(title: Text(context.t('preferences'))),
       body: content([
-        SettingsGroup(title: context.t('appearance'), children: [
-          DropdownButtonFormField<ThemeMode>(initialValue: ref.watch(appProvider).theme, decoration: InputDecoration(labelText: context.t('appearance')), items: ThemeMode.values.map((t) => DropdownMenuItem(value: t, child: Text(context.t(t.name)))).toList(), onChanged: (t) => ref.read(appProvider.notifier).setTheme(t!)),
-          const SizedBox(height: 16),
-          DropdownButtonFormField<String>(initialValue: context.language, decoration: InputDecoration(labelText: context.t('language')), items: ['it','en'].map((l) => DropdownMenuItem(value: l, child: Text(context.t('language_$l')))).toList(), onChanged: (l) => ref.read(appProvider.notifier).setLocale(l!)),
-        ]),
+        SettingsGroup(
+          title: context.t('appearance'),
+          children: [
+            DropdownButtonFormField<ThemeMode>(
+              initialValue: ref.watch(appProvider).theme,
+              decoration: InputDecoration(labelText: context.t('appearance')),
+              items: ThemeMode.values
+                  .map(
+                    (t) => DropdownMenuItem(
+                      value: t,
+                      child: Text(context.t(t.name)),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (t) => ref.read(appProvider.notifier).setTheme(t!),
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              initialValue: context.language,
+              decoration: InputDecoration(labelText: context.t('language')),
+              items: ['it', 'en']
+                  .map(
+                    (l) => DropdownMenuItem(
+                      value: l,
+                      child: Text(context.t('language_$l')),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (l) => ref.read(appProvider.notifier).setLocale(l!),
+            ),
+          ],
+        ),
         Text(
           context.t('make_it_yours'),
           style: Theme.of(context).textTheme.headlineMedium,
         ),
-        SettingsGroup(children: [
-        DropdownButtonFormField<String>(
-          initialValue: prefs['budget'] as String? ?? 'any',
-          decoration: InputDecoration(
-            labelText: context.t('budget_preference'),
-          ),
-          items: ['any', 'medium', 'low']
-              .map(
-                (v) => DropdownMenuItem(
-                  value: v,
-                  child: Text(context.t('budget_$v')),
-                ),
-              )
-              .toList(),
-          onChanged: (v) => update('budget', v),
-        ),
-        StatusNote(text: context.t('budget_notice')),
-        for (final name in ['learning', 'analytics', 'ai_consent', 'seasonal'])
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            value: prefs[name] == true,
-            title: Text(context.t('pref_$name')),
-            subtitle: Text(context.t('pref_${name}_body')),
-            onChanged: data == null ? null : (v) => update(name, v),
-          ),
-        ]),
-        const SizedBox(height: 24),
-        SettingsGroup(children: [
-        DropdownButtonFormField<String>(
-          initialValue: prefs['skill'] as String? ?? 'beginner',
-          decoration: InputDecoration(labelText: context.t('cooking_skill')),
-          items: [
-            for (final level in ['beginner', 'confident', 'advanced'])
-              DropdownMenuItem(value: level, child: Text(context.t(level))),
+        SettingsGroup(
+          children: [
+            DropdownButtonFormField<String>(
+              initialValue: prefs['budget'] as String? ?? 'any',
+              decoration: InputDecoration(
+                labelText: context.t('budget_preference'),
+              ),
+              items: ['any', 'medium', 'low']
+                  .map(
+                    (v) => DropdownMenuItem(
+                      value: v,
+                      child: Text(context.t('budget_$v')),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (v) => update('budget', v),
+            ),
+            StatusNote(text: context.t('budget_notice')),
+            for (final name in [
+              'learning',
+              'analytics',
+              'ai_consent',
+              'seasonal',
+            ])
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                value: prefs[name] == true,
+                title: Text(context.t('pref_$name')),
+                subtitle: Text(context.t('pref_${name}_body')),
+                onChanged: data == null ? null : (v) => update(name, v),
+              ),
           ],
-          onChanged: (v) => update('skill', v),
-        ),
-        const SizedBox(height: 16),
-        DropdownButtonFormField<int>(
-          initialValue: prefs['max_minutes'] as int? ?? 30,
-          decoration: InputDecoration(labelText: context.t('cooking_time')),
-          items: [
-            for (final time in [10, 15, 20, 30, 45, 60, 120])
-              DropdownMenuItem(value: time, child: Text('$time min')),
-          ],
-          onChanged: (v) => update('max_minutes', v),
         ),
         const SizedBox(height: 24),
-        AsyncAction(
-          label: context.t('preferred_cuisines'),
-          secondary: true,
-          action: () async {
-            final value = await askText(
-              context,
-              context.t('comma_separated'),
-              initial: (prefs['cuisines'] as List? ?? []).join(', '),
-            );
-            if (value != null) {
-              await update(
-                'cuisines',
-                value
-                    .split(',')
-                    .map((v) => v.trim())
-                    .where((v) => v.isNotEmpty)
-                    .toList(),
-              );
-            }
-          },
+        SettingsGroup(
+          children: [
+            DropdownButtonFormField<String>(
+              initialValue: prefs['skill'] as String? ?? 'beginner',
+              decoration: InputDecoration(
+                labelText: context.t('cooking_skill'),
+              ),
+              items: [
+                for (final level in ['beginner', 'confident', 'advanced'])
+                  DropdownMenuItem(value: level, child: Text(context.t(level))),
+              ],
+              onChanged: (v) => update('skill', v),
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<int>(
+              initialValue: prefs['max_minutes'] as int? ?? 30,
+              decoration: InputDecoration(labelText: context.t('cooking_time')),
+              items: [
+                for (final time in [10, 15, 20, 30, 45, 60, 120])
+                  DropdownMenuItem(value: time, child: Text('$time min')),
+              ],
+              onChanged: (v) => update('max_minutes', v),
+            ),
+            const SizedBox(height: 24),
+            AsyncAction(
+              label: context.t('preferred_cuisines'),
+              secondary: true,
+              action: () async {
+                final value = await askText(
+                  context,
+                  context.t('comma_separated'),
+                  initial: (prefs['cuisines'] as List? ?? []).join(', '),
+                );
+                if (value != null) {
+                  await update(
+                    'cuisines',
+                    value
+                        .split(',')
+                        .map((v) => v.trim())
+                        .where((v) => v.isNotEmpty)
+                        .toList(),
+                  );
+                }
+              },
+            ),
+          ],
         ),
-        ]),
       ]),
     );
   }
@@ -162,52 +200,54 @@ class _NotificationsState extends ResourceState<NotificationsPage> {
     return Scaffold(
       appBar: EatMeAppBar(title: Text(context.t('notifications'))),
       body: content([
-        SettingsGroup(children: [
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          value: prefs['enabled'] == true,
-          title: Text(context.t('enable_reminders')),
-          onChanged: data == null ? null : (v) => update({'enabled': v}),
+        SettingsGroup(
+          children: [
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              value: prefs['enabled'] == true,
+              title: Text(context.t('enable_reminders')),
+              onChanged: data == null ? null : (v) => update({'enabled': v}),
+            ),
+            StatusNote(text: context.t('notification_privacy')),
+            for (final category in [
+              'expiry',
+              'plans',
+              'shopping',
+              'household',
+              'recalls',
+            ])
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(context.t('notify_$category')),
+                value: categories.contains(category),
+                onChanged: (v) async {
+                  if (v == true) {
+                    categories.add(category);
+                  } else {
+                    categories.remove(category);
+                  }
+                  await update({'categories': categories});
+                },
+              ),
+            for (final setting in ['quiet_start', 'quiet_end', 'daily_cap'])
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(context.t(setting)),
+                trailing: Text('${prefs[setting] ?? ''}'),
+                onTap: () async {
+                  final value = await askText(
+                    context,
+                    context.t(setting),
+                    initial: '${prefs[setting]}',
+                    numeric: true,
+                  );
+                  if (value != null) {
+                    await update({setting: int.tryParse(value) ?? 0});
+                  }
+                },
+              ),
+          ],
         ),
-        StatusNote(text: context.t('notification_privacy')),
-        for (final category in [
-          'expiry',
-          'plans',
-          'shopping',
-          'household',
-          'recalls',
-        ])
-          CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(context.t('notify_$category')),
-            value: categories.contains(category),
-            onChanged: (v) async {
-              if (v == true) {
-                categories.add(category);
-              } else {
-                categories.remove(category);
-              }
-              await update({'categories': categories});
-            },
-          ),
-        for (final setting in ['quiet_start', 'quiet_end', 'daily_cap'])
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(context.t(setting)),
-            trailing: Text('${prefs[setting] ?? ''}'),
-            onTap: () async {
-              final value = await askText(
-                context,
-                context.t(setting),
-                initial: '${prefs[setting]}',
-                numeric: true,
-              );
-              if (value != null) {
-                await update({setting: int.tryParse(value) ?? 0});
-              }
-            },
-          ),
-        ]),
 
         for (final item in records(data?['items']))
           ListTile(

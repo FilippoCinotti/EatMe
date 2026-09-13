@@ -51,27 +51,158 @@ class _FridgePageState extends ConsumerState<FridgePage> {
               batch.expiryDate!.difference(today).inDays <= 3,
         )
         .length;
-    final expiring = items.where((batch) => batch.usable && batch.expiryDate != null && batch.expiryDate!.difference(today).inDays >= 0 && batch.expiryDate!.difference(today).inDays <= 3).toList();
-    return Scaffold(body: PageBody(onRefresh: () => ref.read(appProvider.notifier).refresh(), children: [
-      EditorialHeader(eyebrow: context.t('fridge_eyebrow'), title: context.t('fridge_editorial'), subtitle: context.t('fridge_support'), actions: [RoundAction(icon: Icons.add, label: context.t('add_food'), primary: true, onPressed: state.offline ? null : () => showAddFoodMethods(context, location: location))]),
-      SearchPill(hint: context.t('inventory_search_hint'), onChanged: (s) => setState(() => search = s), onFilter: () => sheet(context, Column(mainAxisSize: MainAxisSize.min, children: [for (final value in ['expiry','name']) ListTile(title: Text(context.t('sort_$value')), trailing: sort == value ? const Icon(Icons.check) : null, onTap: () { setState(() => sort = value); Navigator.pop(context); })]))),
-      const SizedBox(height: 16),
-      Wrap(spacing: 8, runSpacing: 8, children: [for (final value in ['all','fridge','freezer','pantry']) ChoiceChip(showCheckmark: false, label: Text(context.t(value == 'all' ? 'food_group_all' : value)), selected: location == value, onSelected: (_) => setState(() => location = value))]),
-      if (state.offline) StatusNote(text: context.t('offline_inventory'), warning: true),
-      if (dueSoon > 0) ...[
-        SectionHeading(title: context.t('use_these_first'), actionLabel: context.t('view_all'), onAction: () => context.push('/expiry')),
-        HorizontalFoodRail(children: [for (final batch in expiring) FoodPhotoCard(id: batch.food.id, photoId: batch.food.photoId, title: localized(batch.food.name, context.language), subtitle: '${batch.quantity} ${batch.food.unit}', imageHeight: 125, badge: StatusBadge(label: expiryLabel(context, batch), icon: Icons.schedule), onTap: () => sheet(context, BatchSheet(batch: batch)))]),
-      ],
-      SectionHeading(title: context.t('all_foods'), actionLabel: context.t('sort_$sort'), onAction: () => setState(() => sort = sort == 'expiry' ? 'name' : 'expiry')),
-      if (items.isEmpty) EmptyMessage(title: context.t('empty_fridge'), body: context.t('empty_fridge_body'), action: FilledButton(onPressed: state.offline ? null : () => showAddFoodMethods(context, location: location), child: Text(context.t('add_food')))),
-      AdaptivePhotoGrid(children: [for (final batch in items) FoodPhotoCard(id: batch.food.id, photoId: batch.food.photoId, title: localized(batch.food.name, context.language), subtitle: '${batch.quantity} ${batch.food.unit} · ${context.t(batch.location)}', badge: StatusBadge(label: expiryLabel(context, batch), urgent: !batch.usable, icon: batch.usable ? Icons.schedule : Icons.warning_amber), onTap: () => sheet(context, BatchSheet(batch: batch)), onAction: () => sheet(context, BatchSheet(batch: batch)), actionLabel: context.t('manage_food'))]),
-      const SizedBox(height: 24),
-      SettingsGroup(children: [
-        SettingRow(title: context.t('expiry_view'), icon: Icons.schedule, onTap: () => context.push('/expiry')),
-        if (['all','fridge'].contains(location) && !state.offline) SettingRow(title: context.t('leftovers'), icon: Icons.takeout_dining_outlined, onTap: () => context.push('/leftovers')),
-        SettingRow(title: context.t('scan_and_import'), icon: Icons.document_scanner_outlined, onTap: () => context.push('/scanning')),
-      ]),
-    ]));
+    final expiring = items
+        .where(
+          (batch) =>
+              batch.usable &&
+              batch.expiryDate != null &&
+              batch.expiryDate!.difference(today).inDays >= 0 &&
+              batch.expiryDate!.difference(today).inDays <= 3,
+        )
+        .toList();
+    return Scaffold(
+      body: PageBody(
+        onRefresh: () => ref.read(appProvider.notifier).refresh(),
+        children: [
+          EditorialHeader(
+            eyebrow: context.t('fridge_eyebrow'),
+            title: context.t('fridge_editorial'),
+            subtitle: context.t('fridge_support'),
+            actions: [
+              RoundAction(
+                icon: Icons.add,
+                label: context.t('add_food'),
+                primary: true,
+                onPressed: state.offline
+                    ? null
+                    : () => showAddFoodMethods(context, location: location),
+              ),
+            ],
+          ),
+          SearchPill(
+            hint: context.t('inventory_search_hint'),
+            onChanged: (s) => setState(() => search = s),
+            onFilter: () => sheet(
+              context,
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final value in ['expiry', 'name'])
+                    ListTile(
+                      title: Text(context.t('sort_$value')),
+                      trailing: sort == value ? const Icon(Icons.check) : null,
+                      onTap: () {
+                        setState(() => sort = value);
+                        Navigator.pop(context);
+                      },
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final value in ['all', 'fridge', 'freezer', 'pantry'])
+                ChoiceChip(
+                  showCheckmark: false,
+                  label: Text(
+                    context.t(value == 'all' ? 'food_group_all' : value),
+                  ),
+                  selected: location == value,
+                  onSelected: (_) => setState(() => location = value),
+                ),
+            ],
+          ),
+          if (state.offline)
+            StatusNote(text: context.t('offline_inventory'), warning: true),
+          if (dueSoon > 0) ...[
+            SectionHeading(
+              title: context.t('use_these_first'),
+              actionLabel: context.t('view_all'),
+              onAction: () => context.push('/expiry'),
+            ),
+            HorizontalFoodRail(
+              children: [
+                for (final batch in expiring)
+                  FoodPhotoCard(
+                    id: batch.food.id,
+                    photoId: batch.food.photoId,
+                    title: localized(batch.food.name, context.language),
+                    subtitle: '${batch.quantity} ${batch.food.unit}',
+                    imageHeight: 125,
+                    badge: StatusBadge(
+                      label: expiryLabel(context, batch),
+                      icon: Icons.schedule,
+                    ),
+                    onTap: () => sheet(context, BatchSheet(batch: batch)),
+                  ),
+              ],
+            ),
+          ],
+          SectionHeading(
+            title: context.t('all_foods'),
+            actionLabel: context.t('sort_$sort'),
+            onAction: () =>
+                setState(() => sort = sort == 'expiry' ? 'name' : 'expiry'),
+          ),
+          if (items.isEmpty)
+            EmptyMessage(
+              title: context.t('empty_fridge'),
+              body: context.t('empty_fridge_body'),
+              action: FilledButton(
+                onPressed: state.offline
+                    ? null
+                    : () => showAddFoodMethods(context, location: location),
+                child: Text(context.t('add_food')),
+              ),
+            ),
+          AdaptivePhotoGrid(
+            children: [
+              for (final batch in items)
+                FoodPhotoCard(
+                  id: batch.food.id,
+                  photoId: batch.food.photoId,
+                  title: localized(batch.food.name, context.language),
+                  subtitle:
+                      '${batch.quantity} ${batch.food.unit} · ${context.t(batch.location)}',
+                  badge: StatusBadge(
+                    label: expiryLabel(context, batch),
+                    urgent: !batch.usable,
+                    icon: batch.usable ? Icons.schedule : Icons.warning_amber,
+                  ),
+                  onTap: () => sheet(context, BatchSheet(batch: batch)),
+                  onAction: () => sheet(context, BatchSheet(batch: batch)),
+                  actionLabel: context.t('manage_food'),
+                ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          SettingsGroup(
+            children: [
+              SettingRow(
+                title: context.t('expiry_view'),
+                icon: Icons.schedule,
+                onTap: () => context.push('/expiry'),
+              ),
+              if (['all', 'fridge'].contains(location) && !state.offline)
+                SettingRow(
+                  title: context.t('leftovers'),
+                  icon: Icons.takeout_dining_outlined,
+                  onTap: () => context.push('/leftovers'),
+                ),
+              SettingRow(
+                title: context.t('scan_and_import'),
+                icon: Icons.document_scanner_outlined,
+                onTap: () => context.push('/scanning'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 

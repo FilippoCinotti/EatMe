@@ -75,7 +75,12 @@ class PageBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final content = ListView(
-      padding: EdgeInsets.fromLTRB(20, 12, 20, 28 + MediaQuery.paddingOf(context).bottom),
+      padding: EdgeInsets.fromLTRB(
+        20,
+        12,
+        20,
+        28 + MediaQuery.paddingOf(context).bottom,
+      ),
       physics: const AlwaysScrollableScrollPhysics(),
       children: children,
     );

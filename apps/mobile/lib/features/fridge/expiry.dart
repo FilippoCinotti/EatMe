@@ -102,7 +102,7 @@ Future<void> showAddFoodMethods(
           SettingRow(
             icon: item.$2,
             title: context.t(item.$1),
-            
+
             onTap: () => Navigator.pop(context, item.$3),
           ),
       ],

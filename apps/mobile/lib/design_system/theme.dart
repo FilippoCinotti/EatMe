@@ -69,6 +69,7 @@ abstract final class Tokens {
         ),
         bodyLarge: base.textTheme.bodyLarge?.copyWith(
           fontSize: 16,
+          letterSpacing: 0,
           height: 1.35,
         ),
       ),
