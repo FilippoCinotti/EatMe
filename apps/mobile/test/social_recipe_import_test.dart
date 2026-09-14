@@ -411,7 +411,7 @@ void main() {
     if (add.evaluate().isEmpty) {
       await tester.drag(
         find.byType(ListView),
-        const Offset(0, -300),
+        const Offset(0, 300),
       );
       await tester.pumpAndSettle();
     }
