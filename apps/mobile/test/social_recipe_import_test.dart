@@ -537,6 +537,14 @@ void main() {
           SocialApi(),
         ),
         (
+          'substitution-selection',
+          SubstitutionSelectionPage(
+            draft: draft(conflict: true),
+            result: conflictResult(),
+          ),
+          SocialApi(),
+        ),
+        (
           'rechecking-adapted',
           CompatibilityCheckingPage(
             draft: draft(conflict: true),
@@ -569,8 +577,15 @@ void main() {
           const RecipePage(recipeId: '50773917-c954-51f2-a53b-1cf4b3c00690'),
           SocialApi(),
         ),
+        (
+          'imported-final-cook-now',
+          const RecipePage(recipeId: '50773917-c954-51f2-a53b-1cf4b3c00690'),
+          SocialApi(),
+        ),
       ];
       for (final state in states) {
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump();
         final boundary = GlobalKey();
         await tester.pumpWidget(
           support.harness(
@@ -582,6 +597,18 @@ void main() {
         );
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 250));
+        if (state.$1 == 'substitution-selection') {
+          await tester.tap(find.text('Chickpeas'));
+          await tester.pumpAndSettle();
+        }
+        if (state.$1 == 'imported-final-cook-now') {
+          await tester.scrollUntilVisible(
+            find.text('Start cooking'),
+            500,
+            scrollable: find.byType(Scrollable).first,
+          );
+          await tester.pumpAndSettle();
+        }
         expect(tester.takeException(), isNull, reason: state.$1);
         await capture(tester, boundary, '${state.$1}-$suffix');
       }

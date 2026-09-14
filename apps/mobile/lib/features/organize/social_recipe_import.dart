@@ -33,7 +33,7 @@ bool _supportedUrl(String input) {
   final host = uri.host.toLowerCase().replaceFirst(RegExp(r'^www\.'), '');
   if (host == 'youtube.com' || host == 'm.youtube.com') {
     return (uri.path == '/watch' &&
-            '${uri.queryParameters['v'] ?? ''}'.isNotEmpty) ||
+            (uri.queryParameters['v'] ?? '').isNotEmpty) ||
         ((uri.pathSegments.firstOrNull == 'shorts' ||
                 uri.pathSegments.firstOrNull == 'live') &&
             uri.pathSegments.length == 2);
