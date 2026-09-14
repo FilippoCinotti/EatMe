@@ -399,12 +399,12 @@ void main() {
       find.byKey(const Key('import_title')),
       'Corrected title',
     );
-    final remove = find.byTooltip('Delete');
-    await tester.scrollUntilVisible(
-      remove,
-      350,
-      scrollable: find.byType(Scrollable).first,
+    await tester.drag(
+      find.byType(Scrollable).first,
+      const Offset(0, -650),
     );
+    await tester.pumpAndSettle();
+    final remove = find.byTooltip('Delete').first;
     await tester.tap(remove);
     final add = find.text('Add ingredient');
     await tester.scrollUntilVisible(
