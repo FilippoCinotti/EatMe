@@ -1,5 +1,32 @@
 # Verification report
 
+## Final visual fidelity and scoped feature completion
+
+The final pass is delivered on `feat/reference-features` in [PR #16](https://github.com/FilippoCinotti/EatMe/pull/16). Work started from the preserved feature baseline `e20599cf1cb7bd6fabea86bb4f8df418de473ae7`; no reset, redesign rollback, state-management replacement or API/safety bypass was performed. Final application source is `b5c6a570589a5c0891ed062adc24e4244818966f`. The reviewed tree `33c8257e52564943ab6684689bde1b2dc046a117`, including the committed screenshot gallery and documentation, passed all five application jobs in [CI run 34876818451](https://github.com/FilippoCinotti/EatMe/actions/runs/34876818451).
+
+Validation at that tree:
+
+| Check | Result |
+| --- | --- |
+| API/domain/HTTP tests | 77 passed; Ruff, repository checks, dependency audit and Docker build passed |
+| PostgreSQL | Migrations, RLS and database-backed tests passed |
+| Flutter | 98 tests passed on Linux and macOS; analyze and canonical formatting passed |
+| Android | Debug APK built; real API emulator journey passed |
+| iOS | Simulator debug build and archive passed |
+| Admin | Type check, production build and dependency audit passed |
+| Visual review | 72 real 390 × 844 Flutter PNGs generated; 36 screens in light and dark |
+
+Native artifacts: [Android debug APK](https://github.com/FilippoCinotti/EatMe/actions/runs/34876818451/artifacts/10361586470), [iOS simulator application](https://github.com/FilippoCinotti/EatMe/actions/runs/34876818451/artifacts/10361910197), and [macOS interface-review archive](https://github.com/FilippoCinotti/EatMe/actions/runs/34876818451/artifacts/10362010016). Artifacts are temporary CI outputs; the 72 reviewed renders are committed in the [screenshot gallery](../screenshots/README.md).
+
+The approved Social Recipe Import and Smart Diet-Fit journey is implemented as one controlled flow: public YouTube/Instagram URL validation and restrained metadata extraction; staged processing; mandatory editable recipe review; explicit canonical ingredient mapping (`matched`, `needs_review`, `unknown`); the existing full diet/safety assessment; secondary inventory coverage; curated user-selected substitutions; a complete compatibility and inventory re-check; then final save or cook. Nothing is permanently saved before confirmation. Source platform, URL, title, creator and import date remain attached. Partial extraction continues to review without invented values; unresolved ingredients prevent a positive compatibility claim.
+
+Photo acquisition is integrated into the real add/import journey with camera guidance, semantic capture, optional gallery, retake/confirm, processing, permission-denied, provider, network and offline states. The visual pass also refines block rhythm, hierarchy and non-generic controls across ChefTable, Fridge, HealthyFood, Profile, authentication, recipe detail and secondary settings while retaining responsive, compact Italian, 1.6× text, dark-theme and reduced-motion behavior.
+
+Estimated savings use deterministic methodology `at-risk-use-v1`. An inventory amount is eligible only when a recorded consumed/cooked event occurs zero to two days before a known batch date. Money uses only recorded batch cost and initial quantity, prorated and capped across events for the same batch; currencies are never converted. CO₂e uses only exact supported canonical foods from the bundled, versioned factor table; unsupported foods are excluded. Both metrics are nullable when evidence is insufficient and expose coverage. See [methodology](estimated-savings-methodology.md), [social import behavior](social-recipe-import.md), [feature parity](reference-feature-parity.md), and [visual design](visual-design.md).
+
+Known limits remain explicit: public structured source metadata may be partial or unavailable; private/deleted content is rejected; substitution coverage and CO₂e factors are deliberately curated and finite; money requires recorded cost; unknown ingredients remain unresolved; native outputs are unsigned debug artifacts. CodeQL analysis completes but SARIF upload fails because repository code scanning is not enabled, as shown in [CodeQL run 34876818632](https://github.com/FilippoCinotti/EatMe/actions/runs/34876818632). This is an external repository configuration gate, not an application-test failure.
+
+
 ## Visual Fidelity Pass 2
 
 The active delivery is [PR #16](https://github.com/FilippoCinotti/EatMe/pull/16) on `feat/reference-features`. Phase 0 confirmed that PR #15 had already merged into main at `c3fd1c927affb870afea47ccf86e72abbe51a39f`. The valid follow-up branch content (`3e5cc3653ec203b67ef9fcdb43feba2b88f49f27`, locally represented by the equivalent reviewed tree at `89a11819ccdb0aeed4c1d4f742b32411f6a9549f`) was preserved; no reset, architecture rewrite or feature rollback was performed. Because a merged pull request cannot receive new checks, the same branch continues in PR #16.
