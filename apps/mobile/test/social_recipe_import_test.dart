@@ -399,7 +399,7 @@ void main() {
       find.byKey(const Key('import_title')),
       'Corrected title',
     );
-    final remove = find.byTooltip('Delete').first;
+    final remove = find.byTooltip('Delete');
     await tester.scrollUntilVisible(
       remove,
       350,

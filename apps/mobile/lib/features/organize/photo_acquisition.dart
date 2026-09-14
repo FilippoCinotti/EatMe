@@ -130,12 +130,15 @@ class _PhotoAcquisitionPageState extends ConsumerState<PhotoAcquisitionPage> {
                       foregroundColor: ink,
                       backgroundColor: Colors.white.withValues(alpha: .08),
                     ),
-                    const Spacer(),
-                    Text(
-                      context.t('photo_acquisition'),
-                      style: Theme.of(context).textTheme.titleMedium,
+                    Expanded(
+                      child: Text(
+                        context.t('photo_acquisition'),
+                        maxLines: 2,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                     ),
-                    const Spacer(),
                     const SizedBox(width: 48),
                   ],
                 ),
@@ -167,38 +170,49 @@ class _PhotoAcquisitionPageState extends ConsumerState<PhotoAcquisitionPage> {
                               ),
                             ),
                           if (bytes == null)
-                            Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(42),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const EatMeIcon(
-                                      EatMeGlyph.camera,
-                                      color: green,
-                                      size: 42,
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                final compact = constraints.maxHeight < 280;
+                                return Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(compact ? 20 : 42),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        EatMeIcon(
+                                          EatMeGlyph.camera,
+                                          color: green,
+                                          size: compact ? 30 : 42,
+                                        ),
+                                        SizedBox(height: compact ? 10 : 18),
+                                        Text(
+                                          context.t('frame_your_food'),
+                                          maxLines: compact ? 3 : null,
+                                          overflow: compact
+                                              ? TextOverflow.ellipsis
+                                              : null,
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineSmall
+                                              ?.copyWith(color: ink),
+                                        ),
+                                        if (!compact) ...[
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            context.t('frame_your_food_body'),
+                                            textAlign: TextAlign.center,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium
+                                                ?.copyWith(color: muted),
+                                          ),
+                                        ],
+                                      ],
                                     ),
-                                    const SizedBox(height: 18),
-                                    Text(
-                                      context.t('frame_your_food'),
-                                      textAlign: TextAlign.center,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall
-                                          ?.copyWith(color: ink),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      context.t('frame_your_food_body'),
-                                      textAlign: TextAlign.center,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(color: muted),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                                  ),
+                                );
+                              },
                             ),
                           const Positioned.fill(child: _FrameCorners()),
                           if (opening || processing)
