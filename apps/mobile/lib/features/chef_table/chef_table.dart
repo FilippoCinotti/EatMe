@@ -171,7 +171,8 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
             const SizedBox(height: 20),
             LayoutBuilder(
               builder: (context, constraints) {
-                final stack = constraints.maxWidth < 340 ||
+                final stack =
+                    constraints.maxWidth < 340 ||
                     MediaQuery.textScalerOf(context).scale(16) > 22;
                 final cook = FilledButton.icon(
                   onPressed: () => context.push('/recipes/${pick.recipe.id}'),
@@ -431,11 +432,7 @@ class _KitchenToolsSheet extends StatelessWidget {
       ),
       const SizedBox(height: 16),
       for (final item in [
-        (
-          'favorites',
-          '/recipe-library?favorites=true',
-          EatMeGlyph.heart,
-        ),
+        ('favorites', '/recipe-library?favorites=true', EatMeGlyph.heart),
         ('leftovers', '/leftovers', EatMeGlyph.packageOpen),
         ('meal_planner', '/planner', EatMeGlyph.calendarDays),
         ('shopping_list', '/shopping', EatMeGlyph.shoppingBasket),

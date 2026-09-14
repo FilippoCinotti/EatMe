@@ -113,32 +113,32 @@ class AddFoodMethodsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListView(
-      shrinkWrap: true,
-      padding: const EdgeInsets.all(20),
-      children: [
-        Text(
-          context.t('add_food'),
-          style: Theme.of(context).textTheme.headlineMedium,
+    shrinkWrap: true,
+    padding: const EdgeInsets.all(20),
+    children: [
+      Text(
+        context.t('add_food'),
+        style: Theme.of(context).textTheme.headlineMedium,
+      ),
+      const SizedBox(height: 8),
+      Text(
+        context.t('add_food_method_support'),
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
-        const SizedBox(height: 8),
-        Text(
-          context.t('add_food_method_support'),
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+      ),
+      const SizedBox(height: 16),
+      for (final item in [
+        ('scan_and_import', EatMeGlyph.camera, 'scan'),
+        ('scan_barcode', EatMeGlyph.scanBarcode, 'barcode'),
+        ('search_food', EatMeGlyph.search, 'search'),
+        ('custom_food', EatMeGlyph.plus, 'custom'),
+      ])
+        SettingRow(
+          icon: item.$2,
+          title: context.t(item.$1),
+          onTap: () => onSelected(item.$3),
         ),
-        const SizedBox(height: 16),
-        for (final item in [
-          ('scan_and_import', EatMeGlyph.camera, 'scan'),
-          ('scan_barcode', EatMeGlyph.scanBarcode, 'barcode'),
-          ('search_food', EatMeGlyph.search, 'search'),
-          ('custom_food', EatMeGlyph.plus, 'custom'),
-        ])
-          SettingRow(
-            icon: item.$2,
-            title: context.t(item.$1),
-            onTap: () => onSelected(item.$3),
-          ),
-      ],
-    );
+    ],
+  );
 }

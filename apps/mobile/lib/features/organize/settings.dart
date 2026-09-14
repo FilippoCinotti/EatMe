@@ -241,13 +241,13 @@ class _NotificationsState extends ResourceState<NotificationsPage> {
                 onChanged: data == null
                     ? null
                     : (v) async {
-                  if (v) {
-                    categories.add(category);
-                  } else {
-                    categories.remove(category);
-                  }
-                  await update({'categories': categories});
-                },
+                        if (v) {
+                          categories.add(category);
+                        } else {
+                          categories.remove(category);
+                        }
+                        await update({'categories': categories});
+                      },
               ),
             for (final setting in ['quiet_start', 'quiet_end', 'daily_cap'])
               SettingRow(

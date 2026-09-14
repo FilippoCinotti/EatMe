@@ -70,7 +70,9 @@ class ProfilePage extends ConsumerWidget {
                               initials,
                               style: Theme.of(context).textTheme.titleLarge
                                   ?.copyWith(
-                                    color: Theme.of(context).colorScheme.onPrimary,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimary,
                                   ),
                             ),
                     ),
@@ -204,11 +206,7 @@ class ProfilePage extends ConsumerWidget {
             title: context.t('more'),
             children: [
               for (final item in [
-                (
-                  'subscriptions',
-                  '/subscriptions',
-                  EatMeGlyph.badgeCheck,
-                ),
+                ('subscriptions', '/subscriptions', EatMeGlyph.badgeCheck),
                 ('offline_sync', '/sync', EatMeGlyph.refreshCw),
                 ('recent_activity', '/household-activity', EatMeGlyph.history),
                 ('insights', '/insights', EatMeGlyph.chartSpline),
@@ -243,17 +241,15 @@ class _ProfilePill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
     decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.surfaceContainer.withValues(alpha: .72),
+      color: Theme.of(
+        context,
+      ).colorScheme.surfaceContainer.withValues(alpha: .72),
       borderRadius: BorderRadius.circular(20),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        EatMeIcon(
-          icon,
-          size: 16,
-          color: Theme.of(context).colorScheme.primary,
-        ),
+        EatMeIcon(icon, size: 16, color: Theme.of(context).colorScheme.primary),
         const SizedBox(width: 6),
         Text(label, style: Theme.of(context).textTheme.labelMedium),
       ],
@@ -332,35 +328,37 @@ class PrivacyPage extends ConsumerWidget {
             AsyncAction(
               label: context.t('export_data'),
               action: () async {
-            final data = await ref
-                .read(apiProvider)
-                .request('GET', '/privacy/export');
-            final text = const JsonEncoder.withIndent('  ').convert(data);
-            if (context.mounted) {
-              await showDialog<void>(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: Text(context.t('export_data')),
-                  content: SizedBox(
-                    width: 500,
-                    child: SingleChildScrollView(child: SelectableText(text)),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text(context.t('close')),
+                final data = await ref
+                    .read(apiProvider)
+                    .request('GET', '/privacy/export');
+                final text = const JsonEncoder.withIndent('  ').convert(data);
+                if (context.mounted) {
+                  await showDialog<void>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: Text(context.t('export_data')),
+                      content: SizedBox(
+                        width: 500,
+                        child: SingleChildScrollView(
+                          child: SelectableText(text),
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(context.t('close')),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            await Clipboard.setData(ClipboardData(text: text));
+                            if (context.mounted) Navigator.pop(context);
+                          },
+                          child: Text(context.t('copy_json')),
+                        ),
+                      ],
                     ),
-                    TextButton(
-                      onPressed: () async {
-                        await Clipboard.setData(ClipboardData(text: text));
-                        if (context.mounted) Navigator.pop(context);
-                      },
-                      child: Text(context.t('copy_json')),
-                    ),
-                  ],
-                ),
-              );
-            }
+                  );
+                }
               },
             ),
             const SizedBox(height: 12),

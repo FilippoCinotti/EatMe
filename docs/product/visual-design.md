@@ -19,7 +19,15 @@ The presentation reuses the production Riverpod, Supabase, API, offline and tran
 
 The shared spacing scale is 4, 8, 12, 16, 20, 24, 32, 40 and 48 logical pixels. Inputs and compact actions use 14–18 pixel corners, photo cards 23–28, panels 26 and floating navigation 32. Pills use stadium geometry. Surface tone, imagery and typography carry hierarchy; borders are reserved for focus and the quiet glass highlight.
 
-`theme.dart` owns shared theme values. `premium.dart`, `recipe_hero.dart`, `food_image.dart` and `widgets.dart` own composition primitives: EditorialHeader, EatMeWordmark, SearchPill, RoundAction, HeroRecipeCard, FoodPhotoCard, StatusBadge, CategoryTile, AdaptivePhotoGrid, HorizontalFoodRail, InformationPanel, GlassSurface, SettingsGroup, SettingRow and ShortcutTile. Secondary navigation shares EatMeAppBar. InformationPanel paints its background on Material so child controls retain visible ink feedback.
+`theme.dart` owns shared theme values. `premium.dart`, `recipe_hero.dart`, `food_image.dart` and `widgets.dart` own composition primitives: EditorialHeader, EatMeWordmark, SearchPill, RoundAction, HeroRecipeCard, FoodPhotoCard, StatusBadge, CategoryTile, AdaptivePhotoGrid, HorizontalFoodRail, InformationPanel, GlassSurface, SettingsGroup, SettingRow, EatMeSelectionRow, EatMeToggleRow, EatMeTabStrip, ShortcutTile and CompactShortcut. Secondary navigation shares EatMeAppBar. InformationPanel paints its background on Material so child controls retain visible ink feedback.
+
+## Brand and iconography
+
+The production wordmark uses an original two-leaf EatMe mark implemented as a Flutter vector painter in `design_system/brand.dart`. The same geometry is retained in `assets/brand/eatme-mark.svg` for documentation and non-Flutter use. It is not assembled from a generic interface icon and adapts to the active theme color without raster assets.
+
+Visible product iconography uses a curated subset of Lucide 1.8.0 geometry. Lucide was selected for its consistent rounded joins, restrained outline construction and cross-platform optical weight. EatMe bundles only the required paths and renders them through `EatMeGlyph`, `EatMeIcon` and `EatMeIconButton`; screens do not depend on a third-party Flutter icon package and the application does not ship an unnecessary full icon font. The original ISC license and the applicable Feather MIT attribution are retained in `assets/icons/LICENSE_LUCIDE.txt`.
+
+Primary navigation, page actions, profile groups, filtering, food actions and status controls use the EatMe abstraction. Material widgets may remain underneath for semantics, focus, ink response and platform behavior, but their default glyphs and visible navigation treatment are not the product's visual language. Food-image fallbacks remain neutral and never borrow a demonstration photograph for unknown content.
 
 ## Typography and font provenance
 
@@ -38,7 +46,7 @@ Display headings use an editorial serif treatment at 38 logical pixels, section 
 
 ## Glass, motion and dark mode
 
-Four destinations remain: ChefTable, Fridge, HealthyFood and Profile. The bar is detached with horizontal and bottom margins, a true 20-pixel backdrop blur, restrained highlight and soft shadow. Dark glass uses a darker, more opaque surface rather than an inverted light effect. High-contrast mode removes transparency and blur. Navigation selection respects the platform's reduce-motion preference.
+Four destinations remain: ChefTable, Fridge, HealthyFood and Profile. `EatMeNavigationBar` is a bespoke destination layout rather than a styled Material NavigationBar. The bar is detached with horizontal and bottom margins, a true 20-pixel backdrop blur, restrained highlight and soft shadow. Each selected destination receives a quiet green inner capsule, stronger label weight and a short scale/opacity transition. Dark glass uses a darker, more opaque surface rather than an inverted light effect. High-contrast mode removes transparency and blur. Navigation selection respects the platform's reduce-motion preference.
 
 ## Responsive behavior and accessibility
 

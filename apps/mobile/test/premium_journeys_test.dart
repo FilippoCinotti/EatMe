@@ -222,10 +222,7 @@ void main() {
               );
               await tester.tap(find.text('New to EatMe? Create an account'));
               await tester.pumpAndSettle();
-              expect(
-                find.text('Create your account'),
-                findsAtLeastNWidgets(1),
-              );
+              expect(find.text('Create your account'), findsAtLeastNWidgets(1));
               await capture(
                 tester,
                 boundary,

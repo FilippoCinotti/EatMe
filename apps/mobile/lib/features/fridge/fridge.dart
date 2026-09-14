@@ -187,7 +187,8 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                   badge: StatusBadge(
                     label: expiryLabel(context, batch),
                     urgent: !batch.usable,
-                    warning: batch.usable &&
+                    warning:
+                        batch.usable &&
                         batch.expiryDate != null &&
                         batch.expiryDate!.difference(today).inDays <= 3,
                     icon: batch.usable

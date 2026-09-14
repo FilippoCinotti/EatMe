@@ -20,7 +20,8 @@ class EditorialHeader extends StatelessWidget {
   final Widget? art;
   @override
   Widget build(BuildContext context) {
-    final showArt = art != null &&
+    final showArt =
+        art != null &&
         MediaQuery.textScalerOf(context).scale(16) <= 22 &&
         MediaQuery.sizeOf(context).width >= 350;
     return Column(
@@ -335,7 +336,9 @@ class EatMeNavigationBar extends StatelessWidget {
                                 child: EatMeIcon(
                                   destinations[index].icon,
                                   size: 22,
-                                  strokeWidth: selectedIndex == index ? 2.2 : 1.75,
+                                  strokeWidth: selectedIndex == index
+                                      ? 2.2
+                                      : 1.75,
                                   color: selectedIndex == index
                                       ? scheme.primary
                                       : scheme.onSurfaceVariant,
@@ -344,9 +347,7 @@ class EatMeNavigationBar extends StatelessWidget {
                               const SizedBox(height: 4),
                               AnimatedDefaultTextStyle(
                                 duration: duration,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelSmall!
+                                style: Theme.of(context).textTheme.labelSmall!
                                     .copyWith(
                                       height: 1,
                                       fontSize: 10.5,
@@ -500,10 +501,9 @@ class FoodPhotoCard extends StatelessWidget {
                     foregroundColor: actionEmphasis
                         ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.onSurface,
-                    backgroundColor: Theme.of(context)
-                        .colorScheme
-                        .surfaceContainer
-                        .withValues(alpha: .9),
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainer.withValues(alpha: .9),
                   ),
                 ),
             ],
@@ -708,14 +708,16 @@ class SettingRow extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                       if (subtitle != null) ...[
                         const SizedBox(height: 3),
                         Text(
                           subtitle!,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: scheme.onSurfaceVariant,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: scheme.onSurfaceVariant),
                         ),
                       ],
                     ],
@@ -847,9 +849,7 @@ class EatMeSelectionRow extends StatelessWidget {
       button: true,
       selected: selected,
       child: Material(
-        color: selected
-            ? scheme.primaryContainer
-            : scheme.surfaceContainer,
+        color: selected ? scheme.primaryContainer : scheme.surfaceContainer,
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
           onTap: onTap,
@@ -865,7 +865,10 @@ class EatMeSelectionRow extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: Theme.of(context).textTheme.titleMedium),
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
                       const SizedBox(height: 3),
                       Text(
                         subtitle,
@@ -1002,14 +1005,17 @@ class EatMeTabStrip extends StatelessWidget {
                       child: Text(
                         value.$2,
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: selected == value.$1
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontWeight: selected == value.$1
-                              ? FontWeight.w700
-                              : FontWeight.w500,
-                        ),
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
+                              color: selected == value.$1
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                              fontWeight: selected == value.$1
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                            ),
                       ),
                     ),
                   ),

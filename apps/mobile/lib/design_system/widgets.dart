@@ -64,7 +64,9 @@ class _AsyncActionState extends State<AsyncAction> {
         ? OutlinedButton(
             style: widget.destructive
                 ? OutlinedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.errorContainer,
                     foregroundColor: Theme.of(context).colorScheme.error,
                   )
                 : null,
