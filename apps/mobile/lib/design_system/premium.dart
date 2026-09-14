@@ -316,7 +316,7 @@ class EatMeNavigationBar extends StatelessWidget {
                         curve: Curves.easeOutCubic,
                         margin: const EdgeInsets.symmetric(horizontal: 4),
                         padding: EdgeInsets.symmetric(
-                          horizontal: largeText ? 4 : 8,
+                          horizontal: largeText ? 3 : 4,
                           vertical: largeText ? 7 : 6,
                         ),
                         decoration: BoxDecoration(
@@ -1072,3 +1072,4 @@ class EatMeAppBar extends StatelessWidget implements PreferredSizeWidget {
     ),
   );
 }
+
