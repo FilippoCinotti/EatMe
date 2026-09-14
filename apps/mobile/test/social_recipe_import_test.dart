@@ -407,11 +407,18 @@ void main() {
     final remove = find.byTooltip('Delete').first;
     await tester.tap(remove);
     final add = find.text('Add ingredient');
-    await tester.scrollUntilVisible(
-      add,
-      350,
-      scrollable: find.byType(Scrollable).first,
-    );
+    for (
+      var attempt = 0;
+      attempt < 5 && add.evaluate().isEmpty;
+      attempt++
+    ) {
+      await tester.drag(
+        find.byType(Scrollable).first,
+        const Offset(0, -250),
+      );
+      await tester.pumpAndSettle();
+    }
+    expect(add, findsOneWidget);
     await tester.tap(add);
     await tester.pumpAndSettle();
     expect(find.byType(TextField), findsAtLeastNWidgets(7));
