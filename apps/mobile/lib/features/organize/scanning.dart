@@ -11,6 +11,7 @@ import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
 import 'shared.dart';
+import 'photo_acquisition.dart';
 import '../fridge/custom_food.dart';
 
 class ScanningPage extends ConsumerStatefulWidget {
@@ -75,37 +76,20 @@ class _ScanningState extends ResourceState<ScanningPage> {
   }
 
   Future<void> chooseSource(String kind) async {
-    final source = await showModalBottomSheet<ImageSource>(
-      context: context,
-      useSafeArea: true,
-      builder: (context) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Icons.camera_alt_outlined),
-            title: Text(context.t('take_photo')),
-            onTap: () => Navigator.pop(context, ImageSource.camera),
-          ),
-          ListTile(
-            leading: const Icon(Icons.photo_library_outlined),
-            title: Text(context.t('choose_photo')),
-            onTap: () => Navigator.pop(context, ImageSource.gallery),
-          ),
-        ],
+    if (!await consent() || !mounted || !context.mounted) return;
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PhotoAcquisitionPage(
+          kind: kind,
+          onConfirm: (file) => scanFile(kind, file),
+        ),
       ),
     );
-    if (source != null) await scan(kind, source);
+    await load();
   }
 
-  Future<void> scan(String kind, ImageSource source) async {
-    if (!await consent()) return;
-    final picked = await ImagePicker().pickImage(
-      source: source,
-      imageQuality: 85,
-      maxWidth: 2048,
-      maxHeight: 2048,
-    );
-    if (picked == null) return;
+  Future<void> scanFile(String kind, XFile picked) async {
     final image = await ref
         .read(apiProvider)
         .request(

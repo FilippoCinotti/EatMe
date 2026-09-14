@@ -15,6 +15,7 @@ import 'features/organize/planner.dart';
 import 'features/organize/household.dart';
 import 'features/organize/leftovers.dart';
 import 'features/organize/recipe_library.dart';
+import 'features/organize/social_recipe_import.dart';
 import 'features/organize/scanning.dart';
 import 'features/organize/settings.dart';
 import 'features/organize/subscriptions.dart';
@@ -129,6 +130,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/recipe-editor',
         builder: (_, state) => RecipeEditorPage(initial: state.extra as Json?),
+      ),
+      GoRoute(
+        path: '/recipe-import',
+        builder: (_, _) => const ImportRecipePage(),
       ),
       GoRoute(path: '/scanning', builder: (_, _) => const ScanningPage()),
       GoRoute(path: '/barcode', builder: (_, _) => const BarcodePage()),
@@ -272,7 +277,14 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     extendBody: true,
-    body: child,
+    body: MediaQuery(
+      data: MediaQuery.of(context).copyWith(
+        padding: MediaQuery.paddingOf(context).copyWith(
+          bottom: MediaQuery.paddingOf(context).bottom + 92,
+        ),
+      ),
+      child: child,
+    ),
     bottomNavigationBar: SafeArea(
       minimum: const EdgeInsets.fromLTRB(18, 0, 18, 12),
       child: Align(

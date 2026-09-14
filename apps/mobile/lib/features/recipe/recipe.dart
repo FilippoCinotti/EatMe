@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/api.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
@@ -24,6 +25,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
   bool favorite = false;
   List<Json> compatibilityWarnings = [];
   bool privateRecipe = false;
+  Json rawRecipe = {};
   final mutation = Mutation();
   List<String>? participants;
   Future<void> toggleFavorite() async {
@@ -41,8 +43,12 @@ class _RecipePageState extends ConsumerState<RecipePage> {
     if (mounted) {
       setState(() {
         favorite = recipe['favorite'] == true;
-        compatibilityWarnings = records(recipe['compatibility']?['warnings']);
+        compatibilityWarnings = [
+          ...records(recipe['compatibility']?['reasons']),
+          ...records(recipe['compatibility']?['warnings']),
+        ];
         privateRecipe = recipe['private'] == true;
+        rawRecipe = recipe;
       });
     }
     try {
@@ -166,6 +172,71 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 ),
               ],
             ),
+            if ('${rawRecipe['source_url'] ?? ''}'.isNotEmpty) ...[
+              const SizedBox(height: 18),
+              InformationPanel(
+                tinted: false,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 46,
+                      height: 46,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: const EatMeIcon(EatMeGlyph.sparkles),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            context.t('imported_from_source', {
+                              'source': const {'youtube', 'instagram'}.contains(
+                                    '${rawRecipe['source_platform']}',
+                                  )
+                                  ? context.t('${rawRecipe['source_platform']}')
+                                  : context.t('original_source'),
+                            }),
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          if ('${rawRecipe['source_creator'] ?? ''}'.isNotEmpty)
+                            Text(
+                              context.t('source_by', {
+                                'creator': '${rawRecipe['source_creator']}',
+                              }),
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          if ((rawRecipe['adaptations'] as List? ?? []).isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 6),
+                              child: Text(
+                                context.t('adaptation_count', {
+                                  'count': (rawRecipe['adaptations'] as List).length,
+                                }),
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => launchUrl(
+                        Uri.parse('${rawRecipe['source_url']}'),
+                        mode: LaunchMode.externalApplication,
+                      ),
+                      child: Text(context.t('original')),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 20),
             ExpansionTile(
               tilePadding: EdgeInsets.zero,

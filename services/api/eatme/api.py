@@ -182,7 +182,7 @@ def create_app(router=None):
     def domain_command(body:dict,request:Request):
         return dispatch(request,body)
 
-    for resource in ("shopping", "plans", "households", "preferences", "leftovers", "recipes", "jobs", "notifications", "admin/content", "reports", "inventory/metadata", "media", "recipes/import-url", "analytics", "entitlements/refresh", "products/stock", "auth/apple-authorization"):
+    for resource in ("shopping", "plans", "households", "preferences", "leftovers", "recipes", "jobs", "notifications", "admin/content", "reports", "inventory/metadata", "media", "recipes/import-url", "recipes/import-review", "analytics", "entitlements/refresh", "products/stock", "auth/apple-authorization"):
         app.add_api_route("/api/v1/"+resource, domain_command, methods=["POST"], name=resource+"_command")
     app.add_api_route("/api/v1/products/{code}", get_resource, methods=["GET"], name="product_lookup")
     return app

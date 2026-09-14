@@ -92,6 +92,8 @@ class Router:
             return self.service.media_upload(user_id,body)
         if resource=="/recipes/import-url" and method=="POST":
             return self.service.import_url(user_id,body)
+        if resource=="/recipes/import-review" and method=="POST":
+            return self.service.import_review(user_id,body)
         if resource=="/analytics" and method=="POST":
             return self.service.analytics(user_id,body)
         if resource=="/entitlements/refresh" and method=="POST":

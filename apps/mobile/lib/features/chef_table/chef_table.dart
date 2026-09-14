@@ -51,6 +51,11 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
         )
         .toList();
     final pick = recommendations.firstOrNull;
+    final pickSoon = pick == null
+        ? null
+        : soon
+              .where((batch) => pick.useSoon.contains(batch.food.id))
+              .firstOrNull;
     return Scaffold(
       body: PageBody(
         onRefresh: () => ref.read(appProvider.notifier).refresh(),
@@ -124,9 +129,17 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                   if (pick.useSoon.isNotEmpty)
                     _Reason(
                       icon: EatMeGlyph.clockAlert,
-                      text: context.t('uses_expiring', {
-                        'count': pick.useSoon.length,
-                      }),
+                      text: pickSoon == null
+                          ? context.t('uses_expiring', {
+                              'count': pick.useSoon.length,
+                            })
+                          : context.t('use_soon_named', {
+                              'food': localized(
+                                pickSoon.food.name,
+                                context.language,
+                              ),
+                              'date': expiryLabel(context, pickSoon),
+                            }),
                     ),
                   _Reason(
                     icon: EatMeGlyph.timer,
@@ -366,25 +379,57 @@ class RecipeCard extends StatelessWidget {
       'total': r.total,
     });
     if (!featured) {
-      return Card(
-        child: ListTile(
-          leading: FoodImage(
-            id: r.recipe.id,
-            width: 64,
-            height: 64,
-            radius: 14,
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Material(
+          color: Theme.of(context).colorScheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(24),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(24),
+            onTap: () => context.push('/recipes/${r.recipe.id}'),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  FoodImage(
+                    id: r.recipe.id,
+                    width: 70,
+                    height: 70,
+                    radius: 18,
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          localized(r.recipe.title, context.language),
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          meta,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        if (r.warnings.isNotEmpty) ...[
+                          const SizedBox(height: 7),
+                          StatusBadge(
+                            label: context.t('preference_warning'),
+                            icon: EatMeGlyph.circleAlert,
+                            warning: true,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const EatMeIcon(EatMeGlyph.chevronRight),
+                ],
+              ),
+            ),
           ),
-          title: Text(localized(r.recipe.title, context.language)),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(meta),
-              if (r.warnings.isNotEmpty)
-                StatusNote(text: context.t('preference_warning')),
-            ],
-          ),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () => context.push('/recipes/${r.recipe.id}'),
         ),
       );
     }
@@ -437,6 +482,7 @@ class _KitchenToolsSheet extends StatelessWidget {
         ('meal_planner', '/planner', EatMeGlyph.calendarDays),
         ('shopping_list', '/shopping', EatMeGlyph.shoppingBasket),
         ('recipe_library', '/recipe-library', EatMeGlyph.bookOpen),
+        ('import_recipe', '/recipe-import', EatMeGlyph.sparkles),
       ])
         SettingRow(
           title: context.t(item.$1),

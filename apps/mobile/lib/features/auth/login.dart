@@ -90,6 +90,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
             ],
           ),
+          if (!EatMeApi.development && EatMeApi.oauthEnabled) ...[
+            _SocialAuthBlock(api: api),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                const Expanded(child: Divider()),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Text(context.t('or_continue_with_email')),
+                ),
+                const Expanded(child: Divider()),
+              ],
+            ),
+            const SizedBox(height: 24),
+          ],
           AutofillGroup(
             child: Column(
               children: [
@@ -135,10 +150,34 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               ),
             ),
             if (!EatMeApi.development) ...[
-              CheckboxListTile(
-                value: accepted,
-                title: Text(context.t('accept_terms_privacy')),
-                onChanged: (v) => setState(() => accepted = v ?? false),
+              const SizedBox(height: 14),
+              InformationPanel(
+                tinted: false,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(18),
+                  onTap: () => setState(() => accepted = !accepted),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Checkbox.adaptive(
+                        value: accepted,
+                        onChanged: (value) =>
+                            setState(() => accepted = value == true),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: Text(context.t('accept_terms_privacy')),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               Wrap(
                 spacing: 8,
@@ -211,37 +250,42 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             child: Text(context.t(register ? 'have_account' : 'new_account')),
           ),
           if (verificationSent) StatusNote(text: context.t('verify_email')),
-          if (!EatMeApi.development && EatMeApi.oauthEnabled) ...[
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                const Expanded(child: Divider()),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Text(context.t('or_continue_with')),
-                ),
-                const Expanded(child: Divider()),
-              ],
-            ),
-            const SizedBox(height: 16),
-            AsyncAction(
-              label: context.t('google'),
-              secondary: true,
-              action: () => api.oauth(OAuthProvider.google),
-            ),
-            const SizedBox(height: 12),
-            AsyncAction(
-              label: context.t('apple'),
-              secondary: true,
-              action: () => api.oauth(OAuthProvider.apple),
-            ),
-          ],
           if (EatMeApi.development)
             StatusNote(text: context.t('development_login')),
         ],
       ),
     );
   }
+}
+
+class _SocialAuthBlock extends StatelessWidget {
+  const _SocialAuthBlock({required this.api});
+  final EatMeApi api;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Text(
+        context.t('social_first_support'),
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+      ),
+      const SizedBox(height: 14),
+      AsyncAction(
+        label: context.t('continue_google'),
+        action: () => api.oauth(OAuthProvider.google),
+      ),
+      const SizedBox(height: 10),
+      AsyncAction(
+        label: context.t('continue_apple'),
+        secondary: true,
+        action: () => api.oauth(OAuthProvider.apple),
+      ),
+    ],
+  );
 }
 
 class ResetPasswordPage extends StatefulWidget {

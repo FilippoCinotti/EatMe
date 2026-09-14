@@ -8,6 +8,7 @@ import '../../core/localization.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
 import '../organize/shared.dart';
+import '../organize/photo_acquisition.dart';
 
 class CustomFoodPage extends ConsumerStatefulWidget {
   const CustomFoodPage({super.key});
@@ -38,12 +39,19 @@ class _CustomFoodState extends ConsumerState<CustomFoodPage> {
   }
 
   Future<void> choosePhoto(ImageSource source) async {
-    final image = await ImagePicker().pickImage(
-      source: source,
-      maxWidth: 1024,
-      maxHeight: 1024,
-      imageQuality: 80,
-    );
+    final image = source == ImageSource.camera
+        ? await Navigator.push<XFile>(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const PhotoAcquisitionPage(kind: 'food'),
+            ),
+          )
+        : await ImagePicker().pickImage(
+            source: source,
+            maxWidth: 1024,
+            maxHeight: 1024,
+            imageQuality: 80,
+          );
     if (image == null) return;
     final bytes = await image.readAsBytes();
     if (mounted) {

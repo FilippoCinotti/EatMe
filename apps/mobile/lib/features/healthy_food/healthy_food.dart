@@ -141,28 +141,55 @@ class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
               query.isEmpty &&
               group == 'all') ...[
             SectionHeading(
-              title: context.t('your_favorites'),
+              title: context.t('featured_for_you'),
               actionLabel: context.t('view_all'),
               onAction: () => setState(() => favoritesOnly = true),
             ),
-            HorizontalFoodRail(
-              children: [
-                for (final food in featured)
-                  FoodPhotoCard(
-                    id: food.id,
-                    photoId: food.photoId,
-                    title: localized(food.name, context.language),
-                    subtitle: context.t('food_group_${food.group}'),
-                    imageHeight: 112,
-                    onTap: state.offline
-                        ? null
-                        : () => sheet(context, FoodAssessment(food: food)),
-                  ),
-              ],
+            _FeaturedDiscoveryCard(
+              food: featured.first,
+              onTap: state.offline
+                  ? null
+                  : () => sheet(
+                      context,
+                      FoodAssessment(food: featured.first),
+                    ),
             ),
+            if (featured.length > 1) ...[
+              const SizedBox(height: 14),
+              HorizontalFoodRail(
+                children: [
+                  for (final food in featured.skip(1))
+                    FoodPhotoCard(
+                      id: food.id,
+                      photoId: food.photoId,
+                      title: localized(food.name, context.language),
+                      subtitle: context.t('saved_by_you'),
+                      imageHeight: 112,
+                      onTap: state.offline
+                          ? null
+                          : () => sheet(context, FoodAssessment(food: food)),
+                    ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 12),
+          ],
+          if (featured.isEmpty &&
+              !favoritesOnly &&
+              query.isEmpty &&
+              group == 'all') ...[
+            SectionHeading(title: context.t('start_discovering')),
+            InformationPanel(
+              child: SettingRow(
+                title: context.t('save_foods_to_feature'),
+                subtitle: context.t('save_foods_to_feature_body'),
+                icon: EatMeGlyph.heart,
+              ),
+            ),
+            const SizedBox(height: 12),
           ],
           SectionHeading(
-            title: context.t(favoritesOnly ? 'favorites' : 'all_foods'),
+            title: context.t(favoritesOnly ? 'favorites' : 'full_catalog'),
           ),
           if (state.offline)
             StatusNote(text: context.t('online_required'), warning: true),
@@ -224,6 +251,85 @@ class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
       ),
     );
   }
+}
+
+class _FeaturedDiscoveryCard extends StatelessWidget {
+  const _FeaturedDiscoveryCard({required this.food, required this.onTap});
+  final Food food;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: onTap != null,
+    child: Material(
+      color: Theme.of(context).colorScheme.surfaceContainer,
+      borderRadius: BorderRadius.circular(30),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FoodImage(
+              id: food.id,
+              photoId: food.photoId,
+              width: double.infinity,
+              height: 210,
+              radius: 0,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(22, 18, 22, 22),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.t('saved_by_you').toUpperCase(),
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.6,
+                          ),
+                        ),
+                        const SizedBox(height: 7),
+                        Text(
+                          localized(food.name, context.language),
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          context.t('featured_favorite_body'),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                    ),
+                    child: EatMeIcon(
+                      EatMeGlyph.chevronRight,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 class FoodAssessment extends ConsumerStatefulWidget {

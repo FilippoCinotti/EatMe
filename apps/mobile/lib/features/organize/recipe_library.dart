@@ -7,6 +7,7 @@ import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
 import 'shared.dart';
+import 'social_recipe_import.dart';
 
 class RecipeLibraryPage extends ConsumerStatefulWidget {
   const RecipeLibraryPage({super.key, this.initialFavorites = false});
@@ -18,14 +19,20 @@ class RecipeLibraryPage extends ConsumerStatefulWidget {
 class _LibraryState extends ResourceState<RecipeLibraryPage> {
   @override
   String get path => '/recipes';
-  late bool favorites = widget.initialFavorites;
+  late String filter = widget.initialFavorites ? 'favorites' : 'all';
   String query = '';
   @override
   Widget build(BuildContext context) {
     final items = records(data?['items'])
         .where(
           (r) =>
-              (!favorites || r['favorite'] == true) &&
+              (filter == 'all' ||
+                  (filter == 'favorites' && r['favorite'] == true) ||
+                  (filter == 'imported' &&
+                      '${r['source_platform'] ?? ''}'.isNotEmpty) ||
+                  (filter == 'yours' &&
+                      r['private'] == true &&
+                      '${r['source_platform'] ?? ''}'.isEmpty)) &&
               labelOf(
                 r['title'],
                 context,
@@ -35,83 +42,246 @@ class _LibraryState extends ResourceState<RecipeLibraryPage> {
     return Scaffold(
       appBar: EatMeAppBar(title: Text(context.t('recipe_library'))),
       body: content([
-        TextField(
-          decoration: InputDecoration(
-            labelText: context.t('search_recipes'),
-            prefixIcon: const Icon(Icons.search),
-          ),
-          onChanged: (v) => setState(() => query = v),
+        SocialImportHeader(
+          eyebrow: context.t('your_collection'),
+          title: context.t('recipes_you_love'),
+          subtitle: context.t('recipe_library_support'),
         ),
-        const SizedBox(height: 16),
-        FilterChip(
-          label: Text(context.t('favorites')),
-          selected: favorites,
-          onSelected: (v) => setState(() => favorites = v),
+        SearchPill(
+          hint: context.t('search_recipes'),
+          onChanged: (value) => setState(() => query = value),
         ),
-        const SizedBox(height: 16),
-        AsyncAction(
-          label: context.t('create_recipe'),
-          action: () async {
-            await context.push('/recipe-editor');
+        const SizedBox(height: 20),
+        _ImportRecipeCard(
+          onTap: () async {
+            await context.push('/recipe-import');
             await load();
           },
         ),
-        const SizedBox(height: 8),
-        AsyncAction(
-          label: context.t('import_recipe_url'),
-          secondary: true,
-          action: () async {
-            final url = await askText(context, context.t('recipe_url'));
-            if (url == null) return;
-            final draft = await ref
-                .read(apiProvider)
-                .request(
-                  'POST',
-                  '/recipes/import-url',
-                  body: {'url': url, 'private_use_confirmed': true},
-                );
-            if (mounted && context.mounted) {
-              await context.push('/recipe-editor', extra: draft);
-              await load();
-            }
-          },
+        const SizedBox(height: 18),
+        _LibraryFilters(
+          selected: filter,
+          onSelected: (value) => setState(() => filter = value),
         ),
-        StatusNote(text: context.t('private_import_notice')),
+        const SizedBox(height: 24),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                context.t(filter == 'all' ? 'all_recipes' : filter),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            TextButton.icon(
+              onPressed: () async {
+                await context.push('/recipe-editor');
+                await load();
+              },
+              icon: const EatMeIcon(EatMeGlyph.plus, size: 18),
+              label: Text(context.t('create_recipe')),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
         for (final recipe in items)
-          Card(
-            child: ListTile(
-              leading: FoodImage(
-                id: '${recipe['id']}',
-                width: 60,
-                height: 60,
-                radius: 14,
-              ),
-              title: Text(labelOf(recipe['title'], context)),
-              subtitle: Text('${recipe['minutes']} min'),
-              trailing: IconButton(
-                tooltip: context.t('favorite'),
-                icon: Icon(
-                  recipe['favorite'] == true
-                      ? Icons.favorite
-                      : Icons.favorite_border,
-                ),
-                onPressed: () async {
-                  await guard(() async {
-                    await command({
-                      'action': 'favorite',
-                      'recipe_id': recipe['id'],
-                      'enabled': recipe['favorite'] != true,
-                    });
-                  });
-                },
-              ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _RecipeLibraryRow(
+              recipe: recipe,
               onTap: () => context.push('/recipes/${recipe['id']}'),
+              onFavorite: () async {
+                await guard(() async {
+                  await command({
+                    'action': 'favorite',
+                    'recipe_id': recipe['id'],
+                    'enabled': recipe['favorite'] != true,
+                  });
+                });
+              },
             ),
           ),
         if (items.isEmpty) StatusNote(text: context.t('no_recipes')),
+        const SizedBox(height: 18),
       ]),
     );
   }
+}
+
+class _ImportRecipeCard extends StatelessWidget {
+  const _ImportRecipeCard({required this.onTap});
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    child: Material(
+      color: Theme.of(context).colorScheme.primaryContainer,
+      borderRadius: BorderRadius.circular(30),
+      child: InkWell(
+        key: const Key('recipe_import_entry'),
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(30),
+        child: Padding(
+          padding: const EdgeInsets.all(22),
+          child: Row(
+            children: [
+              Container(
+                width: 58,
+                height: 58,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: EatMeIcon(
+                  EatMeGlyph.sparkles,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  size: 27,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.t('import_recipe'),
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      context.t('import_recipe_support'),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              const EatMeIcon(EatMeGlyph.chevronRight),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+class _LibraryFilters extends StatelessWidget {
+  const _LibraryFilters({required this.selected, required this.onSelected});
+  final String selected;
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) => Wrap(
+    spacing: 8,
+    runSpacing: 8,
+    children: [
+      for (final value in const ['all', 'favorites', 'yours', 'imported'])
+        Semantics(
+          button: true,
+          selected: selected == value,
+          child: InkWell(
+            onTap: () => onSelected(value),
+            borderRadius: BorderRadius.circular(22),
+            child: AnimatedContainer(
+              duration: MediaQuery.disableAnimationsOf(context)
+                  ? Duration.zero
+                  : const Duration(milliseconds: 180),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: selected == value
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.surfaceContainer,
+                borderRadius: BorderRadius.circular(22),
+              ),
+              child: Text(
+                context.t(value),
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: selected == value
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ),
+        ),
+    ],
+  );
+}
+
+class _RecipeLibraryRow extends StatelessWidget {
+  const _RecipeLibraryRow({
+    required this.recipe,
+    required this.onTap,
+    required this.onFavorite,
+  });
+  final Json recipe;
+  final VoidCallback onTap, onFavorite;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: Theme.of(context).colorScheme.surfaceContainer,
+    borderRadius: BorderRadius.circular(24),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(24),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            FoodImage(
+              id: '${recipe['id']}',
+              width: 72,
+              height: 72,
+              radius: 18,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    labelOf(recipe['title'], context),
+                    style: Theme.of(context).textTheme.titleMedium,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 7),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [
+                      StatusBadge(
+                        label: '${recipe['minutes']} min',
+                        icon: EatMeGlyph.clock,
+                      ),
+                      if ('${recipe['source_platform'] ?? ''}'.isNotEmpty)
+                        StatusBadge(
+                          label: context.t('imported'),
+                          icon: EatMeGlyph.sparkles,
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            EatMeIconButton(
+              glyph: EatMeGlyph.heart,
+              label: context.t('favorite'),
+              onPressed: onFavorite,
+              foregroundColor: recipe['favorite'] == true
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
+              backgroundColor: Colors.transparent,
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 class RecipeEditorPage extends ConsumerStatefulWidget {

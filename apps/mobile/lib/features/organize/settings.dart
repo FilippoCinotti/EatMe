@@ -370,26 +370,91 @@ class _InsightsState extends ResourceState<InsightsPage> {
   String tab = 'overview';
   @override
   String get path => '/insights';
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: EatMeAppBar(title: Text(context.t('insights'))),
-    body: content([
-      Text(
-        context.t('small_habits'),
-        style: Theme.of(context).textTheme.headlineMedium,
-      ),
-      const SizedBox(height: 24),
-      Wrap(
-        spacing: 8,
+  String moneyLabel() {
+    final values = records(data?['money_saved']?['amounts']);
+    if (values.isEmpty) return '—';
+    const symbols = {'EUR': '€', 'USD': r'$', 'GBP': '£', 'CHF': 'CHF '};
+    return values
+        .map((item) => '${symbols[item['currency']] ?? '${item['currency']} '}${item['value']}')
+        .join(' · ');
+  }
+
+  void methodology() {
+    final method = Map<String, dynamic>.from(data?['savings_method'] as Map? ?? {});
+    final source = Map<String, dynamic>.from(method['factor_source'] as Map? ?? {});
+    sheet(
+      context,
+      ListView(
+        shrinkWrap: true,
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 30),
         children: [
-          for (final value in ['overview', 'alerts', 'tips'])
-            ChoiceChip(
-              label: Text(context.t('insights_$value')),
-              selected: tab == value,
-              onSelected: (_) => setState(() => tab = value),
+          Text(
+            context.t('how_savings_calculated'),
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 12),
+          Text(context.t('savings_method_body')),
+          const SizedBox(height: 20),
+          SettingsGroup(
+            children: [
+              SettingRow(
+                title: context.t('money_method_title'),
+                subtitle: context.t('money_method_body'),
+                icon: EatMeGlyph.shoppingBasket,
+              ),
+              SettingRow(
+                title: context.t('co2_method_title'),
+                subtitle: context.t('co2_method_body'),
+                icon: EatMeGlyph.leaf,
+              ),
+              SettingRow(
+                title: context.t('estimate_limits_title'),
+                subtitle: context.t('estimate_limits_body'),
+                icon: EatMeGlyph.info,
+              ),
+            ],
+          ),
+          if ('${source['url'] ?? ''}'.startsWith('https://'))
+            OutlinedButton(
+              onPressed: () => launchUrl(
+                Uri.parse('${source['url']}'),
+                mode: LaunchMode.externalApplication,
+              ),
+              child: Text(context.t('read_factor_source')),
             ),
         ],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final carbon = data?['carbon_saved'] as Map?;
+    final method = data?['savings_method'] as Map? ?? {};
+    return Scaffold(
+      appBar: EatMeAppBar(title: Text(context.t('insights'))),
+      body: content([
+        Text(
+          context.t('small_habits'),
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          context.t('insights_support'),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 24),
+        EatMeTabStrip(
+          values: [
+            for (final value in ['overview', 'impact', 'alerts', 'tips'])
+              (value, context.t('insights_$value')),
+          ],
+          selected: tab,
+          onSelected: (value) => setState(() => tab = value),
+        ),
+        const SizedBox(height: 24),
       if (tab == 'alerts') ...[
         for (final batch
             in ref
@@ -400,17 +465,22 @@ class _InsightsState extends ResourceState<InsightsPage> {
                       b.expiryDate != null &&
                       b.expiryDate!.difference(DateTime.now()).inDays <= 3,
                 ))
-          Card(
-            child: ListTile(
-              leading: FoodMark(food: batch.food),
-              title: Text(localized(batch.food.name, context.language)),
-              subtitle: Text(expiryLabel(context, batch)),
-              onTap: () => context.push('/expiry'),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: InformationPanel(
+              tinted: false,
+              child: SettingRow(
+                title: localized(batch.food.name, context.language),
+                subtitle: expiryLabel(context, batch),
+                icon: EatMeGlyph.clockAlert,
+                onTap: () => context.push('/expiry'),
+              ),
             ),
           ),
-        TextButton(
-          onPressed: () => context.push('/notifications'),
-          child: Text(context.t('notifications')),
+        AsyncAction(
+          label: context.t('notifications'),
+          secondary: true,
+          action: () async => context.push('/notifications'),
         ),
       ],
       if (tab == 'tips') ...[
@@ -429,39 +499,178 @@ class _InsightsState extends ResourceState<InsightsPage> {
         ),
       ],
       if (tab == 'overview') ...[
-        for (final metric in ['cooked_meals', 'different_recipes'])
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${data?[metric] ?? 0}',
-                    style: Theme.of(context).textTheme.displaySmall,
-                  ),
-                  Text(context.t(metric)),
-                ],
+        Row(
+          children: [
+            for (final metric in ['cooked_meals', 'different_recipes']) ...[
+              Expanded(
+                child: _InsightMetric(
+                  value: '${data?[metric] ?? 0}',
+                  label: context.t(metric),
+                ),
+              ),
+              if (metric == 'cooked_meals') const SizedBox(width: 12),
+            ],
+          ],
+        ),
+        const SizedBox(height: 20),
+        SettingsGroup(
+          title: context.t('recorded_activity'),
+          children: [
+            for (final entry
+                in (data?['inventory_event_counts'] as Map? ?? {}).entries)
+              SettingRow(
+                title: context.t('event_${entry.key}'),
+                icon: EatMeGlyph.history,
+                trailing: StatusBadge(label: '${entry.value}'),
+              ),
+          ],
+        ),
+        for (final unit in (data?['recorded_quantities'] as Map? ?? {}).entries)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: InformationPanel(
+              tinted: false,
+              child: Text(
+                '${context.t('recorded_use')}: ${unit.value['used']} ${unit.key} · ${context.t('discarded_amount')}: ${unit.value['discarded']} ${unit.key}',
               ),
             ),
           ),
-        for (final entry
-            in (data?['inventory_event_counts'] as Map? ?? {}).entries)
-          ListTile(
-            title: Text(context.t('event_${entry.key}')),
-            trailing: Text('${entry.value}'),
-          ),
-        for (final unit in (data?['recorded_quantities'] as Map? ?? {}).entries)
-          ListTile(
-            title: Text(context.t('recorded_use')),
-            subtitle: Text(
-              '${unit.value['used']} ${unit.key} · ${context.t('discarded_amount')}: ${unit.value['discarded']} ${unit.key}',
-            ),
-          ),
         StatusNote(text: context.t('recorded_quantities_notice')),
-        StatusNote(text: context.t('insights_method')),
       ],
+      if (tab == 'impact') ...[
+        Text(
+          context.t('estimated_savings'),
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          context.t('estimated_savings_support'),
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 18),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final cards = [
+              _ImpactMetric(
+                icon: EatMeGlyph.shoppingBasket,
+                value: moneyLabel(),
+                label: context.t('estimated_food_value'),
+                available: data?['money_saved'] != null,
+              ),
+              _ImpactMetric(
+                icon: EatMeGlyph.leaf,
+                value: carbon == null ? '—' : '${carbon['value']} kg CO₂e',
+                label: context.t('estimated_co2e'),
+                available: carbon != null,
+              ),
+            ];
+            if (constraints.maxWidth < 360 ||
+                MediaQuery.textScalerOf(context).scale(16) > 21) {
+              return Column(
+                children: [cards.first, const SizedBox(height: 12), cards.last],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(child: cards.first),
+                const SizedBox(width: 12),
+                Expanded(child: cards.last),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 18),
+        InformationPanel(
+          tinted: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.t('estimate_coverage'),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                context.t('eligible_events_count', {
+                  'count': method['eligible_events'] ?? 0,
+                }),
+              ),
+              if (carbon != null) ...[
+                const SizedBox(height: 5),
+                Text(
+                  context.t('factor_coverage_mass', {
+                    'covered': carbon['covered_quantity_g'] ?? '0',
+                    'eligible': carbon['eligible_quantity_g'] ?? '0',
+                  }),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 18),
+        AsyncAction(
+          label: context.t('how_savings_calculated'),
+          secondary: true,
+          action: () async => methodology(),
+        ),
+      ],
+      const SizedBox(height: 18),
+      StatusNote(text: context.t('insights_method')),
     ]),
+    );
+  }
+}
+
+class _InsightMetric extends StatelessWidget {
+  const _InsightMetric({required this.value, required this.label});
+  final String value, label;
+
+  @override
+  Widget build(BuildContext context) => InformationPanel(
+    tinted: false,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(value, style: Theme.of(context).textTheme.displaySmall),
+        const SizedBox(height: 6),
+        Text(label),
+      ],
+    ),
+  );
+}
+
+class _ImpactMetric extends StatelessWidget {
+  const _ImpactMetric({
+    required this.icon,
+    required this.value,
+    required this.label,
+    required this.available,
+  });
+  final EatMeGlyph icon;
+  final String value, label;
+  final bool available;
+
+  @override
+  Widget build(BuildContext context) => InformationPanel(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        EatMeIcon(icon, color: Theme.of(context).colorScheme.primary, size: 28),
+        const SizedBox(height: 16),
+        Text(value, style: Theme.of(context).textTheme.headlineMedium),
+        const SizedBox(height: 6),
+        Text(label),
+        if (!available) ...[
+          const SizedBox(height: 8),
+          Text(
+            context.t('savings_unavailable'),
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ],
+    ),
   );
 }
 
