@@ -184,20 +184,16 @@ class _PhotoAcquisitionPageState extends ConsumerState<PhotoAcquisitionPage> {
                                           color: green,
                                           size: compact ? 30 : 42,
                                         ),
-                                        SizedBox(height: compact ? 10 : 18),
-                                        Text(
-                                          context.t('frame_your_food'),
-                                          maxLines: compact ? 3 : null,
-                                          overflow: compact
-                                              ? TextOverflow.ellipsis
-                                              : null,
-                                          textAlign: TextAlign.center,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineSmall
-                                              ?.copyWith(color: ink),
-                                        ),
                                         if (!compact) ...[
+                                          const SizedBox(height: 18),
+                                          Text(
+                                            context.t('frame_your_food'),
+                                            textAlign: TextAlign.center,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headlineSmall
+                                                ?.copyWith(color: ink),
+                                          ),
                                           const SizedBox(height: 8),
                                           Text(
                                             context.t('frame_your_food_body'),
