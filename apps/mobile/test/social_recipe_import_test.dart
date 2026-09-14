@@ -411,7 +411,12 @@ void main() {
     await tester.scrollUntilVisible(
       add,
       300,
-      scrollable: find.byType(ListView),
+      scrollable: find
+          .descendant(
+            of: find.byType(ListView),
+            matching: find.byType(Scrollable),
+          )
+          .first,
     );
     expect(add, findsOneWidget);
     await tester.tap(add);
