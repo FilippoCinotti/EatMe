@@ -8,6 +8,7 @@ import '../../core/localization.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
 import '../organize/shared.dart';
+import '../organize/photo_acquisition.dart';
 
 class CustomFoodPage extends ConsumerStatefulWidget {
   const CustomFoodPage({super.key});
@@ -38,12 +39,19 @@ class _CustomFoodState extends ConsumerState<CustomFoodPage> {
   }
 
   Future<void> choosePhoto(ImageSource source) async {
-    final image = await ImagePicker().pickImage(
-      source: source,
-      maxWidth: 1024,
-      maxHeight: 1024,
-      imageQuality: 80,
-    );
+    final image = source == ImageSource.camera
+        ? await Navigator.push<XFile>(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const PhotoAcquisitionPage(kind: 'food'),
+            ),
+          )
+        : await ImagePicker().pickImage(
+            source: source,
+            maxWidth: 1024,
+            maxHeight: 1024,
+            imageQuality: 80,
+          );
     if (image == null) return;
     final bytes = await image.readAsBytes();
     if (mounted) {
@@ -239,24 +247,23 @@ class StorageDateFields extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     children: [
       const SizedBox(height: 16),
-      DropdownButtonFormField<String>(
-        isExpanded: true,
-        initialValue: location,
-        decoration: InputDecoration(labelText: context.t('storage')),
-        items: ['fridge', 'freezer', 'pantry']
-            .map((v) => DropdownMenuItem(value: v, child: Text(context.t(v))))
-            .toList(),
-        onChanged: (v) => onChanged(v!, date, kind),
+      Text(context.t('storage'), style: Theme.of(context).textTheme.titleSmall),
+      const SizedBox(height: 10),
+      EatMeTabStrip(
+        values: [
+          for (final value in ['fridge', 'freezer', 'pantry'])
+            (value, context.t(value)),
+        ],
+        selected: location,
+        onSelected: (value) => onChanged(value, date, kind),
       ),
-      ListTile(
-        contentPadding: EdgeInsets.zero,
-        title: Text(context.t('package_date')),
-        subtitle: Text(
-          date == null
-              ? context.t('optional')
-              : MaterialLocalizations.of(context).formatCompactDate(date!),
-        ),
-        trailing: const Icon(Icons.calendar_today_outlined),
+      const SizedBox(height: 10),
+      SettingRow(
+        icon: EatMeGlyph.calendar,
+        title: context.t('package_date'),
+        subtitle: date == null
+            ? context.t('optional')
+            : MaterialLocalizations.of(context).formatCompactDate(date!),
         onTap: () async {
           final chosen = await showDatePicker(
             context: context,

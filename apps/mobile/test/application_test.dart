@@ -312,9 +312,9 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        expect(find.byType(NavigationDestination), findsNWidgets(4));
+        expect(find.byType(EatMeNavigationBar), findsOneWidget);
         expect(
-          tester.getRect(find.byType(NavigationBar)).right,
+          tester.getRect(find.byType(EatMeNavigationBar)).right,
           lessThanOrEqualTo(390),
         );
         expect(tester.takeException(), isNull);

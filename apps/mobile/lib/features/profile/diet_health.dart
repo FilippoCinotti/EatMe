@@ -26,7 +26,11 @@ class DietHealthPage extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.shield_outlined, size: 30),
+                EatMeIcon(
+                  EatMeGlyph.shieldCheck,
+                  size: 30,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 const SizedBox(height: 16),
                 Text(
                   context.t('allergies_intolerances'),
@@ -58,7 +62,7 @@ class DietHealthPage extends ConsumerWidget {
                                   ? 'allergen_$value'
                                   : value,
                             ),
-                            icon: Icons.warning_amber,
+                            icon: EatMeGlyph.triangleAlert,
                             urgent: true,
                           ),
                       ],
@@ -91,8 +95,8 @@ class DietHealthPage extends ConsumerWidget {
                         assignment['strictness'] as String? ?? 'standard',
                       ),
                       icon: diet?.medical == true
-                          ? Icons.medical_services_outlined
-                          : Icons.eco_outlined,
+                          ? EatMeGlyph.shield
+                          : EatMeGlyph.leaf,
                       trailing:
                           assignment['diet_id'] == settings['primary_diet']
                           ? StatusBadge(label: context.t('primary_diet'))
@@ -108,7 +112,7 @@ class DietHealthPage extends ConsumerWidget {
               children: [
                 SettingRow(
                   title: context.t('goal_${settings['primary_goal']}'),
-                  icon: Icons.favorite_outline,
+                  icon: EatMeGlyph.heartPulse,
                 ),
               ],
             ),
@@ -119,7 +123,7 @@ class DietHealthPage extends ConsumerWidget {
           const SizedBox(height: 16),
           SettingRow(
             title: context.t('wellbeing'),
-            icon: Icons.track_changes,
+            icon: EatMeGlyph.chartSpline,
             onTap: () => context.push('/wellbeing'),
           ),
         ],

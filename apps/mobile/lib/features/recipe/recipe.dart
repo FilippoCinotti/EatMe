@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/api.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
@@ -24,16 +25,30 @@ class _RecipePageState extends ConsumerState<RecipePage> {
   bool favorite = false;
   List<Json> compatibilityWarnings = [];
   bool privateRecipe = false;
+  Json rawRecipe = {};
   final mutation = Mutation();
   List<String>? participants;
+  Future<void> toggleFavorite() async {
+    await mutation.send(ref.read(apiProvider), 'POST', '/recipes', {
+      'action': 'favorite',
+      'recipe_id': widget.recipeId,
+      'enabled': !favorite,
+    });
+    if (mounted) setState(() => favorite = !favorite);
+  }
+
   Future<(Recipe, Json)> load() async {
     final api = ref.read(apiProvider);
     final recipe = await api.request('GET', '/recipes/${widget.recipeId}');
     if (mounted) {
       setState(() {
         favorite = recipe['favorite'] == true;
-        compatibilityWarnings = records(recipe['compatibility']?['warnings']);
+        compatibilityWarnings = [
+          ...records(recipe['compatibility']?['reasons']),
+          ...records(recipe['compatibility']?['warnings']),
+        ];
         privateRecipe = recipe['private'] == true;
+        rawRecipe = recipe;
       });
     }
     try {
@@ -117,7 +132,26 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 text: context.t(plan['preview_unavailable'] as String),
                 warning: true,
               ),
-            FoodImage(id: recipe.id, height: 280, radius: 28),
+            Stack(
+              children: [
+                FoodImage(id: recipe.id, height: 280, radius: 28),
+                Positioned(
+                  top: 14,
+                  right: 14,
+                  child: EatMeIconButton(
+                    glyph: EatMeGlyph.heart,
+                    label: context.t(favorite ? 'remove_favorite' : 'favorite'),
+                    foregroundColor: favorite
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurface,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.surface.withValues(alpha: .92),
+                    onPressed: toggleFavorite,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 20),
             Text(
               localized(recipe.title, context.language),
@@ -130,32 +164,91 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               children: [
                 StatusBadge(
                   label: context.t('minutes', {'minutes': recipe.minutes}),
-                  icon: Icons.schedule,
+                  icon: EatMeGlyph.clock,
                 ),
                 StatusBadge(
                   label: context.t('portions', {'count': servings}),
-                  icon: Icons.restaurant,
+                  icon: EatMeGlyph.utensils,
                 ),
               ],
             ),
+            if ('${rawRecipe['source_url'] ?? ''}'.isNotEmpty) ...[
+              const SizedBox(height: 18),
+              InformationPanel(
+                tinted: false,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 46,
+                      height: 46,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: const EatMeIcon(EatMeGlyph.sparkles),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            context.t('imported_from_source', {
+                              'source':
+                                  const {
+                                    'youtube',
+                                    'instagram',
+                                  }.contains('${rawRecipe['source_platform']}')
+                                  ? context.t('${rawRecipe['source_platform']}')
+                                  : context.t('original_source'),
+                            }),
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          if ('${rawRecipe['source_creator'] ?? ''}'.isNotEmpty)
+                            Text(
+                              context.t('source_by', {
+                                'creator': '${rawRecipe['source_creator']}',
+                              }),
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          if ((rawRecipe['adaptations'] as List? ?? [])
+                              .isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 6),
+                              child: Text(
+                                context.t('adaptation_count', {
+                                  'count':
+                                      (rawRecipe['adaptations'] as List).length,
+                                }),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                    ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => launchUrl(
+                        Uri.parse('${rawRecipe['source_url']}'),
+                        mode: LaunchMode.externalApplication,
+                      ),
+                      child: Text(context.t('original')),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 20),
             ExpansionTile(
               tilePadding: EdgeInsets.zero,
               title: Text(context.t('recipe_actions')),
               children: [
-                AsyncAction(
-                  label: context.t(favorite ? 'remove_favorite' : 'favorite'),
-                  secondary: true,
-                  action: () async {
-                    await mutation
-                        .send(ref.read(apiProvider), 'POST', '/recipes', {
-                          'action': 'favorite',
-                          'recipe_id': widget.recipeId,
-                          'enabled': !favorite,
-                        });
-                    if (mounted) setState(() => favorite = !favorite);
-                  },
-                ),
                 AsyncAction(
                   label: context.t('share_recipe'),
                   secondary: true,
@@ -183,7 +276,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                           future = load();
                         })
                       : null,
-                  icon: const Icon(Icons.remove),
+                  icon: const EatMeIcon(EatMeGlyph.minus, size: 18),
                 ),
                 Text('$servings'),
                 IconButton(
@@ -194,7 +287,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                           future = load();
                         })
                       : null,
-                  icon: const Icon(Icons.add),
+                  icon: const EatMeIcon(EatMeGlyph.plus, size: 18),
                 ),
               ],
             ),
@@ -216,18 +309,13 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 }
               },
             ),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
+            EatMeTabStrip(
+              values: [
                 for (final value in ['ingredients', 'overview', 'why'])
-                  ChoiceChip(
-                    showCheckmark: false,
-                    label: Text(context.t(value)),
-                    selected: tab == value,
-                    onSelected: (_) => setState(() => tab = value),
-                  ),
+                  (value, context.t(value)),
               ],
+              selected: tab,
+              onSelected: (value) => setState(() => tab = value),
             ),
             const SizedBox(height: 20),
             if (tab == 'ingredients')

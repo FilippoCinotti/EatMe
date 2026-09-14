@@ -19,7 +19,15 @@ The presentation reuses the production Riverpod, Supabase, API, offline and tran
 
 The shared spacing scale is 4, 8, 12, 16, 20, 24, 32, 40 and 48 logical pixels. Inputs and compact actions use 14–18 pixel corners, photo cards 23–28, panels 26 and floating navigation 32. Pills use stadium geometry. Surface tone, imagery and typography carry hierarchy; borders are reserved for focus and the quiet glass highlight.
 
-`theme.dart` owns shared theme values. `premium.dart`, `recipe_hero.dart`, `food_image.dart` and `widgets.dart` own composition primitives: EditorialHeader, EatMeWordmark, SearchPill, RoundAction, HeroRecipeCard, FoodPhotoCard, StatusBadge, CategoryTile, AdaptivePhotoGrid, HorizontalFoodRail, InformationPanel, GlassSurface, SettingsGroup, SettingRow and ShortcutTile. Secondary navigation shares EatMeAppBar. InformationPanel paints its background on Material so child controls retain visible ink feedback.
+`theme.dart` owns shared theme values. `premium.dart`, `recipe_hero.dart`, `food_image.dart` and `widgets.dart` own composition primitives: EditorialHeader, EatMeWordmark, SearchPill, RoundAction, HeroRecipeCard, FoodPhotoCard, StatusBadge, CategoryTile, AdaptivePhotoGrid, HorizontalFoodRail, InformationPanel, GlassSurface, SettingsGroup, SettingRow, EatMeSelectionRow, EatMeToggleRow, EatMeTabStrip, ShortcutTile and CompactShortcut. Secondary navigation shares EatMeAppBar. InformationPanel paints its background on Material so child controls retain visible ink feedback.
+
+## Brand and iconography
+
+The production wordmark uses an original two-leaf EatMe mark implemented as a Flutter vector painter in `design_system/brand.dart`. The same geometry is retained in `assets/brand/eatme-mark.svg` for documentation and non-Flutter use. It is not assembled from a generic interface icon and adapts to the active theme color without raster assets.
+
+Visible product iconography uses a curated subset of Lucide 1.8.0 geometry. Lucide was selected for its consistent rounded joins, restrained outline construction and cross-platform optical weight. EatMe bundles only the required paths and renders them through `EatMeGlyph`, `EatMeIcon` and `EatMeIconButton`; screens do not depend on a third-party Flutter icon package and the application does not ship an unnecessary full icon font. The original ISC license and the applicable Feather MIT attribution are retained in `assets/icons/LICENSE_LUCIDE.txt`.
+
+Primary navigation, page actions, profile groups, filtering, food actions and status controls use the EatMe abstraction. Material widgets may remain underneath for semantics, focus, ink response and platform behavior, but their default glyphs and visible navigation treatment are not the product's visual language. Food-image fallbacks remain neutral and never borrow a demonstration photograph for unknown content.
 
 ## Typography and font provenance
 
@@ -31,14 +39,17 @@ Display headings use an editorial serif treatment at 38 logical pixels, section 
 
 - ChefTable leads with search and a photographed recommendation. The explanation uses actual ingredient availability, preparation time and use-soon IDs. The filter sheet preserves exact recommendation mode values, including the existing plant-based mode. Favorite state is retrieved, never assumed. Cooking opens the recipe and safety preview before the transaction flow.
 - Fridge places expiring stock before an adaptive inventory grid. Each card retains recorded quantity, location, package-date semantics and access to the existing batch operations. Scan, barcode, manual catalog search, custom food and leftover routes remain available.
-- HealthyFood uses real catalog categories and photographic exploration. Favorites remain personal state. It does not label catalog ordering as clinical personalization. The assessment keeps warnings visible across Information, Nutrition and For you.
+- HealthyFood uses real catalog categories and photographic exploration. A larger “Featured for you” block is driven only by foods the user actually saved; the full catalog is deliberately secondary. It does not label catalog ordering as clinical personalization. The assessment keeps warnings visible across Information, Nutrition and For you.
 - Profile groups diet and health, household, preferences and notifications above kitchen shortcuts. The dietary summary reads saved restrictions; editing still uses the existing consent workflow. Privacy, subscriptions, sync, evidence, insights, activity and logout remain accessible.
 - Recipe detail is photograph-led with wrapping sections, real availability and servings. Favorite/share and optional tools use progressive disclosure. Start cooking retains preview and offline guards.
-- Welcome, login, registration, reset, scanner/import, add-food, shopping, planner, household and other secondary routes share typography, surfaces and controls. OAuth buttons retain real provider configuration and production legal requirements.
+- Welcome, login, registration, reset, scanner/import, add-food, shopping, planner, household and other secondary routes share typography, surfaces and controls. Enabled OAuth is social-first, while email, production legal requirements and explicit consent remain fully available.
+- Social recipe import uses the approved editorial sequence rather than a generic form: source entry, calm processing, mandatory structured review, ingredient mapping, compatibility, inventory coverage, optional user-selected substitutions, complete re-check and final save/cook. These states reuse `SocialImportHeader`, `SourceBadge`, `InformationPanel`, `SettingsGroup`, `SettingRow` and `StatusBadge`.
+- Photo acquisition is camera-first and dark-leaning, with an EatMe framing guide, large semantic shutter, gallery fallback, explicit retake/use review and visible opening, processing, permission, network and provider failures. Recognition confidence is never fabricated.
+- Insights adds an Impact view for deterministic money and CO₂e estimates. Estimated and unavailable states have equal visual care; methodology and coverage remain one tap away.
 
 ## Glass, motion and dark mode
 
-Four destinations remain: ChefTable, Fridge, HealthyFood and Profile. The bar is detached with horizontal and bottom margins, a true 20-pixel backdrop blur, restrained highlight and soft shadow. Dark glass uses a darker, more opaque surface rather than an inverted light effect. High-contrast mode removes transparency and blur. Navigation selection respects the platform's reduce-motion preference.
+Four destinations remain: ChefTable, Fridge, HealthyFood and Profile. `EatMeNavigationBar` is a bespoke destination layout rather than a styled Material NavigationBar. The bar is detached with horizontal and bottom margins, a true 20-pixel backdrop blur, restrained highlight and soft shadow. Each selected destination receives a quiet green inner capsule, stronger label weight and a short scale/opacity transition. Dark glass uses a darker, more opaque surface rather than an inverted light effect. High-contrast mode removes transparency and blur. Navigation selection respects the platform's reduce-motion preference.
 
 ## Responsive behavior and accessibility
 
@@ -48,9 +59,9 @@ Semantics, explicit tooltips, text-based warnings and touch targets accompany ic
 
 ## Real render review
 
-`visual_reference_test.dart` renders all four destinations in both themes and checks 1.6× text. `premium_journeys_test.dart` renders welcome/login, preferences, notifications, household, privacy, diet and health, recipe detail, filters and add-ingredient flows. It also exercises scrolling, compact Italian layouts and persistent allergen warnings. `reference_features_test.dart` retains custom-food, scanning and wellbeing coverage. Existing hinge, API and transaction tests remain enabled.
+`visual_reference_test.dart` renders all four destinations in both themes and checks 1.6× text. `premium_journeys_test.dart` renders welcome, login, sign-up, preferences, notifications, household, privacy, diet and health, recipe detail, filters, add-food methods and ingredient entry. It also exercises scrolling, compact Italian layouts and persistent allergen warnings. `reference_features_test.dart` retains custom-food, scanning and wellbeing coverage. `social_recipe_import_test.dart` exercises the approved import, review, mapping, compatibility, substitution, re-check, photo and impact states. The combined review artifact contains 72 real 390 × 844 Flutter screenshots; existing hinge, API and transaction tests remain enabled.
 
-Run the mobile tests with the repository-pinned Flutter SDK and `FLUTTER_ROOT`. PNGs are emitted under `apps/mobile/build/screenshots/`; reviewed copies in `docs/screenshots/` are WebP at the original dimensions. Supplied boards are never published as application screenshots. CI artifacts additionally retain native build outputs and the full render set.
+Run the mobile tests with the repository-pinned Flutter SDK and `FLUTTER_ROOT`. PNGs are emitted under `apps/mobile/build/screenshots/`; reviewed copies in `docs/screenshots/` are the original PNGs at full dimensions. Supplied boards are never published as application screenshots. CI artifacts additionally retain native build outputs and the full render set.
 
 The review loop caught and corrected background/ink containment in grouped settings and a large-text dropdown overflow. Font weight loading was corrected after inspecting real renders. See `premium-redesign-reconciliation.md` and `verification.md` for the tested baselines and CI outcomes.
 

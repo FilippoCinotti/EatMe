@@ -8,33 +8,35 @@ ChefTable, Fridge, HealthyFood and Profile in light and dark themes. These are a
 
 | Light theme | Dark theme |
 | :---: | :---: |
-| <img src="docs/screenshots/chef-light.webp" width="280" alt="ChefTable with nearby recorded food dates and a zucchini and spinach pasta suggestion." /> | <img src="docs/screenshots/chef-dark.webp" width="280" alt="ChefTable in the dark theme." /> |
-| <img src="docs/screenshots/fridge-light.webp" width="280" alt="Fridge with storage filters, search and photographed inventory cards." /> | <img src="docs/screenshots/fridge-dark.webp" width="280" alt="Fridge in the dark theme." /> |
-| <img src="docs/screenshots/healthy-food-light.webp" width="280" alt="HealthyFood with ingredient categories and a photographic food grid." /> | <img src="docs/screenshots/healthy-food-dark.webp" width="280" alt="HealthyFood in the dark theme." /> |
-| <img src="docs/screenshots/profile-light.webp" width="280" alt="Profile with dietary settings and kitchen tools." /> | <img src="docs/screenshots/profile-dark.webp" width="280" alt="Profile in the dark theme." /> |
+| <img src="docs/screenshots/chef-light.png" width="280" alt="ChefTable with nearby recorded food dates and a zucchini and spinach pasta suggestion." /> | <img src="docs/screenshots/chef-dark.png" width="280" alt="ChefTable in the dark theme." /> |
+| <img src="docs/screenshots/fridge-light.png" width="280" alt="Fridge with storage filters, search and photographed inventory cards." /> | <img src="docs/screenshots/fridge-dark.png" width="280" alt="Fridge in the dark theme." /> |
+| <img src="docs/screenshots/healthy-food-light.png" width="280" alt="HealthyFood with ingredient categories and a photographic food grid." /> | <img src="docs/screenshots/healthy-food-dark.png" width="280" alt="HealthyFood in the dark theme." /> |
+| <img src="docs/screenshots/profile-light.png" width="280" alt="Profile with dietary settings and kitchen tools." /> | <img src="docs/screenshots/profile-dark.png" width="280" alt="Profile in the dark theme." /> |
 
-The images are stored in this repository, so they remain available after CI artifacts expire. To regenerate them, run `flutter test test/visual_reference_test.dart test/premium_journeys_test.dart test/reference_features_test.dart` from `apps/mobile` with `FLUTTER_ROOT` pointing to the Flutter SDK; PNG renders are written to `build/screenshots/`. The README copies are encoded as WebP without resizing. The tests also exercise 1.6× text scaling, compact Italian layouts, secondary journeys and persistent allergy warnings. See the [visual design notes](docs/product/visual-design.md) for the reference direction and asset provenance.
+The images are stored in this repository, so they remain available after CI artifacts expire. To regenerate them, run `flutter test test/visual_reference_test.dart test/premium_journeys_test.dart test/reference_features_test.dart test/social_recipe_import_test.dart` from `apps/mobile` with `FLUTTER_ROOT` pointing to the Flutter SDK; PNG renders are written to `build/screenshots/`. The committed copies are the original PNG renders without resizing. The tests also exercise 1.6× text scaling, compact Italian layouts, secondary journeys and persistent allergy warnings. See the [visual design notes](docs/product/visual-design.md) for the reference direction and asset provenance.
 
-The [functional reconciliation CI](https://github.com/FilippoCinotti/EatMe/actions/runs/34776802964) passed API, database, studio and Flutter checks, both native debug builds, and the real API Android emulator workflow before the premium presentation changes. The current redesign is tracked in [PR #15](https://github.com/FilippoCinotti/EatMe/pull/15). See the [verification report](docs/product/verification.md) for precise tested commits and external store-release gates.
+The [functional reconciliation CI](https://github.com/FilippoCinotti/EatMe/actions/runs/34776802964) passed API, database, studio and Flutter checks, both native debug builds, and the real API Android emulator workflow before the premium presentation changes. PR #15 delivered the validated functional and premium baseline; the final visual-fidelity pass is tracked in [PR #16](https://github.com/FilippoCinotti/EatMe/pull/16). See the [verification report](docs/product/verification.md) for precise tested commits and external store-release gates.
 
 ### Connected journeys
 
 | Welcome | Recipe detail |
 | :---: | :---: |
-| <img src="docs/screenshots/welcome-light.webp" width="280" alt="EatMe welcome screen rendered by Flutter." /> | <img src="docs/screenshots/recipe-light.webp" width="280" alt="Recipe photograph, servings and ingredient sections rendered by Flutter." /> |
+| <img src="docs/screenshots/welcome-light.png" width="280" alt="EatMe welcome screen rendered by Flutter." /> | <img src="docs/screenshots/recipe-light.png" width="280" alt="Recipe photograph, servings and ingredient sections rendered by Flutter." /> |
 
-See the [complete screenshot gallery](docs/screenshots/README.md) for login, diet and health, preferences, notifications, household, privacy, filters and add-ingredient screens in both themes.
+See the [complete screenshot gallery](docs/screenshots/README.md) for login, sign-up, diet and health, preferences, notifications, household, privacy, filters and both add-food stages in both themes.
 
 ## Reference feature additions
 
 | New light-theme flows | New dark-theme flows |
 | :---: | :---: |
-| <img src="docs/screenshots/wellbeing-light.webp" width="280" alt="Personal goals with weekly self-reported check-ins." /> | <img src="docs/screenshots/wellbeing-dark.webp" width="280" alt="Weekly goals in dark theme." /> |
-| <img src="docs/screenshots/custom-food-light.webp" width="280" alt="Custom household food entry with optional photo and package date." /> | <img src="docs/screenshots/custom-food-dark.webp" width="280" alt="Custom food entry in dark theme." /> |
+| <img src="docs/screenshots/wellbeing-light.png" width="280" alt="Personal goals with weekly self-reported check-ins." /> | <img src="docs/screenshots/wellbeing-dark.png" width="280" alt="Weekly goals in dark theme." /> |
+| <img src="docs/screenshots/custom-food-light.png" width="280" alt="Custom household food entry with optional photo and package date." /> | <img src="docs/screenshots/custom-food-dark.png" width="280" alt="Custom food entry in dark theme." /> |
+| <img src="docs/screenshots/import-review-light.png" width="280" alt="Mandatory imported recipe review before compatibility." /> | <img src="docs/screenshots/compatibility-conflict-dark.png" width="280" alt="Diet compatibility conflict in dark theme." /> |
+| <img src="docs/screenshots/adapted-success-light.png" width="280" alt="Adapted recipe after a full compatibility re-check." /> | <img src="docs/screenshots/estimated-savings-dark.png" width="280" alt="Conservative estimated savings in dark theme." /> |
 
-These additional images are real Flutter test renders with fixture data, generated by `test/reference_features_test.dart` at 390 × 844. They have also passed layout checks at 1.6× text scaling.
+These images are real Flutter test renders with fixture data, generated by the reference and social-import suites at 390 × 844. They have also passed layout checks at 1.6× text scaling and in compact Italian layouts.
 
-The current feature branch adds custom household foods with private photos, food favorites, weekly habit check-ins, an expiry browser, pantry sorting, category-grouped shopping and sharing, complete scan date/storage review, external leftover entry, configurable cooking timers, a completion screen and recent household activity. See the [feature coverage and API contracts](docs/product/reference-feature-parity.md) for implementation details and explicit provider/data limitations.
+The current feature branch adds custom household foods with private photos, food favorites, weekly habit check-ins, photo acquisition, reviewed public YouTube/Instagram recipe import, canonical ingredient mapping, full diet/safety assessment, curated user-selected substitutions with complete re-check, deterministic estimated savings, an expiry browser, pantry sorting, category-grouped shopping and sharing, complete scan date/storage review, external leftover entry, configurable cooking timers, a completion screen and recent household activity. See the [feature coverage and API contracts](docs/product/reference-feature-parity.md) for implementation details and explicit provider/data limitations.
 
 The valid feature work was preserved on the same branch before redesigning its presentation. The [Phase 0 record](docs/product/premium-redesign-reconciliation.md) explains branch reconciliation and verification.
 

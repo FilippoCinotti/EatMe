@@ -37,6 +37,8 @@ flutter:
   assets:
     - assets/l10n/
     - assets/images/
+    - assets/brand/
+    - assets/icons/
   fonts:
     - family: EatMeDisplay
       fonts:

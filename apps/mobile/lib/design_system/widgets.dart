@@ -5,6 +5,8 @@ import '../core/localization.dart';
 import '../core/models.dart';
 import 'food_image.dart';
 export 'food_image.dart';
+export 'brand.dart';
+export 'icons.dart';
 export 'premium.dart';
 export 'recipe_hero.dart';
 
@@ -15,10 +17,11 @@ class AsyncAction extends StatefulWidget {
     required this.action,
     this.enabled = true,
     this.secondary = false,
+    this.destructive = false,
   });
   final String label;
   final Future<void> Function() action;
-  final bool enabled, secondary;
+  final bool enabled, secondary, destructive;
   @override
   State<AsyncAction> createState() => _AsyncActionState();
 }
@@ -59,6 +62,14 @@ class _AsyncActionState extends State<AsyncAction> {
         : Text(widget.label);
     return widget.secondary
         ? OutlinedButton(
+            style: widget.destructive
+                ? OutlinedButton.styleFrom(
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.errorContainer,
+                    foregroundColor: Theme.of(context).colorScheme.error,
+                  )
+                : null,
             onPressed: busy || !widget.enabled ? null : run,
             child: label,
           )

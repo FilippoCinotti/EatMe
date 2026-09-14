@@ -1,16 +1,47 @@
 # Verification report
 
+## Final visual fidelity and scoped feature completion
+
+The final pass is delivered on `feat/reference-features` in [PR #16](https://github.com/FilippoCinotti/EatMe/pull/16). Work started from the preserved feature baseline `e20599cf1cb7bd6fabea86bb4f8df418de473ae7`; no reset, redesign rollback, state-management replacement or API/safety bypass was performed. Final application source is `b5c6a570589a5c0891ed062adc24e4244818966f`. The reviewed tree `33c8257e52564943ab6684689bde1b2dc046a117`, including the committed screenshot gallery and documentation, passed all five application jobs in [CI run 34876818451](https://github.com/FilippoCinotti/EatMe/actions/runs/34876818451).
+
+Validation at that tree:
+
+| Check | Result |
+| --- | --- |
+| API/domain/HTTP tests | 77 passed; Ruff, repository checks, dependency audit and Docker build passed |
+| PostgreSQL | Migrations, RLS and database-backed tests passed |
+| Flutter | 98 tests passed on Linux and macOS; analyze and canonical formatting passed |
+| Android | Debug APK built; real API emulator journey passed |
+| iOS | Simulator debug build and archive passed |
+| Admin | Type check, production build and dependency audit passed |
+| Visual review | 72 real 390 × 844 Flutter PNGs generated; 36 screens in light and dark |
+
+Native artifacts: [Android debug APK](https://github.com/FilippoCinotti/EatMe/actions/runs/34876818451/artifacts/10361586470), [iOS simulator application](https://github.com/FilippoCinotti/EatMe/actions/runs/34876818451/artifacts/10361910197), and [macOS interface-review archive](https://github.com/FilippoCinotti/EatMe/actions/runs/34876818451/artifacts/10362010016). Artifacts are temporary CI outputs; the 72 reviewed renders are committed in the [screenshot gallery](../screenshots/README.md).
+
+The approved Social Recipe Import and Smart Diet-Fit journey is implemented as one controlled flow: public YouTube/Instagram URL validation and restrained metadata extraction; staged processing; mandatory editable recipe review; explicit canonical ingredient mapping (`matched`, `needs_review`, `unknown`); the existing full diet/safety assessment; secondary inventory coverage; curated user-selected substitutions; a complete compatibility and inventory re-check; then final save or cook. Nothing is permanently saved before confirmation. Source platform, URL, title, creator and import date remain attached. Partial extraction continues to review without invented values; unresolved ingredients prevent a positive compatibility claim.
+
+Photo acquisition is integrated into the real add/import journey with camera guidance, semantic capture, optional gallery, retake/confirm, processing, permission-denied, provider, network and offline states. The visual pass also refines block rhythm, hierarchy and non-generic controls across ChefTable, Fridge, HealthyFood, Profile, authentication, recipe detail and secondary settings while retaining responsive, compact Italian, 1.6× text, dark-theme and reduced-motion behavior.
+
+Estimated savings use deterministic methodology `at-risk-use-v1`. An inventory amount is eligible only when a recorded consumed/cooked event occurs zero to two days before a known batch date. Money uses only recorded batch cost and initial quantity, prorated and capped across events for the same batch; currencies are never converted. CO₂e uses only exact supported canonical foods from the bundled, versioned factor table; unsupported foods are excluded. Both metrics are nullable when evidence is insufficient and expose coverage. See [methodology](estimated-savings-methodology.md), [social import behavior](social-recipe-import.md), [feature parity](reference-feature-parity.md), and [visual design](visual-design.md).
+
+Known limits remain explicit: public structured source metadata may be partial or unavailable; private/deleted content is rejected; substitution coverage and CO₂e factors are deliberately curated and finite; money requires recorded cost; unknown ingredients remain unresolved; native outputs are unsigned debug artifacts. CodeQL analysis completes but SARIF upload fails because repository code scanning is not enabled, as shown in [CodeQL run 34876818632](https://github.com/FilippoCinotti/EatMe/actions/runs/34876818632). This is an external repository configuration gate, not an application-test failure.
+
+
+## Visual Fidelity Pass 2
+
+The active delivery is [PR #16](https://github.com/FilippoCinotti/EatMe/pull/16) on `feat/reference-features`. Phase 0 confirmed that PR #15 had already merged into main at `c3fd1c927affb870afea47ccf86e72abbe51a39f`. The valid follow-up branch content (`3e5cc3653ec203b67ef9fcdb43feba2b88f49f27`, locally represented by the equivalent reviewed tree at `89a11819ccdb0aeed4c1d4f742b32411f6a9549f`) was preserved; no reset, architecture rewrite or feature rollback was performed. Because a merged pull request cannot receive new checks, the same branch continues in PR #16.
+
+Final application source `49e97c0d11f78fabef1b79fc93a35587e3a52bd3` passed all five jobs in [CI run 34804784793](https://github.com/FilippoCinotti/EatMe/actions/runs/34804784793). Linux and macOS both passed Dart formatting, Flutter analysis and the complete 85-test Flutter suite. CI produced the [Android debug APK](https://github.com/FilippoCinotti/EatMe/actions/runs/34804784793/artifacts/10333081441) and [iOS simulator debug application](https://github.com/FilippoCinotti/EatMe/actions/runs/34804784793/artifacts/10333032335). The real API Android emulator journey also passed. API tests, lint, audit and Docker build; PostgreSQL migrations/RLS tests; and studio type checking, production build and audit all passed.
+
+The pass introduces an original EatMe vector mark, a curated Lucide-based icon layer, bespoke four-destination glass navigation and refined decision-first composition across ChefTable, Fridge, HealthyFood, Profile, authentication, recipe detail, filters, add-food and profile submenus. Production Riverpod state, Supabase integration, API contracts, safety rules, inventory transactions and routes are unchanged. The local API suite passed 67 tests with three environment-specific skips; the dependency-equipped CI ran the skipped adapters and PostgreSQL coverage.
+
+The 38 PNGs from application source `68ded521dbd5a38fe81d0919ff6ec88fd76062ed` were inspected as real Flutter renders in [run 34804476630](https://github.com/FilippoCinotti/EatMe/actions/runs/34804476630). The later source commit corrects transport-only trailing whitespace and does not alter pixels. The committed gallery contains 36 WebP copies plus two shopping PNGs, all at the original 390 × 844 dimensions. Tests also cover 1.6× text scaling, compact Italian layouts, hinge-safe navigation, transactional workflows and persistent allergen warnings across assessment tabs; the navigation implementation separately honors the platform reduced-motion setting. See the [gallery](../screenshots/README.md), [design system](visual-design.md) and [reconciliation](premium-redesign-reconciliation.md).
+
+The separate CodeQL upload remains blocked by repository code-scanning configuration; this is an external repository setting, not an application failure. Production provider credentials, signing, store purchase sandboxes and operator-hosted legal/support endpoints remain external release prerequisites. Successful debug builds do not mean a signed store release has been produced.
+
 ## Premium UI and reconciled feature delivery
 
-The active delivery is [PR #15](https://github.com/FilippoCinotti/EatMe/pull/15), on `feat/reference-features`. Phase 0 inspected main `9e556323b00e9e2d0f6da914f4b0b464db70b893`, preserved the unfinished feature branch and verified its functional scope at `87c23995af16c6ae3789b7e350b5ee8878a49251` in [run 34776802964](https://github.com/FilippoCinotti/EatMe/actions/runs/34776802964). All application CI jobs passed at that functional baseline, including Android emulator integration and iOS simulator compilation.
-
-Premium presentation source `bf02052411ce68566e546a67746ff9d8bfd1fcdf` was rendered and reviewed in [run 34778268952](https://github.com/FilippoCinotti/EatMe/actions/runs/34778268952). The source passed Flutter analysis and all 81 Flutter tests on macOS; both Android APK and iOS simulator debug builds were produced. The delivery checkpoint includes the exact CI formatter output for three Dart files and does not change their behavior or the reviewed layout. Final branch-level status and native integration results are recorded on the PR checks and delivery summary; historical runs below remain as traceability records.
-
-The local API suite passed 67 tests with three environment-specific skips; dependency-equipped CI additionally passed the API adapters, PostgreSQL/RLS tests, studio checks and audits. No backend contract or database migration was introduced by the premium presentation commits.
-
-Real screenshots cover the four main destinations, welcome/login, recipe detail, filters, add ingredient, dietary summary, preferences, notifications, household, privacy, custom food and wellbeing. All 34 PNGs were inspected as real Flutter renders, with 32 WebP gallery copies and two large-text shopping PNGs committed. Tests cover 1.6× text scaling, compact Italian layouts, existing hinge-safe navigation, transactional workflows and persistent allergen warnings across assessment tabs. See the [gallery](../screenshots/README.md), [design system](visual-design.md) and [reconciliation](premium-redesign-reconciliation.md).
-
-The separate CodeQL upload remains blocked by repository code-scanning configuration. Production provider credentials, signing, store purchase sandboxes and operator-hosted legal/support endpoints remain external release prerequisites. Successful debug builds do not mean a signed store release has been produced.
+PR #15 preserved the unfinished feature branch and verified its functional scope at `87c23995af16c6ae3789b7e350b5ee8878a49251` in [run 34776802964](https://github.com/FilippoCinotti/EatMe/actions/runs/34776802964). All application CI jobs passed at that functional baseline, including Android emulator integration and iOS simulator compilation. Premium presentation source `bf02052411ce68566e546a67746ff9d8bfd1fcdf` was subsequently rendered and reviewed in [run 34778268952](https://github.com/FilippoCinotti/EatMe/actions/runs/34778268952). Historical runs below remain as traceability records.
 
 ## Mobile visual refresh
 

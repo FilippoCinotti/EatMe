@@ -9,7 +9,7 @@ root = Path(__file__).resolve().parents[1]
 kind = sys.argv[1]
 paths = list((root / 'apps/mobile/build/screenshots').glob('*.png')) if kind == 'mobile' else [root / 'apps/admin/package-lock.json']
 archive = root / 'ci-review.zip'
-with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as output:
+with zipfile.ZipFile(archive, 'w', zipfile.ZIP_STORED) as output:
     for path in paths:
         if path.is_file():
             output.write(path, path.relative_to(root))

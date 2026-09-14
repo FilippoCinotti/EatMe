@@ -10,6 +10,7 @@ import 'package:eatme/design_system/widgets.dart';
 import 'package:eatme/features/auth/login.dart';
 import 'package:eatme/features/chef_table/chef_table.dart';
 import 'package:eatme/features/fridge/fridge.dart';
+import 'package:eatme/features/fridge/expiry.dart';
 import 'package:eatme/features/profile/diet_health.dart';
 import 'package:eatme/features/organize/settings.dart';
 import 'package:eatme/features/organize/household.dart';
@@ -156,6 +157,10 @@ void main() {
           'add-ingredient',
           const Scaffold(body: AddFoodSheet(initialFood: visual.zucchini)),
         ),
+        (
+          'add-methods',
+          Scaffold(body: AddFoodMethodsPanel(onSelected: (_) {})),
+        ),
       ]) {
         testWidgets('${page.$1} ${dark ? 'dark' : 'light'} scale $scale', (
           tester,
@@ -196,6 +201,14 @@ void main() {
               250,
               scrollable: find.byType(Scrollable).first,
             );
+            await tester.pumpAndSettle();
+            if (tester.getCenter(login).dy > 800) {
+              await tester.drag(
+                find.byType(Scrollable).first,
+                const Offset(0, -120),
+              );
+              await tester.pumpAndSettle();
+            }
             await tester.tap(login);
             await tester.pumpAndSettle();
             expect(find.byType(AutofillGroup), findsOneWidget);
@@ -206,6 +219,14 @@ void main() {
                 tester,
                 boundary,
                 'login-${dark ? 'dark' : 'light'}',
+              );
+              await tester.tap(find.text('New to EatMe? Create an account'));
+              await tester.pumpAndSettle();
+              expect(find.text('Create your account'), findsAtLeastNWidgets(1));
+              await capture(
+                tester,
+                boundary,
+                'sign-up-${dark ? 'dark' : 'light'}',
               );
             }
           }
@@ -234,7 +255,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     for (final tab in ['Information', 'Nutrition', 'For you']) {
-      final choice = find.widgetWithText(ChoiceChip, tab);
+      final choice = find.text(tab);
       await tester.ensureVisible(choice);
       await tester.tap(choice);
       await tester.pumpAndSettle();

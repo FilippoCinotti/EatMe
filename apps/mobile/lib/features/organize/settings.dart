@@ -41,34 +41,31 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
         SettingsGroup(
           title: context.t('appearance'),
           children: [
-            DropdownButtonFormField<ThemeMode>(
-              isExpanded: true,
-              initialValue: ref.watch(appProvider).theme,
-              decoration: InputDecoration(labelText: context.t('appearance')),
-              items: ThemeMode.values
-                  .map(
-                    (t) => DropdownMenuItem(
-                      value: t,
-                      child: Text(context.t(t.name)),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (t) => ref.read(appProvider.notifier).setTheme(t!),
+            _ControlLabel(
+              label: context.t('appearance'),
+              child: EatMeTabStrip(
+                values: [
+                  for (final theme in ThemeMode.values)
+                    (theme.name, context.t(theme.name)),
+                ],
+                selected: ref.watch(appProvider).theme.name,
+                onSelected: (value) => ref
+                    .read(appProvider.notifier)
+                    .setTheme(ThemeMode.values.byName(value)),
+              ),
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              isExpanded: true,
-              initialValue: context.language,
-              decoration: InputDecoration(labelText: context.t('language')),
-              items: ['it', 'en']
-                  .map(
-                    (l) => DropdownMenuItem(
-                      value: l,
-                      child: Text(context.t('language_$l')),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (l) => ref.read(appProvider.notifier).setLocale(l!),
+            _ControlLabel(
+              label: context.t('language'),
+              child: EatMeTabStrip(
+                values: [
+                  for (final language in ['it', 'en'])
+                    (language, context.t('language_$language')),
+                ],
+                selected: context.language,
+                onSelected: (value) =>
+                    ref.read(appProvider.notifier).setLocale(value),
+              ),
             ),
           ],
         ),
@@ -76,23 +73,19 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
           context.t('make_it_yours'),
           style: Theme.of(context).textTheme.headlineMedium,
         ),
+        const SizedBox(height: 16),
         SettingsGroup(
           children: [
-            DropdownButtonFormField<String>(
-              isExpanded: true,
-              initialValue: prefs['budget'] as String? ?? 'any',
-              decoration: InputDecoration(
-                labelText: context.t('budget_preference'),
+            _ControlLabel(
+              label: context.t('budget_preference'),
+              child: EatMeTabStrip(
+                values: [
+                  for (final value in ['any', 'medium', 'low'])
+                    (value, context.t('budget_$value')),
+                ],
+                selected: prefs['budget'] as String? ?? 'any',
+                onSelected: (value) => update('budget', value),
               ),
-              items: ['any', 'medium', 'low']
-                  .map(
-                    (v) => DropdownMenuItem(
-                      value: v,
-                      child: Text(context.t('budget_$v')),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (v) => update('budget', v),
             ),
             StatusNote(text: context.t('budget_notice')),
             for (final name in [
@@ -101,11 +94,10 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
               'ai_consent',
               'seasonal',
             ])
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
+              EatMeToggleRow(
                 value: prefs[name] == true,
-                title: Text(context.t('pref_$name')),
-                subtitle: Text(context.t('pref_${name}_body')),
+                title: context.t('pref_$name'),
+                subtitle: context.t('pref_${name}_body'),
                 onChanged: data == null ? null : (v) => update(name, v),
               ),
           ],
@@ -113,17 +105,16 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
         const SizedBox(height: 24),
         SettingsGroup(
           children: [
-            DropdownButtonFormField<String>(
-              isExpanded: true,
-              initialValue: prefs['skill'] as String? ?? 'beginner',
-              decoration: InputDecoration(
-                labelText: context.t('cooking_skill'),
+            _ControlLabel(
+              label: context.t('cooking_skill'),
+              child: EatMeTabStrip(
+                values: [
+                  for (final level in ['beginner', 'confident', 'advanced'])
+                    (level, context.t(level)),
+                ],
+                selected: prefs['skill'] as String? ?? 'beginner',
+                onSelected: (value) => update('skill', value),
               ),
-              items: [
-                for (final level in ['beginner', 'confident', 'advanced'])
-                  DropdownMenuItem(value: level, child: Text(context.t(level))),
-              ],
-              onChanged: (v) => update('skill', v),
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<int>(
@@ -171,6 +162,23 @@ class NotificationsPage extends ConsumerStatefulWidget {
   ConsumerState<NotificationsPage> createState() => _NotificationsState();
 }
 
+class _ControlLabel extends StatelessWidget {
+  const _ControlLabel({required this.label, required this.child});
+
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label, style: Theme.of(context).textTheme.titleSmall),
+      const SizedBox(height: 10),
+      child,
+    ],
+  );
+}
+
 class _NotificationsState extends ResourceState<NotificationsPage> {
   @override
   String get path => '/notifications';
@@ -206,14 +214,20 @@ class _NotificationsState extends ResourceState<NotificationsPage> {
       appBar: EatMeAppBar(title: Text(context.t('notifications'))),
       body: content([
         SettingsGroup(
+          title: context.t('notification_controls'),
           children: [
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
+            EatMeToggleRow(
               value: prefs['enabled'] == true,
-              title: Text(context.t('enable_reminders')),
+              title: context.t('enable_reminders'),
+              icon: EatMeGlyph.bell,
               onChanged: data == null ? null : (v) => update({'enabled': v}),
             ),
             StatusNote(text: context.t('notification_privacy')),
+          ],
+        ),
+        SettingsGroup(
+          title: context.t('notification_categories'),
+          children: [
             for (final category in [
               'expiry',
               'plans',
@@ -221,23 +235,26 @@ class _NotificationsState extends ResourceState<NotificationsPage> {
               'household',
               'recalls',
             ])
-              CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(context.t('notify_$category')),
+              EatMeToggleRow(
+                title: context.t('notify_$category'),
                 value: categories.contains(category),
-                onChanged: (v) async {
-                  if (v == true) {
-                    categories.add(category);
-                  } else {
-                    categories.remove(category);
-                  }
-                  await update({'categories': categories});
-                },
+                onChanged: data == null
+                    ? null
+                    : (v) async {
+                        if (v) {
+                          categories.add(category);
+                        } else {
+                          categories.remove(category);
+                        }
+                        await update({'categories': categories});
+                      },
               ),
             for (final setting in ['quiet_start', 'quiet_end', 'daily_cap'])
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(context.t(setting)),
+              SettingRow(
+                title: context.t(setting),
+                icon: setting == 'daily_cap'
+                    ? EatMeGlyph.settings
+                    : EatMeGlyph.clock,
                 trailing: Text('${prefs[setting] ?? ''}'),
                 onTap: () async {
                   final value = await askText(
@@ -255,12 +272,19 @@ class _NotificationsState extends ResourceState<NotificationsPage> {
         ),
 
         for (final item in records(data?['items']))
-          ListTile(
-            leading: const Icon(Icons.notifications_none),
-            title: Text(context.t('notify_${item['category']}')),
-            subtitle: Text('${item['created_at']}'.substring(0, 10)),
+          SettingRow(
+            icon: EatMeGlyph.bell,
+            title: context.t('notify_${item['category']}'),
+            subtitle: '${item['created_at']}'.substring(0, 10),
             trailing: item['read_at'] == null
-                ? const Icon(Icons.circle, size: 8)
+                ? Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  )
                 : null,
             onTap: () async {
               await guard(() async {
@@ -346,98 +370,319 @@ class _InsightsState extends ResourceState<InsightsPage> {
   String tab = 'overview';
   @override
   String get path => '/insights';
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: EatMeAppBar(title: Text(context.t('insights'))),
-    body: content([
-      Text(
-        context.t('small_habits'),
-        style: Theme.of(context).textTheme.headlineMedium,
-      ),
-      const SizedBox(height: 24),
-      Wrap(
-        spacing: 8,
+  String moneyLabel() {
+    final values = records(data?['money_saved']?['amounts']);
+    if (values.isEmpty) return '—';
+    const symbols = {'EUR': '€', 'USD': r'$', 'GBP': '£', 'CHF': 'CHF '};
+    return values
+        .map(
+          (item) =>
+              '${symbols[item['currency']] ?? '${item['currency']} '}${item['value']}',
+        )
+        .join(' · ');
+  }
+
+  void methodology() {
+    final method = Map<String, dynamic>.from(
+      data?['savings_method'] as Map? ?? {},
+    );
+    final source = Map<String, dynamic>.from(
+      method['factor_source'] as Map? ?? {},
+    );
+    sheet(
+      context,
+      ListView(
+        shrinkWrap: true,
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 30),
         children: [
-          for (final value in ['overview', 'alerts', 'tips'])
-            ChoiceChip(
-              label: Text(context.t('insights_$value')),
-              selected: tab == value,
-              onSelected: (_) => setState(() => tab = value),
+          Text(
+            context.t('how_savings_calculated'),
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 12),
+          Text(context.t('savings_method_body')),
+          const SizedBox(height: 20),
+          SettingsGroup(
+            children: [
+              SettingRow(
+                title: context.t('money_method_title'),
+                subtitle: context.t('money_method_body'),
+                icon: EatMeGlyph.shoppingBasket,
+              ),
+              SettingRow(
+                title: context.t('co2_method_title'),
+                subtitle: context.t('co2_method_body'),
+                icon: EatMeGlyph.leaf,
+              ),
+              SettingRow(
+                title: context.t('estimate_limits_title'),
+                subtitle: context.t('estimate_limits_body'),
+                icon: EatMeGlyph.info,
+              ),
+            ],
+          ),
+          if ('${source['url'] ?? ''}'.startsWith('https://'))
+            OutlinedButton(
+              onPressed: () => launchUrl(
+                Uri.parse('${source['url']}'),
+                mode: LaunchMode.externalApplication,
+              ),
+              child: Text(context.t('read_factor_source')),
             ),
         ],
       ),
-      if (tab == 'alerts') ...[
-        for (final batch
-            in ref
-                .watch(appProvider)
-                .inventory
-                .where(
-                  (b) =>
-                      b.expiryDate != null &&
-                      b.expiryDate!.difference(DateTime.now()).inDays <= 3,
-                ))
-          Card(
-            child: ListTile(
-              leading: FoodMark(food: batch.food),
-              title: Text(localized(batch.food.name, context.language)),
-              subtitle: Text(expiryLabel(context, batch)),
-              onTap: () => context.push('/expiry'),
-            ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final carbon = data?['carbon_saved'] as Map?;
+    final method = data?['savings_method'] as Map? ?? {};
+    return Scaffold(
+      appBar: EatMeAppBar(title: Text(context.t('insights'))),
+      body: content([
+        Text(
+          context.t('small_habits'),
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          context.t('insights_support'),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
-        TextButton(
-          onPressed: () => context.push('/notifications'),
-          child: Text(context.t('notifications')),
         ),
-      ],
-      if (tab == 'tips') ...[
-        StatusNote(text: context.t('practical_tips')),
-        TextButton(
-          onPressed: () => context.push('/planner'),
-          child: Text(context.t('meal_planner')),
+        const SizedBox(height: 24),
+        EatMeTabStrip(
+          values: [
+            for (final value in ['overview', 'impact', 'alerts', 'tips'])
+              (value, context.t('insights_$value')),
+          ],
+          selected: tab,
+          onSelected: (value) => setState(() => tab = value),
         ),
-        TextButton(
-          onPressed: () => context.push('/leftovers'),
-          child: Text(context.t('leftovers')),
-        ),
-        TextButton(
-          onPressed: () => context.push('/wellbeing'),
-          child: Text(context.t('wellbeing')),
-        ),
-      ],
-      if (tab == 'overview') ...[
-        for (final metric in ['cooked_meals', 'different_recipes'])
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${data?[metric] ?? 0}',
-                    style: Theme.of(context).textTheme.displaySmall,
-                  ),
-                  Text(context.t(metric)),
-                ],
+        const SizedBox(height: 24),
+        if (tab == 'alerts') ...[
+          for (final batch
+              in ref
+                  .watch(appProvider)
+                  .inventory
+                  .where(
+                    (b) =>
+                        b.expiryDate != null &&
+                        b.expiryDate!.difference(DateTime.now()).inDays <= 3,
+                  ))
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: InformationPanel(
+                tinted: false,
+                child: SettingRow(
+                  title: localized(batch.food.name, context.language),
+                  subtitle: expiryLabel(context, batch),
+                  icon: EatMeGlyph.clockAlert,
+                  onTap: () => context.push('/expiry'),
+                ),
               ),
             ),
+          AsyncAction(
+            label: context.t('notifications'),
+            secondary: true,
+            action: () async => context.push('/notifications'),
           ),
-        for (final entry
-            in (data?['inventory_event_counts'] as Map? ?? {}).entries)
-          ListTile(
-            title: Text(context.t('event_${entry.key}')),
-            trailing: Text('${entry.value}'),
+        ],
+        if (tab == 'tips') ...[
+          StatusNote(text: context.t('practical_tips')),
+          TextButton(
+            onPressed: () => context.push('/planner'),
+            child: Text(context.t('meal_planner')),
           ),
-        for (final unit in (data?['recorded_quantities'] as Map? ?? {}).entries)
-          ListTile(
-            title: Text(context.t('recorded_use')),
-            subtitle: Text(
-              '${unit.value['used']} ${unit.key} · ${context.t('discarded_amount')}: ${unit.value['discarded']} ${unit.key}',
+          TextButton(
+            onPressed: () => context.push('/leftovers'),
+            child: Text(context.t('leftovers')),
+          ),
+          TextButton(
+            onPressed: () => context.push('/wellbeing'),
+            child: Text(context.t('wellbeing')),
+          ),
+        ],
+        if (tab == 'overview') ...[
+          Row(
+            children: [
+              for (final metric in ['cooked_meals', 'different_recipes']) ...[
+                Expanded(
+                  child: _InsightMetric(
+                    value: '${data?[metric] ?? 0}',
+                    label: context.t(metric),
+                  ),
+                ),
+                if (metric == 'cooked_meals') const SizedBox(width: 12),
+              ],
+            ],
+          ),
+          const SizedBox(height: 20),
+          SettingsGroup(
+            title: context.t('recorded_activity'),
+            children: [
+              for (final entry
+                  in (data?['inventory_event_counts'] as Map? ?? {}).entries)
+                SettingRow(
+                  title: context.t('event_${entry.key}'),
+                  icon: EatMeGlyph.history,
+                  trailing: StatusBadge(label: '${entry.value}'),
+                ),
+            ],
+          ),
+          for (final unit
+              in (data?['recorded_quantities'] as Map? ?? {}).entries)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: InformationPanel(
+                tinted: false,
+                child: Text(
+                  '${context.t('recorded_use')}: ${unit.value['used']} ${unit.key} · ${context.t('discarded_amount')}: ${unit.value['discarded']} ${unit.key}',
+                ),
+              ),
+            ),
+          StatusNote(text: context.t('recorded_quantities_notice')),
+        ],
+        if (tab == 'impact') ...[
+          Text(
+            context.t('estimated_savings'),
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            context.t('estimated_savings_support'),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
-        StatusNote(text: context.t('recorded_quantities_notice')),
+          const SizedBox(height: 18),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final cards = [
+                _ImpactMetric(
+                  icon: EatMeGlyph.shoppingBasket,
+                  value: moneyLabel(),
+                  label: context.t('estimated_food_value'),
+                  available: data?['money_saved'] != null,
+                ),
+                _ImpactMetric(
+                  icon: EatMeGlyph.leaf,
+                  value: carbon == null ? '—' : '${carbon['value']} kg CO₂e',
+                  label: context.t('estimated_co2e'),
+                  available: carbon != null,
+                ),
+              ];
+              if (constraints.maxWidth < 360 ||
+                  MediaQuery.textScalerOf(context).scale(16) > 21) {
+                return Column(
+                  children: [
+                    cards.first,
+                    const SizedBox(height: 12),
+                    cards.last,
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  Expanded(child: cards.first),
+                  const SizedBox(width: 12),
+                  Expanded(child: cards.last),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 18),
+          InformationPanel(
+            tinted: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.t('estimate_coverage'),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  context.t('eligible_events_count', {
+                    'count': method['eligible_events'] ?? 0,
+                  }),
+                ),
+                if (carbon != null) ...[
+                  const SizedBox(height: 5),
+                  Text(
+                    context.t('factor_coverage_mass', {
+                      'covered': carbon['covered_quantity_g'] ?? '0',
+                      'eligible': carbon['eligible_quantity_g'] ?? '0',
+                    }),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+          AsyncAction(
+            label: context.t('how_savings_calculated'),
+            secondary: true,
+            action: () async => methodology(),
+          ),
+        ],
+        const SizedBox(height: 18),
         StatusNote(text: context.t('insights_method')),
+      ]),
+    );
+  }
+}
+
+class _InsightMetric extends StatelessWidget {
+  const _InsightMetric({required this.value, required this.label});
+  final String value, label;
+
+  @override
+  Widget build(BuildContext context) => InformationPanel(
+    tinted: false,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(value, style: Theme.of(context).textTheme.displaySmall),
+        const SizedBox(height: 6),
+        Text(label),
       ],
-    ]),
+    ),
+  );
+}
+
+class _ImpactMetric extends StatelessWidget {
+  const _ImpactMetric({
+    required this.icon,
+    required this.value,
+    required this.label,
+    required this.available,
+  });
+  final EatMeGlyph icon;
+  final String value, label;
+  final bool available;
+
+  @override
+  Widget build(BuildContext context) => InformationPanel(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        EatMeIcon(icon, color: Theme.of(context).colorScheme.primary, size: 28),
+        const SizedBox(height: 16),
+        Text(value, style: Theme.of(context).textTheme.headlineMedium),
+        const SizedBox(height: 6),
+        Text(label),
+        if (!available) ...[
+          const SizedBox(height: 8),
+          Text(
+            context.t('savings_unavailable'),
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ],
+    ),
   );
 }
 

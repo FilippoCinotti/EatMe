@@ -38,6 +38,9 @@ class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
         .toList();
     final groups = state.foods.map((food) => food.group).toSet().toList()
       ..sort();
+    final featured = state.foods
+        .where((food) => favorites.contains(food.id))
+        .toList();
     return Scaffold(
       body: PageBody(
         children: [
@@ -45,14 +48,15 @@ class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
             eyebrow: context.t('healthy_eyebrow'),
             title: context.t('healthy_editorial'),
             subtitle: context.t('healthy_support'),
+            art: _DiscoveryArt(food: state.foods.firstOrNull),
             actions: [
               RoundAction(
-                icon: Icons.insights_outlined,
+                icon: EatMeGlyph.chartSpline,
                 label: context.t('wellbeing'),
                 onPressed: () => context.push('/wellbeing'),
               ),
               RoundAction(
-                icon: Icons.person_outline,
+                icon: EatMeGlyph.userRound,
                 label: context.t('profile'),
                 onPressed: () => context.go('/profile'),
               ),
@@ -64,20 +68,38 @@ class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
             onChanged: (value) => setState(() => query = value),
             onFilter: () => sheet(
               context,
-              Column(
-                mainAxisSize: MainAxisSize.min,
+              ListView(
+                shrinkWrap: true,
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
                 children: [
-                  ListTile(
-                    title: Text(context.t('all_foods')),
-                    trailing: !favoritesOnly ? const Icon(Icons.check) : null,
+                  Text(
+                    context.t('filters'),
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  SettingRow(
+                    title: context.t('all_foods'),
+                    icon: EatMeGlyph.libraryBig,
+                    trailing: !favoritesOnly
+                        ? EatMeIcon(
+                            EatMeGlyph.check,
+                            color: Theme.of(context).colorScheme.primary,
+                          )
+                        : null,
                     onTap: () {
                       setState(() => favoritesOnly = false);
                       Navigator.pop(context);
                     },
                   ),
-                  ListTile(
-                    title: Text(context.t('favorites')),
-                    trailing: favoritesOnly ? const Icon(Icons.check) : null,
+                  SettingRow(
+                    title: context.t('favorites'),
+                    icon: EatMeGlyph.heart,
+                    trailing: favoritesOnly
+                        ? EatMeIcon(
+                            EatMeGlyph.check,
+                            color: Theme.of(context).colorScheme.primary,
+                          )
+                        : null,
                     onTap: () {
                       setState(() => favoritesOnly = true);
                       Navigator.pop(context);
@@ -107,14 +129,64 @@ class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
                               ?.id ??
                           '',
                       selected: group == value,
+                      icon: value == 'all' ? EatMeGlyph.libraryBig : null,
                       onTap: () => setState(() => group = value),
                     ),
                   ),
               ],
             ),
           ),
+          if (featured.isNotEmpty &&
+              !favoritesOnly &&
+              query.isEmpty &&
+              group == 'all') ...[
+            SectionHeading(
+              title: context.t('featured_for_you'),
+              actionLabel: context.t('view_all'),
+              onAction: () => setState(() => favoritesOnly = true),
+            ),
+            _FeaturedDiscoveryCard(
+              food: featured.first,
+              onTap: state.offline
+                  ? null
+                  : () => sheet(context, FoodAssessment(food: featured.first)),
+            ),
+            if (featured.length > 1) ...[
+              const SizedBox(height: 14),
+              HorizontalFoodRail(
+                children: [
+                  for (final food in featured.skip(1))
+                    FoodPhotoCard(
+                      id: food.id,
+                      photoId: food.photoId,
+                      title: localized(food.name, context.language),
+                      subtitle: context.t('saved_by_you'),
+                      imageHeight: 112,
+                      onTap: state.offline
+                          ? null
+                          : () => sheet(context, FoodAssessment(food: food)),
+                    ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 12),
+          ],
+          if (featured.isEmpty &&
+              !favoritesOnly &&
+              query.isEmpty &&
+              group == 'all') ...[
+            SectionHeading(title: context.t('start_discovering')),
+            InformationPanel(
+              child: SettingRow(
+                title: context.t('save_foods_to_feature'),
+                subtitle: context.t('save_foods_to_feature_body'),
+                icon: EatMeGlyph.heart,
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           SectionHeading(
-            title: context.t(favoritesOnly ? 'favorites' : 'explore_foods'),
+            title: context.t(favoritesOnly ? 'favorites' : 'full_catalog'),
           ),
           if (state.offline)
             StatusNote(text: context.t('online_required'), warning: true),
@@ -131,12 +203,12 @@ class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
                   photoId: food.photoId,
                   title: localized(food.name, context.language),
                   subtitle: context.t('food_group_${food.group}'),
+                  imageHeight: 136,
                   onTap: state.offline
                       ? null
                       : () => sheet(context, FoodAssessment(food: food)),
-                  actionIcon: favorites.contains(food.id)
-                      ? Icons.favorite
-                      : Icons.favorite_border,
+                  actionIcon: EatMeGlyph.heart,
+                  actionEmphasis: favorites.contains(food.id),
                   actionLabel: context.t(
                     favorites.contains(food.id)
                         ? 'remove_favorite'
@@ -168,7 +240,7 @@ class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
             child: SettingRow(
               title: context.t('diet_health'),
               subtitle: context.t('healthy_profile_hint'),
-              icon: Icons.shield_outlined,
+              icon: EatMeGlyph.shieldCheck,
               onTap: () => context.push('/profile/edit'),
             ),
           ),
@@ -176,6 +248,89 @@ class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
       ),
     );
   }
+}
+
+class _FeaturedDiscoveryCard extends StatelessWidget {
+  const _FeaturedDiscoveryCard({required this.food, required this.onTap});
+  final Food food;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: onTap != null,
+    child: Material(
+      color: Theme.of(context).colorScheme.surfaceContainer,
+      borderRadius: BorderRadius.circular(30),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FoodImage(
+              id: food.id,
+              photoId: food.photoId,
+              width: double.infinity,
+              height: 210,
+              radius: 0,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(22, 18, 22, 22),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.t('saved_by_you').toUpperCase(),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 1.6,
+                              ),
+                        ),
+                        const SizedBox(height: 7),
+                        Text(
+                          localized(food.name, context.language),
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          context.t('featured_favorite_body'),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                    ),
+                    child: EatMeIcon(
+                      EatMeGlyph.chevronRight,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 class FoodAssessment extends ConsumerStatefulWidget {
@@ -259,16 +414,13 @@ class _FoodAssessmentState extends ConsumerState<FoodAssessment> {
           for (final warning in records(assessment['warnings']))
             StatusNote(text: context.t(warning['code'] as String)),
           StatusNote(text: context.t(assessment['notice'] as String)),
-          Wrap(
-            spacing: 8,
-            children: [
+          EatMeTabStrip(
+            values: [
               for (final value in ['information', 'nutrition', 'for_you'])
-                ChoiceChip(
-                  label: Text(context.t(value)),
-                  selected: tab == value,
-                  onSelected: (_) => setState(() => tab = value),
-                ),
+                (value, context.t(value)),
             ],
+            selected: tab,
+            onSelected: (value) => setState(() => tab = value),
           ),
           const SizedBox(height: 16),
           if (tab == 'for_you') ...[
@@ -350,5 +502,54 @@ class _FoodAssessmentState extends ConsumerState<FoodAssessment> {
         ],
       );
     },
+  );
+}
+
+class _DiscoveryArt extends StatelessWidget {
+  const _DiscoveryArt({required this.food});
+
+  final Food? food;
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    clipBehavior: Clip.none,
+    alignment: Alignment.center,
+    children: [
+      Positioned(
+        right: -10,
+        top: -10,
+        child: Container(
+          width: 96,
+          height: 96,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Theme.of(context).colorScheme.primaryContainer,
+          ),
+        ),
+      ),
+      if (food != null)
+        Positioned(
+          right: -4,
+          bottom: 0,
+          child: FoodImage(
+            id: food!.id,
+            photoId: food!.photoId,
+            width: 92,
+            height: 92,
+            radius: 46,
+          ),
+        ),
+      Positioned(
+        left: 0,
+        top: 2,
+        child: Transform.rotate(
+          angle: -.45,
+          child: EatMeBrandMark(
+            size: 34,
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: .7),
+          ),
+        ),
+      ),
+    ],
   );
 }

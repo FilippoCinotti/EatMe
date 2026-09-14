@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'food_image.dart';
+import 'icons.dart';
 
 /// A recipe photograph is the primary visual anchor; metadata wraps for large text.
 class HeroRecipeCard extends StatelessWidget {
@@ -29,7 +30,7 @@ class HeroRecipeCard extends StatelessWidget {
         children: [
           Stack(
             children: [
-              FoodImage(id: imageId, height: 238, radius: 0),
+              FoodImage(id: imageId, height: 242, radius: 0),
               if (badge != null)
                 Positioned(
                   left: 16,
@@ -55,7 +56,11 @@ class HeroRecipeCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Icon(Icons.chevron_right, size: 22),
+                    EatMeIcon(
+                      EatMeGlyph.chevronRight,
+                      size: 22,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),

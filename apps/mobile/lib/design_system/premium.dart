@@ -1,7 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../core/localization.dart';
+import 'brand.dart';
 import 'food_image.dart';
+import 'icons.dart';
 
 /// Editorial hierarchy shared by the four decision-oriented destinations.
 class EditorialHeader extends StatelessWidget {
@@ -17,45 +19,52 @@ class EditorialHeader extends StatelessWidget {
   final List<Widget> actions;
   final Widget? art;
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(children: [const EatMeWordmark(), const Spacer(), ...actions]),
-      const SizedBox(height: 20),
-      Text(
-        eyebrow.toUpperCase(),
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          letterSpacing: 2.2,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
+  Widget build(BuildContext context) {
+    final showArt =
+        art != null &&
+        MediaQuery.textScalerOf(context).scale(16) <= 22 &&
+        MediaQuery.sizeOf(context).width >= 350;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(children: [const EatMeWordmark(), const Spacer(), ...actions]),
+        const SizedBox(height: 22),
+        Text(
+          eyebrow.toUpperCase(),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            letterSpacing: 2.35,
+            fontWeight: FontWeight.w700,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
-      ),
-      const SizedBox(height: 8),
-      if (art == null)
-        Text(title, style: Theme.of(context).textTheme.displaySmall)
-      else
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Text(
-                title,
-                style: Theme.of(context).textTheme.displaySmall,
+        const SizedBox(height: 8),
+        if (!showArt)
+          Text(title, style: Theme.of(context).textTheme.displaySmall)
+        else
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.displaySmall,
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            SizedBox(width: 82, height: 100, child: art),
-          ],
+              const SizedBox(width: 12),
+              SizedBox(width: 104, height: 112, child: art),
+            ],
+          ),
+        const SizedBox(height: 8),
+        Text(
+          subtitle,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
-      const SizedBox(height: 8),
-      Text(
-        subtitle,
-        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
-      ),
-      const SizedBox(height: 24),
-    ],
-  );
+        const SizedBox(height: 24),
+      ],
+    );
+  }
 }
 
 class EatMeWordmark extends StatelessWidget {
@@ -65,9 +74,12 @@ class EatMeWordmark extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     label: context.t('eatme'),
     child: ExcludeSemantics(
-      child: Row(
+      child: Flex(
+        direction: large ? Axis.vertical : Axis.horizontal,
         mainAxisSize: MainAxisSize.min,
         children: [
+          EatMeBrandMark(size: large ? 52 : 22),
+          SizedBox(width: large ? 0 : 6, height: large ? 8 : 0),
           Text(
             context.t('eatme'),
             style: TextStyle(
@@ -78,12 +90,6 @@ class EatMeWordmark extends StatelessWidget {
               letterSpacing: -1,
               color: Theme.of(context).colorScheme.primary,
             ),
-          ),
-          const SizedBox(width: 3),
-          Icon(
-            Icons.eco,
-            size: large ? 28 : 19,
-            color: Theme.of(context).colorScheme.primary,
           ),
         ],
       ),
@@ -99,7 +105,7 @@ class RoundAction extends StatelessWidget {
     required this.onPressed,
     this.primary = false,
   });
-  final IconData icon;
+  final EatMeGlyph icon;
   final String label;
   final VoidCallback? onPressed;
   final bool primary;
@@ -118,7 +124,7 @@ class RoundAction extends StatelessWidget {
             ? Theme.of(context).colorScheme.onPrimary
             : Theme.of(context).colorScheme.onSurface,
       ),
-      icon: Icon(icon, size: 23),
+      icon: EatMeIcon(icon, size: 23),
     ),
   );
 }
@@ -159,13 +165,20 @@ class SearchPill extends StatelessWidget {
         hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
           color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
-        prefixIcon: const Icon(Icons.search, size: 22),
+        prefixIcon: const Center(
+          widthFactor: 1,
+          child: EatMeIcon(EatMeGlyph.search, size: 21),
+        ),
+        prefixIconConstraints: const BoxConstraints(minWidth: 50),
         suffixIcon: onFilter == null
             ? null
-            : IconButton(
-                tooltip: context.t('filters'),
+            : EatMeIconButton(
+                glyph: EatMeGlyph.slidersHorizontal,
+                label: context.t('filters'),
                 onPressed: onFilter,
-                icon: const Icon(Icons.tune, size: 22),
+                size: 44,
+                iconSize: 21,
+                backgroundColor: Colors.transparent,
               ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30),
@@ -254,22 +267,140 @@ class GlassSurface extends StatelessWidget {
   }
 }
 
+class EatMeNavigationItem {
+  const EatMeNavigationItem({required this.label, required this.icon});
+
+  final String label;
+  final EatMeGlyph icon;
+}
+
+/// EatMe's bespoke four-destination navigation inside the shared glass shell.
+class EatMeNavigationBar extends StatelessWidget {
+  const EatMeNavigationBar({
+    super.key,
+    required this.selectedIndex,
+    required this.onDestinationSelected,
+    required this.destinations,
+  }) : assert(destinations.length == 4);
+
+  final int selectedIndex;
+  final ValueChanged<int> onDestinationSelected;
+  final List<EatMeNavigationItem> destinations;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final reducedMotion = MediaQuery.disableAnimationsOf(context);
+    final duration = reducedMotion
+        ? Duration.zero
+        : const Duration(milliseconds: 210);
+    final largeText = MediaQuery.textScalerOf(context).scale(16) > 22;
+    return SizedBox(
+      height: largeText ? 84 : 72,
+      child: Row(
+        children: [
+          for (var index = 0; index < destinations.length; index++)
+            Expanded(
+              child: Semantics(
+                button: true,
+                selected: selectedIndex == index,
+                label: destinations[index].label,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(24),
+                    onTap: () => onDestinationSelected(index),
+                    child: Center(
+                      child: AnimatedContainer(
+                        duration: duration,
+                        curve: Curves.easeOutCubic,
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: largeText ? 3 : 4,
+                          vertical: largeText ? 7 : 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: selectedIndex == index
+                              ? scheme.primary.withValues(alpha: .13)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(22),
+                        ),
+                        child: ExcludeSemantics(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              AnimatedScale(
+                                duration: duration,
+                                curve: Curves.easeOutBack,
+                                scale: selectedIndex == index ? 1.08 : 1,
+                                child: EatMeIcon(
+                                  destinations[index].icon,
+                                  size: 22,
+                                  strokeWidth: selectedIndex == index
+                                      ? 2.2
+                                      : 1.75,
+                                  color: selectedIndex == index
+                                      ? scheme.primary
+                                      : scheme.onSurfaceVariant,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              AnimatedDefaultTextStyle(
+                                duration: duration,
+                                style: Theme.of(context).textTheme.labelSmall!
+                                    .copyWith(
+                                      height: 1,
+                                      fontSize: 10.5,
+                                      fontWeight: selectedIndex == index
+                                          ? FontWeight.w700
+                                          : FontWeight.w400,
+                                      color: selectedIndex == index
+                                          ? scheme.primary
+                                          : scheme.onSurfaceVariant,
+                                    ),
+                                child: Text(
+                                  destinations[index].label,
+                                  maxLines: largeText ? 2 : 1,
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 class StatusBadge extends StatelessWidget {
   const StatusBadge({
     super.key,
     required this.label,
     this.icon,
     this.urgent = false,
+    this.warning = false,
     this.emphasis = false,
   });
   final String label;
-  final IconData? icon;
-  final bool urgent, emphasis;
+  final EatMeGlyph? icon;
+  final bool urgent, warning, emphasis;
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final color = urgent
         ? scheme.error
+        : warning
+        ? Theme.of(context).brightness == Brightness.dark
+              ? const Color(0xffffcf70)
+              : const Color(0xff855400)
         : emphasis
         ? scheme.onPrimary
         : scheme.onSurfaceVariant;
@@ -278,6 +409,10 @@ class StatusBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: urgent
             ? scheme.errorContainer
+            : warning
+            ? Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xff4b3817)
+                  : const Color(0xfffff0c9)
             : emphasis
             ? scheme.primary
             : scheme.surfaceContainerHighest,
@@ -287,7 +422,7 @@ class StatusBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 15, color: color),
+            EatMeIcon(icon!, size: 15, color: color, strokeWidth: 2),
             const SizedBox(width: 5),
           ],
           Flexible(
@@ -314,15 +449,17 @@ class FoodPhotoCard extends StatelessWidget {
     this.photoId,
     this.badge,
     this.onAction,
-    this.actionIcon = Icons.more_horiz,
+    this.actionIcon = EatMeGlyph.ellipsis,
     this.actionLabel,
+    this.actionEmphasis = false,
     this.imageHeight = 144,
   });
   final String id, title, subtitle;
   final String? photoId, actionLabel;
   final VoidCallback? onTap;
   final VoidCallback? onAction;
-  final IconData actionIcon;
+  final EatMeGlyph actionIcon;
+  final bool actionEmphasis;
   final Widget? badge;
   final double imageHeight;
   @override
@@ -351,6 +488,24 @@ class FoodPhotoCard extends StatelessWidget {
                   bottom: 8,
                   child: Align(alignment: Alignment.centerLeft, child: badge),
                 ),
+              if (onAction != null)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: EatMeIconButton(
+                    glyph: actionIcon,
+                    label: actionLabel ?? '',
+                    onPressed: onAction,
+                    size: 44,
+                    iconSize: 20,
+                    foregroundColor: actionEmphasis
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurface,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainer.withValues(alpha: .9),
+                  ),
+                ),
             ],
           ),
           Padding(
@@ -366,15 +521,6 @@ class FoodPhotoCard extends StatelessWidget {
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
-                if (onAction != null)
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: IconButton(
-                      tooltip: actionLabel,
-                      icon: Icon(actionIcon),
-                      onPressed: onAction,
-                    ),
-                  ),
               ],
             ),
           ),
@@ -438,8 +584,10 @@ class CategoryTile extends StatelessWidget {
     required this.foodId,
     required this.selected,
     required this.onTap,
+    this.icon,
   });
   final String label, foodId;
+  final EatMeGlyph? icon;
   final bool selected;
   final VoidCallback onTap;
   @override
@@ -459,12 +607,24 @@ class CategoryTile extends StatelessWidget {
             padding: const EdgeInsets.all(8),
             child: Column(
               children: [
-                FoodImage(
-                  id: foodId,
-                  height: 62,
-                  radius: 14,
-                  fallback: Icons.eco_outlined,
-                ),
+                if (icon == null)
+                  FoodImage(
+                    id: foodId,
+                    height: 62,
+                    radius: 14,
+                    fallback: Icons.eco_outlined,
+                  )
+                else
+                  SizedBox(
+                    height: 62,
+                    child: Center(
+                      child: EatMeIcon(
+                        icon!,
+                        size: 30,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 8),
                 Text(
                   label,
@@ -516,29 +676,69 @@ class SettingRow extends StatelessWidget {
   });
   final String title;
   final String? subtitle;
-  final IconData icon;
+  final EatMeGlyph icon;
   final VoidCallback? onTap;
   final Widget? trailing;
   @override
-  Widget build(BuildContext context) => ListTile(
-    contentPadding: const EdgeInsets.symmetric(vertical: 7),
-    leading: Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(14),
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      button: onTap != null,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Row(
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: scheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: EatMeIcon(icon, size: 21, color: scheme.primary),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 3),
+                        Text(
+                          subtitle!,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: scheme.onSurfaceVariant),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                trailing ??
+                    (onTap == null
+                        ? const SizedBox.shrink()
+                        : EatMeIcon(
+                            EatMeGlyph.chevronRight,
+                            size: 18,
+                            color: scheme.onSurfaceVariant,
+                          )),
+              ],
+            ),
+          ),
+        ),
       ),
-      child: Icon(icon, size: 22, color: Theme.of(context).colorScheme.primary),
-    ),
-    title: Text(title, style: Theme.of(context).textTheme.titleMedium),
-    subtitle: subtitle == null
-        ? null
-        : Text(subtitle!, style: Theme.of(context).textTheme.bodySmall),
-    trailing:
-        trailing ??
-        (onTap == null ? null : const Icon(Icons.chevron_right, size: 18)),
-    onTap: onTap,
-  );
+    );
+  }
 }
 
 class ShortcutTile extends StatelessWidget {
@@ -549,7 +749,7 @@ class ShortcutTile extends StatelessWidget {
     required this.onTap,
   });
   final String title;
-  final IconData icon;
+  final EatMeGlyph icon;
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) => Material(
@@ -563,9 +763,264 @@ class ShortcutTile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, size: 28, color: Theme.of(context).colorScheme.primary),
+            EatMeIcon(
+              icon,
+              size: 28,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             const SizedBox(height: 18),
             Text(title, style: Theme.of(context).textTheme.titleMedium),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+class CompactShortcut extends StatelessWidget {
+  const CompactShortcut({
+    super.key,
+    required this.title,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String title;
+  final EatMeGlyph icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: title,
+    child: Material(
+      color: Theme.of(context).colorScheme.surfaceContainer,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: SizedBox(
+          width: 132,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                EatMeIcon(
+                  icon,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 24,
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleSmall,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+class EatMeSelectionRow extends StatelessWidget {
+  const EatMeSelectionRow({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final EatMeGlyph icon;
+  final String title, subtitle;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Material(
+        color: selected ? scheme.primaryContainer : scheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                EatMeIcon(icon, size: 23, color: scheme.primary),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        subtitle,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                if (selected)
+                  EatMeIcon(
+                    EatMeGlyph.circleCheck,
+                    size: 21,
+                    color: scheme.primary,
+                  )
+                else
+                  Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: scheme.outline, width: 1.6),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class EatMeToggleRow extends StatelessWidget {
+  const EatMeToggleRow({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.onChanged,
+    this.subtitle,
+    this.icon,
+  });
+
+  final String title;
+  final String? subtitle;
+  final EatMeGlyph? icon;
+  final bool value;
+  final ValueChanged<bool>? onChanged;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 9),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        if (icon != null) ...[
+          EatMeIcon(
+            icon!,
+            size: 21,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(width: 12),
+        ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: Theme.of(context).textTheme.titleSmall),
+              if (subtitle != null) ...[
+                const SizedBox(height: 3),
+                Text(
+                  subtitle!,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        Switch.adaptive(value: value, onChanged: onChanged),
+      ],
+    ),
+  );
+}
+
+class EatMeTabStrip extends StatelessWidget {
+  const EatMeTabStrip({
+    super.key,
+    required this.values,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final List<(String, String)> values;
+  final String selected;
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+    borderRadius: BorderRadius.circular(20),
+    child: Padding(
+      padding: const EdgeInsets.all(4),
+      child: LayoutBuilder(
+        builder: (context, constraints) => Row(
+          children: [
+            for (final value in values)
+              Expanded(
+                child: Semantics(
+                  button: true,
+                  selected: selected == value.$1,
+                  child: InkWell(
+                    onTap: () => onSelected(value.$1),
+                    borderRadius: BorderRadius.circular(16),
+                    child: AnimatedContainer(
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : const Duration(milliseconds: 180),
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: selected == value.$1
+                            ? Theme.of(context).colorScheme.surfaceContainer
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        value.$2,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
+                              color: selected == value.$1
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                              fontWeight: selected == value.$1
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                            ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -595,7 +1050,7 @@ class EatMeAppBar extends StatelessWidget implements PreferredSizeWidget {
               IconButton(
                 tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                 onPressed: () => Navigator.maybePop(context),
-                icon: const Icon(Icons.arrow_back),
+                icon: const EatMeIcon(EatMeGlyph.chevronLeft),
               ),
             Expanded(
               child: title == null

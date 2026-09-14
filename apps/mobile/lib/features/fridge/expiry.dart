@@ -85,27 +85,8 @@ Future<void> showAddFoodMethods(
     context: context,
     useSafeArea: true,
     showDragHandle: true,
-    builder: (context) => ListView(
-      shrinkWrap: true,
-      padding: const EdgeInsets.all(20),
-      children: [
-        Text(
-          context.t('add_food'),
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        for (final item in [
-          ('scan_and_import', Icons.camera_alt_outlined, 'scan'),
-          ('scan_barcode', Icons.view_week_outlined, 'barcode'),
-          ('search_food', Icons.search, 'search'),
-          ('custom_food', Icons.add, 'custom'),
-        ])
-          SettingRow(
-            icon: item.$2,
-            title: context.t(item.$1),
-
-            onTap: () => Navigator.pop(context, item.$3),
-          ),
-      ],
+    builder: (context) => AddFoodMethodsPanel(
+      onSelected: (method) => Navigator.pop(context, method),
     ),
   );
   if (!context.mounted || method == null) return;
@@ -123,4 +104,41 @@ Future<void> showAddFoodMethods(
           : '/custom-food',
     );
   }
+}
+
+class AddFoodMethodsPanel extends StatelessWidget {
+  const AddFoodMethodsPanel({super.key, required this.onSelected});
+
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) => ListView(
+    shrinkWrap: true,
+    padding: const EdgeInsets.all(20),
+    children: [
+      Text(
+        context.t('add_food'),
+        style: Theme.of(context).textTheme.headlineMedium,
+      ),
+      const SizedBox(height: 8),
+      Text(
+        context.t('add_food_method_support'),
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+      ),
+      const SizedBox(height: 16),
+      for (final item in [
+        ('scan_and_import', EatMeGlyph.camera, 'scan'),
+        ('scan_barcode', EatMeGlyph.scanBarcode, 'barcode'),
+        ('search_food', EatMeGlyph.search, 'search'),
+        ('custom_food', EatMeGlyph.plus, 'custom'),
+      ])
+        SettingRow(
+          icon: item.$2,
+          title: context.t(item.$1),
+          onTap: () => onSelected(item.$3),
+        ),
+    ],
+  );
 }

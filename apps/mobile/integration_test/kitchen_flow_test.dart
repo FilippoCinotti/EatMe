@@ -1,6 +1,7 @@
 import 'package:eatme/core/api.dart';
 import 'package:eatme/core/models.dart';
 import 'package:eatme/core/state.dart';
+import 'package:eatme/design_system/widgets.dart';
 import 'package:eatme/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -67,7 +68,7 @@ void main() {
     );
     await tester.pumpAndSettle(const Duration(milliseconds: 250));
     expect(container.read(appProvider).stage, Stage.ready);
-    expect(find.byType(NavigationDestination), findsNWidgets(4));
+    expect(find.byType(EatMeNavigationBar), findsOneWidget);
     container.read(routerProvider).go('/shopping');
     await tester.pumpAndSettle();
     await waitFor(tester, find.byType(Checkbox));

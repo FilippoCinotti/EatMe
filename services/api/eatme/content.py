@@ -2,24 +2,34 @@
 from collections import Counter
 from html.parser import HTMLParser
 import json
-from datetime import datetime, timedelta, timezone
+import re
+from datetime import date, datetime, timedelta, timezone
+from urllib.parse import parse_qs, urlsplit
 
 from .auth import now
-from .engine import amount_milli, compatibility, quantity, requirements
+from .engine import amount_milli, batch_usable, compatibility, quantity, requirements
 from .errors import DomainError
 from .providers import OpenFoodFacts, barcode, https_request
 from .storage import decode, encode
+from .sustainability import estimate_savings
+from .substitutions import CURATED_SUBSTITUTIONS, conflict_class
 from .validation import choice, integer, new_id, text, valid_uuid
 
 
 class RecipeParser(HTMLParser):
     def __init__(self):
         super().__init__()
-        self.recording, self.parts, self.documents = False, [], []
+        self.recording, self.parts, self.documents, self.metadata = False, [], [], {}
 
     def handle_starttag(self, tag, attrs):
-        if tag == "script" and dict(attrs).get("type", "").lower() == "application/ld+json":
+        values = dict(attrs)
+        if tag == "script" and values.get("type", "").lower() == "application/ld+json":
             self.recording, self.parts = True, []
+        if tag == "meta":
+            key = (values.get("property") or values.get("name") or "").lower()
+            content = values.get("content")
+            if key and content and len(content) <= 20_000:
+                self.metadata[key] = content
 
     def handle_data(self, data):
         if self.recording:
@@ -49,6 +59,137 @@ def find_recipe(value):
             if result:
                 return result
     return None
+
+
+def _platform(url):
+    parts = urlsplit(url)
+    host = (parts.hostname or "").lower().removeprefix("www.")
+    path = parts.path.rstrip("/")
+    if parts.scheme != "https" or parts.username or parts.password or parts.port not in (None, 443):
+        raise DomainError("invalid_public_url", 422)
+    if host == "youtu.be" and len([item for item in path.split("/") if item]) == 1:
+        return "youtube"
+    if host in {"youtube.com", "m.youtube.com"}:
+        if path == "/watch" and parse_qs(parts.query).get("v", [""])[0]:
+            return "youtube"
+        if re.match(r"^/(shorts|live)/[^/]+$", path):
+            return "youtube"
+    if host == "instagram.com" and re.match(r"^/(p|reel|tv)/[^/]+$", path):
+        return "instagram"
+    raise DomainError("unsupported_recipe_source", 422)
+
+
+def _instruction_text(value):
+    if isinstance(value, str):
+        return [value.strip()] if value.strip() else []
+    if isinstance(value, list):
+        return [item for child in value for item in _instruction_text(child)]
+    if isinstance(value, dict):
+        if isinstance(value.get("text"), str):
+            return _instruction_text(value["text"])
+        return _instruction_text(value.get("itemListElement", []))
+    return []
+
+
+def _duration_minutes(value):
+    if not isinstance(value, str):
+        return None
+    match = re.fullmatch(r"P(?:\d+D)?T(?:(\d+)H)?(?:(\d+)M)?", value.upper())
+    if not match:
+        return None
+    minutes = int(match.group(1) or 0) * 60 + int(match.group(2) or 0)
+    return minutes if 1 <= minutes <= 1440 else None
+
+
+def _description_sections(description):
+    lines = [re.sub(r"^\s*(?:[-–—•*]\s*|\d+[.)]\s*)", "", line).strip() for line in description.splitlines()]
+    lines = [line for line in lines if line]
+    ingredients, steps, section = [], [], None
+    for line in lines:
+        heading = line.casefold().rstrip(":")
+        if heading in {"ingredients", "ingredienti", "you need", "what you need"}:
+            section = "ingredients"
+            continue
+        if heading in {"method", "instructions", "steps", "procedimento", "preparazione"}:
+            section = "steps"
+            continue
+        if section == "ingredients":
+            ingredients.append(line)
+        elif section == "steps":
+            steps.append(line)
+    return ingredients[:40], steps[:30]
+
+
+def _aliases(food):
+    values = {str(food.get("slug", "")).replace("-", " ")}
+    values.update(str(name) for name in food.get("name", {}).values())
+    expanded = set()
+    for value in values:
+        normalized = re.sub(r"[^a-zà-ž0-9 ]", " ", value.casefold())
+        normalized = re.sub(r"\s+", " ", normalized).strip()
+        if normalized:
+            expanded.add(normalized)
+            if normalized.endswith("s"):
+                expanded.add(normalized[:-1])
+    return expanded
+
+
+def _map_ingredients(lines, foods):
+    rows = []
+    candidates = [(food, alias) for food in foods.values() for alias in _aliases(food)]
+    for source in lines[:40]:
+        line = re.sub(r"\s+", " ", str(source)).strip()
+        normalized = re.sub(r"[^a-zà-ž0-9., ]", " ", line.casefold())
+        matches = [(food, alias) for food, alias in candidates if re.search(r"(?<!\w)" + re.escape(alias) + r"(?!\w)", normalized)]
+        matches.sort(key=lambda item: (-len(item[1]), item[0]["id"]))
+        food = matches[0][0] if matches else None
+        amount = re.match(r"^\s*(\d+(?:[.,]\d+)?)\s*(kg|g|ml|l|pcs?|pieces?|uova?|eggs?)?\b", normalized)
+        quantity = None
+        if food and amount:
+            number = float(amount.group(1).replace(",", "."))
+            unit = (amount.group(2) or "").lower()
+            if food["unit"] == "g" and unit in {"g", "kg"}:
+                quantity = number * (1000 if unit == "kg" else 1)
+            elif food["unit"] == "ml" and unit in {"ml", "l"}:
+                quantity = number * (1000 if unit == "l" else 1)
+            elif food["unit"] == "pcs" and unit in {"pcs", "pc", "piece", "pieces", "uovo", "uova", "egg", "eggs"}:
+                quantity = number
+        if food and quantity is not None and quantity > 0:
+            rendered = str(int(quantity)) if quantity.is_integer() else str(quantity).rstrip("0").rstrip(".")
+            rows.append({"food_id": food["id"], "quantity": rendered, "unit": food["unit"],
+                         "source_text": line, "mapping_status": "matched", "confirmed": True})
+        elif food:
+            rows.append({"food_id": food["id"], "quantity": None, "unit": food["unit"],
+                         "source_text": line, "mapping_status": "needs_review", "confirmed": False})
+        else:
+            rows.append({"food_id": None, "quantity": None, "unit": None,
+                         "source_text": line, "mapping_status": "unknown", "confirmed": False})
+    return rows
+
+
+def _compatibility_review(assessment, unmapped):
+    reasons = assessment["reasons"]
+    conflicts = [reason for reason in reasons if reason.get("code") != "unknown_ingredient"]
+    if conflicts:
+        status = "conflict"
+    elif unmapped or reasons:
+        status = "unknown"
+    elif assessment["warnings"]:
+        status = "caution"
+    else:
+        status = "fit"
+    return {**assessment, "status": status, "unmapped_ingredients": unmapped}
+
+
+def _author_name(value):
+    if isinstance(value, str):
+        return value[:160]
+    if isinstance(value, dict):
+        return str(value.get("name", ""))[:160]
+    if isinstance(value, list):
+        names = [_author_name(item) for item in value]
+        return ", ".join(name for name in names if name)[:160]
+    return ""
 
 
 class ContentService:
@@ -108,10 +249,12 @@ class ContentService:
                     raise DomainError("invalid_action", 422)
                 value = self._validate_recipe(value, foods)
                 assessment = compatibility([i["food_id"] for i in value["ingredients"]], foods, profile["settings"], rules)
-                if assessment["reasons"]:
+                if assessment["reasons"] and data.get("safety_acknowledged") is not True:
                     raise DomainError("recipe_not_compatible", 409, assessment)
                 identifier = new_id()
-                value.update(id=identifier, is_demo=False, private=True)
+                value.update(id=identifier, is_demo=False, private=True,
+                             safety_acknowledged=bool(assessment["reasons"]),
+                             imported_assessment=assessment if value.get("source_url") else None)
                 tx.execute("INSERT INTO recipes VALUES (?,?)", (identifier, encode(value)))
                 tx.execute("INSERT INTO content_ownership VALUES ('recipe',?,?,NULL)", (identifier, user_id))
                 return value
@@ -147,19 +290,154 @@ class ContentService:
             if foods[item["food_id"]]["unit"] == "pcs" and amount % 1000:
                 raise DomainError("whole_units_required", 422)
             items.append({"food_id": item["food_id"], "quantity": quantity(amount)})
-        return {"title": title, "steps": normalized, "ingredients": items, "servings": integer(value.get("servings"), minimum=1, maximum=20), "minutes": integer(value.get("minutes"), minimum=1, maximum=1440), "cuisine": text(value.get("cuisine", "other"), maximum=60), "difficulty": choice(value.get("difficulty", "beginner"), {"beginner", "confident", "advanced"}), "provenance": text(value.get("provenance", "user-import"), maximum=60), "source_url": text(value.get("source_url", ""), maximum=2000, empty=True), "nutrition": None}
+        source_url = text(value.get("source_url", ""), maximum=2000, empty=True)
+        source_platform = text(value.get("source_platform", ""), maximum=30, empty=True)
+        thumbnail = text(value.get("source_thumbnail_url", ""), maximum=2000, empty=True)
+        source_title = text(value.get("source_title", ""), maximum=160, empty=True)
+        source_creator = text(value.get("source_creator", ""), maximum=160, empty=True)
+        imported_at = text(value.get("imported_at", ""), maximum=40, empty=True)
+        if any(url and urlsplit(url).scheme != "https" for url in (source_url, thumbnail)):
+            raise DomainError("invalid_public_url", 422)
+        adaptations = value.get("adaptations", [])
+        if not isinstance(adaptations, list) or len(adaptations) > 40:
+            raise DomainError("invalid_recipe", 422)
+        adaptations = [{"from_food_id": valid_uuid(item.get("from_food_id")),
+                        "to_food_id": valid_uuid(item.get("to_food_id")),
+                        "role": text(item.get("role", ""), maximum=60, empty=True)}
+                       for item in adaptations if isinstance(item, dict)]
+        return {"title": title, "steps": normalized, "ingredients": items, "servings": integer(value.get("servings"), minimum=1, maximum=20), "minutes": integer(value.get("minutes"), minimum=1, maximum=1440), "cuisine": text(value.get("cuisine", "other"), maximum=60), "difficulty": choice(value.get("difficulty", "beginner"), {"beginner", "confident", "advanced"}), "provenance": text(value.get("provenance", "user-import"), maximum=60), "source_url": source_url, "source_platform": source_platform, "source_thumbnail_url": thumbnail, "source_title": source_title, "source_creator": source_creator, "imported_at": imported_at, "adaptations": adaptations, "nutrition": None}
 
     def import_url(self, user_id, data):
-        self._household(user_id)
         if data.get("private_use_confirmed") is not True:
             raise DomainError("private_use_confirmation_required", 422)
         url = text(data.get("url"), maximum=2000)
+        platform = _platform(url)
         parser = RecipeParser()
-        parser.feed(https_request(url).decode("utf-8", errors="replace"))
+        document = https_request(url).decode("utf-8", errors="replace")
+        parser.feed(document)
         recipe = find_recipe(parser.documents)
-        if not recipe:
+        description = parser.metadata.get("og:description") or parser.metadata.get("description") or ""
+        if not recipe and not description:
+            raise DomainError("source_private_or_unavailable", 422)
+        ingredients_text = recipe.get("recipeIngredient", []) if recipe else []
+        description_ingredients, description_steps = _description_sections(description)
+        ingredients_text = ingredients_text or description_ingredients
+        instructions = _instruction_text(recipe.get("recipeInstructions", [])) if recipe else description_steps
+        if not ingredients_text and not instructions:
             raise DomainError("recipe_metadata_not_found", 422)
-        return {"title": str(recipe.get("name", ""))[:160], "ingredients_text": recipe.get("recipeIngredient", [])[:40], "instructions": recipe.get("recipeInstructions", []), "source_url": url, "requires_mapping": True}
+        with self.db.transaction() as tx:
+            self._member(tx, user_id)
+            foods, _, _, _ = self._catalog(tx, user_id)
+            ingredient_rows = _map_ingredients(ingredients_text, foods)
+        title = (recipe.get("name") if recipe else parser.metadata.get("og:title")) or ""
+        title = re.sub(r"\s*[-|]\s*(YouTube|Instagram)\s*$", "", str(title), flags=re.I)[:160]
+        servings_match = re.search(r"\d+", str(recipe.get("recipeYield", ""))) if recipe else None
+        minutes = _duration_minutes(recipe.get("totalTime")) if recipe else None
+        thumbnail = parser.metadata.get("og:image", "")
+        return {
+            "title": title,
+            "ingredients_text": [str(item)[:500] for item in ingredients_text[:40]],
+            "ingredient_rows": ingredient_rows,
+            "steps": instructions,
+            "servings": int(servings_match.group()) if servings_match and 1 <= int(servings_match.group()) <= 20 else None,
+            "minutes": minutes,
+            "source_url": url,
+            "source_platform": platform,
+            "source_thumbnail_url": thumbnail if thumbnail.startswith("https://") else "",
+            "source_title": title,
+            "source_creator": _author_name(recipe.get("author")) if recipe else "",
+            "imported_at": now(),
+            "provenance": "public-social-link",
+            "requires_mapping": any(row["mapping_status"] != "matched" for row in ingredient_rows),
+            "missing_fields": [field for field, value in (("title", title), ("ingredients", ingredients_text), ("steps", instructions), ("servings", servings_match), ("minutes", minutes)) if not value],
+        }
+
+    def import_review(self, user_id, data):
+        home = self._household(user_id)
+        rows = data.get("ingredient_rows")
+        if not isinstance(rows, list) or not 1 <= len(rows) <= 40:
+            raise DomainError("invalid_ingredients", 422)
+        with self.db.transaction() as tx:
+            profile, foods, _, rules, versions, today = self._context(tx, user_id)
+            inventory = self._inventory(tx, home)
+            diets = {row["id"]: decode(row["data"]) for row in tx.all("SELECT id,data FROM diet_definitions")}
+            recognized, normalized, unresolved = [], [], []
+            for index, row in enumerate(rows):
+                if not isinstance(row, dict):
+                    raise DomainError("invalid_ingredients", 422)
+                food = foods.get(row.get("food_id"))
+                status = row.get("mapping_status", "unknown")
+                if status not in {"matched", "needs_review", "unknown"}:
+                    raise DomainError("invalid_ingredients", 422)
+                try:
+                    amount = amount_milli(row.get("quantity")) if food else None
+                    if food and food["unit"] == "pcs" and amount % 1000:
+                        raise DomainError("whole_units_required", 422)
+                except DomainError:
+                    amount = None
+                confirmed = row.get("confirmed") is True and status == "matched"
+                if food and confirmed:
+                    recognized.append(food["id"])
+                if food and amount and confirmed:
+                    normalized.append({"index": index, "food_id": food["id"], "quantity_milli": amount})
+                else:
+                    unresolved.append({"index": index, "food_id": food["id"] if food else None,
+                                       "source_text": str(row.get("source_text", ""))[:500],
+                                       "code": "ingredient_mapping_incomplete"})
+            assessment = compatibility(recognized, foods, profile["settings"], rules)
+            review = _compatibility_review(assessment, unresolved)
+            classified = []
+            for reason in assessment["reasons"]:
+                diet = diets.get(reason.get("diet_id"), {})
+                classified.append({**reason, "classification": conflict_class(reason["code"], medical=bool(diet.get("medical")))})
+
+            available_by_food = {}
+            soon = set()
+            for batch in inventory:
+                if not batch_usable(batch, today):
+                    continue
+                available_by_food[batch["food_id"]] = available_by_food.get(batch["food_id"], 0) + batch["quantity_milli"]
+                if batch["expiry_date"] and 0 <= (date.fromisoformat(batch["expiry_date"]) - today).days <= 2:
+                    soon.add(batch["food_id"])
+            availability = []
+            for item in normalized:
+                available = available_by_food.get(item["food_id"], 0)
+                availability.append({"index": item["index"], "food_id": item["food_id"],
+                                     "required": quantity(item["quantity_milli"]),
+                                     "available": quantity(min(available, item["quantity_milli"])),
+                                     "at_home": available >= item["quantity_milli"],
+                                     "use_soon": item["food_id"] in soon})
+
+            suggestions = []
+            by_slug = {food.get("slug"): food for food in foods.values()}
+            conflicting_ids = sorted({reason.get("food_id") for reason in assessment["reasons"] if reason.get("food_id")})
+            for food_id in conflicting_ids:
+                original = foods.get(food_id)
+                candidates = []
+                for candidate in CURATED_SUBSTITUTIONS.get(original.get("slug") if original else None, []):
+                    replacement = by_slug.get(candidate["slug"])
+                    if not replacement or compatibility([replacement["id"]], foods, profile["settings"], rules)["reasons"]:
+                        continue
+                    candidates.append({"food": replacement, "role": candidate["role"],
+                                       "review": candidate["review"],
+                                       "at_home": available_by_food.get(replacement["id"], 0) > 0,
+                                       "available": quantity(available_by_food.get(replacement["id"], 0))})
+                suggestions.append({"food_id": food_id, "candidates": candidates})
+
+            active_diets = []
+            for selected in profile["settings"].get("diets", []):
+                diet = diets.get(selected.get("diet_id"), {})
+                if diet:
+                    active_diets.append({key: diet.get(key) for key in ("id", "slug", "name", "medical")})
+
+            return {"compatibility": {**review, "classified_reasons": classified},
+                    "inventory": {"available_count": sum(item["at_home"] for item in availability),
+                                  "total_count": len(rows), "items": availability,
+                                  "missing_food_ids": [item["food_id"] for item in availability if not item["at_home"]],
+                                  "use_soon_food_ids": sorted({item["food_id"] for item in availability if item["use_soon"]}),
+                                  "unresolved_count": len(unresolved)},
+                    "substitutions": suggestions, "active_diets": active_diets,
+                    "diet_rules_version": versions}
 
     def product(self, user_id, code):
         if not self.feature_enabled('barcode_scan'):
@@ -183,14 +461,15 @@ class ContentService:
             counts = Counter(r["kind"] for r in rows)
             sessions = tx.all("SELECT recipe_id,data FROM cooking_sessions WHERE user_id=? ORDER BY created_at DESC LIMIT 100", (user_id,))
             sessions = [row for row in sessions if decode(row['data']).get('source') != 'external-preparation']
-            amounts = tx.all("SELECT e.kind,f.data AS food_data,e.delta_milli FROM inventory_events e JOIN inventory_batches b ON b.id=e.batch_id JOIN foods f ON f.id=b.food_id WHERE e.household_id=? AND e.kind IN ('consumed','discarded','cooked','leftover_remix') ORDER BY e.created_at DESC LIMIT 2000", (home,))
+            amounts = tx.all("SELECT e.batch_id,e.kind,e.delta_milli,e.created_at,b.expiry_date,b.expiry_kind,f.data AS food_data,m.data AS metadata,(SELECT c.delta_milli FROM inventory_events c WHERE c.batch_id=e.batch_id AND c.kind IN ('created','scan_confirmed') ORDER BY c.created_at,c.id LIMIT 1) AS initial_milli FROM inventory_events e JOIN inventory_batches b ON b.id=e.batch_id JOIN foods f ON f.id=b.food_id LEFT JOIN inventory_metadata m ON m.batch_id=b.id WHERE e.household_id=? AND e.kind IN ('consumed','discarded','cooked') ORDER BY e.created_at DESC LIMIT 2000", (home,))
             recorded = {}
             for row in amounts:
                 unit = decode(row['food_data'])['unit']
                 kind = 'discarded' if row['kind'] == 'discarded' else 'used'
                 recorded.setdefault(unit, {'used': 0, 'discarded': 0})[kind] += abs(row['delta_milli'])
             recorded = {unit: {kind: quantity(value) for kind, value in values.items()} for unit, values in recorded.items()}
-            return {"recorded_quantities": recorded, "inventory_event_counts": dict(counts), "cooked_meals": len(sessions), "different_recipes": len({r["recipe_id"] for r in sessions}), "window": "latest_2000_events_and_100_meals", "money_saved": None, "carbon_saved": None}
+            savings = estimate_savings([row for row in amounts if row["kind"] in {"consumed", "cooked"}])
+            return {"recorded_quantities": recorded, "inventory_event_counts": dict(counts), "cooked_meals": len(sessions), "different_recipes": len({r["recipe_id"] for r in sessions}), "window": "latest_2000_events_and_100_meals", **savings}
 
     def recipe_nutrition(self, recipe, foods, servings):
         from decimal import Decimal
