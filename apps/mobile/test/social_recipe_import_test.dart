@@ -407,14 +407,12 @@ void main() {
     final remove = find.byTooltip('Delete').first;
     await tester.tap(remove);
     await tester.pumpAndSettle();
-    final add = find.text('Add ingredient');
-    if (add.evaluate().isEmpty) {
-      await tester.drag(
-        find.byType(ListView),
-        const Offset(0, 300),
-      );
-      await tester.pumpAndSettle();
-    }
+    final add = find.byKey(const Key('review_add_ingredient'));
+    await tester.scrollUntilVisible(
+      add,
+      300,
+      scrollable: find.byType(ListView),
+    );
     expect(add, findsOneWidget);
     await tester.tap(add);
     await tester.pumpAndSettle();
