@@ -196,9 +196,11 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                         children: [
                           Text(
                             context.t('imported_from_source', {
-                              'source': const {'youtube', 'instagram'}.contains(
-                                    '${rawRecipe['source_platform']}',
-                                  )
+                              'source':
+                                  const {
+                                    'youtube',
+                                    'instagram',
+                                  }.contains('${rawRecipe['source_platform']}')
                                   ? context.t('${rawRecipe['source_platform']}')
                                   : context.t('original_source'),
                             }),
@@ -211,16 +213,21 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                               }),
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
-                          if ((rawRecipe['adaptations'] as List? ?? []).isNotEmpty)
+                          if ((rawRecipe['adaptations'] as List? ?? [])
+                              .isNotEmpty)
                             Padding(
                               padding: const EdgeInsets.only(top: 6),
                               child: Text(
                                 context.t('adaptation_count', {
-                                  'count': (rawRecipe['adaptations'] as List).length,
+                                  'count':
+                                      (rawRecipe['adaptations'] as List).length,
                                 }),
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                    ),
                               ),
                             ),
                         ],

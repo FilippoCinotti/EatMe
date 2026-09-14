@@ -91,6 +91,7 @@ class Router:
         if resource=="/media" and method=="POST":
             return self.service.media_upload(user_id,body)
         if resource=="/recipes/import-url" and method=="POST":
+            self.limiter.check("recipe-import:"+user_id,12)
             return self.service.import_url(user_id,body)
         if resource=="/recipes/import-review" and method=="POST":
             return self.service.import_review(user_id,body)

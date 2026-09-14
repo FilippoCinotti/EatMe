@@ -231,12 +231,7 @@ class _RecipeLibraryRow extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            FoodImage(
-              id: '${recipe['id']}',
-              width: 72,
-              height: 72,
-              radius: 18,
-            ),
+            FoodImage(id: '${recipe['id']}', width: 72, height: 72, radius: 18),
             const SizedBox(width: 14),
             Expanded(
               child: Column(

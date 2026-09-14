@@ -391,12 +391,7 @@ class RecipeCard extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
-                  FoodImage(
-                    id: r.recipe.id,
-                    width: 70,
-                    height: 70,
-                    radius: 18,
-                  ),
+                  FoodImage(id: r.recipe.id, width: 70, height: 70, radius: 18),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
@@ -409,9 +404,12 @@ class RecipeCard extends StatelessWidget {
                         const SizedBox(height: 6),
                         Text(
                           meta,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
                         ),
                         if (r.warnings.isNotEmpty) ...[
                           const SizedBox(height: 7),

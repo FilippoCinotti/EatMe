@@ -149,10 +149,7 @@ class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
               food: featured.first,
               onTap: state.offline
                   ? null
-                  : () => sheet(
-                      context,
-                      FoodAssessment(food: featured.first),
-                    ),
+                  : () => sheet(context, FoodAssessment(food: featured.first)),
             ),
             if (featured.length > 1) ...[
               const SizedBox(height: 14),
@@ -287,11 +284,12 @@ class _FeaturedDiscoveryCard extends StatelessWidget {
                       children: [
                         Text(
                           context.t('saved_by_you').toUpperCase(),
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.6,
-                          ),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 1.6,
+                              ),
                         ),
                         const SizedBox(height: 7),
                         Text(
@@ -301,9 +299,12 @@ class _FeaturedDiscoveryCard extends StatelessWidget {
                         const SizedBox(height: 5),
                         Text(
                           context.t('featured_favorite_body'),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
                         ),
                       ],
                     ),

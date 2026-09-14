@@ -9,7 +9,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:eatme/core/api.dart';
-import 'package:eatme/core/localization.dart';
 import 'package:eatme/core/models.dart';
 import 'package:eatme/core/state.dart';
 import 'package:eatme/design_system/theme.dart';
@@ -102,11 +101,7 @@ Json conflictResult({bool candidate = true}) => {
   'compatibility': {
     'status': 'conflict',
     'reasons': [
-      {
-        'code': 'diet_exclusion',
-        'food_id': visual.feta.id,
-        'diet_id': 'diet',
-      },
+      {'code': 'diet_exclusion', 'food_id': visual.feta.id, 'diet_id': 'diet'},
     ],
     'warnings': <Json>[],
     'classified_reasons': [
@@ -153,9 +148,8 @@ Json conflictResult({bool candidate = true}) => {
 
 class SocialController extends visual.VisualController {
   @override
-  AppState build() => super.build().copy(
-    foods: [...super.build().foods, chickpea],
-  );
+  AppState build() =>
+      super.build().copy(foods: [...super.build().foods, chickpea]);
 }
 
 class SocialApi extends support.TestApi {
@@ -190,7 +184,10 @@ class SocialApi extends support.TestApi {
         'items': [
           {
             'id': '50773917-c954-51f2-a53b-1cf4b3c00690',
-            'title': {'en': 'Reviewed social recipe', 'it': 'Ricetta social rivista'},
+            'title': {
+              'en': 'Reviewed social recipe',
+              'it': 'Ricetta social rivista',
+            },
             'minutes': 25,
             'servings': 2,
             'favorite': false,
@@ -203,7 +200,10 @@ class SocialApi extends support.TestApi {
     if (path.startsWith('/recipes/')) {
       return {
         'id': '50773917-c954-51f2-a53b-1cf4b3c00690',
-        'title': {'en': 'Reviewed social recipe', 'it': 'Ricetta social rivista'},
+        'title': {
+          'en': 'Reviewed social recipe',
+          'it': 'Ricetta social rivista',
+        },
         'minutes': 25,
         'servings': 2,
         'ingredients': [
@@ -301,12 +301,14 @@ Widget routedHarness(SocialApi api) {
   final router = GoRouter(
     initialLocation: '/recipe-import',
     routes: [
-      GoRoute(path: '/recipe-import', builder: (_, _) => const ImportRecipePage()),
+      GoRoute(
+        path: '/recipe-import',
+        builder: (_, _) => const ImportRecipePage(),
+      ),
       GoRoute(
         path: '/recipes/:id',
-        builder: (_, state) => Scaffold(
-          body: Text('saved:${state.pathParameters['id']}'),
-        ),
+        builder: (_, state) =>
+            Scaffold(body: Text('saved:${state.pathParameters['id']}')),
       ),
       GoRoute(
         path: '/cook/:id',
@@ -393,10 +395,17 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.enterText(find.byKey(const Key('import_title')), 'Corrected title');
+    await tester.enterText(
+      find.byKey(const Key('import_title')),
+      'Corrected title',
+    );
     await tester.tap(find.byTooltip('Delete').first);
     final add = find.text('Add ingredient');
-    await tester.scrollUntilVisible(add, 350, scrollable: find.byType(Scrollable).first);
+    await tester.scrollUntilVisible(
+      add,
+      350,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(add);
     await tester.pumpAndSettle();
     expect(find.byType(TextField), findsAtLeastNWidgets(7));
@@ -424,7 +433,9 @@ void main() {
     await tester.tap(find.byKey(const Key('apply_substitutions')));
     await tester.pumpAndSettle();
     expect(find.text('Now fits your profile'), findsOneWidget);
-    final checks = api.calls.where((call) => call['path'] == '/recipes/import-review');
+    final checks = api.calls.where(
+      (call) => call['path'] == '/recipes/import-review',
+    );
     expect(checks.length, 1);
     final rows = checks.single['body']['ingredient_rows'] as List;
     expect(rows.any((row) => row['food_id'] == chickpea.id), isTrue);
@@ -444,7 +455,10 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('This content appears private or cannot be accessed.'), findsAtLeastNWidgets(1));
+    expect(
+      find.text('This content appears private or cannot be accessed.'),
+      findsAtLeastNWidgets(1),
+    );
     expect(find.text('Retry'), findsOneWidget);
   });
 
@@ -455,9 +469,8 @@ void main() {
       support.harness(
         PhotoAcquisitionPage(
           kind: 'food',
-          picker: (ImageSource _) async => throw const PlatformException(
-            code: 'camera_access_denied',
-          ),
+          picker: (ImageSource _) async =>
+              throw PlatformException(code: 'camera_access_denied'),
         ),
         SocialApi(),
         controller: SocialController.new,
@@ -466,10 +479,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.bySemanticsLabel('Take a photo'));
     await tester.pumpAndSettle();
-    expect(
-      find.textContaining('Camera access is off'),
-      findsOneWidget,
-    );
+    expect(find.textContaining('Camera access is off'), findsOneWidget);
   });
 
   for (final dark in [false, true]) {
@@ -482,7 +492,11 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       final suffix = dark ? 'dark' : 'light';
       final states = <(String, Widget, SocialApi)>[
-        ('photo-acquisition', const PhotoAcquisitionPage(kind: 'food'), SocialApi()),
+        (
+          'photo-acquisition',
+          const PhotoAcquisitionPage(kind: 'food'),
+          SocialApi(),
+        ),
         ('recipe-library-entry', const RecipeLibraryPage(), SocialApi()),
         ('recipe-library-imported', const RecipeLibraryPage(), SocialApi()),
         ('import-recipe', const ImportRecipePage(), SocialApi()),
@@ -491,8 +505,16 @@ void main() {
           const ImportProcessingPage(sourceUrl: 'https://youtu.be/public'),
           SocialApi()..importGate = Completer<Json>(),
         ),
-        ('import-review', ImportedRecipeReviewPage(draft: draft(partial: true)), SocialApi()),
-        ('ingredient-mapping', IngredientMappingPage(draft: draft(partial: true)), SocialApi()),
+        (
+          'import-review',
+          ImportedRecipeReviewPage(draft: draft(partial: true)),
+          SocialApi(),
+        ),
+        (
+          'ingredient-mapping',
+          IngredientMappingPage(draft: draft(partial: true)),
+          SocialApi(),
+        ),
         (
           'compatibility-fit',
           ImportedRecipeResultPage(draft: draft(), result: fitResult()),
@@ -516,13 +538,19 @@ void main() {
         ),
         (
           'rechecking-adapted',
-          CompatibilityCheckingPage(draft: draft(conflict: true), adaptedCount: 1),
+          CompatibilityCheckingPage(
+            draft: draft(conflict: true),
+            adaptedCount: 1,
+          ),
           SocialApi()..reviewGate = Completer<Json>(),
         ),
         (
           'adapted-success',
           ImportedRecipeResultPage(
-            draft: {...draft(), 'adaptations': [const <String, dynamic>{}]},
+            draft: {
+              ...draft(),
+              'adaptations': [const <String, dynamic>{}],
+            },
             result: fitResult(adapted: true),
             adaptedCount: 1,
           ),
@@ -561,10 +589,7 @@ void main() {
       final impactBoundary = GlobalKey();
       await tester.pumpWidget(
         support.harness(
-          RepaintBoundary(
-            key: impactBoundary,
-            child: const InsightsPage(),
-          ),
+          RepaintBoundary(key: impactBoundary, child: const InsightsPage()),
           SocialApi(),
           dark: dark,
           controller: SocialController.new,

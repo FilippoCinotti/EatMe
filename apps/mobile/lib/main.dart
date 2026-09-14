@@ -279,9 +279,9 @@ class AppShell extends StatelessWidget {
     extendBody: true,
     body: MediaQuery(
       data: MediaQuery.of(context).copyWith(
-        padding: MediaQuery.paddingOf(context).copyWith(
-          bottom: MediaQuery.paddingOf(context).bottom + 92,
-        ),
+        padding: MediaQuery.paddingOf(
+          context,
+        ).copyWith(bottom: MediaQuery.paddingOf(context).bottom + 92),
       ),
       child: child,
     ),

@@ -375,13 +375,20 @@ class _InsightsState extends ResourceState<InsightsPage> {
     if (values.isEmpty) return '—';
     const symbols = {'EUR': '€', 'USD': r'$', 'GBP': '£', 'CHF': 'CHF '};
     return values
-        .map((item) => '${symbols[item['currency']] ?? '${item['currency']} '}${item['value']}')
+        .map(
+          (item) =>
+              '${symbols[item['currency']] ?? '${item['currency']} '}${item['value']}',
+        )
         .join(' · ');
   }
 
   void methodology() {
-    final method = Map<String, dynamic>.from(data?['savings_method'] as Map? ?? {});
-    final source = Map<String, dynamic>.from(method['factor_source'] as Map? ?? {});
+    final method = Map<String, dynamic>.from(
+      data?['savings_method'] as Map? ?? {},
+    );
+    final source = Map<String, dynamic>.from(
+      method['factor_source'] as Map? ?? {},
+    );
     sheet(
       context,
       ListView(
@@ -455,170 +462,175 @@ class _InsightsState extends ResourceState<InsightsPage> {
           onSelected: (value) => setState(() => tab = value),
         ),
         const SizedBox(height: 24),
-      if (tab == 'alerts') ...[
-        for (final batch
-            in ref
-                .watch(appProvider)
-                .inventory
-                .where(
-                  (b) =>
-                      b.expiryDate != null &&
-                      b.expiryDate!.difference(DateTime.now()).inDays <= 3,
-                ))
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: InformationPanel(
-              tinted: false,
-              child: SettingRow(
-                title: localized(batch.food.name, context.language),
-                subtitle: expiryLabel(context, batch),
-                icon: EatMeGlyph.clockAlert,
-                onTap: () => context.push('/expiry'),
-              ),
-            ),
-          ),
-        AsyncAction(
-          label: context.t('notifications'),
-          secondary: true,
-          action: () async => context.push('/notifications'),
-        ),
-      ],
-      if (tab == 'tips') ...[
-        StatusNote(text: context.t('practical_tips')),
-        TextButton(
-          onPressed: () => context.push('/planner'),
-          child: Text(context.t('meal_planner')),
-        ),
-        TextButton(
-          onPressed: () => context.push('/leftovers'),
-          child: Text(context.t('leftovers')),
-        ),
-        TextButton(
-          onPressed: () => context.push('/wellbeing'),
-          child: Text(context.t('wellbeing')),
-        ),
-      ],
-      if (tab == 'overview') ...[
-        Row(
-          children: [
-            for (final metric in ['cooked_meals', 'different_recipes']) ...[
-              Expanded(
-                child: _InsightMetric(
-                  value: '${data?[metric] ?? 0}',
-                  label: context.t(metric),
+        if (tab == 'alerts') ...[
+          for (final batch
+              in ref
+                  .watch(appProvider)
+                  .inventory
+                  .where(
+                    (b) =>
+                        b.expiryDate != null &&
+                        b.expiryDate!.difference(DateTime.now()).inDays <= 3,
+                  ))
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: InformationPanel(
+                tinted: false,
+                child: SettingRow(
+                  title: localized(batch.food.name, context.language),
+                  subtitle: expiryLabel(context, batch),
+                  icon: EatMeGlyph.clockAlert,
+                  onTap: () => context.push('/expiry'),
                 ),
               ),
-              if (metric == 'cooked_meals') const SizedBox(width: 12),
+            ),
+          AsyncAction(
+            label: context.t('notifications'),
+            secondary: true,
+            action: () async => context.push('/notifications'),
+          ),
+        ],
+        if (tab == 'tips') ...[
+          StatusNote(text: context.t('practical_tips')),
+          TextButton(
+            onPressed: () => context.push('/planner'),
+            child: Text(context.t('meal_planner')),
+          ),
+          TextButton(
+            onPressed: () => context.push('/leftovers'),
+            child: Text(context.t('leftovers')),
+          ),
+          TextButton(
+            onPressed: () => context.push('/wellbeing'),
+            child: Text(context.t('wellbeing')),
+          ),
+        ],
+        if (tab == 'overview') ...[
+          Row(
+            children: [
+              for (final metric in ['cooked_meals', 'different_recipes']) ...[
+                Expanded(
+                  child: _InsightMetric(
+                    value: '${data?[metric] ?? 0}',
+                    label: context.t(metric),
+                  ),
+                ),
+                if (metric == 'cooked_meals') const SizedBox(width: 12),
+              ],
             ],
-          ],
-        ),
-        const SizedBox(height: 20),
-        SettingsGroup(
-          title: context.t('recorded_activity'),
-          children: [
-            for (final entry
-                in (data?['inventory_event_counts'] as Map? ?? {}).entries)
-              SettingRow(
-                title: context.t('event_${entry.key}'),
-                icon: EatMeGlyph.history,
-                trailing: StatusBadge(label: '${entry.value}'),
-              ),
-          ],
-        ),
-        for (final unit in (data?['recorded_quantities'] as Map? ?? {}).entries)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: InformationPanel(
-              tinted: false,
-              child: Text(
-                '${context.t('recorded_use')}: ${unit.value['used']} ${unit.key} · ${context.t('discarded_amount')}: ${unit.value['discarded']} ${unit.key}',
+          ),
+          const SizedBox(height: 20),
+          SettingsGroup(
+            title: context.t('recorded_activity'),
+            children: [
+              for (final entry
+                  in (data?['inventory_event_counts'] as Map? ?? {}).entries)
+                SettingRow(
+                  title: context.t('event_${entry.key}'),
+                  icon: EatMeGlyph.history,
+                  trailing: StatusBadge(label: '${entry.value}'),
+                ),
+            ],
+          ),
+          for (final unit
+              in (data?['recorded_quantities'] as Map? ?? {}).entries)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: InformationPanel(
+                tinted: false,
+                child: Text(
+                  '${context.t('recorded_use')}: ${unit.value['used']} ${unit.key} · ${context.t('discarded_amount')}: ${unit.value['discarded']} ${unit.key}',
+                ),
               ),
             ),
+          StatusNote(text: context.t('recorded_quantities_notice')),
+        ],
+        if (tab == 'impact') ...[
+          Text(
+            context.t('estimated_savings'),
+            style: Theme.of(context).textTheme.titleLarge,
           ),
-        StatusNote(text: context.t('recorded_quantities_notice')),
-      ],
-      if (tab == 'impact') ...[
-        Text(
-          context.t('estimated_savings'),
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          context.t('estimated_savings_support'),
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          const SizedBox(height: 8),
+          Text(
+            context.t('estimated_savings_support'),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
-        ),
-        const SizedBox(height: 18),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final cards = [
-              _ImpactMetric(
-                icon: EatMeGlyph.shoppingBasket,
-                value: moneyLabel(),
-                label: context.t('estimated_food_value'),
-                available: data?['money_saved'] != null,
-              ),
-              _ImpactMetric(
-                icon: EatMeGlyph.leaf,
-                value: carbon == null ? '—' : '${carbon['value']} kg CO₂e',
-                label: context.t('estimated_co2e'),
-                available: carbon != null,
-              ),
-            ];
-            if (constraints.maxWidth < 360 ||
-                MediaQuery.textScalerOf(context).scale(16) > 21) {
-              return Column(
-                children: [cards.first, const SizedBox(height: 12), cards.last],
+          const SizedBox(height: 18),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final cards = [
+                _ImpactMetric(
+                  icon: EatMeGlyph.shoppingBasket,
+                  value: moneyLabel(),
+                  label: context.t('estimated_food_value'),
+                  available: data?['money_saved'] != null,
+                ),
+                _ImpactMetric(
+                  icon: EatMeGlyph.leaf,
+                  value: carbon == null ? '—' : '${carbon['value']} kg CO₂e',
+                  label: context.t('estimated_co2e'),
+                  available: carbon != null,
+                ),
+              ];
+              if (constraints.maxWidth < 360 ||
+                  MediaQuery.textScalerOf(context).scale(16) > 21) {
+                return Column(
+                  children: [
+                    cards.first,
+                    const SizedBox(height: 12),
+                    cards.last,
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  Expanded(child: cards.first),
+                  const SizedBox(width: 12),
+                  Expanded(child: cards.last),
+                ],
               );
-            }
-            return Row(
+            },
+          ),
+          const SizedBox(height: 18),
+          InformationPanel(
+            tinted: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: cards.first),
-                const SizedBox(width: 12),
-                Expanded(child: cards.last),
-              ],
-            );
-          },
-        ),
-        const SizedBox(height: 18),
-        InformationPanel(
-          tinted: false,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                context.t('estimate_coverage'),
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                context.t('eligible_events_count', {
-                  'count': method['eligible_events'] ?? 0,
-                }),
-              ),
-              if (carbon != null) ...[
-                const SizedBox(height: 5),
                 Text(
-                  context.t('factor_coverage_mass', {
-                    'covered': carbon['covered_quantity_g'] ?? '0',
-                    'eligible': carbon['eligible_quantity_g'] ?? '0',
+                  context.t('estimate_coverage'),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  context.t('eligible_events_count', {
+                    'count': method['eligible_events'] ?? 0,
                   }),
                 ),
+                if (carbon != null) ...[
+                  const SizedBox(height: 5),
+                  Text(
+                    context.t('factor_coverage_mass', {
+                      'covered': carbon['covered_quantity_g'] ?? '0',
+                      'eligible': carbon['eligible_quantity_g'] ?? '0',
+                    }),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
-        ),
+          const SizedBox(height: 18),
+          AsyncAction(
+            label: context.t('how_savings_calculated'),
+            secondary: true,
+            action: () async => methodology(),
+          ),
+        ],
         const SizedBox(height: 18),
-        AsyncAction(
-          label: context.t('how_savings_calculated'),
-          secondary: true,
-          action: () async => methodology(),
-        ),
-      ],
-      const SizedBox(height: 18),
-      StatusNote(text: context.t('insights_method')),
-    ]),
+        StatusNote(text: context.t('insights_method')),
+      ]),
     );
   }
 }

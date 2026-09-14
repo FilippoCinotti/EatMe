@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,8 +27,7 @@ class PhotoAcquisitionPage extends ConsumerStatefulWidget {
       _PhotoAcquisitionPageState();
 }
 
-class _PhotoAcquisitionPageState
-    extends ConsumerState<PhotoAcquisitionPage> {
+class _PhotoAcquisitionPageState extends ConsumerState<PhotoAcquisitionPage> {
   XFile? selected;
   Uint8List? bytes;
   bool opening = false, processing = false;
@@ -42,13 +40,14 @@ class _PhotoAcquisitionPageState
       error = null;
     });
     try {
-      final file = await (widget.picker?.call(source) ??
-          ImagePicker().pickImage(
-            source: source,
-            imageQuality: 85,
-            maxWidth: 2048,
-            maxHeight: 2048,
-          ));
+      final file =
+          await (widget.picker?.call(source) ??
+              ImagePicker().pickImage(
+                source: source,
+                imageQuality: 85,
+                maxWidth: 2048,
+                maxHeight: 2048,
+              ));
       if (file == null || !mounted) return;
       final data = await file.readAsBytes();
       if (mounted) {
@@ -160,7 +159,10 @@ class _PhotoAcquisitionPageState
                                 gradient: LinearGradient(
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
-                                  colors: [Color(0xff26352d), Color(0xff101713)],
+                                  colors: [
+                                    Color(0xff26352d),
+                                    Color(0xff101713),
+                                  ],
                                 ),
                               ),
                             ),
@@ -214,9 +216,9 @@ class _PhotoAcquisitionPageState
                                             ? 'processing_photo'
                                             : 'opening_camera',
                                       ),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium,
                                     ),
                                   ],
                                 ),
@@ -272,7 +274,9 @@ class _PhotoAcquisitionPageState
                         label: context.t('take_photo'),
                         child: InkWell(
                           customBorder: const CircleBorder(),
-                          onTap: offline ? null : () => pick(ImageSource.camera),
+                          onTap: offline
+                              ? null
+                              : () => pick(ImageSource.camera),
                           child: Container(
                             width: 82,
                             height: 82,
@@ -364,9 +368,8 @@ class _FrameCorners extends StatelessWidget {
   const _FrameCorners();
 
   @override
-  Widget build(BuildContext context) => IgnorePointer(
-    child: CustomPaint(painter: _FramePainter()),
-  );
+  Widget build(BuildContext context) =>
+      IgnorePointer(child: CustomPaint(painter: _FramePainter()));
 }
 
 class _FramePainter extends CustomPainter {

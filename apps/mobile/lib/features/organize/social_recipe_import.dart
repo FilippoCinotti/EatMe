@@ -32,9 +32,13 @@ bool _supportedUrl(String input) {
   }
   final host = uri.host.toLowerCase().replaceFirst(RegExp(r'^www\.'), '');
   if (host == 'youtube.com' || host == 'm.youtube.com') {
-    return uri.path.isNotEmpty;
+    return (uri.path == '/watch' &&
+            '${uri.queryParameters['v'] ?? ''}'.isNotEmpty) ||
+        ((uri.pathSegments.firstOrNull == 'shorts' ||
+                uri.pathSegments.firstOrNull == 'live') &&
+            uri.pathSegments.length == 2);
   }
-  if (host == 'youtu.be') return uri.pathSegments.isNotEmpty;
+  if (host == 'youtu.be') return uri.pathSegments.length == 1;
   if (host != 'instagram.com' || uri.pathSegments.length != 2) return false;
   return const {'p', 'reel', 'tv'}.contains(uri.pathSegments.first);
 }
@@ -154,9 +158,11 @@ class _ImportRecipePageState extends ConsumerState<ImportRecipePage> {
   Future<void> start() async {
     final url = controller.text.trim();
     if (!_supportedUrl(url)) {
-      setState(() => inlineError = url.isEmpty
-          ? 'invalid_public_url'
-          : 'unsupported_recipe_source');
+      setState(
+        () => inlineError = url.isEmpty
+            ? 'invalid_public_url'
+            : 'unsupported_recipe_source',
+      );
       return;
     }
     if (!confirmed) {
@@ -165,9 +171,7 @@ class _ImportRecipePageState extends ConsumerState<ImportRecipePage> {
     }
     await Navigator.push<Json>(
       context,
-      MaterialPageRoute(
-        builder: (_) => ImportProcessingPage(sourceUrl: url),
-      ),
+      MaterialPageRoute(builder: (_) => ImportProcessingPage(sourceUrl: url)),
     );
   }
 
@@ -240,7 +244,10 @@ class _ImportRecipePageState extends ConsumerState<ImportRecipePage> {
           ],
           if (offline) ...[
             const SizedBox(height: 14),
-            StatusNote(text: context.t('import_requires_connection'), warning: true),
+            StatusNote(
+              text: context.t('import_requires_connection'),
+              warning: true,
+            ),
           ],
           const SizedBox(height: 24),
           AsyncAction(
@@ -284,14 +291,13 @@ class _ImportProcessingPageState extends ConsumerState<ImportProcessingPage> {
 
   Future<void> run() async {
     try {
-      final value = await ref.read(apiProvider).request(
-        'POST',
-        '/recipes/import-url',
-        body: {
-          'url': widget.sourceUrl,
-          'private_use_confirmed': true,
-        },
-      );
+      final value = await ref
+          .read(apiProvider)
+          .request(
+            'POST',
+            '/recipes/import-url',
+            body: {'url': widget.sourceUrl, 'private_use_confirmed': true},
+          );
       if (!mounted || cancelled) return;
       await Navigator.pushReplacement<Json, Json>(
         context,
@@ -353,7 +359,9 @@ class _ImportProcessingPageState extends ConsumerState<ImportProcessingPage> {
         ),
         const SizedBox(height: 12),
         Text(
-          context.t(error == null ? 'reading_recipe_support' : 'import_failure_support'),
+          context.t(
+            error == null ? 'reading_recipe_support' : 'import_failure_support',
+          ),
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -424,8 +432,7 @@ class ImportedRecipeReviewPage extends StatefulWidget {
       _ImportedRecipeReviewPageState();
 }
 
-class _ImportedRecipeReviewPageState
-    extends State<ImportedRecipeReviewPage> {
+class _ImportedRecipeReviewPageState extends State<ImportedRecipeReviewPage> {
   late Json draft;
   late final TextEditingController title, servings, minutes, steps;
   late List<_IngredientEdit> ingredients;
@@ -440,9 +447,9 @@ class _ImportedRecipeReviewPageState
     steps = TextEditingController(
       text: List<String>.from(draft['steps'] as List? ?? []).join('\n'),
     );
-    ingredients = records(draft['ingredient_rows'])
-        .map(_IngredientEdit.new)
-        .toList();
+    ingredients = records(
+      draft['ingredient_rows'],
+    ).map(_IngredientEdit.new).toList();
   }
 
   @override
@@ -534,14 +541,16 @@ class _ImportedRecipeReviewPageState
             label: context.t('add_ingredient'),
             secondary: true,
             action: () async => setState(
-              () => ingredients.add(_IngredientEdit({
-                'source_text': '',
-                'quantity': null,
-                'unit': null,
-                'food_id': null,
-                'mapping_status': 'unknown',
-                'confirmed': false,
-              })),
+              () => ingredients.add(
+                _IngredientEdit({
+                  'source_text': '',
+                  'quantity': null,
+                  'unit': null,
+                  'food_id': null,
+                  'mapping_status': 'unknown',
+                  'confirmed': false,
+                }),
+              ),
             ),
           ),
           const SizedBox(height: 28),
@@ -746,8 +755,7 @@ class IngredientMappingPage extends ConsumerStatefulWidget {
       _IngredientMappingPageState();
 }
 
-class _IngredientMappingPageState
-    extends ConsumerState<IngredientMappingPage> {
+class _IngredientMappingPageState extends ConsumerState<IngredientMappingPage> {
   late Json draft;
   late List<Json> rows;
 
@@ -764,7 +772,8 @@ class _IngredientMappingPageState
     var quantity = '${rows[index]['quantity'] ?? ''}';
     if (quantity.isEmpty) {
       if (!context.mounted) return;
-      quantity = await askText(
+      quantity =
+          await askText(
             context,
             '${context.t('quantity')} (${food.unit})',
             initial: food.unit == 'pcs' ? '1' : '100',
@@ -793,11 +802,7 @@ class _IngredientMappingPageState
       return;
     }
     setState(() {
-      rows[index] = {
-        ...row,
-        'mapping_status': 'matched',
-        'confirmed': true,
-      };
+      rows[index] = {...row, 'mapping_status': 'matched', 'confirmed': true};
     });
   }
 
@@ -805,7 +810,10 @@ class _IngredientMappingPageState
   Widget build(BuildContext context) {
     final foods = ref.watch(appProvider).foods;
     final unresolved = rows
-        .where((row) => row['mapping_status'] != 'matched' || row['confirmed'] != true)
+        .where(
+          (row) =>
+              row['mapping_status'] != 'matched' || row['confirmed'] != true,
+        )
         .length;
     return Scaffold(
       appBar: EatMeAppBar(title: Text(context.t('ingredient_mapping'))),
@@ -828,7 +836,9 @@ class _IngredientMappingPageState
           ],
           if (unresolved > 0)
             StatusNote(
-              text: context.t('mapping_unresolved_count', {'count': unresolved}),
+              text: context.t('mapping_unresolved_count', {
+                'count': unresolved,
+              }),
               warning: true,
             )
           else
@@ -932,7 +942,9 @@ class _MappingRow extends StatelessWidget {
               Expanded(
                 child: TextButton(
                   onPressed: onChange,
-                  child: Text(context.t(suggested ? 'change_mapping' : 'choose_food')),
+                  child: Text(
+                    context.t(suggested ? 'change_mapping' : 'choose_food'),
+                  ),
                 ),
               ),
             ],
@@ -970,11 +982,13 @@ class _CompatibilityCheckingPageState
 
   Future<void> check() async {
     try {
-      final value = await ref.read(apiProvider).request(
-        'POST',
-        '/recipes/import-review',
-        body: {'ingredient_rows': widget.draft['ingredient_rows']},
-      );
+      final value = await ref
+          .read(apiProvider)
+          .request(
+            'POST',
+            '/recipes/import-review',
+            body: {'ingredient_rows': widget.draft['ingredient_rows']},
+          );
       if (!mounted || cancelled) return;
       await Navigator.pushReplacement<Json, Json>(
         context,
@@ -1115,16 +1129,12 @@ class _ImportedRecipeResultPageState
     };
   }
 
-  Future<Json> save() => mutation.send(
-    ref.read(apiProvider),
-    'POST',
-    '/recipes',
-    {
-      'action': 'save',
-      'recipe': recipe(),
-      if (acknowledged) 'safety_acknowledged': true,
-    },
-  );
+  Future<Json> save() =>
+      mutation.send(ref.read(apiProvider), 'POST', '/recipes', {
+        'action': 'save',
+        'recipe': recipe(),
+        if (acknowledged) 'safety_acknowledged': true,
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -1140,13 +1150,15 @@ class _ImportedRecipeResultPageState
     final incomplete = status == 'unknown';
     final fit = status == 'fit';
     final rows = records(widget.draft['ingredient_rows']);
-    final completeFields = '${widget.draft['title'] ?? ''}'.trim().isNotEmpty &&
+    final completeFields =
+        '${widget.draft['title'] ?? ''}'.trim().isNotEmpty &&
         (widget.draft['servings'] is int) &&
         (widget.draft['minutes'] is int) &&
         (widget.draft['steps'] as List? ?? []).isNotEmpty &&
         rows.isNotEmpty;
     final mappingComplete = (inventory['unresolved_count'] ?? 0) == 0;
-    final canSave = completeFields && mappingComplete && (!conflict || acknowledged);
+    final canSave =
+        completeFields && mappingComplete && (!conflict || acknowledged);
     final suggestions = records(widget.result['substitutions']);
     final hasCandidates = suggestions.any(
       (item) => records(item['candidates']).isNotEmpty,
@@ -1155,10 +1167,7 @@ class _ImportedRecipeResultPageState
       appBar: EatMeAppBar(title: Text(context.t('compatibility'))),
       body: PageBody(
         children: [
-          _CompatibilityHero(
-            status: status,
-            adapted: widget.adaptedCount > 0,
-          ),
+          _CompatibilityHero(status: status, adapted: widget.adaptedCount > 0),
           const SizedBox(height: 22),
           _CompatibilityFacts(
             compatibility: compatibility,
@@ -1248,7 +1257,9 @@ class _ImportedRecipeResultPageState
           const SizedBox(height: 26),
           AsyncAction(
             key: const Key('save_imported_recipe'),
-            label: context.t(conflict ? 'save_with_warning' : 'save_to_library'),
+            label: context.t(
+              conflict ? 'save_with_warning' : 'save_to_library',
+            ),
             enabled: canSave,
             action: () async {
               final saved = await save();
@@ -1349,7 +1360,9 @@ class _CompatibilityHero extends StatelessWidget {
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: fit
-                  ? Theme.of(context).colorScheme.onPrimary.withValues(alpha: .82)
+                  ? Theme.of(
+                      context,
+                    ).colorScheme.onPrimary.withValues(alpha: .82)
                   : null,
             ),
           ),
@@ -1388,14 +1401,12 @@ class _CompatibilityFacts extends StatelessWidget {
         for (final reason in reasons)
           SettingRow(
             title: context.t('${reason['code']}'),
-            subtitle: context.t(
-              switch (reason['classification']) {
-                'hard_safety' => 'hard_safety_conflict',
-                'diet' => 'diet_conflict',
-                'lifestyle' => 'lifestyle_preference',
-                _ => 'ingredient_mapping_incomplete',
-              },
-            ),
+            subtitle: context.t(switch (reason['classification']) {
+              'hard_safety' => 'hard_safety_conflict',
+              'diet' => 'diet_conflict',
+              'lifestyle' => 'lifestyle_preference',
+              _ => 'ingredient_mapping_incomplete',
+            }),
             icon: reason['classification'] == 'hard_safety'
                 ? EatMeGlyph.triangleAlert
                 : EatMeGlyph.circleAlert,
@@ -1425,8 +1436,12 @@ class _InventoryPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final available = inventory['available_count'] ?? 0;
     final total = inventory['total_count'] ?? 0;
-    final missing = List<String>.from(inventory['missing_food_ids'] as List? ?? []);
-    final soon = List<String>.from(inventory['use_soon_food_ids'] as List? ?? []);
+    final missing = List<String>.from(
+      inventory['missing_food_ids'] as List? ?? [],
+    );
+    final soon = List<String>.from(
+      inventory['use_soon_food_ids'] as List? ?? [],
+    );
     return InformationPanel(
       tinted: false,
       child: Column(
@@ -1461,7 +1476,9 @@ class _InventoryPanel extends StatelessWidget {
               style: Theme.of(context).textTheme.labelLarge,
             ),
             const SizedBox(height: 7),
-            Text(missing.map((id) => _foodName(context, foods, id)).join(' · ')),
+            Text(
+              missing.map((id) => _foodName(context, foods, id)).join(' · '),
+            ),
           ],
           if (soon.isNotEmpty) ...[
             const SizedBox(height: 14),
@@ -1546,9 +1563,9 @@ class _SubstitutionSelectionPageState
   @override
   Widget build(BuildContext context) {
     final foods = ref.watch(appProvider).foods;
-    final suggestions = records(widget.result['substitutions'])
-        .where((item) => records(item['candidates']).isNotEmpty)
-        .toList();
+    final suggestions = records(
+      widget.result['substitutions'],
+    ).where((item) => records(item['candidates']).isNotEmpty).toList();
     return Scaffold(
       appBar: EatMeAppBar(title: Text(context.t('suggested_substitutions'))),
       body: PageBody(
@@ -1573,7 +1590,8 @@ class _SubstitutionSelectionPageState
                     candidate['food']?['id'],
                 onSelected: () => setState(() {
                   final original = '${suggestion['food_id']}';
-                  if (selected[original]?['food']?['id'] == candidate['food']?['id']) {
+                  if (selected[original]?['food']?['id'] ==
+                      candidate['food']?['id']) {
                     selected.remove(original);
                   } else {
                     selected[original] = candidate;
@@ -1678,7 +1696,9 @@ class _SubstitutionCard extends StatelessWidget {
                       ),
                     ),
                     EatMeIcon(
-                      selected ? EatMeGlyph.circleCheck : EatMeGlyph.circleAlert,
+                      selected
+                          ? EatMeGlyph.circleCheck
+                          : EatMeGlyph.circleAlert,
                       color: selected
                           ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.onSurfaceVariant,
