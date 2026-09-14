@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 /// The curated, cross-platform icon vocabulary used by EatMe.
 enum EatMeGlyph {
-  chefHat, refrigerator, leaf, userRound, bell, search, slidersHorizontal, heart, clock, house, timer, plus, ellipsis, chevronLeft, chevronRight, chevronDown, usersRound, shieldCheck, shield, heartPulse, sprout, calendarDays, shoppingBasket, bookOpen, packageOpen, cookingPot, scanLine, scanBarcode, camera, image, sun, moon, monitor, languages, ruler, refreshCw, chartSpline, barChart, libraryBig, fileText, logOut, trash2, triangleAlert, circleCheck, check, utensils, sparkles, eye, eyeOff, pencil, history, lock, badgeCheck, settings, info, circleAlert, listFilter, calendar, clockAlert
+  chefHat, refrigerator, leaf, userRound, bell, search, slidersHorizontal, heart, clock, house, timer, minus, plus, ellipsis, chevronLeft, chevronRight, chevronDown, usersRound, shieldCheck, shield, heartPulse, sprout, calendarDays, shoppingBasket, bookOpen, packageOpen, cookingPot, scanLine, scanBarcode, camera, image, sun, moon, monitor, languages, ruler, refreshCw, chartSpline, barChart, libraryBig, fileText, logOut, trash2, triangleAlert, circleCheck, check, utensils, sparkles, eye, eyeOff, pencil, history, lock, badgeCheck, settings, info, circleAlert, listFilter, calendar, clockAlert
 }
 
 /// Renders Lucide geometry with a consistent rounded 24-point stroke.
@@ -291,6 +291,10 @@ class _EatMeIconPainter extends CustomPainter {
         [2.0, 20.0, 9.582, 16.418, 6.0, 12.0, 6.0],
         [2.0, 7.582, 6.0, 4.0, 9.582, 4.0, 14.0],
         [3.0],
+      ],
+    EatMeGlyph.minus: <List<double>>[
+        [0.0, 5.0, 12.0],
+        [1.0, 19.0, 12.0],
       ],
     EatMeGlyph.plus: <List<double>>[
         [0.0, 5.0, 12.0],

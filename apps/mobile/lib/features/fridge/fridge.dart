@@ -367,27 +367,26 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
             ),
           ),
           const SizedBox(height: 16),
-          DropdownButtonFormField<String>(
-            isExpanded: true,
-            initialValue: location,
-            decoration: InputDecoration(labelText: context.t('storage')),
-            items: ['fridge', 'freezer', 'pantry']
-                .map(
-                  (s) => DropdownMenuItem(value: s, child: Text(context.t(s))),
-                )
-                .toList(),
-            onChanged: (v) => setState(() => location = v!),
+          Text(
+            context.t('storage'),
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          const SizedBox(height: 10),
+          EatMeTabStrip(
+            values: [
+              for (final value in ['fridge', 'freezer', 'pantry'])
+                (value, context.t(value)),
+            ],
+            selected: location,
+            onSelected: (value) => setState(() => location = value),
           ),
           const SizedBox(height: 16),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(context.t('package_date')),
-            subtitle: Text(
-              date == null
-                  ? context.t('optional')
-                  : MaterialLocalizations.of(context).formatCompactDate(date!),
-            ),
-            trailing: const Icon(Icons.calendar_today_outlined),
+          SettingRow(
+            icon: EatMeGlyph.calendar,
+            title: context.t('package_date'),
+            subtitle: date == null
+                ? context.t('optional')
+                : MaterialLocalizations.of(context).formatCompactDate(date!),
             onTap: () async {
               final chosen = await showDatePicker(
                 context: context,

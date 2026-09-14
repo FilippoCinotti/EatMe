@@ -327,7 +327,7 @@ class PrivacyPage extends ConsumerWidget {
         ),
         const SizedBox(height: 24),
         SettingsGroup(
-          title: context.t('your_data'),
+          title: context.t('your_data_section'),
           children: [
             AsyncAction(
               label: context.t('export_data'),

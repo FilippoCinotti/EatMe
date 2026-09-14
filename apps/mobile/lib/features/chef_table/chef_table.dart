@@ -105,6 +105,7 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
             RecipeCard(recommendation: pick, featured: true),
             const SizedBox(height: 16),
             InformationPanel(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -274,8 +275,15 @@ class _ChefFiltersState extends ConsumerState<ChefFilters> {
     padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
     children: [
       Text(
+        context.t('filters'),
+        style: Theme.of(context).textTheme.displaySmall,
+      ),
+      const SizedBox(height: 6),
+      Text(
         context.t('cooking_your_way'),
-        style: Theme.of(context).textTheme.headlineMedium,
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
       ),
       const SizedBox(height: 20),
       for (final value in [
@@ -303,18 +311,37 @@ class _ChefFiltersState extends ConsumerState<ChefFilters> {
             onTap: () => setState(() => mode = value),
           ),
         ),
-      TextButton(
-        onPressed: () => setState(() => mode = 'for_you'),
-        child: Text(context.t('reset_filters')),
-      ),
-      AsyncAction(
-        label: context.t('apply_filters'),
-        enabled: !ref.watch(appProvider).offline,
-        action: () async {
-          await ref.read(appProvider.notifier).refresh(mode: mode);
-          if (context.mounted) {
-            Navigator.pop(context);
+      const SizedBox(height: 6),
+      LayoutBuilder(
+        builder: (context, constraints) {
+          final reset = OutlinedButton(
+            onPressed: () => setState(() => mode = 'for_you'),
+            child: Text(context.t('reset_filters')),
+          );
+          final apply = AsyncAction(
+            label: context.t('apply_filters'),
+            enabled: !ref.watch(appProvider).offline,
+            action: () async {
+              await ref.read(appProvider.notifier).refresh(mode: mode);
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+            },
+          );
+          if (constraints.maxWidth < 330 ||
+              MediaQuery.textScalerOf(context).scale(16) > 22) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [reset, const SizedBox(height: 10), apply],
+            );
           }
+          return Row(
+            children: [
+              Expanded(flex: 4, child: reset),
+              const SizedBox(width: 10),
+              Expanded(flex: 6, child: apply),
+            ],
+          );
         },
       ),
     ],

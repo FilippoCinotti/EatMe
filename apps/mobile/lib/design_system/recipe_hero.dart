@@ -30,7 +30,7 @@ class HeroRecipeCard extends StatelessWidget {
         children: [
           Stack(
             children: [
-              FoodImage(id: imageId, height: 258, radius: 0),
+              FoodImage(id: imageId, height: 242, radius: 0),
               if (badge != null)
                 Positioned(
                   left: 16,

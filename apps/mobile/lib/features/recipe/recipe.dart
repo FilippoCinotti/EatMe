@@ -26,6 +26,15 @@ class _RecipePageState extends ConsumerState<RecipePage> {
   bool privateRecipe = false;
   final mutation = Mutation();
   List<String>? participants;
+  Future<void> toggleFavorite() async {
+    await mutation.send(ref.read(apiProvider), 'POST', '/recipes', {
+      'action': 'favorite',
+      'recipe_id': widget.recipeId,
+      'enabled': !favorite,
+    });
+    if (mounted) setState(() => favorite = !favorite);
+  }
+
   Future<(Recipe, Json)> load() async {
     final api = ref.read(apiProvider);
     final recipe = await api.request('GET', '/recipes/${widget.recipeId}');
@@ -117,7 +126,28 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 text: context.t(plan['preview_unavailable'] as String),
                 warning: true,
               ),
-            FoodImage(id: recipe.id, height: 280, radius: 28),
+            Stack(
+              children: [
+                FoodImage(id: recipe.id, height: 280, radius: 28),
+                Positioned(
+                  top: 14,
+                  right: 14,
+                  child: EatMeIconButton(
+                    glyph: EatMeGlyph.heart,
+                    label: context.t(
+                      favorite ? 'remove_favorite' : 'favorite',
+                    ),
+                    foregroundColor: favorite
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurface,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.surface.withValues(alpha: .92),
+                    onPressed: toggleFavorite,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 20),
             Text(
               localized(recipe.title, context.language),
@@ -143,19 +173,6 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               tilePadding: EdgeInsets.zero,
               title: Text(context.t('recipe_actions')),
               children: [
-                AsyncAction(
-                  label: context.t(favorite ? 'remove_favorite' : 'favorite'),
-                  secondary: true,
-                  action: () async {
-                    await mutation
-                        .send(ref.read(apiProvider), 'POST', '/recipes', {
-                          'action': 'favorite',
-                          'recipe_id': widget.recipeId,
-                          'enabled': !favorite,
-                        });
-                    if (mounted) setState(() => favorite = !favorite);
-                  },
-                ),
                 AsyncAction(
                   label: context.t('share_recipe'),
                   secondary: true,
@@ -183,7 +200,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                           future = load();
                         })
                       : null,
-                  icon: const Icon(Icons.remove),
+                  icon: const EatMeIcon(EatMeGlyph.minus, size: 18),
                 ),
                 Text('$servings'),
                 IconButton(
@@ -194,7 +211,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                           future = load();
                         })
                       : null,
-                  icon: const Icon(Icons.add),
+                  icon: const EatMeIcon(EatMeGlyph.plus, size: 18),
                 ),
               ],
             ),

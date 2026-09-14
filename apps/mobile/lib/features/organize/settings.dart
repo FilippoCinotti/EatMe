@@ -73,6 +73,7 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
           context.t('make_it_yours'),
           style: Theme.of(context).textTheme.headlineMedium,
         ),
+        const SizedBox(height: 16),
         SettingsGroup(
           children: [
             _ControlLabel(

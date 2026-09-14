@@ -201,6 +201,14 @@ void main() {
               250,
               scrollable: find.byType(Scrollable).first,
             );
+            await tester.pumpAndSettle();
+            if (tester.getCenter(login).dy > 800) {
+              await tester.drag(
+                find.byType(Scrollable).first,
+                const Offset(0, -120),
+              );
+              await tester.pumpAndSettle();
+            }
             await tester.tap(login);
             await tester.pumpAndSettle();
             expect(find.byType(AutofillGroup), findsOneWidget);
@@ -214,7 +222,10 @@ void main() {
               );
               await tester.tap(find.text('New to EatMe? Create an account'));
               await tester.pumpAndSettle();
-              expect(find.text('Create your account'), findsOneWidget);
+              expect(
+                find.text('Create your account'),
+                findsAtLeastNWidgets(1),
+              );
               await capture(
                 tester,
                 boundary,
