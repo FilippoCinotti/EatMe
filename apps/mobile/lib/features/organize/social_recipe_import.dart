@@ -538,6 +538,7 @@ class _ImportedRecipeReviewPageState extends State<ImportedRecipeReviewPage> {
             const SizedBox(height: 10),
           ],
           AsyncAction(
+            key: const Key('review_add_ingredient'),
             label: context.t('add_ingredient'),
             secondary: true,
             action: () async => setState(
