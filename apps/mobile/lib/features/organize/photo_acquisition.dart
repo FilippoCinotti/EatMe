@@ -172,7 +172,7 @@ class _PhotoAcquisitionPageState extends ConsumerState<PhotoAcquisitionPage> {
                           if (bytes == null)
                             LayoutBuilder(
                               builder: (context, constraints) {
-                                final compact = constraints.maxHeight < 280;
+                                final compact = constraints.maxHeight < 360;
                                 return Center(
                                   child: Padding(
                                     padding: EdgeInsets.all(compact ? 20 : 42),
