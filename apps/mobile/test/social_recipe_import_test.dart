@@ -406,15 +406,12 @@ void main() {
     await tester.pumpAndSettle();
     final remove = find.byTooltip('Delete').first;
     await tester.tap(remove);
+    await tester.pumpAndSettle();
     final add = find.text('Add ingredient');
-    for (
-      var attempt = 0;
-      attempt < 5 && add.evaluate().isEmpty;
-      attempt++
-    ) {
+    if (add.evaluate().isEmpty) {
       await tester.drag(
-        find.byType(Scrollable).first,
-        const Offset(0, -250),
+        find.byType(ListView),
+        const Offset(0, -300),
       );
       await tester.pumpAndSettle();
     }
