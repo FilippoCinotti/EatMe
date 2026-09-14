@@ -15,7 +15,7 @@ ChefTable, Fridge, HealthyFood and Profile in light and dark themes. These are a
 
 The images are stored in this repository, so they remain available after CI artifacts expire. To regenerate them, run `flutter test test/visual_reference_test.dart test/premium_journeys_test.dart test/reference_features_test.dart` from `apps/mobile` with `FLUTTER_ROOT` pointing to the Flutter SDK; PNG renders are written to `build/screenshots/`. The README copies are encoded as WebP without resizing. The tests also exercise 1.6× text scaling, compact Italian layouts, secondary journeys and persistent allergy warnings. See the [visual design notes](docs/product/visual-design.md) for the reference direction and asset provenance.
 
-The [functional reconciliation CI](https://github.com/FilippoCinotti/EatMe/actions/runs/34776802964) passed API, database, studio and Flutter checks, both native debug builds, and the real API Android emulator workflow before the premium presentation changes. The current redesign is tracked in [PR #15](https://github.com/FilippoCinotti/EatMe/pull/15). See the [verification report](docs/product/verification.md) for precise tested commits and external store-release gates.
+The [functional reconciliation CI](https://github.com/FilippoCinotti/EatMe/actions/runs/34776802964) passed API, database, studio and Flutter checks, both native debug builds, and the real API Android emulator workflow before the premium presentation changes. PR #15 delivered the validated functional and premium baseline; the final visual-fidelity pass is tracked in [PR #16](https://github.com/FilippoCinotti/EatMe/pull/16). See the [verification report](docs/product/verification.md) for precise tested commits and external store-release gates.
 
 ### Connected journeys
 
@@ -23,7 +23,7 @@ The [functional reconciliation CI](https://github.com/FilippoCinotti/EatMe/actio
 | :---: | :---: |
 | <img src="docs/screenshots/welcome-light.webp" width="280" alt="EatMe welcome screen rendered by Flutter." /> | <img src="docs/screenshots/recipe-light.webp" width="280" alt="Recipe photograph, servings and ingredient sections rendered by Flutter." /> |
 
-See the [complete screenshot gallery](docs/screenshots/README.md) for login, diet and health, preferences, notifications, household, privacy, filters and add-ingredient screens in both themes.
+See the [complete screenshot gallery](docs/screenshots/README.md) for login, sign-up, diet and health, preferences, notifications, household, privacy, filters and both add-food stages in both themes.
 
 ## Reference feature additions
 

@@ -56,7 +56,7 @@ Semantics, explicit tooltips, text-based warnings and touch targets accompany ic
 
 ## Real render review
 
-`visual_reference_test.dart` renders all four destinations in both themes and checks 1.6× text. `premium_journeys_test.dart` renders welcome/login, preferences, notifications, household, privacy, diet and health, recipe detail, filters and add-ingredient flows. It also exercises scrolling, compact Italian layouts and persistent allergen warnings. `reference_features_test.dart` retains custom-food, scanning and wellbeing coverage. Existing hinge, API and transaction tests remain enabled.
+`visual_reference_test.dart` renders all four destinations in both themes and checks 1.6× text. `premium_journeys_test.dart` renders welcome, login, sign-up, preferences, notifications, household, privacy, diet and health, recipe detail, filters, add-food methods and ingredient entry. It also exercises scrolling, compact Italian layouts and persistent allergen warnings. `reference_features_test.dart` retains custom-food, scanning and wellbeing coverage. The combined review artifact contains 38 real 390 × 844 Flutter screenshots; existing hinge, API and transaction tests remain enabled.
 
 Run the mobile tests with the repository-pinned Flutter SDK and `FLUTTER_ROOT`. PNGs are emitted under `apps/mobile/build/screenshots/`; reviewed copies in `docs/screenshots/` are WebP at the original dimensions. Supplied boards are never published as application screenshots. CI artifacts additionally retain native build outputs and the full render set.
 

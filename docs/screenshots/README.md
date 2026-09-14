@@ -1,6 +1,6 @@
 # Real Flutter screenshot gallery
 
-These are application renders, not supplied mockups. Source: `bf02052411ce68566e546a67746ff9d8bfd1fcdf`, [CI render run](https://github.com/FilippoCinotti/EatMe/actions/runs/34778268952). The subsequent formatter/documentation checkpoint does not alter the rendered layout. Test-only fixtures isolate demonstration accounts, quantities and package dates from production. Food imagery is illustrative and restricted to the bundled catalog. The CI PNG originals are 390 × 844; these WebP copies preserve their dimensions. Fonts are bundled with the application; see the [design notes](../product/visual-design.md) for font loading and provenance.
+These are application renders, not supplied mockups. Visual source: `68ded521dbd5a38fe81d0919ff6ec88fd76062ed`, [CI render run](https://github.com/FilippoCinotti/EatMe/actions/runs/34804476630). The subsequent formatter-transport correction does not alter the rendered layout. Test-only fixtures isolate demonstration accounts, quantities and package dates from production. Food imagery is illustrative and restricted to the bundled catalog. The 38 CI PNG originals are 390 × 844; the 36 WebP gallery copies and two shopping PNGs preserve their dimensions. Fonts are bundled with the application; see the [design notes](../product/visual-design.md) for font, brand and icon provenance.
 
 | Screen | Light | Dark |
 | --- | --- | --- |
@@ -10,6 +10,7 @@ These are application renders, not supplied mockups. Source: `bf02052411ce68566e
 | Profile | <img src="profile-light.webp" width="260" alt="Profile, light theme, actual Flutter render" /> | <img src="profile-dark.webp" width="260" alt="Profile, dark theme, actual Flutter render" /> |
 | Welcome | <img src="welcome-light.webp" width="260" alt="Welcome, light theme, actual Flutter render" /> | <img src="welcome-dark.webp" width="260" alt="Welcome, dark theme, actual Flutter render" /> |
 | Login | <img src="login-light.webp" width="260" alt="Login, light theme, actual Flutter render" /> | <img src="login-dark.webp" width="260" alt="Login, dark theme, actual Flutter render" /> |
+| Sign-up | <img src="sign-up-light.webp" width="260" alt="Sign-up, light theme, actual Flutter render" /> | <img src="sign-up-dark.webp" width="260" alt="Sign-up, dark theme, actual Flutter render" /> |
 | Recipe detail | <img src="recipe-light.webp" width="260" alt="Recipe detail, light theme, actual Flutter render" /> | <img src="recipe-dark.webp" width="260" alt="Recipe detail, dark theme, actual Flutter render" /> |
 | Diet and health | <img src="diet-health-light.webp" width="260" alt="Diet and health, light theme, actual Flutter render" /> | <img src="diet-health-dark.webp" width="260" alt="Diet and health, dark theme, actual Flutter render" /> |
 | Preferences | <img src="preferences-light.webp" width="260" alt="Preferences, light theme, actual Flutter render" /> | <img src="preferences-dark.webp" width="260" alt="Preferences, dark theme, actual Flutter render" /> |
@@ -17,6 +18,7 @@ These are application renders, not supplied mockups. Source: `bf02052411ce68566e
 | Household | <img src="household-light.webp" width="260" alt="Household, light theme, actual Flutter render" /> | <img src="household-dark.webp" width="260" alt="Household, dark theme, actual Flutter render" /> |
 | Privacy and data | <img src="privacy-light.webp" width="260" alt="Privacy and data, light theme, actual Flutter render" /> | <img src="privacy-dark.webp" width="260" alt="Privacy and data, dark theme, actual Flutter render" /> |
 | Recipe filters | <img src="filters-light.webp" width="260" alt="Recipe filters, light theme, actual Flutter render" /> | <img src="filters-dark.webp" width="260" alt="Recipe filters, dark theme, actual Flutter render" /> |
+| Add-food methods | <img src="add-methods-light.webp" width="260" alt="Add-food methods, light theme, actual Flutter render" /> | <img src="add-methods-dark.webp" width="260" alt="Add-food methods, dark theme, actual Flutter render" /> |
 | Add ingredient | <img src="add-ingredient-light.webp" width="260" alt="Add ingredient, light theme, actual Flutter render" /> | <img src="add-ingredient-dark.webp" width="260" alt="Add ingredient, dark theme, actual Flutter render" /> |
 | Custom food | <img src="custom-food-light.webp" width="260" alt="Custom food, light theme, actual Flutter render" /> | <img src="custom-food-dark.webp" width="260" alt="Custom food, dark theme, actual Flutter render" /> |
 | Personal goals | <img src="wellbeing-light.webp" width="260" alt="Personal goals, light theme, actual Flutter render" /> | <img src="wellbeing-dark.webp" width="260" alt="Personal goals, dark theme, actual Flutter render" /> |
