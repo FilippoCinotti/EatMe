@@ -421,7 +421,7 @@ void main() {
     expect(add, findsOneWidget);
     await tester.tap(add);
     await tester.pumpAndSettle();
-    expect(find.byType(TextField), findsAtLeastNWidgets(7));
+    expect(find.byTooltip('Delete'), findsNWidgets(2));
     expect(api.saved, isFalse);
   });
 
