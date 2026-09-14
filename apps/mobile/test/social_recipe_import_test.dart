@@ -399,10 +399,7 @@ void main() {
       find.byKey(const Key('import_title')),
       'Corrected title',
     );
-    await tester.drag(
-      find.byType(Scrollable).first,
-      const Offset(0, -650),
-    );
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -650));
     await tester.pumpAndSettle();
     final remove = find.byTooltip('Delete').first;
     await tester.tap(remove);
@@ -528,10 +525,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       if (find.byType(Scrollable).evaluate().isNotEmpty) {
-        await tester.drag(
-          find.byType(Scrollable).first,
-          const Offset(0, -500),
-        );
+        await tester.drag(find.byType(Scrollable).first, const Offset(0, -500));
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
       }
