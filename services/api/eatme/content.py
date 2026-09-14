@@ -461,7 +461,7 @@ class ContentService:
             counts = Counter(r["kind"] for r in rows)
             sessions = tx.all("SELECT recipe_id,data FROM cooking_sessions WHERE user_id=? ORDER BY created_at DESC LIMIT 100", (user_id,))
             sessions = [row for row in sessions if decode(row['data']).get('source') != 'external-preparation']
-            amounts = tx.all("SELECT e.kind,e.delta_milli,e.created_at,b.expiry_date,b.expiry_kind,f.data AS food_data,m.data AS metadata,(SELECT c.delta_milli FROM inventory_events c WHERE c.batch_id=e.batch_id AND c.kind IN ('created','scan_confirmed') ORDER BY c.created_at,c.id LIMIT 1) AS initial_milli FROM inventory_events e JOIN inventory_batches b ON b.id=e.batch_id JOIN foods f ON f.id=b.food_id LEFT JOIN inventory_metadata m ON m.batch_id=b.id WHERE e.household_id=? AND e.kind IN ('consumed','discarded','cooked') ORDER BY e.created_at DESC LIMIT 2000", (home,))
+            amounts = tx.all("SELECT e.batch_id,e.kind,e.delta_milli,e.created_at,b.expiry_date,b.expiry_kind,f.data AS food_data,m.data AS metadata,(SELECT c.delta_milli FROM inventory_events c WHERE c.batch_id=e.batch_id AND c.kind IN ('created','scan_confirmed') ORDER BY c.created_at,c.id LIMIT 1) AS initial_milli FROM inventory_events e JOIN inventory_batches b ON b.id=e.batch_id JOIN foods f ON f.id=b.food_id LEFT JOIN inventory_metadata m ON m.batch_id=b.id WHERE e.household_id=? AND e.kind IN ('consumed','discarded','cooked') ORDER BY e.created_at DESC LIMIT 2000", (home,))
             recorded = {}
             for row in amounts:
                 unit = decode(row['food_data'])['unit']

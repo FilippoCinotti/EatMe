@@ -399,7 +399,13 @@ void main() {
       find.byKey(const Key('import_title')),
       'Corrected title',
     );
-    await tester.tap(find.byTooltip('Delete').first);
+    final remove = find.byTooltip('Delete').first;
+    await tester.scrollUntilVisible(
+      remove,
+      350,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(remove);
     final add = find.text('Add ingredient');
     await tester.scrollUntilVisible(
       add,
@@ -459,7 +465,7 @@ void main() {
       find.text('This content appears private or cannot be accessed.'),
       findsAtLeastNWidgets(1),
     );
-    expect(find.text('Retry'), findsOneWidget);
+    expect(find.text('Try again'), findsOneWidget);
   });
 
   testWidgets('photo acquisition exposes permission denial safely', (
@@ -477,10 +483,53 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.bySemanticsLabel('Take a photo'));
+    await tester.tap(find.byKey(const Key('camera_shutter')));
     await tester.pumpAndSettle();
     expect(find.textContaining('Camera access is off'), findsOneWidget);
   });
+
+  for (final page in <Widget>[
+    const ImportRecipePage(),
+    ImportedRecipeReviewPage(draft: draft(partial: true)),
+    IngredientMappingPage(draft: draft(partial: true)),
+    ImportedRecipeResultPage(
+      draft: draft(conflict: true),
+      result: conflictResult(),
+    ),
+    SubstitutionSelectionPage(
+      draft: draft(conflict: true),
+      result: conflictResult(),
+    ),
+    const PhotoAcquisitionPage(kind: 'food'),
+  ]) {
+    testWidgets('${page.runtimeType} supports compact Italian large text', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        support.harness(
+          page,
+          SocialApi(),
+          language: 'it',
+          scale: 1.6,
+          controller: SocialController.new,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      if (find.byType(Scrollable).evaluate().isNotEmpty) {
+        await tester.drag(
+          find.byType(Scrollable).first,
+          const Offset(0, -500),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+      }
+    });
+  }
 
   for (final dark in [false, true]) {
     testWidgets('social import approved states ${dark ? 'dark' : 'light'}', (

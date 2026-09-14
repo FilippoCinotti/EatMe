@@ -601,7 +601,9 @@ class _IngredientEdit {
     return {
       ...original,
       'source_text': name.text.trim(),
-      'quantity': quantity.text.trim().isEmpty ? null : quantity.text.trim(),
+      'quantity': quantity.text.trim().isEmpty
+          ? null
+          : quantity.text.trim().replaceAll(',', '.'),
       if (changed) 'mapping_status': 'needs_review',
       if (changed) 'confirmed': false,
     };

@@ -247,6 +247,32 @@ class SavingsCase(unittest.TestCase):
         self.assertIsNone(result["money_saved"])
         self.assertIsNone(result["carbon_saved"])
 
+    def test_recorded_value_never_exceeds_batch_cost_across_events(self):
+        batch = self.service.add_inventory(
+            self.user,
+            {"food_id": identifier("food", "tomato"), "quantity": "100", "expiry_date": "2026-09-15", "expiry_kind": "best_before"},
+            new_id(),
+        )
+        self.service.inventory_metadata(
+            self.user,
+            {"id": batch["id"], "expected_version": 1, "metadata": {"cost": "3", "currency": "EUR"}},
+            new_id(),
+        )
+        self.service.change_inventory(
+            self.user, batch["id"],
+            {"action": "consumed", "quantity": "60", "expected_version": 2}, new_id(),
+        )
+        self.service.change_inventory(
+            self.user, batch["id"],
+            {"action": "corrected", "quantity": "100", "expected_version": 3}, new_id(),
+        )
+        self.service.change_inventory(
+            self.user, batch["id"],
+            {"action": "consumed", "quantity": "80", "expected_version": 4}, new_id(),
+        )
+        result = self.service.insights(self.user)
+        self.assertEqual(result["money_saved"]["amounts"], [{"currency": "EUR", "value": "3.00"}])
+
 
 if __name__ == "__main__":
     unittest.main()

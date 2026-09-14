@@ -273,6 +273,7 @@ class _PhotoAcquisitionPageState extends ConsumerState<PhotoAcquisitionPage> {
                         button: true,
                         label: context.t('take_photo'),
                         child: InkWell(
+                          key: const Key('camera_shutter'),
                           customBorder: const CircleBorder(),
                           onTap: offline
                               ? null

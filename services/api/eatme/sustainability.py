@@ -59,6 +59,7 @@ def estimate_savings(rows: list[dict]) -> dict:
     carbon_grams = Decimal(0)
     eligible_grams = Decimal(0)
     money: dict[str, Decimal] = {}
+    priced_shares: dict[str, Decimal] = {}
     eligible_events = carbon_events = priced_events = 0
     factor_proxies: set[str] = set()
 
@@ -93,9 +94,16 @@ def estimate_savings(rows: list[dict]) -> dict:
         initial_milli = row.get("initial_milli")
         currency = metadata.get("currency")
         if cost is not None and currency in {"EUR", "USD", "GBP", "CHF"} and initial_milli:
-            share = min(Decimal(amount_milli) / Decimal(abs(int(initial_milli))), Decimal(1))
-            money[currency] = money.get(currency, Decimal(0)) + cost * share
-            priced_events += 1
+            batch = str(row.get("batch_id", ""))
+            previous = priced_shares.get(batch, Decimal(0))
+            share = min(
+                Decimal(amount_milli) / Decimal(abs(int(initial_milli))),
+                max(Decimal(0), Decimal(1) - previous),
+            )
+            if share:
+                money[currency] = money.get(currency, Decimal(0)) + cost * share
+                priced_shares[batch] = previous + share
+                priced_events += 1
 
     quantized_carbon = carbon.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     amounts = [
