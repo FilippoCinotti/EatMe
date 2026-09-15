@@ -341,24 +341,24 @@ void main() {
       300,
       scrollable: find.byType(Scrollable).first,
     );
-    await tester.drag(
-      find.byType(Scrollable).first,
-      const Offset(0, -160),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(vegan);
+    tester
+        .widget<InkWell>(
+          find.descendant(of: vegan, matching: find.byType(InkWell)),
+        )
+        .onTap!();
+    await tester.pump();
     final strictUnknown = find.byKey(const ValueKey('unknown-strict'));
     await tester.scrollUntilVisible(
       strictUnknown,
       400,
       scrollable: find.byType(Scrollable).first,
     );
-    await tester.drag(
-      find.byType(Scrollable).first,
-      const Offset(0, -160),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(strictUnknown);
+    tester
+        .widget<InkWell>(
+          find.descendant(of: strictUnknown, matching: find.byType(InkWell)),
+        )
+        .onTap!();
+    await tester.pump();
     final save = find.byKey(const ValueKey('save-diet-health'));
     await tester.scrollUntilVisible(
       save,
