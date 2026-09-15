@@ -341,6 +341,11 @@ void main() {
       300,
       scrollable: find.byType(Scrollable).first,
     );
+    await tester.drag(
+      find.byType(Scrollable).first,
+      const Offset(0, -160),
+    );
+    await tester.pumpAndSettle();
     await tester.tap(vegan);
     final strictUnknown = find.byKey(const ValueKey('unknown-strict'));
     await tester.scrollUntilVisible(
@@ -348,6 +353,11 @@ void main() {
       400,
       scrollable: find.byType(Scrollable).first,
     );
+    await tester.drag(
+      find.byType(Scrollable).first,
+      const Offset(0, -160),
+    );
+    await tester.pumpAndSettle();
     await tester.tap(strictUnknown);
     final save = find.byKey(const ValueKey('save-diet-health'));
     await tester.scrollUntilVisible(
