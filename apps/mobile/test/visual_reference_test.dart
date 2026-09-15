@@ -46,6 +46,31 @@ class VisualController extends support.TestController {
     final day = DateUtils.dateOnly(DateTime.now());
     return super.build().copy(
       isDemo: true,
+      profile: {
+        ...super.build().profile,
+        'version': 2,
+        'settings': {
+          'timezone': 'Europe/Rome',
+          'diets': <Json>[
+            {'diet_id': 'diet-med', 'strictness': 'standard'},
+          ],
+          'primary_diet': 'diet-med',
+          'allergies': <String>[],
+          'intolerances': <String>[],
+          'never_suggest': <String>[],
+          'unknown_ingredient_policy': 'strict',
+        },
+      },
+      diets: const [
+        Diet(
+          'diet-med',
+          'mediterranean',
+          {'en': 'Mediterranean', 'it': 'Mediterranea'},
+          true,
+          'PUBLISHED',
+          false,
+        ),
+      ],
       foods: [tomato, zucchini, spinach, feta],
       inventory: [
         Batch(

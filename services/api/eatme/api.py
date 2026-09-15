@@ -34,6 +34,7 @@ class ProfileInput(StrictBody):
     allergies: list[str] = Field(default_factory=list)
     intolerances: list[str] = Field(default_factory=list)
     never_suggest: list[str] = Field(default_factory=list)
+    unknown_ingredient_policy: Literal["strict","review"] = "strict"
     health_consent_version: str | None = None
     medical_consent_version: str | None = None
     expected_version: int | None = None

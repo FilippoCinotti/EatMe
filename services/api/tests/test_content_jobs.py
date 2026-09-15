@@ -112,6 +112,38 @@ class ContentCase(unittest.TestCase):
         self.app.job_action(self.owner, {'action': 'cancel', 'id': job['id']}, new_id())
         self.assertFalse(self.app.run_next_job())
 
+    def test_two_image_pipeline_keeps_provider_outputs_image_dependent(self):
+        """Contract test only; release acceptance still requires the live runner."""
+        from PIL import Image
+
+        class ColorProvider:
+            def run(self, kind, payload, foods, image=None):
+                pixel = Image.open(io.BytesIO(image)).getpixel((0, 0))
+                slug = 'tomato' if pixel[0] > pixel[1] else 'zucchini'
+                food_id = identifier('food', slug)
+                return {'items': [{'food_id': food_id, 'name': slug, 'quantity': '100', 'unit': 'g', 'confidence': 0.9}]}
+
+        self.app.preferences(self.owner, {'expected_version': 0, 'data': {'ai_consent': True}}, new_id())
+        self.app.ai_provider = ColorProvider()
+        results = []
+        with patch.dict(os.environ, {'AI_PROVIDER': 'openai'}):
+            for colour in ('red', 'green'):
+                buffer = io.BytesIO()
+                Image.new('RGB', (200, 200), colour).save(buffer, format='PNG')
+                media = self.app.media_upload(self.owner, {'kind': 'photo', 'base64': base64.b64encode(buffer.getvalue()).decode()})
+                created = self.app.job_action(self.owner, {'action': 'create', 'kind': 'photo', 'media_id': media['id']}, new_id())
+                self.assertTrue(self.app.run_next_job())
+                job = next(value for value in self.app.jobs(self.owner)['items'] if value['id'] == created['id'])
+                self.assertFalse(job['result']['development_fixture'])
+                detection = job['result']['items'][0]
+                results.append(detection['food_id'])
+                self.app.job_action(self.owner, {'action': 'confirm', 'id': created['id'], 'items': [{
+                    'food_id': detection['food_id'], 'quantity': detection['quantity'], 'location': 'fridge',
+                    'expiry_date': None, 'expiry_kind': 'unknown', 'confirmed': True,
+                }]}, new_id())
+        self.assertEqual(results, [identifier('food', 'tomato'), identifier('food', 'zucchini')])
+        self.assertEqual(len(self.app.inventory(self.owner)['items']), 2)
+
     def test_media_normalization_removes_metadata_and_preserves_size_bound(self):
         from PIL import Image
         buffer = io.BytesIO()

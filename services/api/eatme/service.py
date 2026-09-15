@@ -60,6 +60,7 @@ class Service(ReferenceFeaturesService, HouseholdService, PlanningService, Conte
         if not row:
             raise DomainError("onboarding_required",409)
         row["settings"] = decode(row["settings"])
+        row["settings"].setdefault("unknown_ingredient_policy", "strict")
         return row
 
     def _household(self, user_id: str, write: bool = False) -> str:
@@ -98,10 +99,11 @@ class Service(ReferenceFeaturesService, HouseholdService, PlanningService, Conte
                 diet["selectable"] = any(v["diet_id"]==diet["id"] and v["status"]=="PUBLISHED" and
                     v["effective_from"]<=current.isoformat() and (not v["effective_until"] or current.isoformat()<v["effective_until"])
                     for v in versions)
-                if diet["medical"] and not (diet.get("review_date") and diet.get("evidence_references")):
-                    diet["selectable"] = False
             return {"foods":list(foods.values()),"diets":diets,"allergens":ALLERGENS,
-                    "intolerances":["lactose"],"health_consent_version":HEALTH_CONSENT,"is_demo":any(f.get("is_demo",False) for f in foods.values())}
+                    "intolerances":["lactose"],"health_consent_version":HEALTH_CONSENT,
+                    "medical_consent_version":MEDICAL_CONSENT,
+                    "unknown_ingredient_policies":["strict","review"],
+                    "is_demo":any(f.get("is_demo",False) for f in foods.values())}
 
     def get_profile(self, user_id: str):
         with self.db.transaction() as tx:
@@ -112,6 +114,7 @@ class Service(ReferenceFeaturesService, HouseholdService, PlanningService, Conte
             if not row:
                 return {"onboarded":False}
             row["settings"] = decode(row["settings"])
+            row["settings"].setdefault("unknown_ingredient_policy", "strict")
             row["household_size"] = tx.one("SELECT size FROM households WHERE id=?",(row["household_id"],))["size"]
             return {"onboarded":True,**row}
 
@@ -157,6 +160,9 @@ class Service(ReferenceFeaturesService, HouseholdService, PlanningService, Conte
             valid_uuid(assignment.get("diet_id"))
         if len({a["diet_id"] for a in assignments}) != len(assignments):
             raise DomainError("duplicate_diet",422)
+        unknown_policy = data.get("unknown_ingredient_policy", "strict")
+        if unknown_policy not in {"strict", "review"}:
+            raise DomainError("invalid_unknown_ingredient_policy", 422)
         primary_goal = data.get('primary_goal')
         if primary_goal is not None and (not isinstance(primary_goal, str) or primary_goal not in GOALS):
             raise DomainError('invalid_goal', 422)
@@ -172,8 +178,6 @@ class Service(ReferenceFeaturesService, HouseholdService, PlanningService, Conte
                 chosen = {a["diet_id"] for a in assignments}
                 medical = [d for d in diets if d["id"] in chosen and d["medical"]]
                 if medical:
-                    if any(not d.get("review_date") or not d.get("evidence_references") for d in medical):
-                        raise DomainError("medical_profiles_not_released",409)
                     if data.get("medical_consent_version") != MEDICAL_CONSENT:
                         raise DomainError("medical_consent_required",422)
                 never = data.get("never_suggest",[])
@@ -181,7 +185,8 @@ class Service(ReferenceFeaturesService, HouseholdService, PlanningService, Conte
                     raise DomainError("invalid_food",422)
                 settings = {"diets":assignments,"allergies":sorted(set(allergies)),"intolerances":sorted(set(intolerances)),
                             "never_suggest":never,"timezone":timezone,"adult_confirmed":True,
-                            "primary_goal":primary_goal,"primary_diet":primary_diet}
+                            "primary_goal":primary_goal,"primary_diet":primary_diet,
+                            "unknown_ingredient_policy":unknown_policy}
                 existing = tx.one("SELECT * FROM profiles WHERE user_id=?",(user_id,))
                 stamp = now()
                 if existing:
@@ -337,7 +342,14 @@ class Service(ReferenceFeaturesService, HouseholdService, PlanningService, Conte
             trace = {"mode":mode,"diet_rules_version":versions,"profile_version":profile["version"],
                      "inventory_snapshot":snapshot,"ranked":ranked,"rejected":rejected,"servings":size}
             tx.execute("INSERT INTO recommendation_traces VALUES (?,?,?,?,?)",(trace_id,user_id,household_id,encode(trace),now()))
-            return {"trace_id":trace_id,"items":ranked[:4],"servings":size,"diet_rules_version":versions,"is_demo":any(f.get("is_demo",False) for f in foods.values())}
+            return {"trace_id":trace_id,"items":ranked[:4],"servings":size,"diet_rules_version":versions,
+                    "profile_context":{"diet_ids":[a["diet_id"] for a in profile["settings"]["diets"]],
+                                       "primary_diet":profile["settings"].get("primary_diet"),
+                                       "allergy_count":len(profile["settings"].get("allergies", [])),
+                                       "intolerance_count":len(profile["settings"].get("intolerances", [])),
+                                       "exclusion_count":len(profile["settings"].get("never_suggest", [])),
+                                       "unknown_ingredient_policy":profile["settings"].get("unknown_ingredient_policy", "strict")},
+                    "is_demo":any(f.get("is_demo",False) for f in foods.values())}
 
     def recipe(self,user_id,recipe_id):
         self._household(user_id)

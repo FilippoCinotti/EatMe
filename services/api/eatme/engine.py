@@ -53,6 +53,28 @@ def active_rules(assignments: list[dict], versions: list[dict], today: date) -> 
         selected[assignment["diet_id"]] = version["version"]
         for rule in version["rules"]:
             rules.append({**rule,"strictness":assignment["strictness"],"diet_id":assignment["diet_id"]})
+    exclusions, allowances = {}, {}
+    for rule in rules:
+        targets = (
+            {("group", value) for value in rule.get("groups", [])}
+            | {("food", value) for value in rule.get("food_ids", [])}
+            | {("allergen", value) for value in rule.get("allergens", [])}
+        )
+        if rule["type"] == "EXCLUDE" and (rule.get("hard_constraint") or rule["strictness"] != "flexible"):
+            for target in targets:
+                exclusions.setdefault(target, set()).add(rule["diet_id"])
+        elif rule["type"] == "ALLOW":
+            for target in targets:
+                allowances.setdefault(target, set()).add(rule["diet_id"])
+    conflicts = [
+        {"kind": kind, "value": value, "excluding_diets": sorted(exclusions[target]),
+         "allowing_diets": sorted(allowances[target])}
+        for target in sorted(set(exclusions) & set(allowances))
+        for kind, value in [target]
+        if exclusions[target] != allowances[target]
+    ]
+    if conflicts:
+        raise DomainError("diet_profile_conflict", 409, {"conflicts": conflicts})
     return rules, selected
 
 
@@ -61,7 +83,8 @@ def compatibility(food_ids: list[str], foods: dict, profile: dict, rules: list[d
     for food_id in sorted(set(food_ids)):
         food = foods.get(food_id)
         if not food or food.get("ingredient_status") != "known":
-            reasons.append({"code":"unknown_ingredient","food_id":food_id})
+            reasons.append({"code":"unknown_ingredient","food_id":food_id,
+                            "policy":profile.get("unknown_ingredient_policy", "strict")})
             continue
         for allergen in sorted(set(food.get("allergens",[])) & set(profile["allergies"])):
             reasons.append({"code":"contains_allergen","food_id":food_id,"allergen":allergen})
@@ -72,7 +95,8 @@ def compatibility(food_ids: list[str], foods: dict, profile: dict, rules: list[d
         if food_id in profile.get("never_suggest",[]):
             reasons.append({"code":"never_suggest","food_id":food_id})
         for rule in rules:
-            matched = food["group"] in rule.get("groups",[]) or food_id in rule.get("food_ids",[])
+            matched = (food["group"] in rule.get("groups",[]) or food_id in rule.get("food_ids",[]) or
+                       bool(set(food.get("allergens", [])) & set(rule.get("allergens", []))))
             if rule["type"] == "EXCLUDE" and matched:
                 item = {"code":"diet_exclusion","food_id":food_id,"diet_id":rule["diet_id"]}
                 if rule.get("hard_constraint") or rule["strictness"] != "flexible":
@@ -135,7 +159,7 @@ def rank(recipes: list[dict], foods: dict, inventory: list[dict], profile: dict,
         score = sum(components[k]*v for k,v in profiles[weight_mode].items())
         ranked.append({"recipe":recipe,"score":round(score,6),"component_scores":components,
                        "available_count":fully_available,"ingredient_count":len(needed),"use_soon_food_ids":expiring,
-                       "filters_passed":["canonical_ingredients","allergens","intolerances","published_diet_rules"],
+                       "filters_passed":["canonical_ingredients","allergens","intolerances","explicit_exclusions","published_diet_rules"],
                        "warnings":validation["warnings"],"minutes":recipe["minutes"],
                        "explanations":{"available":fully_available,"total":len(needed),"use_soon":expiring,"minutes":recipe["minutes"]}})
     ranked.sort(key=lambda r:(-r["score"],r["recipe"]["id"]))

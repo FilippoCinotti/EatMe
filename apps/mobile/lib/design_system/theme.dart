@@ -47,28 +47,28 @@ abstract final class Tokens {
         displaySmall: base.textTheme.displaySmall?.copyWith(
           fontFamily: 'EatMeDisplay',
           height: 1.02,
-          fontSize: 38,
+          fontSize: 35,
           fontWeight: FontWeight.w700,
-          letterSpacing: -1.1,
+          letterSpacing: -0.9,
         ),
         headlineMedium: base.textTheme.headlineMedium?.copyWith(
           fontFamily: 'EatMeDisplay',
           height: 1.08,
-          fontSize: 28,
+          fontSize: 25,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.7,
         ),
         titleLarge: base.textTheme.titleLarge?.copyWith(
           fontFamily: 'EatMeDisplay',
-          fontSize: 24,
+          fontSize: 21,
           fontWeight: FontWeight.w700,
         ),
         titleMedium: base.textTheme.titleMedium?.copyWith(
-          fontSize: 16,
+          fontSize: 15,
           fontWeight: FontWeight.w600,
         ),
         bodyLarge: base.textTheme.bodyLarge?.copyWith(
-          fontSize: 16,
+          fontSize: 15,
           letterSpacing: 0,
           height: 1.35,
         ),
@@ -79,7 +79,7 @@ abstract final class Tokens {
         centerTitle: false,
         titleTextStyle: base.textTheme.titleLarge?.copyWith(
           color: scheme.onSurface,
-          fontSize: 22,
+          fontSize: 20,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.6,
         ),
@@ -106,7 +106,7 @@ abstract final class Tokens {
         shape: const StadiumBorder(),
         labelStyle: base.textTheme.labelLarge?.copyWith(
           color: scheme.onSurface,
-          fontSize: 13,
+          fontSize: 12,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 7),
       ),

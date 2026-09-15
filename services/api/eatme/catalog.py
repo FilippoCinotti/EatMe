@@ -1,4 +1,8 @@
-"""Fictional development content: no published clinical rules or nutrition claims."""
+"""Fictional development catalog and conservative, versioned profile rules.
+
+Profiles are self-declared product settings.  A published rule set only controls
+EatMe filtering; it is not a diagnosis, prescription, or treatment claim.
+"""
 from uuid import NAMESPACE_URL, uuid5
 
 from .storage import Database, encode
@@ -45,16 +49,39 @@ def seed_catalog(db: Database):
          ["Cuoci il riso seguendo le istruzioni sulla confezione.", "Cuoci gli spinaci con l’olio, poi aggiungi i ceci già cotti.", "Unisci il riso alle verdure e servi appena pronto."],
          ["Cook the rice following the package instructions.", "Cook the spinach in olive oil, then add the cooked chickpeas.", "Combine the rice with the vegetables and serve immediately."]),
     ]
-    lifestyle = [
-        ("balanced", "Equilibrata", "Balanced", []),
-        ("mediterranean", "Mediterranea", "Mediterranean", [{"type":"PREFER", "groups":["vegetable","legume"], "hard_constraint":False}]),
-        ("vegetarian", "Vegetariana", "Vegetarian", [{"type":"EXCLUDE", "groups":["meat","fish"], "hard_constraint":False}]),
-        ("vegan", "Vegana", "Vegan", [{"type":"EXCLUDE", "groups":["meat","fish","dairy","egg","honey"], "hard_constraint":False}]),
+    supported = [
+        ("balanced", "Equilibrata", "Balanced", False, [],
+         "A neutral profile with no additional food exclusions."),
+        ("mediterranean", "Mediterranea", "Mediterranean", False,
+         [{"type":"PREFER", "groups":["vegetable","legume"], "hard_constraint":False}],
+         "Prioritises vegetables and legumes when compatible options are available."),
+        ("vegetarian", "Vegetariana", "Vegetarian", False,
+         [{"type":"EXCLUDE", "groups":["meat","fish"], "hard_constraint":False}],
+         "Excludes meat and fish according to the selected strictness."),
+        ("vegan", "Vegana", "Vegan", False,
+         [{"type":"EXCLUDE", "groups":["meat","fish","dairy","egg","honey"], "hard_constraint":False}],
+         "Excludes animal-derived catalog groups according to the selected strictness."),
+        ("pescatarian", "Pescetariana", "Pescatarian", False,
+         [{"type":"EXCLUDE", "groups":["meat"], "hard_constraint":False}],
+         "Excludes meat while retaining fish according to the selected strictness."),
+        ("high-protein", "Proteica", "High protein", False,
+         [{"type":"PREFER", "groups":["legume","meat","fish","egg","dairy"], "hard_constraint":False}],
+         "A ranking preference based on catalog food groups, not a nutrient target."),
+        ("gluten-free", "Senza glutine", "Gluten free", False,
+         [{"type":"EXCLUDE", "allergens":["gluten"], "hard_constraint":True}],
+         "Blocks foods catalogued as containing gluten."),
+        ("celiac", "Celiachia", "Celiac", True,
+         [{"type":"EXCLUDE", "allergens":["gluten"], "hard_constraint":True}],
+         "A self-declared strict gluten exclusion using current catalog metadata."),
+        ("rad", "RAD", "RAD", True,
+         [{"type":"PREFER", "groups":["vegetable","legume"], "hard_constraint":False},
+          {"type":"EXCLUDE", "food_ids":[identifier("food","pasta")], "hard_constraint":True}],
+         "A self-declared, conservative RAD profile using only reviewed catalog-level rules."),
     ]
-    review = [
-        ("high-protein", "Proteica", "High protein"), ("low-sodium", "Povera di sodio", "Low sodium"),
-        ("low-fodmap", "Low FODMAP", "Low FODMAP"), ("renal", "Nutrizione renale", "Renal nutrition"),
-        ("rad", "RAD", "RAD"), ("celiac", "Celiachia", "Celiac disease"),
+    unavailable = [
+        ("low-sodium", "Povera di sodio", "Low sodium"),
+        ("low-fodmap", "Low FODMAP", "Low FODMAP"),
+        ("renal", "Nutrizione renale", "Renal nutrition"),
         ("diabetes", "Nutrizione e diabete", "Diabetes-oriented nutrition"),
     ]
     with db.transaction() as tx:
@@ -62,22 +89,24 @@ def seed_catalog(db: Database):
             data = dict(id=identifier("food",slug), slug=slug, name={"it":it,"en":en}, group=group,
                         allergens=allergens, may_contain=[], intolerances=intolerances, unit=unit,
                         ingredient_status="known", nutrition=None, provenance="demo", is_demo=True)
-            tx.execute("INSERT INTO foods(id,data) VALUES (?,?) ON CONFLICT DO NOTHING", (data["id"], encode(data)))
+            tx.execute("INSERT INTO foods(id,data) VALUES (?,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data", (data["id"], encode(data)))
         for slug, it, en, minutes, ingredients, steps_it, steps_en in recipes:
             data = dict(id=identifier("recipe",slug), slug=slug, title={"it":it,"en":en}, minutes=minutes,
                         servings=2, cuisine="mediterranean", is_demo=True, provenance="eatme-original-demo",
                         ingredients=[{"food_id":identifier("food",f),"quantity":str(q)} for f,q in ingredients],
                         steps={"it":steps_it,"en":steps_en}, nutrition=None)
-            tx.execute("INSERT INTO recipes(id,data) VALUES (?,?) ON CONFLICT DO NOTHING", (data["id"], encode(data)))
-        for slug, it, en, rules in lifestyle:
+            tx.execute("INSERT INTO recipes(id,data) VALUES (?,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data", (data["id"], encode(data)))
+        for slug, it, en, medical, rules, description in supported:
             diet_id = identifier("diet",slug)
-            data = dict(id=diet_id, slug=slug, name={"it":it,"en":en}, medical=False, is_demo=True, status="PUBLISHED")
-            tx.execute("INSERT INTO diet_definitions VALUES (?,?,?) ON CONFLICT DO NOTHING",(diet_id,slug,encode(data)))
-            tx.execute("INSERT INTO diet_versions VALUES (?,?,?,?,?,?,?) ON CONFLICT DO NOTHING",
+            data = dict(id=diet_id, slug=slug, name={"it":it,"en":en}, medical=medical, is_demo=True,
+                        status="PUBLISHED", description=description, self_declared=True,
+                        clinical_limitations="Product filtering profile; not medical advice or a safety guarantee.")
+            tx.execute("INSERT INTO diet_definitions VALUES (?,?,?) ON CONFLICT(id) DO UPDATE SET slug=excluded.slug,data=excluded.data",(diet_id,slug,encode(data)))
+            tx.execute("INSERT INTO diet_versions VALUES (?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET diet_id=excluded.diet_id,version=excluded.version,status=excluded.status,effective_from=excluded.effective_from,effective_until=excluded.effective_until,rules=excluded.rules",
                        (identifier("diet-version",slug+"-1"),diet_id,1,"PUBLISHED","2026-01-01",None,encode(rules)))
-        for slug,it,en in review:
+        for slug,it,en in unavailable:
             data = dict(id=identifier("diet",slug), slug=slug, name={"it":it,"en":en}, medical=slug!="high-protein",
                         status="REQUIRES_REVIEW", is_demo=True, review_date=None,
                         context=None, description=None, evidence_references=[], evidence_quality=None,
                         clinical_limitations="Uncurated: not available for recommendations")
-            tx.execute("INSERT INTO diet_definitions VALUES (?,?,?) ON CONFLICT DO NOTHING",(data["id"],slug,encode(data)))
+            tx.execute("INSERT INTO diet_definitions VALUES (?,?,?) ON CONFLICT(id) DO UPDATE SET slug=excluded.slug,data=excluded.data",(data["id"],slug,encode(data)))

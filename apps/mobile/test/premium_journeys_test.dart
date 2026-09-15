@@ -25,15 +25,36 @@ class JourneyController extends visual.VisualController {
   AppState build() => super.build().copy(
     profile: {
       ...super.build().profile,
+      'version': 4,
       'household_size': 2,
       'settings': {
         'timezone': 'Europe/Rome',
-        'diets': <Json>[],
-        'allergies': <String>[],
-        'intolerances': <String>[],
+        'diets': <Json>[
+          {'diet_id': 'diet-med', 'strictness': 'standard'},
+          {'diet_id': 'diet-rad', 'strictness': 'strict'},
+        ],
+        'primary_diet': 'diet-rad',
+        'allergies': <String>['milk'],
+        'intolerances': <String>['lactose'],
+        'never_suggest': <String>[visual.feta.id],
+        'unknown_ingredient_policy': 'review',
       },
     },
+    allergens: const ['gluten', 'eggs', 'peanut', 'milk', 'nuts'],
+    diets: const [
+      Diet('diet-med', 'mediterranean', {'en': 'Mediterranean'}, true, 'PUBLISHED', false),
+      Diet('diet-vegetarian', 'vegetarian', {'en': 'Vegetarian'}, true, 'PUBLISHED', false),
+      Diet('diet-vegan', 'vegan', {'en': 'Vegan'}, true, 'PUBLISHED', false),
+      Diet('diet-pescatarian', 'pescatarian', {'en': 'Pescatarian'}, true, 'PUBLISHED', false),
+      Diet('diet-protein', 'high-protein', {'en': 'High protein'}, true, 'PUBLISHED', false),
+      Diet('diet-gluten', 'gluten-free', {'en': 'Gluten free'}, true, 'PUBLISHED', false),
+      Diet('diet-celiac', 'celiac', {'en': 'Celiac'}, true, 'PUBLISHED', true),
+      Diet('diet-rad', 'rad', {'en': 'RAD'}, true, 'PUBLISHED', true),
+    ],
   );
+
+  @override
+  Future<void> hydrate() async {}
 }
 
 class JourneyApi extends support.TestApi {
@@ -266,6 +287,105 @@ void main() {
       expect(tester.takeException(), isNull);
     }
   });
+
+  testWidgets('Diet & Health directly saves profiles and unknown policy', (
+    tester,
+  ) async {
+    final api = JourneyApi();
+    await tester.pumpWidget(
+      support.harness(
+        const DietHealthPage(),
+        api,
+        controller: JourneyController.new,
+      ),
+    );
+    await tester.pumpAndSettle();
+    final vegan = find.byKey(const ValueKey('diet-vegan'));
+    await tester.scrollUntilVisible(
+      vegan,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(vegan);
+    final strictUnknown = find.byKey(const ValueKey('unknown-strict'));
+    await tester.scrollUntilVisible(
+      strictUnknown,
+      400,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(strictUnknown);
+    final save = find.byKey(const ValueKey('save-diet-health'));
+    await tester.scrollUntilVisible(
+      save,
+      400,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    final call = api.calls.lastWhere(
+      (value) => value['method'] == 'PUT' && value['path'] == '/profile',
+    );
+    final body = Map<String, dynamic>.from(call['body'] as Map);
+    expect(body['unknown_ingredient_policy'], 'strict');
+    expect(
+      (body['diets'] as List).any(
+        (value) => value['diet_id'] == 'diet-vegan',
+      ),
+      isTrue,
+    );
+    expect(body['never_suggest'], [visual.feta.id]);
+    expect(find.text('Diet & Health updated'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  for (final dark in [false, true]) {
+    testWidgets('Diet & Health review states ${dark ? 'dark' : 'light'}', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final boundary = GlobalKey();
+      await tester.pumpWidget(
+        support.harness(
+          RepaintBoundary(
+            key: boundary,
+            child: const DietHealthPage(),
+          ),
+          JourneyApi(),
+          dark: dark,
+          controller: JourneyController.new,
+        ),
+      );
+      await tester.pumpAndSettle();
+      await capture(
+        tester,
+        boundary,
+        'diet-health-profiles-${dark ? 'dark' : 'light'}',
+      );
+      for (final target in <(Key, String)>[
+        (const ValueKey('diet-rad'), 'diet-health-rad'),
+        (const ValueKey('allergen-milk'), 'diet-health-safety'),
+        (ValueKey('exclude-${visual.feta.id}'), 'diet-health-exclusions'),
+        (const ValueKey('unknown-review'), 'diet-health-unknown-policy'),
+      ]) {
+        final finder = find.byKey(target.$1);
+        await tester.scrollUntilVisible(
+          finder,
+          360,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+        await capture(
+          tester,
+          boundary,
+          '${target.$2}-${dark ? 'dark' : 'light'}',
+        );
+        expect(tester.takeException(), isNull);
+      }
+    });
+  }
 
   for (final page in <Widget>[
     const ChefTablePage(),

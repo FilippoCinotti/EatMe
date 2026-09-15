@@ -1390,6 +1390,14 @@ class _CompatibilityFacts extends StatelessWidget {
     return SettingsGroup(
       title: context.t('profile_check'),
       children: [
+        SettingRow(
+          title: context.t('checking_active_profiles', {
+            'count': activeDiets.length,
+          }),
+          subtitle: context.t('change_profile_before_save'),
+          icon: EatMeGlyph.shieldCheck,
+          onTap: () => context.push('/diet-health'),
+        ),
         if (reasons.isEmpty && compatibility['status'] == 'fit')
           SettingRow(
             title: context.t('no_known_conflicts'),
