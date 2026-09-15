@@ -296,7 +296,8 @@ class _DietHealthPageState extends ConsumerState<DietHealthPage> {
               ),
               keyPrefix: 'exclude',
               onChanged: (value, selected) => setState(
-                () => selected ? exclusions.add(value) : exclusions.remove(value),
+                () =>
+                    selected ? exclusions.add(value) : exclusions.remove(value),
               ),
             ),
           ),
@@ -365,13 +366,17 @@ class _DietHealthPageState extends ConsumerState<DietHealthPage> {
                   'medical_consent_version': 'medical-nutrition-1',
                 'expected_version': profile['version'],
               };
-              await mutation.send(ref.read(apiProvider), 'PUT', '/profile', body);
+              await mutation.send(
+                ref.read(apiProvider),
+                'PUT',
+                '/profile',
+                body,
+              );
               await ref.read(appProvider.notifier).hydrate();
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(context.t('diet_health_saved'))),
-                );
-              }
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(context.t('diet_health_saved'))),
+              );
             },
           ),
           const SizedBox(height: 16),

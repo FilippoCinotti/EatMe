@@ -42,12 +42,47 @@ class JourneyController extends visual.VisualController {
     },
     allergens: const ['gluten', 'eggs', 'peanut', 'milk', 'nuts'],
     diets: const [
-      Diet('diet-med', 'mediterranean', {'en': 'Mediterranean'}, true, 'PUBLISHED', false),
-      Diet('diet-vegetarian', 'vegetarian', {'en': 'Vegetarian'}, true, 'PUBLISHED', false),
+      Diet(
+        'diet-med',
+        'mediterranean',
+        {'en': 'Mediterranean'},
+        true,
+        'PUBLISHED',
+        false,
+      ),
+      Diet(
+        'diet-vegetarian',
+        'vegetarian',
+        {'en': 'Vegetarian'},
+        true,
+        'PUBLISHED',
+        false,
+      ),
       Diet('diet-vegan', 'vegan', {'en': 'Vegan'}, true, 'PUBLISHED', false),
-      Diet('diet-pescatarian', 'pescatarian', {'en': 'Pescatarian'}, true, 'PUBLISHED', false),
-      Diet('diet-protein', 'high-protein', {'en': 'High protein'}, true, 'PUBLISHED', false),
-      Diet('diet-gluten', 'gluten-free', {'en': 'Gluten free'}, true, 'PUBLISHED', false),
+      Diet(
+        'diet-pescatarian',
+        'pescatarian',
+        {'en': 'Pescatarian'},
+        true,
+        'PUBLISHED',
+        false,
+      ),
+      Diet(
+        'diet-protein',
+        'high-protein',
+        {'en': 'High protein'},
+        true,
+        'PUBLISHED',
+        false,
+      ),
+      Diet(
+        'diet-gluten',
+        'gluten-free',
+        {'en': 'Gluten free'},
+        true,
+        'PUBLISHED',
+        false,
+      ),
       Diet('diet-celiac', 'celiac', {'en': 'Celiac'}, true, 'PUBLISHED', true),
       Diet('diet-rad', 'rad', {'en': 'RAD'}, true, 'PUBLISHED', true),
     ],
@@ -328,9 +363,7 @@ void main() {
     final body = Map<String, dynamic>.from(call['body'] as Map);
     expect(body['unknown_ingredient_policy'], 'strict');
     expect(
-      (body['diets'] as List).any(
-        (value) => value['diet_id'] == 'diet-vegan',
-      ),
+      (body['diets'] as List).any((value) => value['diet_id'] == 'diet-vegan'),
       isTrue,
     );
     expect(body['never_suggest'], [visual.feta.id]);
@@ -349,10 +382,7 @@ void main() {
       final boundary = GlobalKey();
       await tester.pumpWidget(
         support.harness(
-          RepaintBoundary(
-            key: boundary,
-            child: const DietHealthPage(),
-          ),
+          RepaintBoundary(key: boundary, child: const DietHealthPage()),
           JourneyApi(),
           dark: dark,
           controller: JourneyController.new,

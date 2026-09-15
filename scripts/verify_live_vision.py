@@ -13,15 +13,15 @@ import json
 import os
 import sys
 import tempfile
-from datetime import date
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "services" / "api"))
 
-from eatme.catalog import seed_catalog  # noqa: E402
-from eatme.service import Service, new_id  # noqa: E402
-from eatme.storage import Database  # noqa: E402
+from eatme.catalog import seed_catalog
+from eatme.service import Service, new_id
+from eatme.storage import Database
 
 
 def fail(message: str) -> None:
@@ -103,7 +103,7 @@ def main() -> None:
         database = Database(str(Path(temporary) / "eatme.sqlite3"))
         database.migrate_local()
         seed_catalog(database)
-        service = Service(database, clock=lambda: date.today())
+        service = Service(database, clock=lambda: datetime.now(timezone.utc).date())
         user = new_id()
         service.save_profile(
             user,
@@ -154,4 +154,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

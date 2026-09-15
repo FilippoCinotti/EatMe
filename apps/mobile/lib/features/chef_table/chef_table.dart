@@ -27,9 +27,8 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
         .toList();
     final activeDiets = state.diets
         .where(
-          (diet) => assignments.any(
-            (assignment) => assignment['diet_id'] == diet.id,
-          ),
+          (diet) =>
+              assignments.any((assignment) => assignment['diet_id'] == diet.id),
         )
         .toList();
     final hardRestrictionCount =
@@ -304,9 +303,10 @@ class _ProfileContext extends StatelessWidget {
       ..sort((a, b) {
         if (a.id == primaryDiet) return -1;
         if (b.id == primaryDiet) return 1;
-        return localized(a.name, context.language).compareTo(
-          localized(b.name, context.language),
-        );
+        return localized(
+          a.name,
+          context.language,
+        ).compareTo(localized(b.name, context.language));
       });
     return InformationPanel(
       tinted: false,
@@ -343,10 +343,7 @@ class _ProfileContext extends StatelessWidget {
                       ? context.t('no_diet_profiles_active')
                       : sorted
                             .map(
-                              (diet) => localized(
-                                diet.name,
-                                context.language,
-                              ),
+                              (diet) => localized(diet.name, context.language),
                             )
                             .join(' · '),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
