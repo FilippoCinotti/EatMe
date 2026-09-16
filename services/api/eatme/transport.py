@@ -50,7 +50,11 @@ class Router:
         if route=="/api/v1/health" and method=="GET":
             return {"status":"ok","version":"1.0.0"}
         if route=="/api/v1/config" and method=="GET":
+            provider = os.getenv("AI_PROVIDER", "")
+            live_ready = provider == "openai" and bool(os.getenv("AI_API_KEY")) and bool(os.getenv("AI_MODEL"))
             return {"auth_mode":"development" if self.development else "supabase",
+                    "vision_provider":{"mode":"live" if provider == "openai" else "development_fixture" if provider == "development" else "unavailable",
+                                       "live_ready":live_ready},
                     "features":{"manual_inventory":True,"recipe_cooking":True,"healthy_food":True,
                                 "ai_scan":self.service.feature_enabled("ai_scan"),"barcode_scan":self.service.feature_enabled("barcode_scan"),"receipt_scan":self.service.feature_enabled("receipt_scan"),"meal_planner":True,
                                 "household_sharing":True,"account_deletion":self.development or bool(os.getenv("SUPABASE_SERVICE_ROLE_KEY"))}}

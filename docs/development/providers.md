@@ -30,6 +30,19 @@ The adapter uses structured outputs, a versioned prompt, bounded responses and s
 
 `AI_PROVIDER=development` is an explicit fixture mode and is rejected outside development. Fixture results are visibly labelled. It tests job flow, not recognition accuracy.
 
+### Live vision acceptance
+
+The fixture suite is never evidence of real image recognition. Before release, configure a live OpenAI vision-capable model and run the full acceptance command with two visibly different, representative food photographs:
+
+```bash
+AI_PROVIDER=openai AI_API_KEY=... AI_MODEL=... \
+  python scripts/verify_live_vision.py /secure/path/first.jpg /secure/path/second.jpg
+```
+
+The runner refuses unset or fixture providers. For each image it uses the production path: private upload → durable job → worker lease → live provider → strict structured validation → review payload → explicit confirmation → inventory write. It fails if the provider result is labelled as a fixture, either job has no canonical reviewable detection, the two images produce the same `(food_id, name)` signature, or confirmed rows do not reach inventory. The command prints a redacted JSON acceptance record; store that record in the release evidence system, never in source control if it contains user media details.
+
+`GET /api/v1/config` exposes only `vision_provider.mode` and `vision_provider.live_ready`; it never exposes credentials. CI intentionally has no live provider key, so unit tests validate the pipeline and failure states but a release operator must supply the two-image acceptance result.
+
 ## Subscriptions
 
 `REVENUECAT_SECRET_KEY` remains server-only. Configure native SDK publishable keys separately, product offerings in RevenueCat and products in each store. The API verifies entitlements against RevenueCat instead of trusting device purchase assertions. No price is hardcoded. Decide and document the actual paid capability policy before enabling a paywall; the basic manual workflows remain available by default.

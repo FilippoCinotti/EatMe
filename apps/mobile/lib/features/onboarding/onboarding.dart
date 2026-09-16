@@ -20,8 +20,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   int step = 0, size = 1;
   bool adult = false, consent = false, medicalConsent = false;
   String strictness = 'standard', primaryGoal = 'eat_better';
+  String unknownPolicy = 'strict';
   String? primaryDiet;
   final Set<String> selected = {}, allergies = {}, intolerances = {};
+  final Set<String> neverSuggest = {};
   @override
   void initState() {
     super.initState();
@@ -39,11 +41,19 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       );
       allergies.addAll(List<String>.from(settings['allergies'] as List));
       intolerances.addAll(List<String>.from(settings['intolerances'] as List));
+      neverSuggest.addAll(
+        List<String>.from(settings['never_suggest'] as List? ?? const []),
+      );
+      unknownPolicy =
+          settings['unknown_ingredient_policy'] as String? ?? 'strict';
       if ((settings['diets'] as List).isNotEmpty) {
         strictness = settings['diets'][0]['strictness'] as String;
       }
       adult = true;
       consent = allergies.isNotEmpty || intolerances.isNotEmpty;
+      medicalConsent = state.diets.any(
+        (diet) => diet.medical && selected.contains(diet.id),
+      );
     } else {
       for (final diet in state.diets) {
         if (diet.slug == 'mediterranean' && diet.selectable) {
@@ -321,6 +331,8 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                       .toList(),
                   'allergies': allergies.toList(),
                   'intolerances': intolerances.toList(),
+                  'never_suggest': neverSuggest.toList(),
+                  'unknown_ingredient_policy': unknownPolicy,
                   if (consent) 'health_consent_version': 'nutrition-profile-1',
                   if (medicalConsent)
                     'medical_consent_version': 'medical-nutrition-1',

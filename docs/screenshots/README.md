@@ -1,8 +1,8 @@
 # Real Flutter screenshot gallery
 
-These are application renders, not supplied storyboards or mockups. Visual source: `06a867ad51ac4f334bd216d30378a2dfa753b733`, [CI render run](https://github.com/FilippoCinotti/EatMe/actions/runs/34875957380). The subsequent canonical-format commit `b5c6a570589a5c0891ed062adc24e4244818966f` does not alter rendered pixels. Test fixtures isolate demonstration accounts, quantities and package dates from production. Food imagery is illustrative and restricted to the bundled catalog.
+These are application renders, not supplied storyboards or mockups. Visual source: `028ce01400807005a7f8f618c8352f422135c7a9`, [CI render run](https://github.com/FilippoCinotti/EatMe/actions/runs/35001067953). Test fixtures isolate demonstration accounts, quantities and package dates from production. Food imagery is illustrative and restricted to the bundled catalog.
 
-The gallery contains 72 real PNG renders—36 screens in light and dark—at 390 × 844. Fonts are bundled with the application; see the [design notes](../product/visual-design.md) for font, brand and icon provenance.
+The gallery contains 82 real PNG renders—41 screens in light and dark—at 390 × 844. Fonts are bundled with the application; see the [design notes](../product/visual-design.md) for font, brand and icon provenance.
 
 ## Core premium screens
 
@@ -17,6 +17,11 @@ The gallery contains 72 real PNG renders—36 screens in light and dark—at 390
 | Sign-up | <img src="sign-up-light.png" width="260" alt="Sign-up, light theme, actual Flutter render" /> | <img src="sign-up-dark.png" width="260" alt="Sign-up, dark theme, actual Flutter render" /> |
 | Recipe detail | <img src="recipe-light.png" width="260" alt="Recipe detail, light theme, actual Flutter render" /> | <img src="recipe-dark.png" width="260" alt="Recipe detail, dark theme, actual Flutter render" /> |
 | Diet and health | <img src="diet-health-light.png" width="260" alt="Diet and health, light theme, actual Flutter render" /> | <img src="diet-health-dark.png" width="260" alt="Diet and health, dark theme, actual Flutter render" /> |
+| Diet profile selection | <img src="diet-health-profiles-light.png" width="260" alt="Diet profile selection, light theme, actual Flutter render" /> | <img src="diet-health-profiles-dark.png" width="260" alt="Diet profile selection, dark theme, actual Flutter render" /> |
+| RAD self-declared profile | <img src="diet-health-rad-light.png" width="260" alt="RAD self-declared profile, light theme, actual Flutter render" /> | <img src="diet-health-rad-dark.png" width="260" alt="RAD self-declared profile, dark theme, actual Flutter render" /> |
+| Allergy and intolerance safety | <img src="diet-health-safety-light.png" width="260" alt="Allergy and intolerance safety, light theme, actual Flutter render" /> | <img src="diet-health-safety-dark.png" width="260" alt="Allergy and intolerance safety, dark theme, actual Flutter render" /> |
+| Explicit food exclusions | <img src="diet-health-exclusions-light.png" width="260" alt="Explicit food exclusions, light theme, actual Flutter render" /> | <img src="diet-health-exclusions-dark.png" width="260" alt="Explicit food exclusions, dark theme, actual Flutter render" /> |
+| Unknown ingredient policy | <img src="diet-health-unknown-policy-light.png" width="260" alt="Unknown ingredient policy, light theme, actual Flutter render" /> | <img src="diet-health-unknown-policy-dark.png" width="260" alt="Unknown ingredient policy, dark theme, actual Flutter render" /> |
 | Preferences | <img src="preferences-light.png" width="260" alt="Preferences, light theme, actual Flutter render" /> | <img src="preferences-dark.png" width="260" alt="Preferences, dark theme, actual Flutter render" /> |
 | Notifications | <img src="notifications-light.png" width="260" alt="Notifications, light theme, actual Flutter render" /> | <img src="notifications-dark.png" width="260" alt="Notifications, dark theme, actual Flutter render" /> |
 | Household | <img src="household-light.png" width="260" alt="Household, light theme, actual Flutter render" /> | <img src="household-dark.png" width="260" alt="Household, dark theme, actual Flutter render" /> |

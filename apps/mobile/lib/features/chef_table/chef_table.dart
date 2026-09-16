@@ -19,6 +19,22 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(appProvider);
+    final settings = Map<String, dynamic>.from(
+      state.profile['settings'] as Map? ?? {},
+    );
+    final assignments = (settings['diets'] as List? ?? const [])
+        .map((value) => Map<String, dynamic>.from(value as Map))
+        .toList();
+    final activeDiets = state.diets
+        .where(
+          (diet) =>
+              assignments.any((assignment) => assignment['diet_id'] == diet.id),
+        )
+        .toList();
+    final hardRestrictionCount =
+        (settings['allergies'] as List? ?? const []).length +
+        (settings['intolerances'] as List? ?? const []).length +
+        (settings['never_suggest'] as List? ?? const []).length;
     final now = DateUtils.dateOnly(DateTime.now());
     final soon =
         state.inventory
@@ -82,7 +98,16 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
             onChanged: (value) => setState(() => query = value),
             onFilter: () => sheet(context, const ChefFilters()),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+          _ProfileContext(
+            diets: activeDiets,
+            primaryDiet: settings['primary_diet'] as String?,
+            hardRestrictionCount: hardRestrictionCount,
+            unknownPolicy:
+                settings['unknown_ingredient_policy'] as String? ?? 'strict',
+            onManage: () => context.push('/diet-health'),
+          ),
+          const SizedBox(height: 22),
           if (state.error != null)
             StatusNote(
               text: context.t(
@@ -147,6 +172,11 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                       'minutes': pick.recipe.minutes,
                     }),
                   ),
+                  if (activeDiets.isNotEmpty || hardRestrictionCount > 0)
+                    _Reason(
+                      icon: EatMeGlyph.shieldCheck,
+                      text: context.t('no_known_active_rule_conflicts'),
+                    ),
                   if (pick.warnings.isNotEmpty)
                     StatusNote(
                       text: context.t('preference_warning'),
@@ -246,6 +276,101 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileContext extends StatelessWidget {
+  const _ProfileContext({
+    required this.diets,
+    required this.primaryDiet,
+    required this.hardRestrictionCount,
+    required this.unknownPolicy,
+    required this.onManage,
+  });
+
+  final List<Diet> diets;
+  final String? primaryDiet;
+  final int hardRestrictionCount;
+  final String unknownPolicy;
+  final VoidCallback onManage;
+
+  @override
+  Widget build(BuildContext context) {
+    final sorted = [...diets]
+      ..sort((a, b) {
+        if (a.id == primaryDiet) return -1;
+        if (b.id == primaryDiet) return 1;
+        return localized(
+          a.name,
+          context.language,
+        ).compareTo(localized(b.name, context.language));
+      });
+    return InformationPanel(
+      tinted: false,
+      padding: const EdgeInsets.fromLTRB(18, 14, 14, 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: EatMeIcon(
+              EatMeGlyph.shieldCheck,
+              size: 22,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: 13),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.t('cooking_with_profile'),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  sorted.isEmpty
+                      ? context.t('no_diet_profiles_active')
+                      : sorted
+                            .map(
+                              (diet) => localized(diet.name, context.language),
+                            )
+                            .join(' · '),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    StatusBadge(
+                      label: context.t('active_safety_rules', {
+                        'count': hardRestrictionCount,
+                      }),
+                      icon: EatMeGlyph.lock,
+                    ),
+                    StatusBadge(
+                      label: context.t('unknown_policy_short_$unknownPolicy'),
+                      icon: EatMeGlyph.search,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          TextButton(onPressed: onManage, child: Text(context.t('manage'))),
         ],
       ),
     );

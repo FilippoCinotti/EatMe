@@ -10,7 +10,7 @@ from eatme.catalog import identifier, seed_catalog
 from eatme.engine import active_rules, amount_milli, compatibility, quantity
 from eatme.errors import DomainError
 from eatme.service import HEALTH_CONSENT, Service, new_id
-from eatme.storage import Database, decode, encode
+from eatme.storage import Database, decode
 from eatme.transport import Router
 
 
@@ -61,20 +61,14 @@ class EatMeCase(unittest.TestCase):
         self.update_profile(allergies=["peanut"],health_consent_version=HEALTH_CONSENT)
         self.assertEqual(self.service.get_profile(self.user)["settings"]["allergies"],["peanut"])
 
-    def test_published_reviewed_rad_requires_consent_and_uses_database_rules(self):
+    def test_self_declared_rad_requires_acknowledgement_and_uses_versioned_rules(self):
         from eatme.service import MEDICAL_CONSENT
         rad_id = identifier("diet","rad")
-        with self.db.transaction() as tx:
-            record = decode(tx.one("SELECT data FROM diet_definitions WHERE id=?",(rad_id,))["data"])
-            record.update(status="PUBLISHED",review_date="2026-09-01",evidence_references=["synthetic-test-only.invalid"])
-            tx.execute("UPDATE diet_definitions SET data=? WHERE id=?",(encode(record),rad_id))
-            tx.execute("INSERT INTO diet_versions VALUES (?,?,?,?,?,?,?)",(new_id(),rad_id,1,"PUBLISHED","2026-09-01",None,
-                encode([dict(type="EXCLUDE",food_ids=[identifier("food","tomato")],hard_constraint=True)])))
         assignment = [dict(diet_id=rad_id,strictness="flexible")]
         self.assertCode("medical_consent_required",lambda:self.update_profile(diets=assignment))
         self.update_profile(diets=assignment,medical_consent_version=MEDICAL_CONSENT)
         self.assertTrue(next(d for d in self.service.catalog()["diets"] if d["id"]==rad_id)["selectable"])
-        self.assertEqual(self.service.food_compatibility(self.user,identifier("food","tomato"))["assessment"]["status"],"not_compatible")
+        self.assertEqual(self.service.food_compatibility(self.user,identifier("food","pasta"))["assessment"]["status"],"not_compatible")
 
     def test_withdrawal_clears_health_data(self):
         self.update_profile(allergies=["peanut"],health_consent_version=HEALTH_CONSENT)
@@ -83,11 +77,53 @@ class EatMeCase(unittest.TestCase):
         self.assertEqual(export["profile"]["settings"]["allergies"],[])
         self.assertTrue(all(c["withdrawn_at"] for c in export["consents"]))
 
-    def test_unpublished_rad_not_selectable(self):
-        rad = next(d for d in self.service.catalog()["diets"] if d["slug"]=="rad")
-        self.assertFalse(rad["selectable"])
-        self.assertEqual(rad["status"],"REQUIRES_REVIEW")
-        self.assertCode("diet_rules_unavailable",lambda:self.update_profile(diets=[dict(diet_id=rad["id"],strictness="flexible")]))
+    def test_supported_profiles_are_directly_selectable(self):
+        diets = {diet["slug"]: diet for diet in self.service.catalog()["diets"]}
+        for slug in ["mediterranean", "vegetarian", "vegan", "pescatarian", "high-protein", "gluten-free", "celiac", "rad"]:
+            self.assertTrue(diets[slug]["selectable"], slug)
+
+    def test_celiac_gluten_rule_is_hard_even_when_profile_is_flexible(self):
+        from eatme.service import MEDICAL_CONSENT
+        self.update_profile(
+            diets=[dict(diet_id=identifier("diet", "celiac"), strictness="flexible")],
+            medical_consent_version=MEDICAL_CONSENT,
+        )
+        result = self.service.food_compatibility(self.user, identifier("food", "pasta"))
+        self.assertEqual(result["assessment"]["status"], "not_compatible")
+
+    def test_per_profile_strictness_primary_and_unknown_policy_persist(self):
+        assignments = [
+            dict(diet_id=identifier("diet", "mediterranean"), strictness="flexible"),
+            dict(diet_id=identifier("diet", "vegetarian"), strictness="strict"),
+        ]
+        primary = identifier("diet", "vegetarian")
+        self.update_profile(diets=assignments, primary_diet=primary, unknown_ingredient_policy="review")
+        settings = self.service.get_profile(self.user)["settings"]
+        self.assertEqual(settings["diets"], assignments)
+        self.assertEqual(settings["primary_diet"], primary)
+        self.assertEqual(settings["unknown_ingredient_policy"], "review")
+        self.assertCode("invalid_unknown_ingredient_policy", lambda: self.update_profile(unknown_ingredient_policy="safe"))
+
+    def test_profile_rule_conflicts_are_detected_and_explained(self):
+        versions = [
+            dict(diet_id="one", version=1, status="PUBLISHED", effective_from="2026-01-01", effective_until=None,
+                 rules=[dict(type="EXCLUDE", groups=["dairy"], hard_constraint=True)]),
+            dict(diet_id="two", version=1, status="PUBLISHED", effective_from="2026-01-01", effective_until=None,
+                 rules=[dict(type="ALLOW", groups=["dairy"], hard_constraint=False)]),
+        ]
+        with self.assertRaises(DomainError) as raised:
+            active_rules([dict(diet_id="one", strictness="strict"), dict(diet_id="two", strictness="standard")], versions, date(2026, 9, 10))
+        self.assertEqual(raised.exception.code, "diet_profile_conflict")
+        self.assertEqual(raised.exception.details["conflicts"][0]["value"], "dairy")
+
+    def test_explicit_exclusion_and_profile_context_apply_to_every_mode(self):
+        tomato = identifier("food", "tomato")
+        self.update_profile(never_suggest=[tomato], unknown_ingredient_policy="strict")
+        for mode in ["for_you", "quick", "use_soon", "health_first", "plant_based"]:
+            recipes = self.service.recommendations(self.user, mode)
+            self.assertTrue(all(tomato not in {item["food_id"] for item in value["recipe"]["ingredients"]} for value in recipes["items"]))
+            self.assertEqual(recipes["profile_context"]["exclusion_count"], 1)
+            self.assertEqual(recipes["profile_context"]["unknown_ingredient_policy"], "strict")
 
     def test_allergy_rejected_before_ranking_and_deep_link_cooking(self):
         self.update_profile(allergies=["milk"],health_consent_version=HEALTH_CONSENT)
@@ -270,6 +306,13 @@ class EatMeCase(unittest.TestCase):
         session = auth.login("transport@example.invalid","local-test-password",True)
         with patch.dict(os.environ,{"ADMIN_USER_IDS":""}):
             self.assertCode("forbidden",lambda:router.dispatch("GET","/api/v1/admin/catalog",authorization="Bearer "+session["access_token"]))
+
+    def test_config_reports_live_vision_readiness_without_secrets(self):
+        router = Router(self.service, DevelopmentAuth(self.db))
+        with patch.dict(os.environ, {"AI_PROVIDER": "openai", "AI_API_KEY": "secret", "AI_MODEL": "vision-model"}):
+            config = router.dispatch("GET", "/api/v1/config")
+        self.assertEqual(config["vision_provider"], {"mode": "live", "live_ready": True})
+        self.assertNotIn("secret", str(config))
 
     def test_unsupported_medical_operator_fails_closed(self):
         foods = {f["id"]:f for f in self.service.catalog()["foods"]}
