@@ -19,7 +19,10 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(appProvider);
-    final name = (state.profile['name'] as String? ?? '').trim().split(' ').first;
+    final name = (state.profile['name'] as String? ?? '')
+        .trim()
+        .split(' ')
+        .first;
     final hour = DateTime.now().hour;
     final greetingKey = hour < 12
         ? 'good_morning'
@@ -259,9 +262,8 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                   label: Text(context.t('swap_recipe')),
                 );
                 final plan = TextButton.icon(
-                  onPressed: () => context.push(
-                    '/plan?recipe=${pick.recipe.id}',
-                  ),
+                  onPressed: () =>
+                      context.push('/plan?recipe=${pick.recipe.id}'),
                   icon: const EatMeIcon(EatMeGlyph.calendarDays, size: 20),
                   label: Text(context.t('plan_this')),
                 );

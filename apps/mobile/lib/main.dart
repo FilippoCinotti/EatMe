@@ -303,6 +303,7 @@ class AppShell extends StatelessWidget {
     if (path.startsWith('/plan')) return 2;
     return paths.indexOf(path).clamp(0, 3).toInt();
   }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     extendBody: true,

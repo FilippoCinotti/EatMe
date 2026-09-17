@@ -61,19 +61,19 @@ class _PlannerState extends ResourceState<PlannerPage> {
   }
 
   Future<Json?> chooseRecipe() => showModalBottomSheet<Json>(
-      context: context,
-      useSafeArea: true,
-      builder: (context) => ListView(
-        children: [
-          for (final recipe in recipes)
-            ListTile(
-              title: Text(labelOf(recipe['title'], context)),
-              subtitle: Text('${recipe['minutes']} min'),
-              onTap: () => Navigator.pop(context, recipe),
-            ),
-        ],
-      ),
-    );
+    context: context,
+    useSafeArea: true,
+    builder: (context) => ListView(
+      children: [
+        for (final recipe in recipes)
+          ListTile(
+            title: Text(labelOf(recipe['title'], context)),
+            subtitle: Text('${recipe['minutes']} min'),
+            onTap: () => Navigator.pop(context, recipe),
+          ),
+      ],
+    ),
+  );
 
   Future<void> replaceMeal(DateTime day, String slot, Json meal) async {
     final recipe = await chooseRecipe();
@@ -81,10 +81,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
     if (draftMeals != null) {
       setState(() {
         final index = draftMeals!.indexOf(meal);
-        draftMeals![index] = {
-          ...meal,
-          'recipe_id': recipe['id'],
-        };
+        draftMeals![index] = {...meal, 'recipe_id': recipe['id']};
       });
       return;
     }
@@ -313,9 +310,12 @@ class _PlannerState extends ResourceState<PlannerPage> {
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
-          for (final slot in ['breakfast', 'lunch', 'dinner', 'snack'].where(
-            (slot) => enabledSlots[slot] as bool? ?? true,
-          ))
+          for (final slot in [
+            'breakfast',
+            'lunch',
+            'dinner',
+            'snack',
+          ].where((slot) => enabledSlots[slot] as bool? ?? true))
             Builder(
               builder: (context) {
                 final day = start.add(Duration(days: i));
@@ -331,50 +331,50 @@ class _PlannerState extends ResourceState<PlannerPage> {
                     tinted: false,
                     padding: EdgeInsets.zero,
                     child: ListTile(
-                    leading: meal == null
-                        ? null
-                        : FoodImage(
-                            id: '${meal['recipe_id']}',
-                            width: 56,
-                            height: 56,
-                            radius: 12,
-                          ),
-                    title: Text(context.t(slot)),
-                    subtitle: meal == null
-                        ? null
-                        : Text(
-                            '${labelOf(recipe?['title'] ?? '', context)} · ${meal['servings']}',
-                          ),
-                    trailing: meal == null
-                        ? const EatMeIcon(EatMeGlyph.plus)
-                        : PopupMenuButton<String>(
-                            onSelected: (action) async {
-                              if (action == 'delete') {
-                                if (draftMeals != null) {
-                                  setState(() => draftMeals!.remove(meal));
+                      leading: meal == null
+                          ? null
+                          : FoodImage(
+                              id: '${meal['recipe_id']}',
+                              width: 56,
+                              height: 56,
+                              radius: 12,
+                            ),
+                      title: Text(context.t(slot)),
+                      subtitle: meal == null
+                          ? null
+                          : Text(
+                              '${labelOf(recipe?['title'] ?? '', context)} · ${meal['servings']}',
+                            ),
+                      trailing: meal == null
+                          ? const EatMeIcon(EatMeGlyph.plus)
+                          : PopupMenuButton<String>(
+                              onSelected: (action) async {
+                                if (action == 'delete') {
+                                  if (draftMeals != null) {
+                                    setState(() => draftMeals!.remove(meal));
+                                  } else {
+                                    await saveMeals(
+                                      meals.where((m) => m != meal).toList(),
+                                    );
+                                  }
                                 } else {
-                                  await saveMeals(
-                                    meals.where((m) => m != meal).toList(),
-                                  );
+                                  await replaceMeal(day, slot, meal!);
                                 }
-                              } else {
-                                await replaceMeal(day, slot, meal!);
-                              }
-                            },
-                            itemBuilder: (context) => [
-                              PopupMenuItem(
-                                value: 'replace',
-                                child: Text(context.t('replace')),
-                              ),
-                              PopupMenuItem(
-                                value: 'delete',
-                                child: Text(context.t('delete')),
-                              ),
-                            ],
-                          ),
-                    onTap: () => meal == null
-                        ? addMeal(day, slot)
-                        : context.push('/recipes/${meal['recipe_id']}'),
+                              },
+                              itemBuilder: (context) => [
+                                PopupMenuItem(
+                                  value: 'replace',
+                                  child: Text(context.t('replace')),
+                                ),
+                                PopupMenuItem(
+                                  value: 'delete',
+                                  child: Text(context.t('delete')),
+                                ),
+                              ],
+                            ),
+                      onTap: () => meal == null
+                          ? addMeal(day, slot)
+                          : context.push('/recipes/${meal['recipe_id']}'),
                     ),
                   ),
                 );

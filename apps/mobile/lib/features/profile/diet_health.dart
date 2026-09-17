@@ -54,7 +54,12 @@ class DietHealthPage extends ConsumerWidget {
     );
 
     final sections = <(String, String, String, EatMeGlyph)>[
-      ('eating', context.t('eating_style'), dietSummary(medical: false), EatMeGlyph.leaf),
+      (
+        'eating',
+        context.t('eating_style'),
+        dietSummary(medical: false),
+        EatMeGlyph.leaf,
+      ),
       (
         'allergies',
         context.t('allergies'),
@@ -69,9 +74,7 @@ class DietHealthPage extends ConsumerWidget {
         context.t('intolerances_sensitivities'),
         summary(
           [
-            ...List<String>.from(
-              settings['intolerances'] as List? ?? const [],
-            ),
+            ...List<String>.from(settings['intolerances'] as List? ?? const []),
             ...List<String>.from(
               settings['sensitivities'] as List? ?? const [],
             ),
@@ -85,16 +88,13 @@ class DietHealthPage extends ConsumerWidget {
       (
         'medical',
         context.t('medical_restrictions'),
-        summary(
-          [
-            if (dietSummary(medical: true) != context.t('not_configured'))
-              dietSummary(medical: true),
-            ...List<String>.from(
-              settings['medical_awareness'] as List? ?? const [],
-            ).map((value) => context.t('medical_$value')),
-          ],
-          (value) => value,
-        ),
+        summary([
+          if (dietSummary(medical: true) != context.t('not_configured'))
+            dietSummary(medical: true),
+          ...List<String>.from(
+            settings['medical_awareness'] as List? ?? const [],
+          ).map((value) => context.t('medical_$value')),
+        ], (value) => value),
         EatMeGlyph.shieldCheck,
       ),
       (
@@ -189,8 +189,7 @@ class _DietHealthEditorPage extends ConsumerStatefulWidget {
   final String section;
 
   @override
-  ConsumerState<_DietHealthEditorPage> createState() =>
-      _DietHealthPageState();
+  ConsumerState<_DietHealthEditorPage> createState() => _DietHealthPageState();
 }
 
 class _DietHealthPageState extends ConsumerState<_DietHealthEditorPage> {
@@ -393,380 +392,387 @@ class _DietHealthPageState extends ConsumerState<_DietHealthEditorPage> {
               ],
             ),
           ),
-          if ({'eating', 'medical', 'therapeutic'}.contains(widget.section)) ...[
-          const SizedBox(height: 26),
-          SectionHeading(
-            title: context.t(
-              widget.section == 'eating'
-                  ? 'eating_style'
-                  : widget.section == 'medical'
-                  ? 'medical_restrictions'
-                  : 'therapeutic_protocols',
+          if ({
+            'eating',
+            'medical',
+            'therapeutic',
+          }.contains(widget.section)) ...[
+            const SizedBox(height: 26),
+            SectionHeading(
+              title: context.t(
+                widget.section == 'eating'
+                    ? 'eating_style'
+                    : widget.section == 'medical'
+                    ? 'medical_restrictions'
+                    : 'therapeutic_protocols',
+              ),
             ),
-          ),
-          Text(
-            context.t('diet_profiles_help'),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            Text(
+              context.t('diet_profiles_help'),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
-          for (final diet in selectable.where((diet) {
-            if (widget.section == 'medical') return diet.medical;
-            if (widget.section == 'therapeutic') {
-              return {'gluten-free', 'rad'}.contains(diet.slug);
-            }
-            return !diet.medical &&
-                !{'gluten-free', 'rad'}.contains(diet.slug);
-          })) ...[
+            const SizedBox(height: 14),
+            for (final diet in selectable.where((diet) {
+              if (widget.section == 'medical') return diet.medical;
+              if (widget.section == 'therapeutic') {
+                return {'gluten-free', 'rad'}.contains(diet.slug);
+              }
+              return !diet.medical &&
+                  !{'gluten-free', 'rad'}.contains(diet.slug);
+            })) ...[
+              EatMeSelectionRow(
+                key: ValueKey('diet-${diet.slug}'),
+                icon: diet.medical ? EatMeGlyph.shield : EatMeGlyph.leaf,
+                title: localized(diet.name, context.language),
+                subtitle: diet.medical
+                    ? context.t('self_declared_health_profile')
+                    : context.t('lifestyle_profile'),
+                selected: strictness.containsKey(diet.id),
+                onTap: () => toggleDiet(diet),
+              ),
+              if (strictness.containsKey(diet.id))
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 6, 8, 14),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      _ActionPill(
+                        label: context.t('strictness_value', {
+                          'value': context.t(strictness[diet.id]!),
+                        }),
+                        icon: EatMeGlyph.slidersHorizontal,
+                        onTap: () => chooseStrictness(diet),
+                      ),
+                      _ActionPill(
+                        label: primaryDiet == diet.id
+                            ? context.t('primary_profile')
+                            : context.t('make_primary'),
+                        icon: primaryDiet == diet.id
+                            ? EatMeGlyph.circleCheck
+                            : EatMeGlyph.badgeCheck,
+                        selected: primaryDiet == diet.id,
+                        onTap: () => setState(() => primaryDiet = diet.id),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                const SizedBox(height: 10),
+            ],
+          ],
+          if ({'allergies', 'sensitivities'}.contains(widget.section)) ...[
+            const SizedBox(height: 14),
+            SectionHeading(title: context.t('allergies_intolerances')),
+            Text(
+              context.t('hard_safety_help'),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 14),
+            if (widget.section == 'allergies')
+              SettingsGroup(
+                title: context.t('allergies'),
+                children: [
+                  _ChoiceWrap(
+                    values: state.allergens,
+                    selected: allergies,
+                    label: (value) => context.t('allergen_$value'),
+                    keyPrefix: 'allergen',
+                    onChanged: (value, selected) => setState(() {
+                      selected ? allergies.add(value) : allergies.remove(value);
+                      if (selected) healthAcknowledged = false;
+                    }),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    context.t('trace_policy_help'),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 8),
+                  _ChoiceWrap(
+                    values: const ['ignore', 'review', 'block'],
+                    selected: {tracePolicy},
+                    label: (value) => context.t('trace_policy_$value'),
+                    keyPrefix: 'trace-policy',
+                    onChanged: (value, selected) {
+                      if (selected) setState(() => tracePolicy = value);
+                    },
+                  ),
+                ],
+              ),
+            if (widget.section == 'sensitivities')
+              SettingsGroup(
+                title: context.t('intolerances'),
+                children: [
+                  _ChoiceWrap(
+                    values: state.intolerances,
+                    selected: intolerances,
+                    label: (value) => context.t('intolerance_$value'),
+                    keyPrefix: 'intolerance',
+                    onChanged: (value, selected) => setState(() {
+                      selected
+                          ? intolerances.add(value)
+                          : intolerances.remove(value);
+                      if (selected) healthAcknowledged = false;
+                    }),
+                  ),
+                ],
+              ),
+            if (widget.section == 'sensitivities')
+              SettingsGroup(
+                title: context.t('sensitivities'),
+                children: [
+                  Text(
+                    context.t('sensitivities_help'),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  _ChoiceWrap(
+                    values: state.sensitivities,
+                    selected: sensitivities,
+                    label: (value) => context.t('sensitivity_$value'),
+                    keyPrefix: 'sensitivity',
+                    onChanged: (value, selected) => setState(() {
+                      selected
+                          ? sensitivities.add(value)
+                          : sensitivities.remove(value);
+                      if (selected) healthAcknowledged = false;
+                    }),
+                  ),
+                ],
+              ),
+            if (restrictionsRecorded)
+              InformationPanel(
+                tinted: false,
+                child: EatMeToggleRow(
+                  key: const ValueKey('health-acknowledgement'),
+                  title: context.t('health_consent'),
+                  subtitle: context.t('health_consent_direct_body'),
+                  icon: EatMeGlyph.lock,
+                  value: healthAcknowledged,
+                  onChanged: (value) =>
+                      setState(() => healthAcknowledged = value),
+                ),
+              ),
+          ],
+          if (widget.section == 'medical') ...[
+            const SizedBox(height: 22),
+            SectionHeading(title: context.t('medical_awareness')),
+            Text(
+              context.t('medical_awareness_help'),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 14),
+            InformationPanel(
+              tinted: false,
+              child: _ChoiceWrap(
+                values: state.medicalAwareness,
+                selected: medicalAwareness,
+                label: (value) => context.t('medical_$value'),
+                keyPrefix: 'medical-awareness',
+                onChanged: (value, selected) => setState(() {
+                  selected
+                      ? medicalAwareness.add(value)
+                      : medicalAwareness.remove(value);
+                  if (selected) medicalAcknowledged = false;
+                }),
+              ),
+            ),
+            if (selectedMedical) ...[
+              const SizedBox(height: 10),
+              InformationPanel(
+                tinted: false,
+                child: EatMeToggleRow(
+                  key: const ValueKey('medical-acknowledgement'),
+                  title: context.t('medical_profile_acknowledgement'),
+                  subtitle: context.t('medical_profile_acknowledgement_body'),
+                  icon: EatMeGlyph.shield,
+                  value: medicalAcknowledged,
+                  onChanged: (value) =>
+                      setState(() => medicalAcknowledged = value),
+                ),
+              ),
+            ],
+          ],
+          if (widget.section == 'ethics') ...[
+            const SizedBox(height: 22),
+            SectionHeading(title: context.t('ethical_religious')),
+            Text(
+              context.t('ethical_religious_help'),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 14),
+            InformationPanel(
+              tinted: false,
+              child: _ChoiceWrap(
+                values: state.ethicalPreferences,
+                selected: ethicalPreferences,
+                label: (value) => context.t('ethical_$value'),
+                keyPrefix: 'ethical',
+                onChanged: (value, selected) => setState(
+                  () => selected
+                      ? ethicalPreferences.add(value)
+                      : ethicalPreferences.remove(value),
+                ),
+              ),
+            ),
+          ],
+          if (widget.section == 'timing') ...[
+            const SizedBox(height: 22),
+            SectionHeading(title: context.t('meal_timing')),
+            Text(
+              context.t('meal_timing_help'),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 14),
             EatMeSelectionRow(
-              key: ValueKey('diet-${diet.slug}'),
-              icon: diet.medical ? EatMeGlyph.shield : EatMeGlyph.leaf,
-              title: localized(diet.name, context.language),
-              subtitle: diet.medical
-                  ? context.t('self_declared_health_profile')
-                  : context.t('lifestyle_profile'),
-              selected: strictness.containsKey(diet.id),
-              onTap: () => toggleDiet(diet),
+              key: const ValueKey('meal-timing-standard'),
+              icon: EatMeGlyph.clock,
+              title: context.t('meal_timing_standard'),
+              subtitle: context.t('meal_timing_standard_body'),
+              selected: mealTimingMode == 'standard',
+              onTap: () => setState(() => mealTimingMode = 'standard'),
             ),
-            if (strictness.containsKey(diet.id))
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 6, 8, 14),
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  crossAxisAlignment: WrapCrossAlignment.center,
+            const SizedBox(height: 10),
+            EatMeSelectionRow(
+              key: const ValueKey('meal-timing-window'),
+              icon: EatMeGlyph.timer,
+              title: context.t('meal_timing_window'),
+              subtitle: context.t('meal_timing_window_body'),
+              selected: mealTimingMode == 'time_restricted',
+              onTap: () => setState(() => mealTimingMode = 'time_restricted'),
+            ),
+            if (mealTimingMode != 'standard') ...[
+              const SizedBox(height: 10),
+              _ChoiceWrap(
+                values: const ['12:12', '14:10', '16:8', '18:6', 'custom'],
+                selected: {mealPreset},
+                label: (value) =>
+                    value == 'custom' ? context.t('custom_schedule') : value,
+                keyPrefix: 'meal-preset',
+                onChanged: (value, selected) {
+                  if (!selected) return;
+                  setState(() {
+                    mealPreset = value;
+                    final window = {
+                      '12:12': ('08:00', '20:00'),
+                      '14:10': ('10:00', '20:00'),
+                      '16:8': ('12:00', '20:00'),
+                      '18:6': ('14:00', '20:00'),
+                    }[value];
+                    if (window != null) {
+                      mealStart = window.$1;
+                      mealEnd = window.$2;
+                    }
+                  });
+                },
+              ),
+              const SizedBox(height: 10),
+              InformationPanel(
+                tinted: false,
+                child: Row(
                   children: [
-                    _ActionPill(
-                      label: context.t('strictness_value', {
-                        'value': context.t(strictness[diet.id]!),
-                      }),
-                      icon: EatMeGlyph.slidersHorizontal,
-                      onTap: () => chooseStrictness(diet),
+                    Expanded(
+                      child: _ActionPill(
+                        label: context.t('window_start', {'time': mealStart}),
+                        icon: EatMeGlyph.clock,
+                        onTap: () => chooseMealTime(start: true),
+                      ),
                     ),
-                    _ActionPill(
-                      label: primaryDiet == diet.id
-                          ? context.t('primary_profile')
-                          : context.t('make_primary'),
-                      icon: primaryDiet == diet.id
-                          ? EatMeGlyph.circleCheck
-                          : EatMeGlyph.badgeCheck,
-                      selected: primaryDiet == diet.id,
-                      onTap: () => setState(() => primaryDiet = diet.id),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _ActionPill(
+                        label: context.t('window_end', {'time': mealEnd}),
+                        icon: EatMeGlyph.clock,
+                        onTap: () => chooseMealTime(start: false),
+                      ),
                     ),
                   ],
                 ),
-              )
-            else
-              const SizedBox(height: 10),
-          ],
-          ],
-          if ({'allergies', 'sensitivities'}.contains(widget.section)) ...[
-          const SizedBox(height: 14),
-          SectionHeading(title: context.t('allergies_intolerances')),
-          Text(
-            context.t('hard_safety_help'),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 14),
-          if (widget.section == 'allergies') SettingsGroup(
-            title: context.t('allergies'),
-            children: [
-              _ChoiceWrap(
-                values: state.allergens,
-                selected: allergies,
-                label: (value) => context.t('allergen_$value'),
-                keyPrefix: 'allergen',
-                onChanged: (value, selected) => setState(() {
-                  selected ? allergies.add(value) : allergies.remove(value);
-                  if (selected) healthAcknowledged = false;
-                }),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                context.t('trace_policy_help'),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              const SizedBox(height: 8),
-              _ChoiceWrap(
-                values: const ['ignore', 'review', 'block'],
-                selected: {tracePolicy},
-                label: (value) => context.t('trace_policy_$value'),
-                keyPrefix: 'trace-policy',
-                onChanged: (value, selected) {
-                  if (selected) setState(() => tracePolicy = value);
-                },
               ),
             ],
-          ),
-          if (widget.section == 'sensitivities') SettingsGroup(
-            title: context.t('intolerances'),
-            children: [
-              _ChoiceWrap(
-                values: state.intolerances,
-                selected: intolerances,
-                label: (value) => context.t('intolerance_$value'),
-                keyPrefix: 'intolerance',
-                onChanged: (value, selected) => setState(() {
-                  selected
-                      ? intolerances.add(value)
-                      : intolerances.remove(value);
-                  if (selected) healthAcknowledged = false;
-                }),
-              ),
-            ],
-          ),
-          if (widget.section == 'sensitivities') SettingsGroup(
-            title: context.t('sensitivities'),
-            children: [
-              Text(
-                context.t('sensitivities_help'),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              _ChoiceWrap(
-                values: state.sensitivities,
-                selected: sensitivities,
-                label: (value) => context.t('sensitivity_$value'),
-                keyPrefix: 'sensitivity',
-                onChanged: (value, selected) => setState(() {
-                  selected
-                      ? sensitivities.add(value)
-                      : sensitivities.remove(value);
-                  if (selected) healthAcknowledged = false;
-                }),
-              ),
-            ],
-          ),
-          if (restrictionsRecorded)
+            const SizedBox(height: 12),
             InformationPanel(
               tinted: false,
-              child: EatMeToggleRow(
-                key: const ValueKey('health-acknowledgement'),
-                title: context.t('health_consent'),
-                subtitle: context.t('health_consent_direct_body'),
-                icon: EatMeGlyph.lock,
-                value: healthAcknowledged,
-                onChanged: (value) =>
-                    setState(() => healthAcknowledged = value),
-              ),
-            ),
-          ],
-          if (widget.section == 'medical') ...[
-          const SizedBox(height: 22),
-          SectionHeading(title: context.t('medical_awareness')),
-          Text(
-            context.t('medical_awareness_help'),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 14),
-          InformationPanel(
-            tinted: false,
-            child: _ChoiceWrap(
-              values: state.medicalAwareness,
-              selected: medicalAwareness,
-              label: (value) => context.t('medical_$value'),
-              keyPrefix: 'medical-awareness',
-              onChanged: (value, selected) => setState(() {
-                selected
-                    ? medicalAwareness.add(value)
-                    : medicalAwareness.remove(value);
-                if (selected) medicalAcknowledged = false;
-              }),
-            ),
-          ),
-          if (selectedMedical) ...[
-            const SizedBox(height: 10),
-            InformationPanel(
-              tinted: false,
-              child: EatMeToggleRow(
-                key: const ValueKey('medical-acknowledgement'),
-                title: context.t('medical_profile_acknowledgement'),
-                subtitle: context.t('medical_profile_acknowledgement_body'),
-                icon: EatMeGlyph.shield,
-                value: medicalAcknowledged,
-                onChanged: (value) =>
-                    setState(() => medicalAcknowledged = value),
-              ),
-            ),
-          ],
-          ],
-          if (widget.section == 'ethics') ...[
-          const SizedBox(height: 22),
-          SectionHeading(title: context.t('ethical_religious')),
-          Text(
-            context.t('ethical_religious_help'),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 14),
-          InformationPanel(
-            tinted: false,
-            child: _ChoiceWrap(
-              values: state.ethicalPreferences,
-              selected: ethicalPreferences,
-              label: (value) => context.t('ethical_$value'),
-              keyPrefix: 'ethical',
-              onChanged: (value, selected) => setState(
-                () => selected
-                    ? ethicalPreferences.add(value)
-                    : ethicalPreferences.remove(value),
-              ),
-            ),
-          ),
-          ],
-          if (widget.section == 'timing') ...[
-          const SizedBox(height: 22),
-          SectionHeading(title: context.t('meal_timing')),
-          Text(
-            context.t('meal_timing_help'),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 14),
-          EatMeSelectionRow(
-            key: const ValueKey('meal-timing-standard'),
-            icon: EatMeGlyph.clock,
-            title: context.t('meal_timing_standard'),
-            subtitle: context.t('meal_timing_standard_body'),
-            selected: mealTimingMode == 'standard',
-            onTap: () => setState(() => mealTimingMode = 'standard'),
-          ),
-          const SizedBox(height: 10),
-          EatMeSelectionRow(
-            key: const ValueKey('meal-timing-window'),
-            icon: EatMeGlyph.timer,
-            title: context.t('meal_timing_window'),
-            subtitle: context.t('meal_timing_window_body'),
-            selected: mealTimingMode == 'time_restricted',
-            onTap: () => setState(() => mealTimingMode = 'time_restricted'),
-          ),
-          if (mealTimingMode != 'standard') ...[
-            const SizedBox(height: 10),
-            _ChoiceWrap(
-              values: const ['12:12', '14:10', '16:8', '18:6', 'custom'],
-              selected: {mealPreset},
-              label: (value) => value == 'custom'
-                  ? context.t('custom_schedule')
-                  : value,
-              keyPrefix: 'meal-preset',
-              onChanged: (value, selected) {
-                if (!selected) return;
-                setState(() {
-                  mealPreset = value;
-                  final window = {
-                    '12:12': ('08:00', '20:00'),
-                    '14:10': ('10:00', '20:00'),
-                    '16:8': ('12:00', '20:00'),
-                    '18:6': ('14:00', '20:00'),
-                  }[value];
-                  if (window != null) {
-                    mealStart = window.$1;
-                    mealEnd = window.$2;
-                  }
-                });
-              },
-            ),
-            const SizedBox(height: 10),
-            InformationPanel(
-              tinted: false,
-              child: Row(
+              child: Column(
                 children: [
-                  Expanded(
-                    child: _ActionPill(
-                      label: context.t('window_start', {'time': mealStart}),
-                      icon: EatMeGlyph.clock,
-                      onTap: () => chooseMealTime(start: true),
+                  for (final slot in mealSlots.keys)
+                    EatMeToggleRow(
+                      title: context.t(slot),
+                      icon: EatMeGlyph.utensils,
+                      value: mealSlots[slot]!,
+                      onChanged: (value) =>
+                          setState(() => mealSlots[slot] = value),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _ActionPill(
-                      label: context.t('window_end', {'time': mealEnd}),
-                      icon: EatMeGlyph.clock,
-                      onTap: () => chooseMealTime(start: false),
-                    ),
-                  ),
                 ],
               ),
             ),
           ],
-          const SizedBox(height: 12),
-          InformationPanel(
-            tinted: false,
-            child: Column(
-              children: [
-                for (final slot in mealSlots.keys)
-                  EatMeToggleRow(
-                    title: context.t(slot),
-                    icon: EatMeGlyph.utensils,
-                    value: mealSlots[slot]!,
-                    onChanged: (value) =>
-                        setState(() => mealSlots[slot] = value),
-                  ),
-              ],
-            ),
-          ),
-          ],
           if (widget.section == 'exclusions') ...[
-          const SizedBox(height: 14),
-          SectionHeading(title: context.t('excluded_foods')),
-          Text(
-            context.t('excluded_foods_help'),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 14),
-          InformationPanel(
-            tinted: false,
-            child: _ChoiceWrap(
-              values: state.foods.map((food) => food.id).toList(),
-              selected: exclusions,
-              label: (value) => localized(
-                state.foods.firstWhere((food) => food.id == value).name,
-                context.language,
-              ),
-              keyPrefix: 'exclude',
-              onChanged: (value, selected) => setState(
-                () =>
-                    selected ? exclusions.add(value) : exclusions.remove(value),
+            const SizedBox(height: 14),
+            SectionHeading(title: context.t('excluded_foods')),
+            Text(
+              context.t('excluded_foods_help'),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
-          ),
+            const SizedBox(height: 14),
+            InformationPanel(
+              tinted: false,
+              child: _ChoiceWrap(
+                values: state.foods.map((food) => food.id).toList(),
+                selected: exclusions,
+                label: (value) => localized(
+                  state.foods.firstWhere((food) => food.id == value).name,
+                  context.language,
+                ),
+                keyPrefix: 'exclude',
+                onChanged: (value, selected) => setState(
+                  () => selected
+                      ? exclusions.add(value)
+                      : exclusions.remove(value),
+                ),
+              ),
+            ),
           ],
           if (widget.section == 'unknown') ...[
-          const SizedBox(height: 14),
-          SectionHeading(title: context.t('unknown_ingredients')),
-          Text(
-            context.t('unknown_ingredients_help'),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            const SizedBox(height: 14),
+            SectionHeading(title: context.t('unknown_ingredients')),
+            Text(
+              context.t('unknown_ingredients_help'),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
-          EatMeSelectionRow(
-            key: const ValueKey('unknown-strict'),
-            icon: EatMeGlyph.shield,
-            title: context.t('unknown_policy_strict'),
-            subtitle: context.t('unknown_policy_strict_body'),
-            selected: unknownPolicy == 'strict',
-            onTap: () => setState(() => unknownPolicy = 'strict'),
-          ),
-          const SizedBox(height: 10),
-          EatMeSelectionRow(
-            key: const ValueKey('unknown-review'),
-            icon: EatMeGlyph.search,
-            title: context.t('unknown_policy_review'),
-            subtitle: context.t('unknown_policy_review_body'),
-            selected: unknownPolicy == 'review',
-            onTap: () => setState(() => unknownPolicy = 'review'),
-          ),
+            const SizedBox(height: 14),
+            EatMeSelectionRow(
+              key: const ValueKey('unknown-strict'),
+              icon: EatMeGlyph.shield,
+              title: context.t('unknown_policy_strict'),
+              subtitle: context.t('unknown_policy_strict_body'),
+              selected: unknownPolicy == 'strict',
+              onTap: () => setState(() => unknownPolicy = 'strict'),
+            ),
+            const SizedBox(height: 10),
+            EatMeSelectionRow(
+              key: const ValueKey('unknown-review'),
+              icon: EatMeGlyph.search,
+              title: context.t('unknown_policy_review'),
+              subtitle: context.t('unknown_policy_review_body'),
+              selected: unknownPolicy == 'review',
+              onTap: () => setState(() => unknownPolicy = 'review'),
+            ),
           ],
           const SizedBox(height: 28),
           AsyncAction(

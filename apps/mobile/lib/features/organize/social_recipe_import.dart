@@ -217,9 +217,7 @@ class _ImportRecipePageState extends ConsumerState<ImportRecipePage> {
           if (remaining != null) ...[
             const SizedBox(height: 14),
             StatusBadge(
-              label: context.t('smart_imports_remaining', {
-                'count': remaining,
-              }),
+              label: context.t('smart_imports_remaining', {'count': remaining}),
               icon: EatMeGlyph.badgeCheck,
               warning: remaining == 0,
             ),

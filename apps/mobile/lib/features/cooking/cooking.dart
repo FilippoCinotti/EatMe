@@ -357,7 +357,9 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
                                     context,
                                   ).textTheme.titleMedium,
                                 ),
-                                Text('${raw['quantity']} ${raw['food']['unit']}'),
+                                Text(
+                                  '${raw['quantity']} ${raw['food']['unit']}',
+                                ),
                               ],
                             ),
                           ),

@@ -472,34 +472,32 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                   ),
                 ),
             if (tab == 'nutrition') ...[
-                StatusNote(
-                  text: context.t(
-                    nutrients.isEmpty
-                        ? 'nutrition_unavailable'
-                        : 'nutrition_method',
-                  ),
+              StatusNote(
+                text: context.t(
+                  nutrients.isEmpty
+                      ? 'nutrition_unavailable'
+                      : 'nutrition_method',
                 ),
-                if (nutrients.isNotEmpty)
-                  Text('${nutrition?['servings']} ${context.t('servings')}'),
-                for (final nutrient in nutrients.entries)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: InformationPanel(
-                      tinted: false,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              context.t('nutrient_${nutrient.key}'),
-                            ),
-                          ),
-                          Text(
-                            '${nutrient.value['value']} ${nutrient.value['unit']}',
-                          ),
-                        ],
-                      ),
+              ),
+              if (nutrients.isNotEmpty)
+                Text('${nutrition?['servings']} ${context.t('servings')}'),
+              for (final nutrient in nutrients.entries)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: InformationPanel(
+                    tinted: false,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(context.t('nutrient_${nutrient.key}')),
+                        ),
+                        Text(
+                          '${nutrient.value['value']} ${nutrient.value['unit']}',
+                        ),
+                      ],
                     ),
                   ),
+                ),
             ],
             if ((plan['shortages'] as List).isNotEmpty)
               StatusNote(text: context.t('missing_ingredients_notice')),
