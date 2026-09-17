@@ -392,16 +392,21 @@ void main() {
         )
         .action();
     await tester.pumpAndSettle();
-    final call = api.calls.lastWhere(
-      (value) => value['method'] == 'PUT' && value['path'] == '/profile',
-    );
-    final body = Map<String, dynamic>.from(call['body'] as Map);
-    expect(body['unknown_ingredient_policy'], 'strict');
+    final calls = api.calls
+        .where(
+          (value) => value['method'] == 'PUT' && value['path'] == '/profile',
+        )
+        .toList();
+    final eatingBody = Map<String, dynamic>.from(calls.first['body'] as Map);
+    final unknownBody = Map<String, dynamic>.from(calls.last['body'] as Map);
     expect(
-      (body['diets'] as List).any((value) => value['diet_id'] == 'diet-vegan'),
+      (eatingBody['diets'] as List).any(
+        (value) => value['diet_id'] == 'diet-vegan',
+      ),
       isTrue,
     );
-    expect(body['never_suggest'], [visual.feta.id]);
+    expect(unknownBody['unknown_ingredient_policy'], 'strict');
+    expect(unknownBody['never_suggest'], [visual.feta.id]);
     expect(find.text('Diet & Health updated'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
