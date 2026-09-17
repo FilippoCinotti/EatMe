@@ -56,9 +56,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         List<String>.from(settings['sensitivities'] as List? ?? const []),
       );
       medicalAwareness.addAll(
-        List<String>.from(
-          settings['medical_awareness'] as List? ?? const [],
-        ),
+        List<String>.from(settings['medical_awareness'] as List? ?? const []),
       );
       final mealTiming = Map<String, dynamic>.from(
         settings['meal_timing'] as Map? ?? const {'mode': 'standard'},
@@ -88,9 +86,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
           sensitivities.isNotEmpty;
       medicalConsent =
           medicalAwareness.isNotEmpty ||
-          state.diets.any(
-            (diet) => diet.medical && selected.contains(diet.id),
-          );
+          state.diets.any((diet) => diet.medical && selected.contains(diet.id));
     } else {
       for (final diet in state.diets) {
         if (diet.slug == 'mediterranean' && diet.selectable) {
@@ -429,9 +425,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               title: context.t('meal_timing_window'),
               subtitle: context.t('meal_timing_window_body'),
               selected: mealTimingMode != 'standard',
-              onTap: () => setState(
-                () => mealTimingMode = 'time_restricted',
-              ),
+              onTap: () => setState(() => mealTimingMode = 'time_restricted'),
             ),
             if (mealTimingMode != 'standard') ...[
               const SizedBox(height: 14),
@@ -472,9 +466,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => chooseMealTime(start: false),
-                      child: Text(
-                        context.t('window_end', {'time': mealEnd}),
-                      ),
+                      child: Text(context.t('window_end', {'time': mealEnd})),
                     ),
                   ),
                 ],
@@ -550,7 +542,8 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   'sensitivities': sensitivities.toList(),
                   'medical_awareness': medicalAwareness.toList(),
                   'ethical_preferences': List<String>.from(
-                    preservedSettings['ethical_preferences'] as List? ?? const [],
+                    preservedSettings['ethical_preferences'] as List? ??
+                        const [],
                   ),
                   'trace_policy':
                       preservedSettings['trace_policy'] as String? ?? 'block',
