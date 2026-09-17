@@ -27,14 +27,17 @@ void main() {
     final pending = Completer<void>();
     int submissions = 0;
     await tester.pumpWidget(
-      harness(
-        AsyncAction(
-          key: const ValueKey('confirm-action'),
-          label: 'Conferma',
-          action: () {
-            submissions++;
-            return pending.future;
-          },
+      MaterialApp(
+        theme: Tokens.theme(Brightness.light),
+        home: Scaffold(
+          body: AsyncAction(
+            key: const ValueKey('confirm-action'),
+            label: 'Conferma',
+            action: () {
+              submissions++;
+              return pending.future;
+            },
+          ),
         ),
       ),
     );

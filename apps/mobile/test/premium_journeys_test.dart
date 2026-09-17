@@ -377,12 +377,7 @@ void main() {
     final unknownSection = find.byKey(
       const ValueKey('diet-section-unknown'),
     );
-    await tester.scrollUntilVisible(
-      unknownSection,
-      400,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.tap(unknownSection);
+    tester.widget<SettingRow>(unknownSection).onTap!();
     await tester.pumpAndSettle();
     final strictUnknown = find.byKey(const ValueKey('unknown-strict'));
     tester
