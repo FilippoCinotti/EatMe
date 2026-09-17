@@ -330,6 +330,17 @@ void main() {
       );
       await tester.pumpAndSettle();
       await capture(tester, boundary, 'eatme-plus-${dark ? 'dark' : 'light'}');
+      await tester.scrollUntilVisible(
+        find.text('Annual'),
+        360,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      await capture(
+        tester,
+        boundary,
+        'eatme-plus-pricing-${dark ? 'dark' : 'light'}',
+      );
 
       await tester.pumpWidget(
         support.harness(
