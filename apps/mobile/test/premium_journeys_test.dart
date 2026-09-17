@@ -235,62 +235,65 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(visual.loadFonts);
   for (final dark in [false, true]) {
-    testWidgets('launch and progressive onboarding ${dark ? 'dark' : 'light'}', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      final launchBoundary = GlobalKey();
-      await tester.pumpWidget(
-        support.harness(
-          RepaintBoundary(key: launchBoundary, child: const LaunchPage()),
-          JourneyApi(),
-          dark: dark,
-          controller: LaunchController.new,
-        ),
-      );
-      await tester.pump();
-      await capture(
-        tester,
-        launchBoundary,
-        'native-splash-reference-${dark ? 'dark' : 'light'}',
-      );
-
-      final onboardingBoundary = GlobalKey();
-      await tester.pumpWidget(
-        support.harness(
-          RepaintBoundary(
-            key: onboardingBoundary,
-            child: const OnboardingPage(),
+    testWidgets(
+      'launch and progressive onboarding ${dark ? 'dark' : 'light'}',
+      (tester) async {
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final launchBoundary = GlobalKey();
+        await tester.pumpWidget(
+          support.harness(
+            RepaintBoundary(key: launchBoundary, child: const LaunchPage()),
+            JourneyApi(),
+            dark: dark,
+            controller: LaunchController.new,
           ),
-          JourneyApi(),
-          dark: dark,
-          controller: JourneyController.new,
-        ),
-      );
-      await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(FilledButton, 'Continue').last);
-      await tester.pumpAndSettle();
-      for (final name in [
-        'onboarding-eating-style',
-        'onboarding-allergies',
-        'onboarding-sensitivities',
-        'onboarding-medical',
-        'onboarding-meal-timing',
-      ]) {
+        );
+        await tester.pump();
         await capture(
           tester,
-          onboardingBoundary,
-          '$name-${dark ? 'dark' : 'light'}',
+          launchBoundary,
+          'native-splash-reference-${dark ? 'dark' : 'light'}',
         );
-        if (name != 'onboarding-meal-timing') {
-          await tester.tap(find.widgetWithText(FilledButton, 'Continue').last);
-          await tester.pumpAndSettle();
+
+        final onboardingBoundary = GlobalKey();
+        await tester.pumpWidget(
+          support.harness(
+            RepaintBoundary(
+              key: onboardingBoundary,
+              child: const OnboardingPage(),
+            ),
+            JourneyApi(),
+            dark: dark,
+            controller: JourneyController.new,
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(FilledButton, 'Continue').last);
+        await tester.pumpAndSettle();
+        for (final name in [
+          'onboarding-eating-style',
+          'onboarding-allergies',
+          'onboarding-sensitivities',
+          'onboarding-medical',
+          'onboarding-meal-timing',
+        ]) {
+          await capture(
+            tester,
+            onboardingBoundary,
+            '$name-${dark ? 'dark' : 'light'}',
+          );
+          if (name != 'onboarding-meal-timing') {
+            await tester.tap(
+              find.widgetWithText(FilledButton, 'Continue').last,
+            );
+            await tester.pumpAndSettle();
+          }
         }
-      }
-    });
+      },
+    );
 
     testWidgets('EatMe+ and contextual paywall ${dark ? 'dark' : 'light'}', (
       tester,
