@@ -454,6 +454,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                         mealStart = window.$1;
                         mealEnd = window.$2;
                       }),
+                    ),
                 ],
               ),
               const SizedBox(height: 12),
