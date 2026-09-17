@@ -11,9 +11,30 @@ import '../../design_system/widgets.dart';
 import 'shared.dart';
 
 class SubscriptionsPage extends ConsumerStatefulWidget {
-  const SubscriptionsPage({super.key});
+  const SubscriptionsPage({super.key, this.illustrativePrices = const []});
+
+  /// Explicit screenshot/demo fixtures. Production pricing always comes from
+  /// the configured store offering and leaves this list empty.
+  @visibleForTesting
+  final List<IllustrativeStorePrice> illustrativePrices;
+
   @override
   ConsumerState<SubscriptionsPage> createState() => _SubscriptionsState();
+}
+
+@visibleForTesting
+class IllustrativeStorePrice {
+  const IllustrativeStorePrice({
+    required this.title,
+    required this.price,
+    required this.period,
+    this.savingsPercent,
+  });
+
+  final String title;
+  final String price;
+  final String period;
+  final int? savingsPercent;
 }
 
 class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
@@ -155,7 +176,42 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
       ])
         _BenefitRow(label: context.t(benefit.$1), icon: benefit.$2),
       const SizedBox(height: 20),
-      if (packages.isEmpty) StatusNote(text: context.t('no_offerings')),
+      if (packages.isEmpty && widget.illustrativePrices.isEmpty)
+        StatusNote(text: context.t('no_offerings')),
+      for (final price in widget.illustrativePrices)
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: InformationPanel(
+            tinted: price.savingsPercent != null,
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  price.title,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                if (price.savingsPercent != null) ...[
+                  const SizedBox(height: 8),
+                  StatusBadge(
+                    label: context.t('save_percent', {
+                      'percent': price.savingsPercent!,
+                    }),
+                    icon: EatMeGlyph.sparkles,
+                    emphasis: true,
+                  ),
+                ],
+                const SizedBox(height: 12),
+                Text('${price.price} · ${price.period}'),
+                const SizedBox(height: 16),
+                FilledButton(
+                  onPressed: () {},
+                  child: Text(context.t('try_eatme_plus')),
+                ),
+              ],
+            ),
+          ),
+        ),
       for (final package in packages)
         Padding(
           padding: const EdgeInsets.only(bottom: 12),
@@ -185,7 +241,8 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
                 Text(package.storeProduct.description),
                 const SizedBox(height: 16),
                 Text(
-                  '${package.storeProduct.priceString} · ${package.packageType.name}',
+                  '${package.storeProduct.priceString} · '
+                  '${context.t(package.packageType == PackageType.annual ? 'billing_annual' : 'billing_monthly')}',
                 ),
                 const SizedBox(height: 16),
                 AsyncAction(

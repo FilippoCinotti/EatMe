@@ -942,6 +942,8 @@
   "generated_shopping_with_plus": "Generate with EatMe+",
   "generated_shopping_plus_body": "Generate missing shopping items from your selected Plan and known Fridge inventory.",
   "save_percent": "Save {percent}%",
+  "billing_monthly": "Monthly",
+  "billing_annual": "Annual",
   "smart_plan_preview_title": "Review your week",
   "smart_plan_preview_body": "Nothing is added until you accept. Open a meal to review it or use its menu to swap it.",
   "accept_plan": "Accept plan",

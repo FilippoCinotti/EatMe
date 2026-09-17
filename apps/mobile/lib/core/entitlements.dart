@@ -73,38 +73,41 @@ Future<void> showContextualPlusPrompt(
   await showModalBottomSheet<void>(
     context: context,
     useSafeArea: true,
-    builder: (sheetContext) => Padding(
-      padding: const EdgeInsets.fromLTRB(22, 22, 22, 28),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.t('eatme_plus'),
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
+    builder: (sheetContext) => RepaintBoundary(
+      key: const ValueKey('contextual-plus-boundary'),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(22, 22, 22, 28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              context.t('eatme_plus'),
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            context.t('contextual_plus_title'),
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 8),
-          Text(context.t(benefit)),
-          const SizedBox(height: 20),
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(sheetContext);
-              context.push('/subscriptions');
-            },
-            child: Text(context.t('try_eatme_plus')),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(sheetContext),
-            child: Text(context.t('not_now')),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              context.t('contextual_plus_title'),
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(context.t(benefit)),
+            const SizedBox(height: 20),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(sheetContext);
+                context.push('/subscriptions');
+              },
+              child: Text(context.t('try_eatme_plus')),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(sheetContext),
+              child: Text(context.t('not_now')),
+            ),
+          ],
+        ),
       ),
     ),
   );

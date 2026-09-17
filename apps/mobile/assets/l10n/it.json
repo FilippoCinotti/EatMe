@@ -942,6 +942,8 @@
   "generated_shopping_with_plus": "Genera con EatMe+",
   "generated_shopping_plus_body": "Genera gli acquisti mancanti dal Piano selezionato e dall’inventario noto nel Frigo.",
   "save_percent": "Risparmia il {percent}%",
+  "billing_monthly": "Mensile",
+  "billing_annual": "Annuale",
   "smart_plan_preview_title": "Controlla la settimana",
   "smart_plan_preview_body": "Nulla viene aggiunto finché non accetti. Apri un pasto per controllarlo o usa il menu per sostituirlo.",
   "accept_plan": "Accetta piano",
