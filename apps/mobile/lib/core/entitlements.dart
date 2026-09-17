@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'api.dart';
 import 'localization.dart';
 import 'models.dart';
+import 'state.dart';
 
 abstract final class EntitlementCapability {
   static const unlimitedImports = 'canUseUnlimitedImports';

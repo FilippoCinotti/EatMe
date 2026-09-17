@@ -358,7 +358,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
                                     );
                                   }
                                 } else {
-                                  await replaceMeal(day, slot, meal!);
+                                  await replaceMeal(day, slot, meal);
                                 }
                               },
                               itemBuilder: (context) => [

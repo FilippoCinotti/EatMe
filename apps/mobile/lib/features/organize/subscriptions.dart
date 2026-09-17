@@ -175,7 +175,7 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
                     label: annualSavings(package) == null
                         ? context.t('recommended_value')
                         : context.t('save_percent', {
-                            'percent': annualSavings(package),
+                            'percent': annualSavings(package) ?? 0,
                           }),
                     icon: EatMeGlyph.sparkles,
                     emphasis: true,
