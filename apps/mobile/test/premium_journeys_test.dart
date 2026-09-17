@@ -386,7 +386,11 @@ void main() {
         )
         .onTap!();
     await tester.pump();
-    await tester.tap(find.byKey(const ValueKey('save-diet-health')));
+    await tester
+        .widget<AsyncAction>(
+          find.byKey(const ValueKey('save-diet-health')),
+        )
+        .action();
     await tester.pumpAndSettle();
     final call = api.calls.lastWhere(
       (value) => value['method'] == 'PUT' && value['path'] == '/profile',
