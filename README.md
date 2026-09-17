@@ -70,7 +70,7 @@ Register a development account in the app. Local authentication and demonstratio
 
 - **ChefTable:** decision-first, constraint-aware suggestions, recipe detail, social import, favorites, feedback and guided cooking.
 - **Fridge:** individual batches, quantities, locations, dates, stock events, barcode products, confirmed photo/receipt imports and leftovers.
-- **Plan:** week and meal slots, non-persistent Smart Plan preview, generated/manual Shopping List and confirmed purchase-to-Fridge reconciliation.
+- **Plan:** week and meal slots, Dinner events with private guest RSVP and group Diet-Fit, Smart Plan, Shopping and purchase-to-Fridge reconciliation.
 - **Profile:** dietary consent, household membership, preferences, reminders, export, deletion and offline synchronization.
 - **Diet & Health:** structured eating styles, allergies, intolerances, sensitivities, medical awareness, reviewed protocols, ethical/religious preferences, meal timing and explicit uncertainty.
 - **Editorial studio:** drafts, independent review, publication, deprecation, reports, feature flags and audit history.
@@ -85,6 +85,7 @@ The canonical catalog is deliberately small in development. Unknown ingredients 
 | `services/api/eatme` | Authentication boundary, domain services, recommendation engine and persistence |
 | `services/worker` | Durable processing jobs and media retention |
 | `apps/admin` | Editorial studio and public privacy/deletion pages |
+| `apps/guest` | No-login, localized Dinner RSVP web app |
 | `supabase/migrations` | Versioned PostgreSQL schema and access policies |
 | `services/api/tests` | Domain, HTTP, privacy, concurrency and processing tests |
 | `docs` | Product, architecture, setup, verification and release documentation |
@@ -96,5 +97,6 @@ Copy `.env.example` to a local environment file and load it with your process ma
 Read [local development](docs/development/local-setup.md), [provider setup](docs/development/providers.md), [release process](docs/releases/release-process.md), and [verification](docs/product/verification.md). Store publication requires live backend configuration, signing accounts, public legal/support resources and device validation; source delivery alone does not satisfy those gates.
 
 Product architecture and commercial boundaries are documented in [Food Decision Engine](docs/product/food-decision-engine.md), [Free vs EatMe+](docs/product/free-vs-eatme-plus.md), and [Diet & Health safety](docs/product/diet-health-safety.md).
+The frozen Dinner/Guest contract, privacy boundaries and release checks are documented in [Dinner and guest RSVP](docs/product/dinner-guests.md).
 
 All documentation, source comments and new GitHub review text are maintained in English. User-facing mobile strings support English and Italian.

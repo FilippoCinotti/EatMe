@@ -93,6 +93,10 @@ class HouseholdService:
                     if target == household_id:
                         raise DomainError("invalid_household", 422)
                     self._member(tx, user_id, target)
+                    tx.execute(
+                        "DELETE FROM dinners WHERE household_id=? AND host_user_id=?",
+                        (household_id, user_id),
+                    )
                     tx.execute("DELETE FROM household_members WHERE household_id=? AND user_id=?", (household_id, user_id))
                     tx.execute("DELETE FROM member_permissions WHERE household_id=? AND user_id=?", (household_id, user_id))
                     tx.execute("UPDATE profiles SET household_id=?,version=version+1 WHERE user_id=?", (target, user_id))

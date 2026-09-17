@@ -25,12 +25,37 @@ DO $$ BEGIN
   RAISE EXCEPTION 'Development session table exposed';
  EXCEPTION WHEN insufficient_privilege THEN NULL;
  END;
+ BEGIN
+  PERFORM * FROM dinners;
+  RAISE EXCEPTION 'Authenticated dinner access';
+ EXCEPTION WHEN insufficient_privilege THEN NULL;
+ END;
+ BEGIN
+  PERFORM * FROM dinner_invitations;
+  RAISE EXCEPTION 'Authenticated capability token access';
+ EXCEPTION WHEN insufficient_privilege THEN NULL;
+ END;
+ BEGIN
+  PERFORM * FROM dinner_guest_responses;
+  RAISE EXCEPTION 'Authenticated guest response access';
+ EXCEPTION WHEN insufficient_privilege THEN NULL;
+ END;
 END $$;
 SET LOCAL ROLE anon;
 DO $$ BEGIN
  BEGIN
   PERFORM * FROM profiles;
   RAISE EXCEPTION 'Anonymous profile access';
+ EXCEPTION WHEN insufficient_privilege THEN NULL;
+ END;
+ BEGIN
+  PERFORM * FROM dinners;
+  RAISE EXCEPTION 'Anonymous dinner access';
+ EXCEPTION WHEN insufficient_privilege THEN NULL;
+ END;
+ BEGIN
+  PERFORM * FROM dinner_invitations;
+  RAISE EXCEPTION 'Anonymous capability token access';
  EXCEPTION WHEN insufficient_privilege THEN NULL;
  END;
 END $$;

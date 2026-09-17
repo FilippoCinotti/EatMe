@@ -266,7 +266,18 @@ class LifecycleService:
             result['custom_foods'] = [decode(r['data']) for r in tx.all("SELECT f.data FROM foods f JOIN content_ownership o ON o.content_id=f.id AND o.kind='food' WHERE o.user_id=?", (user_id,))]
             result['media'] = tx.all('SELECT id,kind,mime_type,size_bytes,created_at,expires_at FROM media_objects WHERE user_id=?', (user_id,))
             result['shopping'] = self.shopping(user_id)['items'] if tx.postgres else tx.all('SELECT * FROM shopping_items WHERE household_id=?', (result['profile']['household_id'],))
-            result['format_version'] = 2
+            result['dinners'] = [
+                {**row, 'data': decode(row['data'])}
+                for row in tx.all('SELECT * FROM dinners WHERE host_user_id=? ORDER BY starts_at', (user_id,))
+            ]
+            result['dinner_memories'] = [
+                {**row, 'data': decode(row['data'])}
+                for row in tx.all(
+                    'SELECT m.* FROM dinner_memories m JOIN dinners d ON d.id=m.dinner_id WHERE d.host_user_id=?',
+                    (user_id,),
+                )
+            ]
+            result['format_version'] = 3
         return result
 
     def delete_account(self, user_id, *, retry=False):

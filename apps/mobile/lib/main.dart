@@ -12,6 +12,7 @@ import 'design_system/theme.dart';
 import 'design_system/widgets.dart';
 import 'features/organize/shopping.dart';
 import 'features/organize/planner.dart';
+import 'features/organize/dinners.dart';
 import 'features/organize/household.dart';
 import 'features/organize/leftovers.dart';
 import 'features/organize/recipe_library.dart';
@@ -94,6 +95,15 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/plan/shopping',
             builder: (_, _) => const ShoppingPage(),
+          ),
+          GoRoute(
+            path: '/plan/dinners',
+            builder: (_, _) => const DinnersPage(),
+          ),
+          GoRoute(
+            path: '/plan/dinners/:id',
+            builder: (_, state) =>
+                DinnerDetailPage(dinnerId: state.pathParameters['id']!),
           ),
           GoRoute(path: '/profile', builder: (_, _) => const ProfilePage()),
         ],

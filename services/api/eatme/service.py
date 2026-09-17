@@ -11,6 +11,7 @@ from .governance import GovernanceService
 from .content import ContentService
 from .households import HouseholdService
 from .planning import PlanningService
+from .dinners import DinnerService
 from .reference_features import ReferenceFeaturesService, GOALS
 from .auth import now
 from .catalog import ALLERGENS, ETHICAL_PREFERENCES, INTOLERANCES, MEDICAL_AWARENESS, SENSITIVITIES
@@ -45,7 +46,16 @@ def valid_date(value) -> str | None:
         raise DomainError("invalid_date",422) from None
 
 
-class Service(ReferenceFeaturesService, HouseholdService, PlanningService, ContentService, GovernanceService, IntelligenceService, LifecycleService):
+class Service(
+    ReferenceFeaturesService,
+    HouseholdService,
+    PlanningService,
+    DinnerService,
+    ContentService,
+    GovernanceService,
+    IntelligenceService,
+    LifecycleService,
+):
     def __init__(self, db: Database, *, clock=None, weights=None):
         self.db, self.clock, self.weights = db, clock, weights
 

@@ -10,6 +10,7 @@ import 'package:eatme/core/state.dart';
 import 'package:eatme/design_system/widgets.dart';
 import 'package:eatme/features/chef_table/chef_table.dart';
 import 'package:eatme/features/fridge/fridge.dart';
+import 'package:eatme/features/organize/dinners.dart';
 import 'package:eatme/features/organize/planner.dart';
 import 'package:eatme/features/profile/profile.dart';
 import 'package:eatme/main.dart';
@@ -135,6 +136,18 @@ class VisualApi extends support.TestApi {
     String? operationKey,
     bool allowCache = true,
   }) async {
+    if (method == 'GET' && path == '/dinners') {
+      return {
+        'items': [
+          {
+            'id': 'dinner-1',
+            'title': 'Dinner with friends',
+            'starts_at': '2030-09-20T17:00:00+00:00',
+            'status': 'planned',
+          },
+        ],
+      };
+    }
     if (method == 'GET' && path.startsWith('/recipes/')) {
       return {'favorite': false};
     }
@@ -187,6 +200,7 @@ void main() {
       ('chef', '/chef', const ChefTablePage()),
       ('fridge', '/fridge', const FridgePage()),
       ('plan', '/plan', const PlannerPage()),
+      ('dinners', '/plan/dinners', const DinnersPage()),
       ('profile', '/profile', const ProfilePage()),
     ]) {
       for (final scale in [1.0, 1.6]) {

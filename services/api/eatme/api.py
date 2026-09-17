@@ -96,6 +96,10 @@ def create_app(router=None):
         response.headers["X-Request-ID"] = str(uuid4())
         response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Robots-Tag"] = "noindex, nofollow"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
         return response
 
     @app.exception_handler(DomainError)
@@ -132,7 +136,26 @@ def create_app(router=None):
     @app.get("/api/v1/leftovers")
     @app.get("/api/v1/privacy/export")
     @app.get("/api/v1/admin/catalog")
+    @app.get("/api/v1/dinners")
+    @app.get("/api/v1/dinner-guests")
     def get_resource(request:Request):
+        return dispatch(request)
+
+    @app.get("/api/v1/dinners/{dinner_id}")
+    @app.get("/api/v1/dinners/{dinner_id}/adaptive-servings")
+    def dinner(dinner_id:str,request:Request):
+        return dispatch(request)
+
+    @app.get("/api/v1/guest/invites/{token}")
+    def guest_invite(token:str,request:Request):
+        return dispatch(request)
+
+    @app.put("/api/v1/guest/invites/{token}/response")
+    def guest_response(token:str,body:dict,request:Request):
+        return dispatch(request,body)
+
+    @app.delete("/api/v1/guest/invites/{token}/response")
+    def delete_guest_response(token:str,request:Request):
         return dispatch(request)
 
     @app.get("/api/v1/recipes/{recipe_id}")
@@ -183,7 +206,8 @@ def create_app(router=None):
     def domain_command(body:dict,request:Request):
         return dispatch(request,body)
 
-    for resource in ("shopping", "plans", "households", "preferences", "leftovers", "recipes", "jobs", "notifications", "admin/content", "reports", "inventory/metadata", "media", "recipes/import-url", "recipes/import-review", "analytics", "entitlements/refresh", "products/stock", "auth/apple-authorization"):
+    for resource in ("shopping", "plans", "dinners", "households", "preferences", "leftovers", "recipes", "jobs", "notifications", "admin/content", "reports", "inventory/metadata", "media", "recipes/import-url", "recipes/import-review", "analytics", "entitlements/refresh", "products/stock", "auth/apple-authorization"):
         app.add_api_route("/api/v1/"+resource, domain_command, methods=["POST"], name=resource+"_command")
+    app.add_api_route("/api/v1/dinners/{dinner_id}/invitations", domain_command, methods=["POST"], name="dinner_invitation_command")
     app.add_api_route("/api/v1/products/{code}", get_resource, methods=["GET"], name="product_lookup")
     return app

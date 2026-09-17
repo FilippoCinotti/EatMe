@@ -140,10 +140,12 @@ class _PlannerState extends ResourceState<PlannerPage> {
         EatMeTabStrip(
           values: [
             ('plan', context.t('my_plan')),
+            ('dinners', context.t('dinners')),
             ('shopping', context.t('shopping_list')),
           ],
           selected: 'plan',
           onSelected: (value) {
+            if (value == 'dinners') context.go('/plan/dinners');
             if (value == 'shopping') context.go('/plan/shopping');
           },
         ),

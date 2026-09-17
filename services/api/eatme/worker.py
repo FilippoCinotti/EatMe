@@ -20,6 +20,7 @@ def main():
         try:
             if time.monotonic() - last_cleanup > 60:
                 service.purge_expired_media()
+                service.cleanup_dinner_guests()
                 service.retry_account_deletions()
                 last_cleanup = time.monotonic()
             worked = service.run_next_job()

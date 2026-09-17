@@ -7,6 +7,10 @@ EatMe has exactly two tiers. RevenueCat and the platform stores remain authorita
 | Account, recipe library and manual recipes | Included | Included |
 | ChefTable basic recommendations | Included | Included |
 | Manual Fridge, Plan and Shopping List | Included | Included |
+| Dinner events, guests and RSVP links | Included | Included |
+| Dinner Diet-Fit and essential conflict visibility | Always included | Always included |
+| Dinner generated Shopping List | Contextual upgrade | Included |
+| Dinner timeline, adaptive servings and Meal Memory | Included | Included |
 | Diet & Health configuration | Included | Included |
 | Essential allergen/conflict visibility | Always included | Always included |
 | Social Recipe Import | Configurable lifetime allowance (default 3) | Unlimited |
@@ -19,7 +23,7 @@ EatMe has exactly two tiers. RevenueCat and the platform stores remain authorita
 
 The default Smart Import allowance is configured by `FREE_SMART_IMPORT_LIMIT`; it is not hard-coded in Flutter. A counter is consumed only after extraction succeeds. Private, deleted, unsupported or failed imports do not consume an experience.
 
-The entitlement response exposes a tier, named capabilities, limits, usage and remaining counts. Paid status is verified server-side from RevenueCat and cached briefly. Safety-critical information uses the independent `canSeeSafetyWarnings` capability, which is always true.
+The entitlement response exposes a tier, named capabilities, limits, usage and remaining counts. Paid status is verified server-side from RevenueCat and cached briefly. Safety-critical information uses the independent `canSeeSafetyWarnings` capability, which is always true. Dinner invitations, responses and Diet-Fit safety results never depend on a paid entitlement; only generated shopping reuses `canUseGeneratedShopping`.
 
 ## Pricing and trials
 
