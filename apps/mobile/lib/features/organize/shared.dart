@@ -93,18 +93,19 @@ Future<String?> askText(
   String initial = '',
   bool numeric = false,
 }) async {
-  final controller = TextEditingController(text: initial);
+  var value = initial;
   final result = await showDialog<String>(
     context: context,
     builder: (context) => AlertDialog(
       title: Text(label),
-      content: TextField(
-        controller: controller,
+      content: TextFormField(
+        initialValue: initial,
         autofocus: true,
         maxLength: 240,
         keyboardType: numeric
             ? const TextInputType.numberWithOptions(decimal: true)
             : TextInputType.text,
+        onChanged: (next) => value = next,
       ),
       actions: [
         TextButton(
@@ -112,13 +113,12 @@ Future<String?> askText(
           child: Text(context.t('cancel')),
         ),
         TextButton(
-          onPressed: () => Navigator.pop(context, controller.text.trim()),
+          onPressed: () => Navigator.pop(context, value.trim()),
           child: Text(context.t('save')),
         ),
       ],
     ),
   );
-  controller.dispose();
   return result;
 }
 
