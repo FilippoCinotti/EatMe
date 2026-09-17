@@ -19,6 +19,13 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(appProvider);
+    final name = (state.profile['name'] as String? ?? '').trim().split(' ').first;
+    final hour = DateTime.now().hour;
+    final greetingKey = hour < 12
+        ? 'good_morning'
+        : hour < 18
+        ? 'good_afternoon'
+        : 'good_evening';
     final settings = Map<String, dynamic>.from(
       state.profile['settings'] as Map? ?? {},
     );
@@ -77,9 +84,11 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
         onRefresh: () => ref.read(appProvider.notifier).refresh(),
         children: [
           EditorialHeader(
-            eyebrow: context.t('chef_eyebrow'),
-            title: context.t('chef_table'),
-            subtitle: context.t('chef_editorial'),
+            eyebrow: context.t('chef_table'),
+            title: name.isEmpty
+                ? context.t(greetingKey)
+                : context.t('${greetingKey}_name', {'name': name}),
+            subtitle: context.t('cook_tonight'),
             actions: [
               RoundAction(
                 icon: EatMeGlyph.bell,
@@ -93,19 +102,36 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
               ),
             ],
           ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (final value in [
+                  'for_you',
+                  'use_soon',
+                  'quick',
+                  'no_shopping',
+                  'health_first',
+                ]) ...[
+                  _ModePill(
+                    label: context.t(value),
+                    selected: state.mode == value,
+                    onTap: state.offline
+                        ? null
+                        : () => ref
+                              .read(appProvider.notifier)
+                              .refresh(mode: value),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
           SearchPill(
             hint: context.t('recipe_search_hint'),
             onChanged: (value) => setState(() => query = value),
             onFilter: () => sheet(context, const ChefFilters()),
-          ),
-          const SizedBox(height: 16),
-          _ProfileContext(
-            diets: activeDiets,
-            primaryDiet: settings['primary_diet'] as String?,
-            hardRestrictionCount: hardRestrictionCount,
-            unknownPolicy:
-                settings['unknown_ingredient_policy'] as String? ?? 'strict',
-            onManage: () => context.push('/diet-health'),
           ),
           const SizedBox(height: 22),
           if (state.error != null)
@@ -166,16 +192,12 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                               'date': expiryLabel(context, pickSoon),
                             }),
                     ),
-                  _Reason(
-                    icon: EatMeGlyph.timer,
-                    text: context.t('minutes_value', {
-                      'minutes': pick.recipe.minutes,
-                    }),
-                  ),
-                  if (activeDiets.isNotEmpty || hardRestrictionCount > 0)
+                  if (pick.useSoon.isEmpty)
                     _Reason(
-                      icon: EatMeGlyph.shieldCheck,
-                      text: context.t('no_known_active_rule_conflicts'),
+                      icon: EatMeGlyph.timer,
+                      text: context.t('minutes_value', {
+                        'minutes': pick.recipe.minutes,
+                      }),
                     ),
                   if (pick.warnings.isNotEmpty)
                     StatusNote(
@@ -184,6 +206,15 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                     ),
                 ],
               ),
+            ),
+            const SizedBox(height: 16),
+            _ProfileContext(
+              diets: activeDiets,
+              primaryDiet: settings['primary_diet'] as String?,
+              hardRestrictionCount: hardRestrictionCount,
+              unknownPolicy:
+                  settings['unknown_ingredient_policy'] as String? ?? 'strict',
+              onManage: () => context.push('/diet-health'),
             ),
           ],
           if (soon.isNotEmpty) ...[
@@ -225,19 +256,38 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                 final alternatives = OutlinedButton.icon(
                   onPressed: () => context.push('/recipe-library'),
                   icon: const EatMeIcon(EatMeGlyph.listFilter, size: 20),
-                  label: Text(context.t('see_alternatives')),
+                  label: Text(context.t('swap_recipe')),
+                );
+                final plan = TextButton.icon(
+                  onPressed: () => context.push(
+                    '/plan?recipe=${pick.recipe.id}',
+                  ),
+                  icon: const EatMeIcon(EatMeGlyph.calendarDays, size: 20),
+                  label: Text(context.t('plan_this')),
                 );
                 if (stack) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [cook, const SizedBox(height: 10), alternatives],
+                    children: [
+                      cook,
+                      const SizedBox(height: 10),
+                      alternatives,
+                      const SizedBox(height: 4),
+                      plan,
+                    ],
                   );
                 }
-                return Row(
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(flex: 6, child: cook),
-                    const SizedBox(width: 10),
-                    Expanded(flex: 4, child: alternatives),
+                    Row(
+                      children: [
+                        Expanded(flex: 6, child: cook),
+                        const SizedBox(width: 10),
+                        Expanded(flex: 4, child: alternatives),
+                      ],
+                    ),
+                    plan,
                   ],
                 );
               },
@@ -264,7 +314,7 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                     EatMeGlyph.heart,
                   ),
                   ('leftovers', '/leftovers', EatMeGlyph.packageOpen),
-                  ('meal_planner', '/planner', EatMeGlyph.calendarDays),
+                  ('meal_planner', '/plan', EatMeGlyph.calendarDays),
                 ]) ...[
                   CompactShortcut(
                     title: context.t(item.$1),
@@ -277,6 +327,48 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ModePill extends StatelessWidget {
+  const _ModePill({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Material(
+        color: selected ? scheme.primary : scheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(999),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(999),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 44),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: selected ? scheme.onPrimary : scheme.onSurface,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -602,7 +694,7 @@ class _KitchenToolsSheet extends StatelessWidget {
       for (final item in [
         ('favorites', '/recipe-library?favorites=true', EatMeGlyph.heart),
         ('leftovers', '/leftovers', EatMeGlyph.packageOpen),
-        ('meal_planner', '/planner', EatMeGlyph.calendarDays),
+        ('meal_planner', '/plan', EatMeGlyph.calendarDays),
         ('shopping_list', '/shopping', EatMeGlyph.shoppingBasket),
         ('recipe_library', '/recipe-library', EatMeGlyph.bookOpen),
         ('import_recipe', '/recipe-import', EatMeGlyph.sparkles),

@@ -493,7 +493,7 @@ class _InsightsState extends ResourceState<InsightsPage> {
         if (tab == 'tips') ...[
           StatusNote(text: context.t('practical_tips')),
           TextButton(
-            onPressed: () => context.push('/planner'),
+            onPressed: () => context.push('/plan'),
             child: Text(context.t('meal_planner')),
           ),
           TextButton(

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/api.dart';
+import '../../core/entitlements.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
@@ -39,8 +40,11 @@ bool _supportedUrl(String input) {
             uri.pathSegments.length == 2);
   }
   if (host == 'youtu.be') return uri.pathSegments.length == 1;
-  if (host != 'instagram.com' || uri.pathSegments.length != 2) return false;
-  return const {'p', 'reel', 'tv'}.contains(uri.pathSegments.first);
+  if (host == 'instagram.com') {
+    return uri.pathSegments.length == 2 &&
+        const {'p', 'reel', 'tv'}.contains(uri.pathSegments.first);
+  }
+  return host.contains('.') && uri.port == 443;
 }
 
 class SocialImportHeader extends StatelessWidget {
@@ -85,8 +89,14 @@ class SourceBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final youtube = platform == 'youtube';
+    final instagram = platform == 'instagram';
+    final label = youtube
+        ? 'youtube'
+        : instagram
+        ? 'instagram'
+        : 'recipe_website';
     return Semantics(
-      label: context.t(youtube ? 'youtube' : 'instagram'),
+      label: context.t(label),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
@@ -103,11 +113,17 @@ class SourceBadge extends StatelessWidget {
               decoration: BoxDecoration(
                 color: youtube
                     ? const Color(0xffd6332f)
-                    : Theme.of(context).colorScheme.primary,
+                    : instagram
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.secondary,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                youtube ? 'YT' : 'IG',
+                youtube
+                    ? 'YT'
+                    : instagram
+                    ? 'IG'
+                    : 'URL',
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 9,
@@ -118,7 +134,7 @@ class SourceBadge extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              context.t(youtube ? 'youtube' : 'instagram'),
+              context.t(label),
               style: Theme.of(context).textTheme.labelLarge,
             ),
           ],
@@ -178,6 +194,8 @@ class _ImportRecipePageState extends ConsumerState<ImportRecipePage> {
   @override
   Widget build(BuildContext context) {
     final offline = ref.watch(appProvider).offline;
+    final entitlement = ref.watch(entitlementsProvider).asData?.value;
+    final remaining = entitlement?.remainingFor('smart_import');
     return Scaffold(
       appBar: EatMeAppBar(title: Text(context.t('import_recipe'))),
       body: PageBody(
@@ -190,8 +208,22 @@ class _ImportRecipePageState extends ConsumerState<ImportRecipePage> {
           Wrap(
             spacing: 10,
             runSpacing: 10,
-            children: const [SourceBadge('youtube'), SourceBadge('instagram')],
+            children: const [
+              SourceBadge('youtube'),
+              SourceBadge('instagram'),
+              SourceBadge('web'),
+            ],
           ),
+          if (remaining != null) ...[
+            const SizedBox(height: 14),
+            StatusBadge(
+              label: context.t('smart_imports_remaining', {
+                'count': remaining,
+              }),
+              icon: EatMeGlyph.badgeCheck,
+              warning: remaining == 0,
+            ),
+          ],
           const SizedBox(height: 22),
           TextField(
             key: const Key('social_url'),
@@ -253,9 +285,16 @@ class _ImportRecipePageState extends ConsumerState<ImportRecipePage> {
           AsyncAction(
             key: const Key('start_social_import'),
             label: context.t('import_recipe'),
-            enabled: !offline,
+            enabled: !offline && remaining != 0,
             action: start,
           ),
+          if (remaining == 0) ...[
+            const SizedBox(height: 10),
+            OutlinedButton(
+              onPressed: () => context.push('/subscriptions'),
+              child: Text(context.t('unlock_eatme_plus')),
+            ),
+          ],
           const SizedBox(height: 18),
           Text(
             context.t('private_import_notice'),
@@ -299,6 +338,7 @@ class _ImportProcessingPageState extends ConsumerState<ImportProcessingPage> {
             body: {'url': widget.sourceUrl, 'private_use_confirmed': true},
           );
       if (!mounted || cancelled) return;
+      ref.invalidate(entitlementsProvider);
       await Navigator.pushReplacement<Json, Json>(
         context,
         MaterialPageRoute(
@@ -386,7 +426,15 @@ class _ImportProcessingPageState extends ConsumerState<ImportProcessingPage> {
         else ...[
           StatusNote(text: context.t(error!), warning: true),
           const SizedBox(height: 16),
-          AsyncAction(label: context.t('retry'), action: run),
+          if (error == 'smart_import_limit_reached')
+            AsyncAction(
+              label: context.t('unlock_eatme_plus'),
+              action: () async {
+                await context.push('/subscriptions');
+              },
+            )
+          else
+            AsyncAction(label: context.t('retry'), action: run),
         ],
         const SizedBox(height: 18),
         AsyncAction(

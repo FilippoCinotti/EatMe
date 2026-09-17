@@ -21,8 +21,18 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   bool adult = false, consent = false, medicalConsent = false;
   String strictness = 'standard', primaryGoal = 'eat_better';
   String unknownPolicy = 'strict';
+  String mealTimingMode = 'standard', mealStart = '10:00', mealEnd = '20:00';
+  String mealPreset = '14:10';
+  final Map<String, bool> mealSlots = {
+    'breakfast': true,
+    'lunch': true,
+    'dinner': true,
+    'snack': true,
+  };
   String? primaryDiet;
+  Json preservedSettings = {};
   final Set<String> selected = {}, allergies = {}, intolerances = {};
+  final Set<String> sensitivities = {}, medicalAwareness = {};
   final Set<String> neverSuggest = {};
   @override
   void initState() {
@@ -33,6 +43,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       name.text = profile['name'] as String? ?? '';
       size = profile['household_size'] as int? ?? 1;
       final settings = Map<String, dynamic>.from(profile['settings'] as Map);
+      preservedSettings = settings;
       timezone.text = settings['timezone'] as String;
       primaryGoal = settings['primary_goal'] as String? ?? 'eat_better';
       primaryDiet = settings['primary_diet'] as String?;
@@ -41,6 +52,27 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       );
       allergies.addAll(List<String>.from(settings['allergies'] as List));
       intolerances.addAll(List<String>.from(settings['intolerances'] as List));
+      sensitivities.addAll(
+        List<String>.from(settings['sensitivities'] as List? ?? const []),
+      );
+      medicalAwareness.addAll(
+        List<String>.from(
+          settings['medical_awareness'] as List? ?? const [],
+        ),
+      );
+      final mealTiming = Map<String, dynamic>.from(
+        settings['meal_timing'] as Map? ?? const {'mode': 'standard'},
+      );
+      mealTimingMode = mealTiming['mode'] as String? ?? 'standard';
+      mealStart = mealTiming['start'] as String? ?? '10:00';
+      mealEnd = mealTiming['end'] as String? ?? '20:00';
+      mealPreset = mealTiming['preset'] as String? ?? 'custom';
+      final storedSlots = Map<String, dynamic>.from(
+        mealTiming['slots'] as Map? ?? const {},
+      );
+      for (final slot in mealSlots.keys) {
+        mealSlots[slot] = storedSlots[slot] as bool? ?? true;
+      }
       neverSuggest.addAll(
         List<String>.from(settings['never_suggest'] as List? ?? const []),
       );
@@ -50,10 +82,15 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         strictness = settings['diets'][0]['strictness'] as String;
       }
       adult = true;
-      consent = allergies.isNotEmpty || intolerances.isNotEmpty;
-      medicalConsent = state.diets.any(
-        (diet) => diet.medical && selected.contains(diet.id),
-      );
+      consent =
+          allergies.isNotEmpty ||
+          intolerances.isNotEmpty ||
+          sensitivities.isNotEmpty;
+      medicalConsent =
+          medicalAwareness.isNotEmpty ||
+          state.diets.any(
+            (diet) => diet.medical && selected.contains(diet.id),
+          );
     } else {
       for (final diet in state.diets) {
         if (diet.slug == 'mediterranean' && diet.selectable) {
@@ -70,6 +107,22 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     super.dispose();
   }
 
+  Future<void> chooseMealTime({required bool start}) async {
+    final source = start ? mealStart : mealEnd;
+    final parts = source.split(':');
+    final selected = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(
+        hour: int.tryParse(parts.first) ?? 10,
+        minute: int.tryParse(parts.last) ?? 0,
+      ),
+    );
+    if (selected == null || !mounted) return;
+    final value =
+        '${selected.hour.toString().padLeft(2, '0')}:${selected.minute.toString().padLeft(2, '0')}';
+    setState(() => start ? mealStart = value : mealEnd = value);
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(appProvider);
@@ -79,7 +132,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         leading: step > 0
             ? IconButton(
                 tooltip: context.t('back'),
-                icon: const Icon(Icons.arrow_back),
+                icon: const EatMeIcon(EatMeGlyph.chevronLeft),
                 onPressed: () => setState(() => step--),
               )
             : null,
@@ -87,7 +140,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       body: PageBody(
         children: [
           Text(
-            context.t('step_count', {'current': step + 1, 'total': 3}),
+            context.t('step_count', {'current': step + 1, 'total': 6}),
             style: Theme.of(context).textTheme.labelLarge,
           ),
           const SizedBox(height: 24),
@@ -155,7 +208,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             const SizedBox(height: 12),
             Text(context.t('diet_hint')),
             const SizedBox(height: 24),
-            for (final diet in state.diets.where((d) => d.selectable))
+            for (final diet in state.diets.where(
+              (d) => d.selectable && !d.medical,
+            ))
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(localized(diet.name, context.language)),
@@ -205,89 +260,242 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   .toList(),
               onChanged: (s) => setState(() => strictness = s!),
             ),
-            ExpansionTile(
-              tilePadding: EdgeInsets.zero,
-              title: Text(context.t('medical_nutrition')),
-              children: [
-                StatusNote(text: context.t('medical_review_note')),
-                for (final diet in state.diets.where((d) => !d.selectable))
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(localized(diet.name, context.language)),
-                    subtitle: Text(context.t('requires_review')),
-                  ),
-              ],
-            ),
           ],
           if (step == 2) ...[
             Text(
-              context.t('restrictions_title'),
+              context.t('onboarding_allergies_title'),
               style: Theme.of(context).textTheme.displaySmall,
             ),
             const SizedBox(height: 12),
-            Text(context.t('restrictions_hint')),
+            Text(context.t('onboarding_allergies_body')),
             const SizedBox(height: 16),
-            ExpansionTile(
-              tilePadding: EdgeInsets.zero,
-              initiallyExpanded: allergies.isNotEmpty,
-              title: Text(context.t('allergies')),
-              subtitle: Text(
-                context.t('selected_count', {'count': allergies.length}),
-              ),
-              children: [
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: state.allergens
-                      .map(
-                        (a) => FilterChip(
-                          label: Text(context.t('allergen_$a')),
-                          selected: allergies.contains(a),
-                          onSelected: (v) => setState(() {
-                            if (v) {
-                              allergies.add(a);
-                            } else {
-                              allergies.remove(a);
-                            }
-                          }),
-                        ),
-                      )
-                      .toList(),
-                ),
-              ],
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: state.allergens
+                  .map(
+                    (a) => FilterChip(
+                      label: Text(context.t('allergen_$a')),
+                      selected: allergies.contains(a),
+                      onSelected: (v) => setState(() {
+                        v ? allergies.add(a) : allergies.remove(a);
+                        if (v) consent = false;
+                      }),
+                    ),
+                  )
+                  .toList(),
             ),
-            ExpansionTile(
-              tilePadding: EdgeInsets.zero,
-              title: Text(context.t('intolerances')),
-              initiallyExpanded: intolerances.isNotEmpty,
-              children: [
-                CheckboxListTile(
-                  title: Text(context.t('lactose')),
-                  value: intolerances.contains('lactose'),
-                  onChanged: (v) => setState(() {
-                    if (v == true) {
-                      intolerances.add('lactose');
-                    } else {
-                      intolerances.remove('lactose');
-                    }
-                  }),
-                ),
-              ],
-            ),
-            if (allergies.isNotEmpty || intolerances.isNotEmpty)
+            if (allergies.isNotEmpty) ...[
+              const SizedBox(height: 18),
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(context.t('health_consent')),
                 value: consent,
                 onChanged: (v) => setState(() => consent = v ?? false),
               ),
-            if (state.diets.any((d) => d.medical && selected.contains(d.id)))
+            ],
+          ],
+          if (step == 3) ...[
+            Text(
+              context.t('onboarding_sensitivities_title'),
+              style: Theme.of(context).textTheme.displaySmall,
+            ),
+            const SizedBox(height: 12),
+            Text(context.t('onboarding_sensitivities_body')),
+            const SizedBox(height: 18),
+            SectionHeading(title: context.t('intolerances')),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: state.intolerances
+                  .map(
+                    (value) => FilterChip(
+                      label: Text(context.t('intolerance_$value')),
+                      selected: intolerances.contains(value),
+                      onSelected: (enabled) => setState(() {
+                        enabled
+                            ? intolerances.add(value)
+                            : intolerances.remove(value);
+                        if (enabled) consent = false;
+                      }),
+                    ),
+                  )
+                  .toList(),
+            ),
+            const SizedBox(height: 18),
+            SectionHeading(title: context.t('sensitivities')),
+            Text(context.t('sensitivities_help')),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: state.sensitivities
+                  .map(
+                    (value) => FilterChip(
+                      label: Text(context.t('sensitivity_$value')),
+                      selected: sensitivities.contains(value),
+                      onSelected: (enabled) => setState(() {
+                        enabled
+                            ? sensitivities.add(value)
+                            : sensitivities.remove(value);
+                        if (enabled) consent = false;
+                      }),
+                    ),
+                  )
+                  .toList(),
+            ),
+            if (intolerances.isNotEmpty || sensitivities.isNotEmpty) ...[
+              const SizedBox(height: 18),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(context.t('health_consent')),
+                value: consent,
+                onChanged: (v) => setState(() => consent = v ?? false),
+              ),
+            ],
+          ],
+          if (step == 4) ...[
+            Text(
+              context.t('onboarding_medical_title'),
+              style: Theme.of(context).textTheme.displaySmall,
+            ),
+            const SizedBox(height: 12),
+            Text(context.t('onboarding_medical_body')),
+            const SizedBox(height: 18),
+            for (final diet in state.diets.where(
+              (d) => d.selectable && d.medical,
+            ))
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(localized(diet.name, context.language)),
+                subtitle: Text(context.t('self_declared_health_profile')),
+                value: selected.contains(diet.id),
+                onChanged: (enabled) => setState(() {
+                  enabled == true
+                      ? selected.add(diet.id)
+                      : selected.remove(diet.id);
+                  if (enabled == true) medicalConsent = false;
+                }),
+              ),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: state.medicalAwareness
+                  .map(
+                    (value) => FilterChip(
+                      label: Text(context.t('medical_$value')),
+                      selected: medicalAwareness.contains(value),
+                      onSelected: (enabled) => setState(() {
+                        enabled
+                            ? medicalAwareness.add(value)
+                            : medicalAwareness.remove(value);
+                        if (enabled) medicalConsent = false;
+                      }),
+                    ),
+                  )
+                  .toList(),
+            ),
+            if (medicalAwareness.isNotEmpty ||
+                state.diets.any(
+                  (d) => d.medical && selected.contains(d.id),
+                )) ...[
+              const SizedBox(height: 18),
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(context.t('medical_consent')),
                 value: medicalConsent,
                 onChanged: (v) => setState(() => medicalConsent = v ?? false),
               ),
+            ],
+          ],
+          if (step == 5) ...[
+            Text(
+              context.t('onboarding_timing_title'),
+              style: Theme.of(context).textTheme.displaySmall,
+            ),
+            const SizedBox(height: 12),
+            Text(context.t('meal_timing_help')),
+            const SizedBox(height: 18),
+            EatMeSelectionRow(
+              icon: EatMeGlyph.clock,
+              title: context.t('meal_timing_standard'),
+              subtitle: context.t('meal_timing_standard_body'),
+              selected: mealTimingMode == 'standard',
+              onTap: () => setState(() => mealTimingMode = 'standard'),
+            ),
+            const SizedBox(height: 10),
+            EatMeSelectionRow(
+              icon: EatMeGlyph.timer,
+              title: context.t('meal_timing_window'),
+              subtitle: context.t('meal_timing_window_body'),
+              selected: mealTimingMode != 'standard',
+              onTap: () => setState(
+                () => mealTimingMode = 'time_restricted',
+              ),
+            ),
+            if (mealTimingMode != 'standard') ...[
+              const SizedBox(height: 14),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final value in ['12:12', '14:10', '16:8', '18:6'])
+                    ChoiceChip(
+                      label: Text(value),
+                      selected: mealPreset == value,
+                      onSelected: (_) => setState(() {
+                        mealPreset = value;
+                        final window = {
+                          '12:12': ('08:00', '20:00'),
+                          '14:10': ('10:00', '20:00'),
+                          '16:8': ('12:00', '20:00'),
+                          '18:6': ('14:00', '20:00'),
+                        }[value]!;
+                        mealStart = window.$1;
+                        mealEnd = window.$2;
+                      }),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => chooseMealTime(start: true),
+                      child: Text(
+                        context.t('window_start', {'time': mealStart}),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => chooseMealTime(start: false),
+                      child: Text(
+                        context.t('window_end', {'time': mealEnd}),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 14),
+            InformationPanel(
+              tinted: false,
+              child: Column(
+                children: [
+                  for (final slot in mealSlots.keys)
+                    EatMeToggleRow(
+                      title: context.t(slot),
+                      icon: EatMeGlyph.utensils,
+                      value: mealSlots[slot]!,
+                      onChanged: (value) =>
+                          setState(() => mealSlots[slot] = value),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
             ExpansionTile(
               tilePadding: EdgeInsets.zero,
               title: Text(context.t('date_settings')),
@@ -300,12 +508,17 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             ),
           ],
           const SizedBox(height: 32),
-          if (step < 2)
+          if (step < 5) ...[
             FilledButton(
               onPressed: () => setState(() => step++),
               child: Text(context.t('continue')),
-            )
-          else
+            ),
+            if (step > 0)
+              TextButton(
+                onPressed: () => setState(() => step++),
+                child: Text(context.t('skip_for_now')),
+              ),
+          ] else
             AsyncAction(
               label: context.t(widget.edit ? 'save' : 'start_eatme'),
               action: () async {
@@ -313,7 +526,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                   setState(() => step = 0);
                   throw const ApiFailure('invalid_profile');
                 }
-                if ((allergies.isNotEmpty || intolerances.isNotEmpty) &&
+                if ((allergies.isNotEmpty ||
+                        intolerances.isNotEmpty ||
+                        sensitivities.isNotEmpty) &&
                     !consent) {
                   throw const ApiFailure('health_consent_required');
                 }
@@ -331,6 +546,20 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                       .toList(),
                   'allergies': allergies.toList(),
                   'intolerances': intolerances.toList(),
+                  'sensitivities': sensitivities.toList(),
+                  'medical_awareness': medicalAwareness.toList(),
+                  'ethical_preferences': List<String>.from(
+                    preservedSettings['ethical_preferences'] as List? ?? const [],
+                  ),
+                  'trace_policy':
+                      preservedSettings['trace_policy'] as String? ?? 'block',
+                  'meal_timing': {
+                    'mode': mealTimingMode,
+                    if (mealTimingMode != 'standard') 'start': mealStart,
+                    if (mealTimingMode != 'standard') 'end': mealEnd,
+                    if (mealTimingMode != 'standard') 'preset': mealPreset,
+                    'slots': mealSlots,
+                  },
                   'never_suggest': neverSuggest.toList(),
                   'unknown_ingredient_policy': unknownPolicy,
                   if (consent) 'health_consent_version': 'nutrition-profile-1',

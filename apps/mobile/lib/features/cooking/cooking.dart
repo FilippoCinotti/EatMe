@@ -154,7 +154,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                             ).colorScheme.primaryContainer,
                           ),
                         ),
-                        const Icon(Icons.timer_outlined, size: 32),
+                        const EatMeIcon(EatMeGlyph.timer, size: 32),
                       ],
                     ),
                   ),
@@ -182,7 +182,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                 ),
               OutlinedButton.icon(
                 onPressed: toggleTimer,
-                icon: const Icon(Icons.timer_outlined),
+                icon: const EatMeIcon(EatMeGlyph.timer),
                 label: Text(
                   remaining == 0
                       ? context.t('start_timer_minutes', {
@@ -328,17 +328,45 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
             Text(context.t('confirm_consumption_hint')),
             const SizedBox(height: 24),
             for (final raw in (plan['ingredients'] as List))
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(
-                  localized(
-                    Map<String, dynamic>.from(raw['food']['name'] as Map),
-                    context.language,
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: InformationPanel(
+                  tinted: false,
+                  padding: EdgeInsets.zero,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(22),
+                    onTap: () => adjust(Map<String, dynamic>.from(raw as Map)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          const EatMeIcon(EatMeGlyph.leaf, size: 20),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  localized(
+                                    Map<String, dynamic>.from(
+                                      raw['food']['name'] as Map,
+                                    ),
+                                    context.language,
+                                  ),
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium,
+                                ),
+                                Text('${raw['quantity']} ${raw['food']['unit']}'),
+                              ],
+                            ),
+                          ),
+                          const EatMeIcon(EatMeGlyph.pencil, size: 18),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-                subtitle: Text('${raw['quantity']} ${raw['food']['unit']}'),
-                trailing: const Icon(Icons.edit_outlined),
-                onTap: () => adjust(Map<String, dynamic>.from(raw as Map)),
               ),
             if (shortages)
               StatusNote(
@@ -401,6 +429,12 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
               },
             ),
             TextButton(
+              onPressed: () => context.go(
+                '/cooking-complete?recipe=${widget.recipeId}&leftovers=0',
+              ),
+              child: Text(context.t('skip_fridge_update')),
+            ),
+            TextButton(
               onPressed: () => setState(() => future = load()),
               child: Text(context.t('refresh_preview')),
             ),
@@ -424,8 +458,8 @@ class CookingCompletePage extends StatelessWidget {
     appBar: const EatMeAppBar(),
     body: PageBody(
       children: [
-        Icon(
-          Icons.check_circle_outline,
+        EatMeIcon(
+          EatMeGlyph.circleCheck,
           size: 88,
           color: Theme.of(context).colorScheme.primary,
         ),

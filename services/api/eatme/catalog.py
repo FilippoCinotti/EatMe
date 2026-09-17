@@ -13,7 +13,13 @@ def identifier(kind: str, slug: str) -> str:
 
 
 ALLERGENS = ["gluten", "crustaceans", "eggs", "fish", "peanut", "soy", "milk", "nuts",
-             "celery", "mustard", "sesame", "sulphites", "lupin", "molluscs"]
+             "wheat", "celery", "mustard", "sesame", "sulphites", "lupin", "molluscs",
+             "almond", "hazelnut", "walnut", "cashew", "pecan", "brazil_nut", "pistachio", "macadamia"]
+
+INTOLERANCES = ["lactose", "fructose", "sorbitol", "mannitol", "xylitol", "maltitol", "fructans", "gos"]
+SENSITIVITIES = ["caffeine", "alcohol", "spicy_food", "histamine"]
+MEDICAL_AWARENESS = ["ibs", "diabetes", "prediabetes", "renal", "hypertension", "hyperlipidemia", "gout", "gerd", "pku", "custom_clinician"]
+ETHICAL_PREFERENCES = ["halal", "kosher", "no_pork", "no_beef", "no_lamb", "no_shellfish", "no_alcohol", "no_alcohol_cooking", "no_gelatin", "religious_vegetarian", "ethical_vegan", "hindu_no_beef", "jain"]
 
 
 def seed_catalog(db: Database):
@@ -23,7 +29,7 @@ def seed_catalog(db: Database):
         ("spinach", "Spinaci", "Spinach", "vegetable", [], [], "g"),
         ("chickpea", "Ceci cotti", "Cooked chickpeas", "legume", [], [], "g"),
         ("rice", "Riso", "Rice", "grain", [], [], "g"),
-        ("pasta", "Pasta di frumento", "Wheat pasta", "grain", ["gluten"], [], "g"),
+        ("pasta", "Pasta di frumento", "Wheat pasta", "grain", ["gluten", "wheat"], [], "g"),
         ("olive-oil", "Olio di oliva", "Olive oil", "oil", [], [], "ml"),
         ("feta", "Feta", "Feta", "dairy", ["milk"], ["lactose"], "g"),
         ("chicken", "Petto di pollo", "Chicken breast", "meat", [], [], "g"),
@@ -52,6 +58,8 @@ def seed_catalog(db: Database):
     supported = [
         ("balanced", "Equilibrata", "Balanced", False, [],
          "A neutral profile with no additional food exclusions."),
+        ("omnivore", "Onnivora", "Omnivore", False, [],
+         "A neutral eating style with no additional food exclusions."),
         ("mediterranean", "Mediterranea", "Mediterranean", False,
          [{"type":"PREFER", "groups":["vegetable","legume"], "hard_constraint":False}],
          "Prioritises vegetables and legumes when compatible options are available."),
@@ -64,9 +72,21 @@ def seed_catalog(db: Database):
         ("pescatarian", "Pescetariana", "Pescatarian", False,
          [{"type":"EXCLUDE", "groups":["meat"], "hard_constraint":False}],
          "Excludes meat while retaining fish according to the selected strictness."),
+        ("flexitarian", "Flexitariana", "Flexitarian", False,
+         [{"type":"PREFER", "groups":["vegetable","legume"], "hard_constraint":False}],
+         "Prioritises plant foods without creating a hard meat exclusion."),
+        ("plant-forward", "A prevalenza vegetale", "Plant-forward", False,
+         [{"type":"PREFER", "groups":["vegetable","legume"], "hard_constraint":False}],
+         "Prioritises plant foods without claiming a vegan diet."),
+        ("low-carb", "Preferenza low-carb", "Low-carb preference", False, [],
+         "Records a preference only; no carbohydrate threshold is inferred."),
+        ("low-fat", "Preferenza low-fat", "Low-fat preference", False, [],
+         "Records a preference only; no fat threshold is inferred."),
         ("high-protein", "Proteica", "High protein", False,
          [{"type":"PREFER", "groups":["legume","meat","fish","egg","dairy"], "hard_constraint":False}],
          "A ranking preference based on catalog food groups, not a nutrient target."),
+        ("whole-food", "Alimenti poco processati", "Whole-food focused", False, [],
+         "Records a preference only when processing metadata is unavailable."),
         ("gluten-free", "Senza glutine", "Gluten free", False,
          [{"type":"EXCLUDE", "allergens":["gluten"], "hard_constraint":True}],
          "Blocks foods catalogued as containing gluten."),

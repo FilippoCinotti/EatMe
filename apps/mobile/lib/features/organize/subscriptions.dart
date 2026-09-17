@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/api.dart';
+import '../../core/entitlements.dart';
 import '../../core/localization.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
@@ -65,8 +66,23 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
   }
 
   Future<void> verify() async {
-    await ref.read(apiProvider).request('POST', '/entitlements/refresh');
+    await refreshEntitlements(ref);
     await load();
+  }
+
+  int? annualSavings(Package annual) {
+    final monthly = packages
+        .where((package) => package.packageType == PackageType.monthly)
+        .firstOrNull;
+    if (monthly == null ||
+        monthly.storeProduct.price <= 0 ||
+        annual.storeProduct.price <= 0) {
+      return null;
+    }
+    final fullYear = monthly.storeProduct.price * 12;
+    final percent = ((fullYear - annual.storeProduct.price) / fullYear * 100)
+        .round();
+    return percent > 0 ? percent : null;
   }
 
   @override
@@ -74,15 +90,78 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
     appBar: EatMeAppBar(title: Text(context.t('subscriptions'))),
     body: content([
       Text(
-        context.t('your_membership'),
+        context.t('eatme_plus').toUpperCase(),
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 2.2,
+        ),
+      ),
+      const SizedBox(height: 10),
+      Text(
+        context.t('eatme_plus_title'),
+        style: Theme.of(context).textTheme.displaySmall,
+      ),
+      const SizedBox(height: 10),
+      Text(
+        context.t('eatme_plus_body'),
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+      ),
+      const SizedBox(height: 24),
+      InformationPanel(
+        child: Row(
+          children: [
+            const EatMeIcon(EatMeGlyph.badgeCheck, size: 28),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.t(
+                      data?['tier'] == 'eatme_plus'
+                          ? 'eatme_plus_active'
+                          : 'free_plan_active',
+                    ),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(
+                    context.t(
+                      data?['tier'] == 'eatme_plus'
+                          ? 'eatme_plus_active_body'
+                          : 'free_plan_active_body',
+                    ),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 22),
+      Text(
+        context.t('eatme_plus_benefits'),
         style: Theme.of(context).textTheme.headlineMedium,
       ),
-      StatusNote(text: context.t('subscription_notice')),
+      const SizedBox(height: 10),
+      for (final benefit in [
+        ('benefit_import_anywhere', EatMeGlyph.sparkles),
+        ('benefit_adapt_to_you', EatMeGlyph.shieldCheck),
+        ('benefit_plan_week', EatMeGlyph.calendarDays),
+        ('benefit_less_admin', EatMeGlyph.refrigerator),
+      ])
+        _BenefitRow(label: context.t(benefit.$1), icon: benefit.$2),
+      const SizedBox(height: 20),
       if (packages.isEmpty) StatusNote(text: context.t('no_offerings')),
       for (final package in packages)
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: InformationPanel(
+            tinted: package.packageType == PackageType.annual,
+            padding: const EdgeInsets.all(22),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -90,6 +169,19 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
                   package.storeProduct.title,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
+                if (package.packageType == PackageType.annual) ...[
+                  const SizedBox(height: 8),
+                  StatusBadge(
+                    label: annualSavings(package) == null
+                        ? context.t('recommended_value')
+                        : context.t('save_percent', {
+                            'percent': annualSavings(package),
+                          }),
+                    icon: EatMeGlyph.sparkles,
+                    emphasis: true,
+                  ),
+                ],
+                const SizedBox(height: 10),
                 Text(package.storeProduct.description),
                 const SizedBox(height: 16),
                 Text(
@@ -97,7 +189,7 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
                 ),
                 const SizedBox(height: 16),
                 AsyncAction(
-                  label: context.t('subscribe'),
+                  label: context.t('try_eatme_plus'),
                   action: () async {
                     await Purchases.purchase(PurchaseParams.package(package));
                     await verify();
@@ -137,5 +229,38 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
             child: Text(context.t(link.$1)),
           ),
     ]),
+  );
+}
+
+class _BenefitRow extends StatelessWidget {
+  const _BenefitRow({required this.label, required this.icon});
+  final String label;
+  final EatMeGlyph icon;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Row(
+      children: [
+        Container(
+          width: 42,
+          height: 42,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: EatMeIcon(
+            icon,
+            size: 21,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Text(label, style: Theme.of(context).textTheme.titleMedium),
+        ),
+      ],
+    ),
   );
 }

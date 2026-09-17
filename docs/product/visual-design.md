@@ -2,7 +2,7 @@
 
 ## Direction and hierarchy
 
-EatMe is a food companion: eat what you have, choose what fits you, waste less. The approved September 13 premium references guide the new presentation. Only the redesigned side of comparison boards is used. ChefTable answers what to cook, Fridge what to use, HealthyFood what to explore, and Profile how the app is personalized. The lifestyle line is “Good food today. A healthier tomorrow.” All visible copy is localized into English and Italian.
+EatMe is a food decision engine: your recipes, your fridge and your diet converge on one useful decision. The approved references guide hierarchy and composition rather than replacing production code. ChefTable answers what to eat, Fridge what is available, Plan what comes next, and Profile how the app adapts. All visible copy is localized into English and Italian.
 
 The presentation reuses the production Riverpod, Supabase, API, offline and transaction architecture. Reference illustrations never supply account, clinical, quantity, expiry, subscription or ranking data. There are no invented benefit badges, nutrition scores, recognition confidence values or emissions claims. Unknown catalog imagery uses a neutral symbol. Saved restrictions and assessment warnings remain authoritative.
 
@@ -39,9 +39,10 @@ Display headings use an editorial serif treatment at 38 logical pixels, section 
 
 - ChefTable leads with search and a photographed recommendation. The explanation uses actual ingredient availability, preparation time and use-soon IDs. The filter sheet preserves exact recommendation mode values, including the existing plant-based mode. Favorite state is retrieved, never assumed. Cooking opens the recipe and safety preview before the transaction flow.
 - Fridge places expiring stock before an adaptive inventory grid. Each card retains recorded quantity, location, package-date semantics and access to the existing batch operations. Scan, barcode, manual catalog search, custom food and leftover routes remain available.
-- HealthyFood uses real catalog categories and photographic exploration. A larger “Featured for you” block is driven only by foods the user actually saved; the full catalog is deliberately secondary. It does not label catalog ordering as clinical personalization. The assessment keeps warnings visible across Information, Nutrition and For you.
+- Plan uses a light week metaphor, compact recipe photography and an internal Shopping List mode. Smart generation is reviewed before persistence; manual planning remains available.
+- HealthyFood remains a secondary compatibility/discovery route during migration. Its nutrition, evidence and health-aware content is progressively surfaced in ChefTable, recipe detail and Diet & Health.
 - Profile groups diet and health, household, preferences and notifications above kitchen shortcuts. The dietary summary reads saved restrictions; editing still uses the existing consent workflow. Privacy, subscriptions, sync, evidence, insights, activity and logout remain accessible.
-- Recipe detail is photograph-led with wrapping sections, real availability and servings. Favorite/share and optional tools use progressive disclosure. Start cooking retains preview and offline guards.
+- Recipe detail is photograph-led with Overview, Ingredients, Steps and Nutrition sections, a prominent Diet-Fit state and real inventory coverage. Favorite/share and optional tools use progressive disclosure. Start cooking retains preview and offline guards.
 - Welcome, login, registration, reset, scanner/import, add-food, shopping, planner, household and other secondary routes share typography, surfaces and controls. Enabled OAuth is social-first, while email, production legal requirements and explicit consent remain fully available.
 - Social recipe import uses the approved editorial sequence rather than a generic form: source entry, calm processing, mandatory structured review, ingredient mapping, compatibility, inventory coverage, optional user-selected substitutions, complete re-check and final save/cook. These states reuse `SocialImportHeader`, `SourceBadge`, `InformationPanel`, `SettingsGroup`, `SettingRow` and `StatusBadge`.
 - Photo acquisition is camera-first and dark-leaning, with an EatMe framing guide, large semantic shutter, gallery fallback, explicit retake/use review and visible opening, processing, permission, network and provider failures. Recognition confidence is never fabricated.
@@ -49,7 +50,11 @@ Display headings use an editorial serif treatment at 38 logical pixels, section 
 
 ## Glass, motion and dark mode
 
-Four destinations remain: ChefTable, Fridge, HealthyFood and Profile. `EatMeNavigationBar` is a bespoke destination layout rather than a styled Material NavigationBar. The bar is detached with horizontal and bottom margins, a true 20-pixel backdrop blur, restrained highlight and soft shadow. Each selected destination receives a quiet green inner capsule, stronger label weight and a short scale/opacity transition. Dark glass uses a darker, more opaque surface rather than an inverted light effect. High-contrast mode removes transparency and blur. Navigation selection respects the platform's reduce-motion preference.
+Four destinations remain: ChefTable, Fridge, Plan and Profile. `EatMeNavigationBar` is a bespoke destination layout rather than a styled Material NavigationBar. The bar is detached with horizontal and bottom margins, a true 20-pixel backdrop blur, restrained highlight and soft shadow. Each selected destination receives a quiet green inner capsule, stronger label weight and a short scale/opacity transition. Dark glass uses a darker, more opaque surface rather than an inverted light effect. High-contrast mode removes transparency and blur. Navigation selection respects the platform's reduce-motion preference.
+
+## Native launch experience
+
+Android and iOS use platform-native, network-free launch assets. Light mode uses warm cream with a graphite EatMe wordmark and green accent; dark mode uses near-black with an off-white wordmark and softened green accent. Android 12+ uses the platform splash API with the leaf mark, while earlier Android versions use the full vector wordmark. iOS uses named adaptive colors in the launch storyboard. The Flutter launch state repeats the wordmark with a restrained indeterminate line while session restoration is genuinely in progress; no delay or percentage is fabricated.
 
 ## Responsive behavior and accessibility
 
@@ -59,7 +64,7 @@ Semantics, explicit tooltips, text-based warnings and touch targets accompany ic
 
 ## Real render review
 
-`visual_reference_test.dart` renders all four destinations in both themes and checks 1.6× text. `premium_journeys_test.dart` renders welcome, login, sign-up, preferences, notifications, household, privacy, diet and health, recipe detail, filters, add-food methods and ingredient entry. It also exercises scrolling, compact Italian layouts and persistent allergen warnings. `reference_features_test.dart` retains custom-food, scanning and wellbeing coverage. `social_recipe_import_test.dart` exercises the approved import, review, mapping, compatibility, substitution, re-check, photo and impact states. The combined review artifact contains 72 real 390 × 844 Flutter screenshots; existing hinge, API and transaction tests remain enabled.
+`visual_reference_test.dart` renders ChefTable, Fridge, Plan and Profile in both themes and checks 1.6× text. `premium_journeys_test.dart` renders welcome, login, sign-up, preferences, notifications, household, privacy, the Diet & Health hub/editors, recipe detail, filters, add-food methods and ingredient entry. It also exercises scrolling, compact Italian layouts and persistent allergen warnings. `reference_features_test.dart` retains custom-food, scanning and wellbeing coverage. `social_recipe_import_test.dart` exercises the approved import, review, mapping, compatibility, substitution, re-check, photo and impact states. Existing hinge, API and transaction tests remain enabled.
 
 Run the mobile tests with the repository-pinned Flutter SDK and `FLUTTER_ROOT`. PNGs are emitted under `apps/mobile/build/screenshots/`; reviewed copies in `docs/screenshots/` are the original PNGs at full dimensions. Supplied boards are never published as application screenshots. CI artifacts additionally retain native build outputs and the full render set.
 

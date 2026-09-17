@@ -15,6 +15,8 @@ class PlanningService:
             return {"items": [{**r, "quantity": quantity(r["quantity_milli"]), "checked": bool(r["checked"])} for r in tx.all("SELECT * FROM shopping_items WHERE household_id=? ORDER BY checked,category,label,id", (home,))]}
 
     def shopping_action(self, user_id, data, key):
+        if data.get("action") == "generate":
+            self.require_capability(user_id, "canUseGeneratedShopping")
         home = self._household(user_id, write=True)
         with self.db.transaction(home) as tx:
             def change():
@@ -123,6 +125,8 @@ class PlanningService:
             return {"items": [{**r, "data": decode(r["data"])} for r in tx.all("SELECT * FROM meal_plans WHERE user_id=? AND household_id=? ORDER BY start_date DESC LIMIT 52", (user_id, home))]}
 
     def plan_action(self, user_id, data, key):
+        if data.get("action") in {"generate", "preview_generate"}:
+            self.require_capability(user_id, "canUseSmartPlanning")
         home = self._household(user_id)
         with self.db.transaction(home) as tx:
             def save():
@@ -141,7 +145,7 @@ class PlanningService:
                 if not start:
                     raise DomainError("invalid_date", 422)
                 meals = data.get("meals", [])
-                if data.get("action") == "generate":
+                if data.get("action") in {"generate", "preview_generate"}:
                     profile, foods, recipes, _, _, today = self._context(tx, user_id)
                     participants = data.get("participants", [user_id])
                     settings, rules, _, _ = self._diners(tx, user_id, participants, profile, self._catalog(tx, user_id)[3], today)
@@ -160,6 +164,8 @@ class PlanningService:
                     if not day or not 0 <= (date.fromisoformat(day) - date.fromisoformat(start)).days < 7 or (day, slot) in slots:
                         raise DomainError("invalid_meal_slot", 422)
                     slots.add((day, slot))
+                if data.get("action") == "preview_generate":
+                    return {"preview": True, "start_date": start, "data": {"meals": meals}}
                 identifier, stamp = existing["id"] if existing else new_id(), now()
                 version = existing["version"] + 1 if existing else 1
                 value = {"meals": meals}

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/api.dart';
+import '../../core/entitlements.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
@@ -9,7 +10,8 @@ import '../../design_system/widgets.dart';
 import 'shared.dart';
 
 class PlannerPage extends ConsumerStatefulWidget {
-  const PlannerPage({super.key});
+  const PlannerPage({super.key, this.initialRecipeId});
+  final String? initialRecipeId;
   @override
   ConsumerState<PlannerPage> createState() => _PlannerState();
 }
@@ -21,6 +23,8 @@ class _PlannerState extends ResourceState<PlannerPage> {
   List<Json> recipes = [];
   List<String>? participants;
   Json? selected;
+  List<Json>? draftMeals;
+  bool pendingAdded = false;
   @override
   Future<void> load() async {
     await super.load();
@@ -51,7 +55,12 @@ class _PlannerState extends ResourceState<PlannerPage> {
   }
 
   Future<void> addMeal(DateTime day, String slot) async {
-    final recipe = await showModalBottomSheet<Json>(
+    final recipe = await chooseRecipe();
+    if (recipe == null || !mounted) return;
+    await addSpecificMeal(day, slot, recipe);
+  }
+
+  Future<Json?> chooseRecipe() => showModalBottomSheet<Json>(
       context: context,
       useSafeArea: true,
       builder: (context) => ListView(
@@ -65,7 +74,24 @@ class _PlannerState extends ResourceState<PlannerPage> {
         ],
       ),
     );
+
+  Future<void> replaceMeal(DateTime day, String slot, Json meal) async {
+    final recipe = await chooseRecipe();
     if (recipe == null || !mounted) return;
+    if (draftMeals != null) {
+      setState(() {
+        final index = draftMeals!.indexOf(meal);
+        draftMeals![index] = {
+          ...meal,
+          'recipe_id': recipe['id'],
+        };
+      });
+      return;
+    }
+    await addSpecificMeal(day, slot, recipe);
+  }
+
+  Future<void> addSpecificMeal(DateTime day, String slot, Json recipe) async {
     final servings = await askText(
       context,
       context.t('servings'),
@@ -84,21 +110,95 @@ class _PlannerState extends ResourceState<PlannerPage> {
       if (participants != null) 'participants': participants,
     });
     await saveMeals(meals);
+    if (mounted && recipe['id'] == widget.initialRecipeId) {
+      setState(() => pendingAdded = true);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final meals = records(selected?['data']?['meals']);
+    final meals = draftMeals ?? records(selected?['data']?['meals']);
+    final entitlement = ref.watch(entitlementsProvider).asData?.value;
+    final canSmartPlan =
+        entitlement?.can(EntitlementCapability.smartPlanning) == true;
+    final canGenerateShopping =
+        entitlement?.can(EntitlementCapability.generatedShopping) == true;
+    final settings = Map<String, dynamic>.from(
+      ref.watch(appProvider).profile['settings'] as Map? ?? {},
+    );
+    final mealTiming = Map<String, dynamic>.from(
+      settings['meal_timing'] as Map? ?? const {'mode': 'standard'},
+    );
+    final enabledSlots = Map<String, dynamic>.from(
+      mealTiming['slots'] as Map? ?? const {},
+    );
+    final pendingRecipe = pendingAdded || widget.initialRecipeId == null
+        ? null
+        : recipes
+              .where((recipe) => recipe['id'] == widget.initialRecipeId)
+              .firstOrNull;
     return Scaffold(
-      appBar: EatMeAppBar(title: Text(context.t('meal_planner'))),
+      appBar: EatMeAppBar(title: Text(context.t('plan'))),
       body: content([
+        EatMeTabStrip(
+          values: [
+            ('plan', context.t('my_plan')),
+            ('shopping', context.t('shopping_list')),
+          ],
+          selected: 'plan',
+          onSelected: (value) {
+            if (value == 'shopping') context.go('/plan/shopping');
+          },
+        ),
+        const SizedBox(height: 24),
         Text(
           context.t('week_at_a_glance'),
           style: Theme.of(context).textTheme.headlineMedium,
         ),
+        const SizedBox(height: 6),
+        Text(
+          context.t('plan_editorial'),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        if (mealTiming['mode'] != 'standard') ...[
+          const SizedBox(height: 14),
+          StatusNote(
+            text: context.t('active_eating_window', {
+              'start': mealTiming['start'] as String? ?? '—',
+              'end': mealTiming['end'] as String? ?? '—',
+            }),
+          ),
+        ],
+        if (pendingRecipe != null) ...[
+          const SizedBox(height: 18),
+          InformationPanel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.t('plan_this_recipe'),
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 6),
+                Text(labelOf(pendingRecipe['title'], context)),
+                const SizedBox(height: 14),
+                AsyncAction(
+                  label: context.t('add_to_tonight'),
+                  action: () => addSpecificMeal(
+                    DateUtils.dateOnly(DateTime.now()),
+                    'dinner',
+                    pendingRecipe,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: 12),
         OutlinedButton.icon(
-          icon: const Icon(Icons.calendar_today_outlined),
+          icon: const EatMeIcon(EatMeGlyph.calendar, size: 19),
           label: Text(
             MaterialLocalizations.of(context).formatMediumDate(start),
           ),
@@ -128,34 +228,80 @@ class _PlannerState extends ResourceState<PlannerPage> {
           },
         ),
         AsyncAction(
-          label: context.t('generate_week'),
+          label: context.t(
+            canSmartPlan ? 'generate_week' : 'smart_plan_with_plus',
+          ),
           action: () async {
+            if (!canSmartPlan) {
+              await showContextualPlusPrompt(
+                context,
+                benefit: 'smart_planning_plus_body',
+              );
+              return;
+            }
             final result = await command({
-              'action': 'generate',
+              'action': 'preview_generate',
               if (participants != null) 'participants': participants,
               'start_date': isoDay(start),
               'servings': 1,
-              if (selected != null) 'id': selected!['id'],
-              if (selected != null) 'expected_version': selected!['version'],
             });
-            if (mounted && result['id'] != null) {
-              setState(() => selected = result);
+            if (mounted && result['preview'] == true) {
+              setState(() => draftMeals = records(result['data']?['meals']));
             }
           },
         ),
+        if (draftMeals != null) ...[
+          const SizedBox(height: 12),
+          InformationPanel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  context.t('smart_plan_preview_title'),
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 6),
+                Text(context.t('smart_plan_preview_body')),
+                const SizedBox(height: 14),
+                AsyncAction(
+                  label: context.t('accept_plan'),
+                  action: () async {
+                    await saveMeals(draftMeals!);
+                    if (mounted) setState(() => draftMeals = null);
+                  },
+                ),
+                TextButton(
+                  onPressed: () => setState(() => draftMeals = null),
+                  child: Text(context.t('discard_preview')),
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: 8),
         if (selected != null)
           AsyncAction(
-            label: context.t('build_shopping_list'),
+            label: context.t(
+              canGenerateShopping
+                  ? 'build_shopping_list'
+                  : 'generated_shopping_with_plus',
+            ),
             secondary: true,
             action: () async {
+              if (!canGenerateShopping) {
+                await showContextualPlusPrompt(
+                  context,
+                  benefit: 'generated_shopping_plus_body',
+                );
+                return;
+              }
               await Mutation().send(
                 ref.read(apiProvider),
                 'POST',
                 '/shopping',
                 {'action': 'generate', 'plan_id': selected!['id']},
               );
-              if (mounted && context.mounted) context.push('/shopping');
+              if (mounted && context.mounted) context.go('/plan/shopping');
             },
           ),
         const SizedBox(height: 24),
@@ -167,7 +313,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
-          for (final slot in ['breakfast', 'lunch', 'dinner', 'snack'])
+          for (final slot in ['breakfast', 'lunch', 'dinner', 'snack'].where(
+            (slot) => enabledSlots[slot] as bool? ?? true,
+          ))
             Builder(
               builder: (context) {
                 final day = start.add(Duration(days: i));
@@ -177,8 +325,12 @@ class _PlannerState extends ResourceState<PlannerPage> {
                 final recipe = recipes
                     .where((r) => r['id'] == meal?['recipe_id'])
                     .firstOrNull;
-                return Card(
-                  child: ListTile(
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: InformationPanel(
+                    tinted: false,
+                    padding: EdgeInsets.zero,
+                    child: ListTile(
                     leading: meal == null
                         ? null
                         : FoodImage(
@@ -194,15 +346,19 @@ class _PlannerState extends ResourceState<PlannerPage> {
                             '${labelOf(recipe?['title'] ?? '', context)} · ${meal['servings']}',
                           ),
                     trailing: meal == null
-                        ? const Icon(Icons.add)
+                        ? const EatMeIcon(EatMeGlyph.plus)
                         : PopupMenuButton<String>(
                             onSelected: (action) async {
                               if (action == 'delete') {
-                                await saveMeals(
-                                  meals.where((m) => m != meal).toList(),
-                                );
+                                if (draftMeals != null) {
+                                  setState(() => draftMeals!.remove(meal));
+                                } else {
+                                  await saveMeals(
+                                    meals.where((m) => m != meal).toList(),
+                                  );
+                                }
                               } else {
-                                await addMeal(day, slot);
+                                await replaceMeal(day, slot, meal!);
                               }
                             },
                             itemBuilder: (context) => [
@@ -219,6 +375,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
                     onTap: () => meal == null
                         ? addMeal(day, slot)
                         : context.push('/recipes/${meal['recipe_id']}'),
+                    ),
                   ),
                 );
               },

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
@@ -39,6 +40,79 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
     await ref.read(appProvider.notifier).refresh();
   }
 
+  Future<void> reconcilePurchased(List<Json> candidates) async {
+    final selected = candidates.map((item) => item['id'] as String).toSet();
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, update) => Padding(
+          padding: EdgeInsets.fromLTRB(
+            20,
+            20,
+            20,
+            24 + MediaQuery.paddingOf(context).bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.t('add_purchased_to_fridge'),
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(context.t('purchase_reconciliation_body')),
+              const SizedBox(height: 16),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      for (final item in candidates)
+                        EatMeToggleRow(
+                          title: item['label'] as String,
+                          subtitle: '${item['quantity']} ${item['unit']}',
+                          icon: EatMeGlyph.shoppingBasket,
+                          value: selected.contains(item['id']),
+                          onChanged: (value) => update(
+                            () => value
+                                ? selected.add(item['id'] as String)
+                                : selected.remove(item['id']),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              FilledButton(
+                onPressed: selected.isEmpty
+                    ? null
+                    : () => Navigator.pop(sheetContext, true),
+                child: Text(
+                  context.t('add_selected_to_fridge', {
+                    'count': selected.length,
+                  }),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(sheetContext, false),
+                child: Text(context.t('not_now')),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    for (final item in candidates.where(
+      (item) => selected.contains(item['id']),
+    )) {
+      await purchase(item);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final items = records(data?['items']);
@@ -52,7 +126,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
         actions: [
           IconButton(
             tooltip: context.t('share'),
-            icon: const Icon(Icons.ios_share),
+            icon: const EatMeIcon(EatMeGlyph.fileText),
             onPressed: items.isEmpty
                 ? null
                 : () => shareText(
@@ -69,6 +143,17 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
         ],
       ),
       body: content([
+        EatMeTabStrip(
+          values: [
+            ('plan', context.t('my_plan')),
+            ('shopping', context.t('shopping_list')),
+          ],
+          selected: 'shopping',
+          onSelected: (value) {
+            if (value == 'plan') context.go('/plan');
+          },
+        ),
+        const SizedBox(height: 24),
         Text(
           context.t('shopping_intro'),
           style: Theme.of(context).textTheme.titleLarge,
@@ -91,6 +176,23 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
         ),
         const SizedBox(height: 20),
         AsyncAction(label: context.t('add_food'), action: add),
+        if (items.any(
+          (item) => item['checked'] == true && item['food_id'] != null,
+        )) ...[
+          const SizedBox(height: 10),
+          AsyncAction(
+            label: context.t('add_purchased_to_fridge'),
+            secondary: true,
+            action: () => reconcilePurchased(
+              items
+                  .where(
+                    (item) =>
+                        item['checked'] == true && item['food_id'] != null,
+                  )
+                  .toList(),
+            ),
+          ),
+        ],
         if (items.isEmpty)
           EmptyMessage(
             title: context.t('shopping_empty'),
@@ -115,8 +217,10 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
           for (final item in items.where(
             (i) => (i['category'] ?? 'other') == category,
           ))
-            Card(
-              child: Padding(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: InformationPanel(
+                tinted: false,
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   children: [

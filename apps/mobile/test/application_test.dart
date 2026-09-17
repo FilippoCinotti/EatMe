@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:eatme/core/api.dart';
+import 'package:eatme/core/entitlements.dart';
 import 'package:eatme/core/localization.dart';
 import 'package:eatme/core/models.dart';
 import 'package:eatme/core/state.dart';
@@ -201,6 +202,43 @@ void main() {
   });
   setUp(() {
     FlutterSecureStorage.setMockInitialValues({});
+  });
+  test('entitlement snapshot keeps safety free and smart planning gated', () {
+    final free = EntitlementSnapshot.fromJson({
+      'tier': 'free',
+      'configured': true,
+      'capabilities': {
+        'canSeeSafetyWarnings': true,
+        'canUseSmartPlanning': false,
+      },
+      'limits': {'smart_import': 3},
+      'usage': {'smart_import': 1},
+      'remaining': {'smart_import': 2},
+    });
+    expect(free.can('canSeeSafetyWarnings'), isTrue);
+    expect(free.can(EntitlementCapability.smartPlanning), isFalse);
+    expect(free.remainingFor('smart_import'), 2);
+  });
+  testWidgets('Plan shopping keeps the Plan destination selected', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      harness(
+        const AppShell(path: '/plan/shopping', child: SizedBox()),
+        TestApi(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final navigation = tester.widget<EatMeNavigationBar>(
+      find.byType(EatMeNavigationBar),
+    );
+    expect(navigation.selectedIndex, 2);
+    expect(navigation.destinations.map((item) => item.label), [
+      'ChefTable',
+      'Fridge',
+      'Plan',
+      'Profile',
+    ]);
   });
   testWidgets('shopping check and purchase updates the connected list', (
     tester,

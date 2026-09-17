@@ -10,7 +10,7 @@ import 'package:eatme/core/state.dart';
 import 'package:eatme/design_system/widgets.dart';
 import 'package:eatme/features/chef_table/chef_table.dart';
 import 'package:eatme/features/fridge/fridge.dart';
-import 'package:eatme/features/healthy_food/healthy_food.dart';
+import 'package:eatme/features/organize/planner.dart';
 import 'package:eatme/features/profile/profile.dart';
 import 'package:eatme/main.dart';
 import 'application_test.dart' as support;
@@ -186,7 +186,7 @@ void main() {
     for (final page in <(String, String, Widget)>[
       ('chef', '/chef', const ChefTablePage()),
       ('fridge', '/fridge', const FridgePage()),
-      ('healthy-food', '/healthy-food', const HealthyFoodPage()),
+      ('plan', '/plan', const PlannerPage()),
       ('profile', '/profile', const ProfilePage()),
     ]) {
       for (final scale in [1.0, 1.6]) {

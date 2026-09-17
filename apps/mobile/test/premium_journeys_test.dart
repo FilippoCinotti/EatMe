@@ -335,6 +335,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('diet-section-eating')));
+    await tester.pumpAndSettle();
     final vegan = find.byKey(const ValueKey('diet-vegan'));
     await tester.scrollUntilVisible(
       vegan,
@@ -347,18 +349,6 @@ void main() {
         )
         .onTap!();
     await tester.pump();
-    final strictUnknown = find.byKey(const ValueKey('unknown-strict'));
-    await tester.scrollUntilVisible(
-      strictUnknown,
-      400,
-      scrollable: find.byType(Scrollable).first,
-    );
-    tester
-        .widget<InkWell>(
-          find.descendant(of: strictUnknown, matching: find.byType(InkWell)),
-        )
-        .onTap!();
-    await tester.pump();
     final save = find.byKey(const ValueKey('save-diet-health'));
     await tester.scrollUntilVisible(
       save,
@@ -366,6 +356,17 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     await tester.tap(save);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('diet-section-unknown')));
+    await tester.pumpAndSettle();
+    final strictUnknown = find.byKey(const ValueKey('unknown-strict'));
+    tester
+        .widget<InkWell>(
+          find.descendant(of: strictUnknown, matching: find.byType(InkWell)),
+        )
+        .onTap!();
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('save-diet-health')));
     await tester.pumpAndSettle();
     final call = api.calls.lastWhere(
       (value) => value['method'] == 'PUT' && value['path'] == '/profile',
@@ -402,15 +403,39 @@ void main() {
       await capture(
         tester,
         boundary,
-        'diet-health-profiles-${dark ? 'dark' : 'light'}',
+        'diet-health-hub-${dark ? 'dark' : 'light'}',
       );
-      for (final target in <(Key, String)>[
-        (const ValueKey('diet-rad'), 'diet-health-rad'),
-        (const ValueKey('allergen-milk'), 'diet-health-safety'),
-        (ValueKey('exclude-${visual.feta.id}'), 'diet-health-exclusions'),
-        (const ValueKey('unknown-review'), 'diet-health-unknown-policy'),
+      for (final target in <(Key, Key, String)>[
+        (
+          const ValueKey('diet-section-medical'),
+          const ValueKey('diet-rad'),
+          'diet-health-medical',
+        ),
+        (
+          const ValueKey('diet-section-allergies'),
+          const ValueKey('allergen-milk'),
+          'diet-health-allergies',
+        ),
+        (
+          const ValueKey('diet-section-exclusions'),
+          ValueKey('exclude-${visual.feta.id}'),
+          'diet-health-exclusions',
+        ),
+        (
+          const ValueKey('diet-section-unknown'),
+          const ValueKey('unknown-review'),
+          'diet-health-unknown-policy',
+        ),
       ]) {
-        final finder = find.byKey(target.$1);
+        final section = find.byKey(target.$1);
+        await tester.scrollUntilVisible(
+          section,
+          260,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.tap(section);
+        await tester.pumpAndSettle();
+        final finder = find.byKey(target.$2);
         await tester.scrollUntilVisible(
           finder,
           360,
@@ -420,9 +445,11 @@ void main() {
         await capture(
           tester,
           boundary,
-          '${target.$2}-${dark ? 'dark' : 'light'}',
+          '${target.$3}-${dark ? 'dark' : 'light'}',
         );
         expect(tester.takeException(), isNull);
+        await tester.pageBack();
+        await tester.pumpAndSettle();
       }
     });
   }
