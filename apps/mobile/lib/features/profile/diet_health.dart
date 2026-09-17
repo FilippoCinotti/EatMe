@@ -49,7 +49,10 @@ class DietHealthPage extends ConsumerWidget {
     );
     void edit(String section) => Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => _DietHealthEditorPage(section: section),
+        builder: (_) => RepaintBoundary(
+          key: const ValueKey('diet-health-editor-boundary'),
+          child: _DietHealthEditorPage(section: section),
+        ),
       ),
     );
 

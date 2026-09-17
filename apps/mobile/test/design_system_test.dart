@@ -29,6 +29,7 @@ void main() {
     await tester.pumpWidget(
       harness(
         AsyncAction(
+          key: const ValueKey('confirm-action'),
           label: 'Conferma',
           action: () {
             submissions++;
@@ -38,9 +39,9 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(FilledButton));
+    await tester.tap(find.byKey(const ValueKey('confirm-action')));
     await tester.pump();
-    await tester.tap(find.byType(FilledButton));
+    await tester.tap(find.byKey(const ValueKey('confirm-action')));
     await tester.pump();
     expect(submissions, 1);
     pending.complete();

@@ -192,6 +192,23 @@ Future<void> capture(
   });
 }
 
+Future<void> captureFinder(
+  WidgetTester tester,
+  Finder boundary,
+  String name,
+) async {
+  await tester.runAsync(() async {
+    final image =
+        await (tester.renderObject(boundary) as RenderRepaintBoundary)
+            .toImage();
+    final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+    final file = File('build/screenshots/$name.png');
+    await file.parent.create(recursive: true);
+    await file.writeAsBytes(bytes!.buffer.asUint8List());
+    image.dispose();
+  });
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(visual.loadFonts);
@@ -357,7 +374,15 @@ void main() {
     );
     await tester.tap(save);
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('diet-section-unknown')));
+    final unknownSection = find.byKey(
+      const ValueKey('diet-section-unknown'),
+    );
+    await tester.scrollUntilVisible(
+      unknownSection,
+      400,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(unknownSection);
     await tester.pumpAndSettle();
     final strictUnknown = find.byKey(const ValueKey('unknown-strict'));
     tester
@@ -442,9 +467,9 @@ void main() {
           scrollable: find.byType(Scrollable).first,
         );
         await tester.pumpAndSettle();
-        await capture(
+        await captureFinder(
           tester,
-          boundary,
+          find.byKey(const ValueKey('diet-health-editor-boundary')),
           '${target.$3}-${dark ? 'dark' : 'light'}',
         );
         expect(tester.takeException(), isNull);
