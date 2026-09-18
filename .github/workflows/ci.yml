@@ -68,7 +68,7 @@ jobs:
           # This disposable mobile runner does not use these preinstalled SDKs.
           sudo rm -rf -- /usr/share/dotnet /usr/local/share/boost /opt/ghc /usr/local/.ghcup /usr/share/swift
           df -h /
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
