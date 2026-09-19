@@ -694,7 +694,7 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
               secondary: true,
               action: () async {
                 await send({'action': 'generate_shopping'});
-                if (mounted) context.go('/plan/shopping');
+                if (context.mounted) context.go('/plan/shopping');
               },
             ),
             AsyncAction(
