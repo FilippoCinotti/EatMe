@@ -1,4 +1,3 @@
-import 'package:eatme/core/api.dart';
 import 'package:eatme/core/models.dart';
 import 'package:eatme/design_system/widgets.dart';
 import 'package:eatme/features/organize/dinners.dart';
