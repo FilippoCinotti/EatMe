@@ -60,8 +60,7 @@ class _GuiltyPleasureSheetState extends State<GuiltyPleasureSheet> {
         if (!widget.active)
           RadioGroup<String>(
             groupValue: scope,
-            onChanged: (value) =>
-                setState(() => scope = value ?? scope),
+            onChanged: (value) => setState(() => scope = value ?? scope),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

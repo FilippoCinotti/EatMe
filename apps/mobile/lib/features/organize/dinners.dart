@@ -175,11 +175,7 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
         ref.read(apiProvider),
         'POST',
         '/dinners',
-        {
-          ...body,
-          'id': widget.dinnerId,
-          'expected_version': event!['version'],
-        },
+        {...body, 'id': widget.dinnerId, 'expected_version': event!['version']},
       );
       if (mounted) setState(() => event = result);
       return result;
@@ -231,10 +227,9 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
   }
 
   Future<void> addSavedGuest() async {
-    final response = await ref.read(apiProvider).request(
-      'GET',
-      '/dinner-guests',
-    );
+    final response = await ref
+        .read(apiProvider)
+        .request('GET', '/dinner-guests');
     if (!mounted) return;
     final selected = await showModalBottomSheet<Json>(
       context: context,
@@ -578,9 +573,10 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
                     : null,
                 trailing:
                     active &&
-                        ['temporary_guest', 'saved_guest'].contains(
-                          participant['kind'],
-                        )
+                        [
+                          'temporary_guest',
+                          'saved_guest',
+                        ].contains(participant['kind'])
                     ? PopupMenuButton<String>(
                         onSelected: (action) async {
                           if (action == 'invite') await invite(participant);

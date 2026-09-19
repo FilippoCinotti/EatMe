@@ -107,29 +107,30 @@ class DinnerApi extends support.TestApi {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('Dinner remains inside Plan and renders at accessible text size', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(390, 844);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(
-      support.harness(
-        const AppShell(path: '/plan/dinners', child: DinnersPage()),
-        DinnerApi(),
-        scale: 1.6,
-      ),
-    );
-    await tester.pumpAndSettle();
-    final navigation = tester.widget<EatMeNavigationBar>(
-      find.byType(EatMeNavigationBar),
-    );
-    expect(navigation.selectedIndex, 2);
-    expect(navigation.destinations, hasLength(4));
-    expect(find.text('Dinner with friends'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
+  testWidgets(
+    'Dinner remains inside Plan and renders at accessible text size',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        support.harness(
+          const AppShell(path: '/plan/dinners', child: DinnersPage()),
+          DinnerApi(),
+          scale: 1.6,
+        ),
+      );
+      await tester.pumpAndSettle();
+      final navigation = tester.widget<EatMeNavigationBar>(
+        find.byType(EatMeNavigationBar),
+      );
+      expect(navigation.selectedIndex, 2);
+      expect(navigation.destinations, hasLength(4));
+      expect(find.text('Dinner with friends'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('unanswered guest is visible and never presented as safe', (
     tester,
@@ -147,7 +148,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Ada'), findsOneWidget);
     expect(find.text('Waiting for a guest’s food needs'), findsOneWidget);
-    expect(find.text('Works for everyone in the answered profiles'), findsNothing);
+    expect(
+      find.text('Works for everyone in the answered profiles'),
+      findsNothing,
+    );
     expect(tester.takeException(), isNull);
   });
 

@@ -465,8 +465,9 @@ class _InsightsState extends ResourceState<InsightsPage> {
         const SizedBox(height: 8),
         Text(
           context.t('insights_support'),
-          style: Theme.of(context).textTheme.bodyLarge
-              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 24),
         EatMeTabStrip(

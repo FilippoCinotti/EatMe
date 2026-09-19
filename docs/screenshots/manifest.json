@@ -1,9 +1,361 @@
 {
   "schema_version": 1,
-  "source_commit": "e5f245c7396791d2fe66ad7e27af3d8251fff5d9",
-  "render_inventory_updated_at": "2026-09-19T14:36:47.017797+00:00",
-  "count": 110,
+  "source_commit": "1142e840f4a83fd10e4947048c085474ff1ad7a9",
+  "render_inventory_updated_at": "2026-09-19T18:30:20.053202+00:00",
+  "count": 148,
   "screenshots": [
+    {
+      "screen_id": "allergies",
+      "screen_name": "Allergies",
+      "platform": "guest",
+      "route_or_fixture": "fixture:allergies",
+      "theme": "dark",
+      "locale": "en",
+      "required_state": "allergies",
+      "generated_filename": "docs/screenshots/guest/en/dark/allergies-dark.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "avoidances",
+      "screen_name": "Avoidances",
+      "platform": "guest",
+      "route_or_fixture": "fixture:avoidances",
+      "theme": "dark",
+      "locale": "en",
+      "required_state": "avoidances",
+      "generated_filename": "docs/screenshots/guest/en/dark/avoidances-dark.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "cancelled-dinner",
+      "screen_name": "Cancelled Dinner",
+      "platform": "guest",
+      "route_or_fixture": "fixture:cancelled-dinner",
+      "theme": "dark",
+      "locale": "en",
+      "required_state": "cancelled-dinner",
+      "generated_filename": "docs/screenshots/guest/en/dark/cancelled-dinner-dark.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "eating-style",
+      "screen_name": "Eating Style",
+      "platform": "guest",
+      "route_or_fixture": "fixture:eating-style",
+      "theme": "dark",
+      "locale": "en",
+      "required_state": "eating-style",
+      "generated_filename": "docs/screenshots/guest/en/dark/eating-style-dark.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "edit-response",
+      "screen_name": "Edit Response",
+      "platform": "guest",
+      "route_or_fixture": "fixture:edit-response",
+      "theme": "dark",
+      "locale": "en",
+      "required_state": "edit-response",
+      "generated_filename": "docs/screenshots/guest/en/dark/edit-response-dark.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "expired-invite",
+      "screen_name": "Expired Invite",
+      "platform": "guest",
+      "route_or_fixture": "fixture:expired-invite",
+      "theme": "dark",
+      "locale": "en",
+      "required_state": "expired-invite",
+      "generated_filename": "docs/screenshots/guest/en/dark/expired-invite-dark.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "intolerances",
+      "screen_name": "Intolerances",
+      "platform": "guest",
+      "route_or_fixture": "fixture:intolerances",
+      "theme": "dark",
+      "locale": "en",
+      "required_state": "intolerances",
+      "generated_filename": "docs/screenshots/guest/en/dark/intolerances-dark.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "invite-landing",
+      "screen_name": "Invite Landing",
+      "platform": "guest",
+      "route_or_fixture": "fixture:invite-landing",
+      "theme": "dark",
+      "locale": "en",
+      "required_state": "invite-landing",
+      "generated_filename": "docs/screenshots/guest/en/dark/invite-landing-dark.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "network-error",
+      "screen_name": "Network Error",
+      "platform": "guest",
+      "route_or_fixture": "fixture:network-error",
+      "theme": "dark",
+      "locale": "en",
+      "required_state": "network-error",
+      "generated_filename": "docs/screenshots/guest/en/dark/network-error-dark.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "optional-note",
+      "screen_name": "Optional Note",
+      "platform": "guest",
+      "route_or_fixture": "fixture:optional-note",
+      "theme": "dark",
+      "locale": "en",
+      "required_state": "optional-note",
+      "generated_filename": "docs/screenshots/guest/en/dark/optional-note-dark.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "review",
+      "screen_name": "Review",
+      "platform": "guest",
+      "route_or_fixture": "fixture:review",
+      "theme": "dark",
+      "locale": "en",
+      "required_state": "review",
+      "generated_filename": "docs/screenshots/guest/en/dark/review-dark.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "revoked-invite",
+      "screen_name": "Revoked Invite",
+      "platform": "guest",
+      "route_or_fixture": "fixture:revoked-invite",
+      "theme": "dark",
+      "locale": "en",
+      "required_state": "revoked-invite",
+      "generated_filename": "docs/screenshots/guest/en/dark/revoked-invite-dark.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "success",
+      "screen_name": "Success",
+      "platform": "guest",
+      "route_or_fixture": "fixture:success",
+      "theme": "dark",
+      "locale": "en",
+      "required_state": "success",
+      "generated_filename": "docs/screenshots/guest/en/dark/success-dark.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "invite-landing-desktop",
+      "screen_name": "Invite Landing Desktop",
+      "platform": "guest",
+      "route_or_fixture": "fixture:invite-landing-desktop",
+      "theme": "light",
+      "locale": "en",
+      "required_state": "invite-landing-desktop",
+      "generated_filename": "docs/screenshots/guest/en/desktop/invite-landing-desktop-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "allergies",
+      "screen_name": "Allergies",
+      "platform": "guest",
+      "route_or_fixture": "fixture:allergies",
+      "theme": "light",
+      "locale": "en",
+      "required_state": "allergies",
+      "generated_filename": "docs/screenshots/guest/en/light/allergies-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "avoidances",
+      "screen_name": "Avoidances",
+      "platform": "guest",
+      "route_or_fixture": "fixture:avoidances",
+      "theme": "light",
+      "locale": "en",
+      "required_state": "avoidances",
+      "generated_filename": "docs/screenshots/guest/en/light/avoidances-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "cancelled-dinner",
+      "screen_name": "Cancelled Dinner",
+      "platform": "guest",
+      "route_or_fixture": "fixture:cancelled-dinner",
+      "theme": "light",
+      "locale": "en",
+      "required_state": "cancelled-dinner",
+      "generated_filename": "docs/screenshots/guest/en/light/cancelled-dinner-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "eating-style",
+      "screen_name": "Eating Style",
+      "platform": "guest",
+      "route_or_fixture": "fixture:eating-style",
+      "theme": "light",
+      "locale": "en",
+      "required_state": "eating-style",
+      "generated_filename": "docs/screenshots/guest/en/light/eating-style-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "edit-response",
+      "screen_name": "Edit Response",
+      "platform": "guest",
+      "route_or_fixture": "fixture:edit-response",
+      "theme": "light",
+      "locale": "en",
+      "required_state": "edit-response",
+      "generated_filename": "docs/screenshots/guest/en/light/edit-response-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "expired-invite",
+      "screen_name": "Expired Invite",
+      "platform": "guest",
+      "route_or_fixture": "fixture:expired-invite",
+      "theme": "light",
+      "locale": "en",
+      "required_state": "expired-invite",
+      "generated_filename": "docs/screenshots/guest/en/light/expired-invite-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "intolerances",
+      "screen_name": "Intolerances",
+      "platform": "guest",
+      "route_or_fixture": "fixture:intolerances",
+      "theme": "light",
+      "locale": "en",
+      "required_state": "intolerances",
+      "generated_filename": "docs/screenshots/guest/en/light/intolerances-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "invite-landing",
+      "screen_name": "Invite Landing",
+      "platform": "guest",
+      "route_or_fixture": "fixture:invite-landing",
+      "theme": "light",
+      "locale": "en",
+      "required_state": "invite-landing",
+      "generated_filename": "docs/screenshots/guest/en/light/invite-landing-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "network-error",
+      "screen_name": "Network Error",
+      "platform": "guest",
+      "route_or_fixture": "fixture:network-error",
+      "theme": "light",
+      "locale": "en",
+      "required_state": "network-error",
+      "generated_filename": "docs/screenshots/guest/en/light/network-error-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "optional-note",
+      "screen_name": "Optional Note",
+      "platform": "guest",
+      "route_or_fixture": "fixture:optional-note",
+      "theme": "light",
+      "locale": "en",
+      "required_state": "optional-note",
+      "generated_filename": "docs/screenshots/guest/en/light/optional-note-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "review",
+      "screen_name": "Review",
+      "platform": "guest",
+      "route_or_fixture": "fixture:review",
+      "theme": "light",
+      "locale": "en",
+      "required_state": "review",
+      "generated_filename": "docs/screenshots/guest/en/light/review-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "revoked-invite",
+      "screen_name": "Revoked Invite",
+      "platform": "guest",
+      "route_or_fixture": "fixture:revoked-invite",
+      "theme": "light",
+      "locale": "en",
+      "required_state": "revoked-invite",
+      "generated_filename": "docs/screenshots/guest/en/light/revoked-invite-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "success",
+      "screen_name": "Success",
+      "platform": "guest",
+      "route_or_fixture": "fixture:success",
+      "theme": "light",
+      "locale": "en",
+      "required_state": "success",
+      "generated_filename": "docs/screenshots/guest/en/light/success-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "guest-review",
+      "screen_name": "Guest Review",
+      "platform": "localization",
+      "route_or_fixture": "fixture:guest-review",
+      "theme": "light",
+      "locale": "de",
+      "required_state": "guest-review",
+      "generated_filename": "docs/screenshots/localization/de/guest-review-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "guest-review",
+      "screen_name": "Guest Review",
+      "platform": "localization",
+      "route_or_fixture": "fixture:guest-review",
+      "theme": "light",
+      "locale": "es",
+      "required_state": "guest-review",
+      "generated_filename": "docs/screenshots/localization/es/guest-review-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "guest-review",
+      "screen_name": "Guest Review",
+      "platform": "localization",
+      "route_or_fixture": "fixture:guest-review",
+      "theme": "light",
+      "locale": "fr",
+      "required_state": "guest-review",
+      "generated_filename": "docs/screenshots/localization/fr/guest-review-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "guest-review",
+      "screen_name": "Guest Review",
+      "platform": "localization",
+      "route_or_fixture": "fixture:guest-review",
+      "theme": "light",
+      "locale": "it",
+      "required_state": "guest-review",
+      "generated_filename": "docs/screenshots/localization/it/guest-review-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "guest-review",
+      "screen_name": "Guest Review",
+      "platform": "localization",
+      "route_or_fixture": "fixture:guest-review",
+      "theme": "light",
+      "locale": "zh-Hans",
+      "required_state": "guest-review",
+      "generated_filename": "docs/screenshots/localization/zh-Hans/guest-review-light.png",
+      "real_render": true
+    },
     {
       "screen_id": "adapted-success",
       "screen_name": "Adapted Success",
@@ -214,6 +566,17 @@
       "real_render": true
     },
     {
+      "screen_id": "dinners",
+      "screen_name": "Dinners",
+      "platform": "mobile",
+      "route_or_fixture": "fixture:dinners",
+      "theme": "dark",
+      "locale": "en",
+      "required_state": "dinners",
+      "generated_filename": "docs/screenshots/mobile/en/dark/dinners-dark.png",
+      "real_render": true
+    },
+    {
       "screen_id": "eatme-plus",
       "screen_name": "Eatme Plus",
       "platform": "mobile",
@@ -266,6 +629,28 @@
       "locale": "en",
       "required_state": "fridge",
       "generated_filename": "docs/screenshots/mobile/en/dark/fridge-dark.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "guilty-pleasure-active",
+      "screen_name": "Guilty Pleasure Active",
+      "platform": "mobile",
+      "route_or_fixture": "/chef?mode=guilty_pleasure",
+      "theme": "dark",
+      "locale": "en",
+      "required_state": "guilty-pleasure-active",
+      "generated_filename": "docs/screenshots/mobile/en/dark/guilty-pleasure-active-dark.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "guilty-pleasure-sheet",
+      "screen_name": "Guilty Pleasure Sheet",
+      "platform": "mobile",
+      "route_or_fixture": "/chef#GuiltyPleasureSheet",
+      "theme": "dark",
+      "locale": "en",
+      "required_state": "guilty-pleasure-sheet",
+      "generated_filename": "docs/screenshots/mobile/en/dark/guilty-pleasure-sheet-dark.png",
       "real_render": true
     },
     {
@@ -819,6 +1204,17 @@
       "real_render": true
     },
     {
+      "screen_id": "dinners",
+      "screen_name": "Dinners",
+      "platform": "mobile",
+      "route_or_fixture": "fixture:dinners",
+      "theme": "light",
+      "locale": "en",
+      "required_state": "dinners",
+      "generated_filename": "docs/screenshots/mobile/en/light/dinners-light.png",
+      "real_render": true
+    },
+    {
       "screen_id": "eatme-plus",
       "screen_name": "Eatme Plus",
       "platform": "mobile",
@@ -871,6 +1267,28 @@
       "locale": "en",
       "required_state": "fridge",
       "generated_filename": "docs/screenshots/mobile/en/light/fridge-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "guilty-pleasure-active",
+      "screen_name": "Guilty Pleasure Active",
+      "platform": "mobile",
+      "route_or_fixture": "/chef?mode=guilty_pleasure",
+      "theme": "light",
+      "locale": "en",
+      "required_state": "guilty-pleasure-active",
+      "generated_filename": "docs/screenshots/mobile/en/light/guilty-pleasure-active-light.png",
+      "real_render": true
+    },
+    {
+      "screen_id": "guilty-pleasure-sheet",
+      "screen_name": "Guilty Pleasure Sheet",
+      "platform": "mobile",
+      "route_or_fixture": "/chef#GuiltyPleasureSheet",
+      "theme": "light",
+      "locale": "en",
+      "required_state": "guilty-pleasure-sheet",
+      "generated_filename": "docs/screenshots/mobile/en/light/guilty-pleasure-sheet-light.png",
       "real_render": true
     },
     {
