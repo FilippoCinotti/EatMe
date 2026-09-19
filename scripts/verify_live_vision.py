@@ -19,9 +19,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "services" / "api"))
 
-from eatme.catalog import seed_catalog
-from eatme.service import Service, new_id
-from eatme.storage import Database
+from eatme.catalog import seed_catalog  # noqa: E402 -- path is configured immediately above
+from eatme.service import Service, new_id  # noqa: E402 -- path is configured immediately above
+from eatme.storage import Database  # noqa: E402 -- path is configured immediately above
 
 
 def fail(message: str) -> None:
