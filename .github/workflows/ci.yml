@@ -190,6 +190,8 @@ jobs:
           NEXT_PUBLIC_API_URL: https://api.eatme.invalid/api/v1
       - name: Capture deterministic Guest Web baseline
         run: |
+          sudo apt-get update
+          sudo apt-get install --yes fonts-noto-cjk
           npx playwright install chromium
           SCREENSHOT_MODE=1 PORT=3000 npm start -- --hostname 127.0.0.1 > "$RUNNER_TEMP/guest.log" 2>&1 &
           guest_pid=$!
