@@ -193,3 +193,11 @@ CREATE TABLE IF NOT EXISTS dinner_memories (
  data TEXT NOT NULL, created_at TEXT NOT NULL
 );
 INSERT INTO schema_versions(version) VALUES ('0005') ON CONFLICT DO NOTHING;
+CREATE INDEX IF NOT EXISTS dinners_household ON dinners(household_id);
+CREATE INDEX IF NOT EXISTS dinner_saved_guests_household ON dinner_saved_guests(household_id);
+CREATE INDEX IF NOT EXISTS dinner_participants_user ON dinner_participants(user_id);
+CREATE INDEX IF NOT EXISTS dinner_participants_saved_guest ON dinner_participants(saved_guest_id);
+CREATE INDEX IF NOT EXISTS dinner_invitations_dinner ON dinner_invitations(dinner_id);
+CREATE INDEX IF NOT EXISTS dinner_guest_responses_saved_guest ON dinner_guest_responses(remembered_guest_id);
+CREATE INDEX IF NOT EXISTS dinner_memories_household ON dinner_memories(household_id);
+INSERT INTO schema_versions(version) VALUES ('0006') ON CONFLICT DO NOTHING;

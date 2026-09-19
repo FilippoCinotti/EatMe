@@ -58,5 +58,10 @@ DO $$ BEGIN
   RAISE EXCEPTION 'Anonymous capability token access';
  EXCEPTION WHEN insufficient_privilege THEN NULL;
  END;
+ BEGIN
+  PERFORM private.eatme_is_member('household-a');
+  RAISE EXCEPTION 'Anonymous private helper execution';
+ EXCEPTION WHEN insufficient_privilege THEN NULL;
+ END;
 END $$;
 ROLLBACK;
