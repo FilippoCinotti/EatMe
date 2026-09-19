@@ -76,6 +76,8 @@ def _platform(url):
             return "youtube"
     if host == "instagram.com" and re.match(r"^/(p|reel|tv)/[^/]+$", path):
         return "instagram"
+    if host and "." in host:
+        return "web"
     raise DomainError("unsupported_recipe_source", 422)
 
 
@@ -308,6 +310,7 @@ class ContentService:
         return {"title": title, "steps": normalized, "ingredients": items, "servings": integer(value.get("servings"), minimum=1, maximum=20), "minutes": integer(value.get("minutes"), minimum=1, maximum=1440), "cuisine": text(value.get("cuisine", "other"), maximum=60), "difficulty": choice(value.get("difficulty", "beginner"), {"beginner", "confident", "advanced"}), "provenance": text(value.get("provenance", "user-import"), maximum=60), "source_url": source_url, "source_platform": source_platform, "source_thumbnail_url": thumbnail, "source_title": source_title, "source_creator": source_creator, "imported_at": imported_at, "adaptations": adaptations, "nutrition": None}
 
     def import_url(self, user_id, data):
+        self.check_allowance(user_id, 'smart_import')
         if data.get("private_use_confirmed") is not True:
             raise DomainError("private_use_confirmation_required", 422)
         url = text(data.get("url"), maximum=2000)
@@ -334,7 +337,7 @@ class ContentService:
         servings_match = re.search(r"\d+", str(recipe.get("recipeYield", ""))) if recipe else None
         minutes = _duration_minutes(recipe.get("totalTime")) if recipe else None
         thumbnail = parser.metadata.get("og:image", "")
-        return {
+        result = {
             "title": title,
             "ingredients_text": [str(item)[:500] for item in ingredients_text[:40]],
             "ingredient_rows": ingredient_rows,
@@ -347,10 +350,12 @@ class ContentService:
             "source_title": title,
             "source_creator": _author_name(recipe.get("author")) if recipe else "",
             "imported_at": now(),
-            "provenance": "public-social-link",
+            "provenance": "public-recipe-link",
             "requires_mapping": any(row["mapping_status"] != "matched" for row in ingredient_rows),
             "missing_fields": [field for field, value in (("title", title), ("ingredients", ingredients_text), ("steps", instructions), ("servings", servings_match), ("minutes", minutes)) if not value],
         }
+        self.consume_allowance(user_id, 'smart_import')
+        return result
 
     def import_review(self, user_id, data):
         home = self._household(user_id)

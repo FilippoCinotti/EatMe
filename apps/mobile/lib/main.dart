@@ -86,11 +86,21 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/chef', builder: (_, _) => const ChefTablePage()),
           GoRoute(path: '/fridge', builder: (_, _) => const FridgePage()),
           GoRoute(
-            path: '/healthy-food',
-            builder: (_, _) => const HealthyFoodPage(),
+            path: '/plan',
+            builder: (_, state) => PlannerPage(
+              initialRecipeId: state.uri.queryParameters['recipe'],
+            ),
+          ),
+          GoRoute(
+            path: '/plan/shopping',
+            builder: (_, _) => const ShoppingPage(),
           ),
           GoRoute(path: '/profile', builder: (_, _) => const ProfilePage()),
         ],
+      ),
+      GoRoute(
+        path: '/healthy-food',
+        builder: (_, _) => const HealthyFoodPage(),
       ),
       GoRoute(
         path: '/profile/edit',
@@ -117,8 +127,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/household-activity',
         builder: (_, _) => const HouseholdActivityPage(),
       ),
-      GoRoute(path: '/shopping', builder: (_, _) => const ShoppingPage()),
-      GoRoute(path: '/planner', builder: (_, _) => const PlannerPage()),
+      GoRoute(path: '/shopping', redirect: (_, _) => '/plan/shopping'),
+      GoRoute(path: '/planner', redirect: (_, _) => '/plan'),
       GoRoute(path: '/household', builder: (_, _) => const HouseholdPage()),
       GoRoute(path: '/leftovers', builder: (_, _) => const LeftoversPage()),
       GoRoute(
@@ -264,7 +274,22 @@ class LaunchPage extends ConsumerWidget {
                 ),
               ],
             )
-          : const Center(child: CircularProgressIndicator()),
+          : Center(
+              child: Semantics(
+                label: context.t('loading'),
+                child: const Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    EatMeWordmark(large: true),
+                    SizedBox(height: 26),
+                    SizedBox(
+                      width: 72,
+                      child: LinearProgressIndicator(minHeight: 2),
+                    ),
+                  ],
+                ),
+              ),
+            ),
     );
   }
 }
@@ -273,7 +298,12 @@ class AppShell extends StatelessWidget {
   const AppShell({super.key, required this.path, required this.child});
   final String path;
   final Widget child;
-  static const paths = ['/chef', '/fridge', '/healthy-food', '/profile'];
+  static const paths = ['/chef', '/fridge', '/plan', '/profile'];
+  int selectedIndex() {
+    if (path.startsWith('/plan')) return 2;
+    return paths.indexOf(path).clamp(0, 3).toInt();
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     extendBody: true,
@@ -293,7 +323,7 @@ class AppShell extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 620),
           child: GlassSurface(
             child: EatMeNavigationBar(
-              selectedIndex: paths.indexOf(path).clamp(0, 3).toInt(),
+              selectedIndex: selectedIndex(),
               onDestinationSelected: (index) => context.go(paths[index]),
               destinations: [
                 EatMeNavigationItem(
@@ -305,8 +335,8 @@ class AppShell extends StatelessWidget {
                   label: context.t('fridge'),
                 ),
                 EatMeNavigationItem(
-                  icon: EatMeGlyph.leaf,
-                  label: context.t('healthy_food'),
+                  icon: EatMeGlyph.calendarDays,
+                  label: context.t('plan'),
                 ),
                 EatMeNavigationItem(
                   icon: EatMeGlyph.userRound,

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/api.dart';
+import '../../core/entitlements.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
@@ -21,7 +22,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
   late int servings =
       ref.read(appProvider).profile['household_size'] as int? ?? 1;
   late Future<(Recipe, Json)> future = load();
-  String tab = 'ingredients';
+  String tab = 'overview';
   bool favorite = false;
   List<Json> compatibilityWarnings = [];
   bool privateRecipe = false;
@@ -125,6 +126,16 @@ class _RecipePageState extends ConsumerState<RecipePage> {
         final (recipe, plan) = snapshot.data!;
         final nutrition = plan['nutrition'] as Map?;
         final nutrients = nutrition?['totals'] as Map? ?? {};
+        final ingredientRows = plan['ingredients'] as List? ?? const [];
+        final availableCount = ingredientRows.where((value) {
+          final item = Map<String, dynamic>.from(value as Map);
+          final required = double.tryParse('${item['quantity']}');
+          final available = double.tryParse('${item['available']}');
+          return required != null && available != null && available >= required;
+        }).length;
+        final hasConflict =
+            rawRecipe['compatibility']?['status'] == 'not_compatible';
+        final needsReview = compatibilityWarnings.isNotEmpty;
         return PageBody(
           children: [
             if (plan['preview_unavailable'] != null)
@@ -171,6 +182,52 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                   icon: EatMeGlyph.utensils,
                 ),
               ],
+            ),
+            const SizedBox(height: 18),
+            InformationPanel(
+              tinted: !hasConflict,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      EatMeIcon(
+                        hasConflict
+                            ? EatMeGlyph.triangleAlert
+                            : needsReview
+                            ? EatMeGlyph.circleAlert
+                            : EatMeGlyph.shieldCheck,
+                        color: hasConflict
+                            ? Theme.of(context).colorScheme.error
+                            : Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          context.t(
+                            hasConflict
+                                ? 'diet_fit_conflict_title'
+                                : needsReview
+                                ? 'diet_fit_review_title'
+                                : 'diet_fit_match_title',
+                          ),
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    context.t(
+                      hasConflict
+                          ? 'diet_fit_conflict_body'
+                          : needsReview
+                          ? 'diet_fit_review_body'
+                          : 'diet_fit_match_body',
+                    ),
+                  ),
+                ],
+              ),
             ),
             if ('${rawRecipe['source_url'] ?? ''}'.isNotEmpty) ...[
               const SizedBox(height: 18),
@@ -311,32 +368,100 @@ class _RecipePageState extends ConsumerState<RecipePage> {
             ),
             EatMeTabStrip(
               values: [
-                for (final value in ['ingredients', 'overview', 'why'])
+                for (final value in [
+                  'overview',
+                  'ingredients',
+                  'steps',
+                  'nutrition',
+                ])
                   (value, context.t(value)),
               ],
               selected: tab,
               onSelected: (value) => setState(() => tab = value),
             ),
             const SizedBox(height: 20),
-            if (tab == 'ingredients')
-              for (final item in (plan['ingredients'] as List))
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(
-                    localized(
-                      Map<String, dynamic>.from(item['food']['name'] as Map),
-                      context.language,
+            if (tab == 'overview') ...[
+              InformationPanel(
+                tinted: false,
+                child: Row(
+                  children: [
+                    const EatMeIcon(EatMeGlyph.refrigerator, size: 26),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            context.t('you_have'),
+                            style: Theme.of(context).textTheme.labelLarge,
+                          ),
+                          Text(
+                            context.t('ingredient_coverage', {
+                              'available': availableCount,
+                              'total': ingredientRows.length,
+                            }),
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  subtitle: Text(
-                    context.t('required_available', {
-                      'required': item['quantity'] as String,
-                      'available': item['available'] as String,
-                      'unit': item['food']['unit'] as String,
-                    }),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              StatusNote(text: context.t('validation_explanation')),
+              for (final warning in compatibilityWarnings)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: StatusNote(
+                    text: context.t(warning['code'] as String),
+                    warning: true,
                   ),
                 ),
-            if (tab == 'overview')
+            ],
+            if (tab == 'ingredients')
+              for (final item in ingredientRows)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: InformationPanel(
+                    tinted: false,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    child: Row(
+                      children: [
+                        const EatMeIcon(EatMeGlyph.leaf, size: 20),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                localized(
+                                  Map<String, dynamic>.from(
+                                    item['food']['name'] as Map,
+                                  ),
+                                  context.language,
+                                ),
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              Text(
+                                context.t('required_available', {
+                                  'required': item['quantity'] as String,
+                                  'available': item['available'] as String,
+                                  'unit': item['food']['unit'] as String,
+                                }),
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            if (tab == 'steps')
               for (final (index, instruction)
                   in recipe.instructions(context.language).indexed)
                 Padding(
@@ -346,63 +471,37 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
-            if (tab == 'why') ...[
-              StatusNote(text: context.t('validation_explanation')),
-              for (final diet
-                  in ref
-                      .read(appProvider)
-                      .diets
-                      .where(
-                        (d) => (plan['diet_rules_version'] as Map).containsKey(
-                          d.id,
+            if (tab == 'nutrition') ...[
+              StatusNote(
+                text: context.t(
+                  nutrients.isEmpty
+                      ? 'nutrition_unavailable'
+                      : 'nutrition_method',
+                ),
+              ),
+              if (nutrients.isNotEmpty)
+                Text('${nutrition?['servings']} ${context.t('servings')}'),
+              for (final nutrient in nutrients.entries)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: InformationPanel(
+                    tinted: false,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(context.t('nutrient_${nutrient.key}')),
                         ),
-                      ))
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(localized(diet.name, context.language)),
-                  subtitle: Text(
-                    context.t('rule_version', {
-                      'version':
-                          (plan['diet_rules_version'] as Map)[diet.id] as int,
-                    }),
-                  ),
-                ),
-              StatusNote(text: context.t('demo_data_not_a_safety_guarantee')),
-            ],
-            const SizedBox(height: 12),
-            ExpansionTile(
-              tilePadding: EdgeInsets.zero,
-              title: Text(context.t('nutrition')),
-              children: [
-                StatusNote(
-                  text: context.t(
-                    nutrients.isEmpty
-                        ? 'nutrition_unavailable'
-                        : 'nutrition_method',
-                  ),
-                ),
-                if (nutrients.isNotEmpty)
-                  Text('${nutrition?['servings']} ${context.t('servings')}'),
-                for (final nutrient in nutrients.entries)
-                  ListTile(
-                    title: Text(context.t('nutrient_${nutrient.key}')),
-                    subtitle: nutrient.value['complete'] == true
-                        ? null
-                        : Text(context.t('partial_nutrition')),
-                    trailing: Text(
-                      '${nutrient.value['value']} ${nutrient.value['unit']}',
+                        Text(
+                          '${nutrient.value['value']} ${nutrient.value['unit']}',
+                        ),
+                      ],
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
             if ((plan['shortages'] as List).isNotEmpty)
               StatusNote(text: context.t('missing_ingredients_notice')),
             const SizedBox(height: 24),
-            for (final warning in compatibilityWarnings)
-              StatusNote(
-                text: context.t(warning['code'] as String),
-                warning: true,
-              ),
             FilledButton(
               onPressed:
                   ref.watch(appProvider).offline ||
@@ -414,6 +513,12 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                     ),
               child: Text(context.t('start_cooking')),
             ),
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              onPressed: () => context.push('/plan?recipe=${recipe.id}'),
+              icon: const EatMeIcon(EatMeGlyph.calendarDays, size: 20),
+              label: Text(context.t('add_to_plan')),
+            ),
             const SizedBox(height: 20),
             ExpansionTile(
               tilePadding: EdgeInsets.zero,
@@ -423,6 +528,20 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                   label: context.t('build_shopping_list'),
                   secondary: true,
                   action: () async {
+                    final entitlement = await ref.read(
+                      entitlementsProvider.future,
+                    );
+                    if (!entitlement.can(
+                      EntitlementCapability.generatedShopping,
+                    )) {
+                      if (context.mounted) {
+                        await showContextualPlusPrompt(
+                          context,
+                          benefit: 'generated_shopping_plus_body',
+                        );
+                      }
+                      return;
+                    }
                     await Mutation().send(
                       ref.read(apiProvider),
                       'POST',

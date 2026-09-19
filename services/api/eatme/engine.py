@@ -89,11 +89,19 @@ def compatibility(food_ids: list[str], foods: dict, profile: dict, rules: list[d
         for allergen in sorted(set(food.get("allergens",[])) & set(profile["allergies"])):
             reasons.append({"code":"contains_allergen","food_id":food_id,"allergen":allergen})
         for allergen in sorted(set(food.get("may_contain",[])) & set(profile["allergies"])):
-            reasons.append({"code":"may_contain_allergen","food_id":food_id,"allergen":allergen})
+            item = {"code":"may_contain_allergen","food_id":food_id,"allergen":allergen}
+            # Profiles created before trace handling became configurable must
+            # retain the previous fail-closed behaviour.
+            if profile.get("trace_policy", "block") == "block":
+                reasons.append(item)
+            elif profile.get("trace_policy", "block") == "review":
+                warnings.append(item)
         for intolerance in sorted(set(food.get("intolerances",[])) & set(profile["intolerances"])):
             reasons.append({"code":"intolerance_conflict","food_id":food_id,"intolerance":intolerance})
         if food_id in profile.get("never_suggest",[]):
             reasons.append({"code":"never_suggest","food_id":food_id})
+        if "no_shellfish" in profile.get("ethical_preferences", []) and set(food.get("allergens", [])) & {"crustaceans", "molluscs"}:
+            reasons.append({"code":"ethical_exclusion","food_id":food_id,"preference":"no_shellfish"})
         for rule in rules:
             matched = (food["group"] in rule.get("groups",[]) or food_id in rule.get("food_ids",[]) or
                        bool(set(food.get("allergens", [])) & set(rule.get("allergens", []))))
@@ -108,6 +116,10 @@ def compatibility(food_ids: list[str], foods: dict, profile: dict, rules: list[d
             elif rule["type"] not in {"EXCLUDE","PREFER","ALLOW"}:
                 # Unsupported scientific/nutrient operators fail closed. Never ignore a rule.
                 reasons.append({"code":"rule_not_evaluable","diet_id":rule["diet_id"]})
+    for profile_name in profile.get("medical_awareness", []):
+        warnings.append({"code":"medical_profile_requires_review","profile":profile_name})
+    for preference in set(profile.get("ethical_preferences", [])) & {"halal", "kosher"}:
+        warnings.append({"code":"certification_unknown","preference":preference})
     return {"status":"not_compatible" if reasons else "no_known_conflict", "reasons":reasons,
             "warnings":warnings, "preference_matches":preferences,
             "notice":"demo_data_not_a_safety_guarantee"}

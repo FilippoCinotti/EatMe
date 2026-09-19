@@ -6,7 +6,7 @@ The approved social-import storyboards define both the visual hierarchy and the 
 
 1. Recipe Library (or the secondary ChefTable kitchen-tools action)
 2. Import Recipe
-3. Read public YouTube or Instagram metadata
+3. Read public YouTube, Instagram or recipe-page metadata
 4. Editable recipe review
 5. Canonical ingredient mapping
 6. Complete diet and safety assessment
@@ -19,7 +19,7 @@ The draft remains local UI state until the last action. A cancelled extraction o
 
 ## Public-source extraction
 
-`POST /api/v1/recipes/import-url` accepts only HTTPS URLs for public YouTube videos/shorts and public Instagram posts/reels/TV items. The request requires `private_use_confirmed: true`. The backend uses the existing DNS-pinned, redirect-limited, response-size-limited HTTPS transport. It reads public JSON-LD recipe data and restrained Open Graph metadata; it does not authenticate to a provider, bypass access controls or use a provider-specific scraping session.
+`POST /api/v1/recipes/import-url` accepts only HTTPS URLs for public YouTube videos/shorts, public Instagram posts/reels/TV items and ordinary public recipe pages. The request requires `private_use_confirmed: true`. The backend uses the existing DNS-pinned, redirect-limited, response-size-limited HTTPS transport. It reads public schema.org Recipe JSON-LD and restrained Open Graph metadata; it does not authenticate to a provider, bypass access controls or use a provider-specific scraping session.
 
 The extractor returns only fields present in the public response:
 
@@ -68,4 +68,4 @@ An imported recipe with known conflicts may be stored only after explicit acknow
 
 ## Verification coverage
 
-API tests cover public YouTube and Instagram extraction, partial extraction, source failures, mapping states, allergens, intolerance, diets, inventory, substitutions, full re-check, provenance, acknowledgement, saving, reopening and cooking preview. Flutter tests cover the mandatory UI sequence, edit/delete/add review controls, no-save-before-confirmation, manual selection, substitution/re-check, provider failure recovery and camera permission failure. Real render tests emit every approved flow state in light and dark mode.
+API tests cover public YouTube, Instagram and recipe-page extraction, partial extraction, source failures, mapping states, allergens, intolerance, diets, inventory, substitutions, full re-check, provenance, acknowledgement, saving, reopening and cooking preview. Flutter tests cover the mandatory UI sequence, edit/delete/add review controls, no-save-before-confirmation, manual selection, substitution/re-check, provider failure recovery and camera permission failure. Real render tests emit every approved flow state in light and dark mode.

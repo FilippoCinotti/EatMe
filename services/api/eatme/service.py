@@ -13,7 +13,7 @@ from .households import HouseholdService
 from .planning import PlanningService
 from .reference_features import ReferenceFeaturesService, GOALS
 from .auth import now
-from .catalog import ALLERGENS
+from .catalog import ALLERGENS, ETHICAL_PREFERENCES, INTOLERANCES, MEDICAL_AWARENESS, SENSITIVITIES
 from .engine import active_rules, amount_milli, batch_usable, compatibility, quantity, rank, requirements
 from .errors import DomainError
 from .storage import Database, Transaction, decode, encode
@@ -61,6 +61,11 @@ class Service(ReferenceFeaturesService, HouseholdService, PlanningService, Conte
             raise DomainError("onboarding_required",409)
         row["settings"] = decode(row["settings"])
         row["settings"].setdefault("unknown_ingredient_policy", "strict")
+        row["settings"].setdefault("sensitivities", [])
+        row["settings"].setdefault("medical_awareness", [])
+        row["settings"].setdefault("ethical_preferences", [])
+        row["settings"].setdefault("trace_policy", "block")
+        row["settings"].setdefault("meal_timing", {"mode": "standard"})
         return row
 
     def _household(self, user_id: str, write: bool = False) -> str:
@@ -100,7 +105,11 @@ class Service(ReferenceFeaturesService, HouseholdService, PlanningService, Conte
                     v["effective_from"]<=current.isoformat() and (not v["effective_until"] or current.isoformat()<v["effective_until"])
                     for v in versions)
             return {"foods":list(foods.values()),"diets":diets,"allergens":ALLERGENS,
-                    "intolerances":["lactose"],"health_consent_version":HEALTH_CONSENT,
+                    "intolerances":INTOLERANCES,"sensitivities":SENSITIVITIES,
+                    "medical_awareness":MEDICAL_AWARENESS,"ethical_preferences":ETHICAL_PREFERENCES,
+                    "meal_timing":{"modes":["standard","custom","time_restricted"],
+                                   "presets":["12:12","14:10","16:8","18:6"]},
+                    "health_consent_version":HEALTH_CONSENT,
                     "medical_consent_version":MEDICAL_CONSENT,
                     "unknown_ingredient_policies":["strict","review"],
                     "is_demo":any(f.get("is_demo",False) for f in foods.values())}
@@ -115,6 +124,11 @@ class Service(ReferenceFeaturesService, HouseholdService, PlanningService, Conte
                 return {"onboarded":False}
             row["settings"] = decode(row["settings"])
             row["settings"].setdefault("unknown_ingredient_policy", "strict")
+            row["settings"].setdefault("sensitivities", [])
+            row["settings"].setdefault("medical_awareness", [])
+            row["settings"].setdefault("ethical_preferences", [])
+            row["settings"].setdefault("trace_policy", "block")
+            row["settings"].setdefault("meal_timing", {"mode": "standard"})
             row["household_size"] = tx.one("SELECT size FROM households WHERE id=?",(row["household_id"],))["size"]
             return {"onboarded":True,**row}
 
@@ -145,12 +159,64 @@ class Service(ReferenceFeaturesService, HouseholdService, PlanningService, Conte
         except (ZoneInfoNotFoundError,TypeError,ValueError):
             raise DomainError("invalid_timezone",422) from None
         allergies, intolerances = data.get("allergies",[]),data.get("intolerances",[])
+        sensitivities = data.get("sensitivities", [])
+        medical_awareness = data.get("medical_awareness", [])
+        ethical_preferences = data.get("ethical_preferences", [])
         if not isinstance(allergies,list) or any(not isinstance(v,str) or v not in ALLERGENS for v in allergies):
             raise DomainError("invalid_allergen",422)
-        if not isinstance(intolerances,list) or any(v!="lactose" for v in intolerances):
+        if not isinstance(intolerances,list) or any(v not in INTOLERANCES for v in intolerances):
             raise DomainError("invalid_intolerance",422)
-        if (allergies or intolerances) and data.get("health_consent_version") != HEALTH_CONSENT:
+        if not isinstance(sensitivities, list) or any(v not in SENSITIVITIES for v in sensitivities):
+            raise DomainError("invalid_sensitivity", 422)
+        if not isinstance(medical_awareness, list) or any(v not in MEDICAL_AWARENESS for v in medical_awareness):
+            raise DomainError("invalid_medical_awareness", 422)
+        if not isinstance(ethical_preferences, list) or any(v not in ETHICAL_PREFERENCES for v in ethical_preferences):
+            raise DomainError("invalid_ethical_preference", 422)
+        if (allergies or intolerances or sensitivities) and data.get("health_consent_version") != HEALTH_CONSENT:
             raise DomainError("health_consent_required",422)
+        trace_policy = data.get("trace_policy", "block")
+        if trace_policy not in {"ignore", "review", "block"}:
+            raise DomainError("invalid_trace_policy", 422)
+        meal_timing = data.get("meal_timing", {"mode": "standard"})
+        if not isinstance(meal_timing, dict) or meal_timing.get("mode") not in {"standard", "custom", "time_restricted"}:
+            raise DomainError("invalid_meal_timing", 422)
+        if meal_timing["mode"] != "standard":
+            for field in ("start", "end"):
+                value = meal_timing.get(field)
+                try:
+                    hour, minute = [int(part) for part in value.split(":")]
+                except (AttributeError, ValueError, TypeError):
+                    raise DomainError("invalid_meal_timing", 422) from None
+                if not 0 <= hour <= 23 or not 0 <= minute <= 59 or value != f"{hour:02d}:{minute:02d}":
+                    raise DomainError("invalid_meal_timing", 422)
+            preset = meal_timing.get("preset", "custom")
+            if preset not in {"12:12", "14:10", "16:8", "18:6", "custom"}:
+                raise DomainError("invalid_meal_timing", 422)
+            slots = meal_timing.get(
+                "slots",
+                {"breakfast": True, "lunch": True, "dinner": True, "snack": True},
+            )
+            if (
+                not isinstance(slots, dict)
+                or set(slots) != {"breakfast", "lunch", "dinner", "snack"}
+                or any(type(value) is not bool for value in slots.values())
+                or not any(slots.values())
+            ):
+                raise DomainError("invalid_meal_timing", 422)
+            meal_timing = {**meal_timing, "preset": preset, "slots": slots}
+        else:
+            slots = meal_timing.get(
+                "slots",
+                {"breakfast": True, "lunch": True, "dinner": True, "snack": True},
+            )
+            if (
+                not isinstance(slots, dict)
+                or set(slots) != {"breakfast", "lunch", "dinner", "snack"}
+                or any(type(value) is not bool for value in slots.values())
+                or not any(slots.values())
+            ):
+                raise DomainError("invalid_meal_timing", 422)
+            meal_timing = {"mode": "standard", "slots": slots}
         assignments = data.get("diets",[])
         if not isinstance(assignments,list) or len(assignments)>8:
             raise DomainError("invalid_diet",422)
@@ -177,13 +243,16 @@ class Service(ReferenceFeaturesService, HouseholdService, PlanningService, Conte
                 active_rules(assignments,versions,self.today({"timezone":timezone}))
                 chosen = {a["diet_id"] for a in assignments}
                 medical = [d for d in diets if d["id"] in chosen and d["medical"]]
-                if medical:
+                if medical or medical_awareness:
                     if data.get("medical_consent_version") != MEDICAL_CONSENT:
                         raise DomainError("medical_consent_required",422)
                 never = data.get("never_suggest",[])
                 if not isinstance(never,list) or any(f not in foods for f in never):
                     raise DomainError("invalid_food",422)
                 settings = {"diets":assignments,"allergies":sorted(set(allergies)),"intolerances":sorted(set(intolerances)),
+                            "sensitivities":sorted(set(sensitivities)),"medical_awareness":sorted(set(medical_awareness)),
+                            "ethical_preferences":sorted(set(ethical_preferences)),"trace_policy":trace_policy,
+                            "meal_timing":meal_timing,
                             "never_suggest":never,"timezone":timezone,"adult_confirmed":True,
                             "primary_goal":primary_goal,"primary_diet":primary_diet,
                             "unknown_ingredient_policy":unknown_policy}
@@ -207,9 +276,9 @@ class Service(ReferenceFeaturesService, HouseholdService, PlanningService, Conte
                     version = 1
                 # Withdrawal is explicit: removing all health fields withdraws the previous consent.
                 tx.execute("UPDATE consents SET withdrawn_at=? WHERE user_id=? AND withdrawn_at IS NULL",(stamp,user_id))
-                if allergies or intolerances:
+                if allergies or intolerances or sensitivities:
                     tx.execute("INSERT INTO consents VALUES (?,?,?,?,?,?)",(new_id(),user_id,"health_profile",HEALTH_CONSENT,stamp,None))
-                if medical:
+                if medical or medical_awareness:
                     tx.execute("INSERT INTO consents VALUES (?,?,?,?,?,?)",(new_id(),user_id,"medical_nutrition",MEDICAL_CONSENT,stamp,None))
                 return {"user_id":user_id,"household_id":household_id,"version":version,"onboarded":True}
             return self._once(tx,user_id,key,"profile",data,save)

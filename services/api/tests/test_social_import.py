@@ -7,7 +7,7 @@ from unittest.mock import patch
 from eatme.catalog import identifier, seed_catalog
 from eatme.errors import DomainError
 from eatme.service import HEALTH_CONSENT, Service, new_id
-from eatme.storage import Database
+from eatme.storage import Database, encode
 
 
 def page(recipe=None, *, description="", title="Source recipe"):
@@ -69,6 +69,41 @@ class SocialImportCase(unittest.TestCase):
         with self.db.transaction() as tx:
             self.assertEqual(tx.one("SELECT COUNT(*) AS n FROM content_ownership WHERE kind='recipe'")["n"], 0)
 
+    def test_free_import_allowance_is_centralized_and_plus_is_unlimited(self):
+        with patch("eatme.content.https_request", return_value=page(self.recipe)):
+            for index in range(3):
+                self.service.import_url(
+                    self.user,
+                    {
+                        "url": f"https://www.youtube.com/watch?v=public-{index}",
+                        "private_use_confirmed": True,
+                    },
+                )
+            self.assertEqual(self.service.entitlements(self.user)["remaining"]["smart_import"], 0)
+            self.assert_code(
+                "smart_import_limit_reached",
+                lambda: self.service.import_url(
+                    self.user,
+                    {"url": "https://youtu.be/fourth", "private_use_confirmed": True},
+                ),
+            )
+            with self.db.transaction() as tx:
+                tx.execute(
+                    "INSERT INTO subscriptions VALUES (?,?,?,?)",
+                    (
+                        self.user,
+                        "revenuecat",
+                        encode({"eatme_plus": {"active": True}}),
+                        "2026-09-16T00:00:00+00:00",
+                    ),
+                )
+            result = self.service.import_url(
+                self.user,
+                {"url": "https://youtu.be/fourth", "private_use_confirmed": True},
+            )
+            self.assertEqual(result["source_platform"], "youtube")
+            self.assertEqual(self.service.entitlements(self.user)["tier"], "eatme_plus")
+
     def test_public_instagram_caption_can_be_partially_extracted(self):
         description = "Ingredients:\n200 g tomatoes\na handful of mystery herb\nMethod:\nMix everything."
         with patch("eatme.content.https_request", return_value=page(description=description)):
@@ -81,12 +116,26 @@ class SocialImportCase(unittest.TestCase):
         self.assertEqual(result["ingredient_rows"][1]["mapping_status"], "unknown")
         self.assertTrue(result["requires_mapping"])
 
+    def test_public_recipe_page_uses_structured_data(self):
+        with patch("eatme.content.https_request", return_value=page(self.recipe)):
+            result = self.service.import_url(
+                self.user,
+                {
+                    "url": "https://recipes.example/lemon-pasta",
+                    "private_use_confirmed": True,
+                },
+            )
+        self.assertEqual(result["source_platform"], "web")
+        self.assertEqual(result["provenance"], "public-recipe-link")
+        self.assertEqual(result["source_creator"], "Public creator")
+        self.assertEqual(len(result["ingredient_rows"]), 3)
+
     def test_unsupported_private_deleted_and_network_failures_are_distinct(self):
         self.assert_code(
             "unsupported_recipe_source",
             lambda: self.service.import_url(
                 self.user,
-                {"url": "https://example.com/recipe", "private_use_confirmed": True},
+                {"url": "https://localhost/recipe", "private_use_confirmed": True},
             ),
         )
         with patch("eatme.content.https_request", return_value=b"<html>login required</html>"):
@@ -205,14 +254,15 @@ class SavingsCase(unittest.TestCase):
         self.db = Database(self.temp.name + "/eatme.db")
         self.db.migrate_local()
         seed_catalog(self.db)
-        self.service = Service(self.db, clock=lambda: date(2026, 9, 14))
+        self.today = date.today()
+        self.service = Service(self.db, clock=lambda: self.today)
         self.user = new_id()
         self.service.save_profile(self.user, {"name": "Alex", "adult_confirmed": True}, new_id())
 
     def test_estimates_use_recorded_cost_and_versioned_carbon_factor(self):
         batch = self.service.add_inventory(
             self.user,
-            {"food_id": identifier("food", "tomato"), "quantity": "100", "expiry_date": "2026-09-15", "expiry_kind": "best_before"},
+            {"food_id": identifier("food", "tomato"), "quantity": "100", "expiry_date": self.today.isoformat(), "expiry_kind": "best_before"},
             new_id(),
         )
         self.service.inventory_metadata(
@@ -250,7 +300,7 @@ class SavingsCase(unittest.TestCase):
     def test_recorded_value_never_exceeds_batch_cost_across_events(self):
         batch = self.service.add_inventory(
             self.user,
-            {"food_id": identifier("food", "tomato"), "quantity": "100", "expiry_date": "2026-09-15", "expiry_kind": "best_before"},
+            {"food_id": identifier("food", "tomato"), "quantity": "100", "expiry_date": self.today.isoformat(), "expiry_kind": "best_before"},
             new_id(),
         )
         self.service.inventory_metadata(

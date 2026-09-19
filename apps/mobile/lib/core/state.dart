@@ -14,6 +14,10 @@ class AppState {
     this.foods = const [],
     this.diets = const [],
     this.allergens = const [],
+    this.intolerances = const [],
+    this.sensitivities = const [],
+    this.medicalAwareness = const [],
+    this.ethicalPreferences = const [],
     this.inventory = const [],
     this.leftovers = const [],
     this.recommendations = const [],
@@ -29,6 +33,10 @@ class AppState {
   final List<Food> foods;
   final List<Diet> diets;
   final List<String> allergens;
+  final List<String> intolerances;
+  final List<String> sensitivities;
+  final List<String> medicalAwareness;
+  final List<String> ethicalPreferences;
   final List<Batch> inventory;
   final List<Json> leftovers;
   final List<Recommendation> recommendations;
@@ -43,6 +51,10 @@ class AppState {
     List<Food>? foods,
     List<Diet>? diets,
     List<String>? allergens,
+    List<String>? intolerances,
+    List<String>? sensitivities,
+    List<String>? medicalAwareness,
+    List<String>? ethicalPreferences,
     List<Batch>? inventory,
     List<Json>? leftovers,
     List<Recommendation>? recommendations,
@@ -58,6 +70,10 @@ class AppState {
     foods: foods ?? this.foods,
     diets: diets ?? this.diets,
     allergens: allergens ?? this.allergens,
+    intolerances: intolerances ?? this.intolerances,
+    sensitivities: sensitivities ?? this.sensitivities,
+    medicalAwareness: medicalAwareness ?? this.medicalAwareness,
+    ethicalPreferences: ethicalPreferences ?? this.ethicalPreferences,
     inventory: inventory ?? this.inventory,
     leftovers: leftovers ?? this.leftovers,
     recommendations: recommendations ?? this.recommendations,
@@ -136,6 +152,18 @@ class AppController extends Notifier<AppState> {
           .map((d) => Diet.fromJson(Map<String, dynamic>.from(d as Map)))
           .toList(),
       allergens: List<String>.from(catalog['allergens'] as List),
+      intolerances: List<String>.from(
+        catalog['intolerances'] as List? ?? const [],
+      ),
+      sensitivities: List<String>.from(
+        catalog['sensitivities'] as List? ?? const [],
+      ),
+      medicalAwareness: List<String>.from(
+        catalog['medical_awareness'] as List? ?? const [],
+      ),
+      ethicalPreferences: List<String>.from(
+        catalog['ethical_preferences'] as List? ?? const [],
+      ),
       stage: profile['onboarded'] == true ? Stage.ready : Stage.onboarding,
     );
     if (state.stage == Stage.ready) await refresh();

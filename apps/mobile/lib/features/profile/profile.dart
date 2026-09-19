@@ -153,7 +153,7 @@ class ProfilePage extends ConsumerWidget {
           LayoutBuilder(
             builder: (context, constraints) {
               final tools = [
-                ('meal_planner', '/planner', EatMeGlyph.calendarDays),
+                ('meal_planner', '/plan', EatMeGlyph.calendarDays),
                 ('shopping_list', '/shopping', EatMeGlyph.shoppingBasket),
                 ('recipe_library', '/recipe-library', EatMeGlyph.bookOpen),
               ];
@@ -271,7 +271,7 @@ class _ProfileToolsSheet extends StatelessWidget {
       ),
       const SizedBox(height: 16),
       for (final item in [
-        ('meal_planner', '/planner', EatMeGlyph.calendarDays),
+        ('meal_planner', '/plan', EatMeGlyph.calendarDays),
         ('shopping_list', '/shopping', EatMeGlyph.shoppingBasket),
         ('recipe_library', '/recipe-library', EatMeGlyph.bookOpen),
         ('leftovers', '/leftovers', EatMeGlyph.packageOpen),

@@ -79,7 +79,7 @@ class EatMeCase(unittest.TestCase):
 
     def test_supported_profiles_are_directly_selectable(self):
         diets = {diet["slug"]: diet for diet in self.service.catalog()["diets"]}
-        for slug in ["mediterranean", "vegetarian", "vegan", "pescatarian", "high-protein", "gluten-free", "celiac", "rad"]:
+        for slug in ["omnivore", "mediterranean", "vegetarian", "vegan", "pescatarian", "flexitarian", "plant-forward", "low-carb", "low-fat", "high-protein", "whole-food", "gluten-free", "celiac", "rad"]:
             self.assertTrue(diets[slug]["selectable"], slug)
 
     def test_celiac_gluten_rule_is_hard_even_when_profile_is_flexible(self):
@@ -103,6 +103,57 @@ class EatMeCase(unittest.TestCase):
         self.assertEqual(settings["primary_diet"], primary)
         self.assertEqual(settings["unknown_ingredient_policy"], "review")
         self.assertCode("invalid_unknown_ingredient_policy", lambda: self.update_profile(unknown_ingredient_policy="safe"))
+
+    def test_structured_profile_keeps_medical_awareness_and_uncertainty_explicit(self):
+        from eatme.service import MEDICAL_CONSENT
+
+        self.update_profile(
+            allergies=["wheat"],
+            intolerances=["fructose"],
+            sensitivities=["histamine"],
+            medical_awareness=["renal"],
+            ethical_preferences=["halal", "no_shellfish"],
+            trace_policy="review",
+            meal_timing={
+                "mode": "time_restricted",
+                "preset": "16:8",
+                "start": "12:00",
+                "end": "20:00",
+                "slots": {"breakfast": False, "lunch": True, "dinner": True, "snack": False},
+            },
+            health_consent_version=HEALTH_CONSENT,
+            medical_consent_version=MEDICAL_CONSENT,
+        )
+        settings = self.service.get_profile(self.user)["settings"]
+        self.assertEqual(settings["meal_timing"]["start"], "12:00")
+        self.assertEqual(settings["meal_timing"]["preset"], "16:8")
+        self.assertFalse(settings["meal_timing"]["slots"]["breakfast"])
+        self.assertEqual(settings["medical_awareness"], ["renal"])
+        assessment = self.service.food_compatibility(self.user, identifier("food", "pasta"))["assessment"]
+        self.assertIn("contains_allergen", {reason["code"] for reason in assessment["reasons"]})
+        self.assertEqual(
+            {warning["code"] for warning in assessment["warnings"]},
+            {"medical_profile_requires_review", "certification_unknown"},
+        )
+
+    def test_invalid_meal_window_and_unacknowledged_medical_awareness_fail(self):
+        self.assertCode(
+            "invalid_meal_timing",
+            lambda: self.update_profile(meal_timing={"mode": "time_restricted", "start": "25:00", "end": "20:00"}),
+        )
+        self.assertCode(
+            "invalid_meal_timing",
+            lambda: self.update_profile(
+                meal_timing={
+                    "mode": "standard",
+                    "slots": {"breakfast": False, "lunch": False, "dinner": False, "snack": False},
+                }
+            ),
+        )
+        self.assertCode(
+            "medical_consent_required",
+            lambda: self.update_profile(medical_awareness=["diabetes"]),
+        )
 
     def test_profile_rule_conflicts_are_detected_and_explained(self):
         versions = [

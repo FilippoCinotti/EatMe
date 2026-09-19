@@ -5,7 +5,7 @@ from datetime import date
 from eatme.catalog import identifier, seed_catalog
 from eatme.errors import DomainError
 from eatme.service import HEALTH_CONSENT, Service, new_id
-from eatme.storage import Database
+from eatme.storage import Database, encode
 
 
 class DomainCase(unittest.TestCase):
@@ -32,6 +32,13 @@ class DomainCase(unittest.TestCase):
 
     def meal(self, slug='sunny-bowl'):
         return {'recipe_id': identifier('recipe', slug), 'servings': 2, 'date': '2026-09-11', 'slot': 'dinner'}
+
+    def enable_plus(self):
+        with self.db.transaction() as tx:
+            tx.execute(
+                "INSERT INTO subscriptions VALUES (?,?,?,?)",
+                (self.owner, 'test', encode({'eatme_plus': {'active': True}}), '2026-09-11T00:00:00+00:00'),
+            )
 
     def test_deletion_tombstone_blocks_access_and_new_members(self):
         invite = self.app.household_action(self.owner, {'action': 'invite'}, new_id())
@@ -87,6 +94,7 @@ class DomainCase(unittest.TestCase):
             self.assertIsNone(tx.one('SELECT 1 FROM member_permissions WHERE user_id=?', (self.guest,)))
 
     def test_plan_shopping_aggregates_stock_once_and_purchase_is_idempotent(self):
+        self.enable_plus()
         self.app.add_inventory(self.owner, {'food_id': identifier('food', 'tomato'), 'quantity': '100'}, new_id())
         plan = self.app.plan_action(self.owner, {'action': 'save', 'start_date': '2026-09-11', 'meals': [self.meal(), {**self.meal(), 'date': '2026-09-12'}]}, new_id())
         command = {'action': 'generate', 'plan_id': plan['id']}
@@ -108,6 +116,11 @@ class DomainCase(unittest.TestCase):
         update = {'action': 'check', 'id': item['id'], 'expected_version': 1, 'checked': True}
         self.app.shopping_action(self.owner, update, new_id())
         self.assertCode('stale_shopping_item', lambda: self.app.shopping_action(self.owner, update, new_id()))
+        self.assertCode(
+            'eatme_plus_required',
+            lambda: self.app.plan_action(self.owner, {'action': 'generate', 'start_date': '2026-09-11'}, new_id()),
+        )
+        self.enable_plus()
         plan = self.app.plan_action(self.owner, {'action': 'generate', 'start_date': '2026-09-11'}, new_id())
         self.assertEqual(len(plan['data']['meals']), 7)
         self.assertGreater(len({m['recipe_id'] for m in plan['data']['meals']}), 1)

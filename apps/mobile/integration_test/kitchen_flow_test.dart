@@ -53,6 +53,11 @@ void main() {
     final tomato = foods.firstWhere(
       (food) => '${food['name']['en']}'.toLowerCase().contains('tomato'),
     );
+    final recipes = await api.request('GET', '/recipes');
+    final recipe = Map<String, dynamic>.from(
+      (recipes['items'] as List).first as Map,
+    );
+    final recipeTitle = '${(recipe['title'] as Map)['en']}';
     await api.request(
       'POST',
       '/shopping',
@@ -81,17 +86,23 @@ void main() {
     expect((await api.request('GET', '/shopping'))['items'], isEmpty);
     container.read(routerProvider).go('/planner');
     await tester.pumpAndSettle();
-    await waitFor(tester, find.text('Suggest seven dinners'));
-    await tester.ensureVisible(find.text('Suggest seven dinners'));
-    await tester.tap(find.text('Suggest seven dinners'));
-    await waitFor(tester, find.text('Add missing ingredients to shopping'));
+    await waitFor(tester, find.text('Dinner').first);
+    await tester.ensureVisible(find.text('Dinner').first);
+    await tester.tap(find.text('Dinner').first);
+    await waitFor(tester, find.text(recipeTitle));
+    await tester.tap(find.text(recipeTitle));
+    await waitFor(tester, find.text('Servings'));
+    await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
-    final plans = await api.request('GET', '/plans');
-    expect(plans['items'][0]['data']['meals'].length, 7);
-    final recipes = await api.request('GET', '/recipes');
-    final recipe = Map<String, dynamic>.from(
-      (recipes['items'] as List).first as Map,
-    );
+    Json plans = {};
+    final planDeadline = DateTime.now().add(const Duration(seconds: 30));
+    while (DateTime.now().isBefore(planDeadline)) {
+      plans = await api.request('GET', '/plans');
+      if ((plans['items'] as List).isNotEmpty) break;
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect((plans['items'] as List), isNotEmpty);
+    expect(plans['items'][0]['data']['meals'].length, 1);
     container.read(routerProvider).go('/cook/${recipe['id']}?servings=1');
     await tester.pumpAndSettle();
     for (
@@ -106,9 +117,9 @@ void main() {
     await tester.ensureVisible(find.text('I’m done'));
     await tester.tap(find.text('I’m done'));
     await tester.pumpAndSettle();
-    await waitFor(tester, find.text('Confirm & update Fridge'));
-    await tester.ensureVisible(find.text('Confirm & update Fridge'));
-    await tester.tap(find.text('Confirm & update Fridge'));
+    await waitFor(tester, find.text('Update all'));
+    await tester.ensureVisible(find.text('Update all'));
+    await tester.tap(find.text('Update all'));
     await waitFor(tester, find.text('Fridge updated.'));
     await tester.pumpAndSettle();
     final Json exported = await api.request('GET', '/privacy/export');

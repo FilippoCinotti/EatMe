@@ -23,6 +23,7 @@ HARD_SAFETY_CODES = {
     "may_contain_allergen",
     "intolerance_conflict",
     "never_suggest",
+    "ethical_exclusion",
 }
 
 

@@ -11,9 +11,111 @@ from .storage import decode, encode
 from .validation import choice, integer, new_id, text, valid_uuid
 
 CATEGORIES = {'expiry', 'plans', 'shopping', 'household', 'recalls'}
+PLUS_ENTITLEMENTS = {'eatme_plus', 'premium'}
+CAPABILITIES = {
+    'canUseUnlimitedImports': False,
+    'canUseAdvancedDietFit': False,
+    'canUseAdvancedSubstitutions': False,
+    'canUseReceiptRecognition': False,
+    'canUseAdvancedPhotoRecognition': False,
+    'canUseAdvancedFridgeRecognition': False,
+    'canUseGeneratedShopping': False,
+    'canUseSmartPlanning': False,
+    'canUseHouseholdProfiles': False,
+    'canUseAdvancedMealTiming': False,
+    'canUsePremiumInsights': False,
+    # Backward-compatible alias for clients released before Smart Planning
+    # received its final product name.
+    'canUseAdvancedPlanning': False,
+    'canSeeSafetyWarnings': True,
+    'canUseManualInventory': True,
+    'canUseBasicPlanning': True,
+    'canUseManualShopping': True,
+}
 
 
 class LifecycleService:
+    @staticmethod
+    def _plus_active(entitlements):
+        return any(
+            name in PLUS_ENTITLEMENTS and item.get('active') is True
+            for name, item in entitlements.items()
+            if isinstance(item, dict)
+        )
+
+    @staticmethod
+    def _free_limits():
+        return {
+            'smart_import': int(os.getenv('FREE_SMART_IMPORT_LIMIT', '3')),
+            'smart_substitution': int(os.getenv('FREE_SMART_SUBSTITUTION_LIMIT', '3')),
+        }
+
+    def _entitlement_snapshot(self, tx, user_id, entitlements):
+        plus = self._plus_active(entitlements)
+        limits = self._free_limits()
+        rows = {
+            row['capability']: row['used']
+            for row in tx.all(
+                "SELECT capability,used FROM usage_counters WHERE user_id=? AND period='lifetime'",
+                (user_id,),
+            )
+        }
+        capabilities = dict(CAPABILITIES)
+        if plus:
+            capabilities.update({name: True for name in capabilities if name.startswith('canUse')})
+        return {
+            'tier': 'eatme_plus' if plus else 'free',
+            'capabilities': capabilities,
+            'limits': {name: None if plus else limit for name, limit in limits.items()},
+            'usage': {name: rows.get(name, 0) for name in limits},
+            'remaining': {
+                name: None if plus else max(limit - rows.get(name, 0), 0)
+                for name, limit in limits.items()
+            },
+        }
+
+    def check_allowance(self, user_id, capability):
+        with self.db.transaction() as tx:
+            row = tx.one('SELECT data FROM subscriptions WHERE user_id=?', (user_id,))
+            entitlements = decode(row['data']) if row else {}
+            snapshot = self._entitlement_snapshot(tx, user_id, entitlements)
+            if snapshot['remaining'].get(capability) == 0:
+                raise DomainError(
+                    capability + '_limit_reached',
+                    429,
+                    {'tier': snapshot['tier'], 'limit': snapshot['limits'][capability]},
+                )
+
+    def require_capability(self, user_id, capability):
+        with self.db.transaction() as tx:
+            row = tx.one('SELECT data FROM subscriptions WHERE user_id=?', (user_id,))
+            entitlements = decode(row['data']) if row else {}
+            snapshot = self._entitlement_snapshot(tx, user_id, entitlements)
+            if snapshot['capabilities'].get(capability) is not True:
+                raise DomainError(
+                    'eatme_plus_required',
+                    403,
+                    {'capability': capability, 'tier': snapshot['tier']},
+                )
+
+    def consume_allowance(self, user_id, capability):
+        with self.db.transaction() as tx:
+            row = tx.one('SELECT data FROM subscriptions WHERE user_id=?', (user_id,))
+            entitlements = decode(row['data']) if row else {}
+            if self._plus_active(entitlements):
+                return
+            limit = self._free_limits()[capability]
+            tx.execute(
+                "INSERT INTO usage_counters VALUES (?,?,'lifetime',0) ON CONFLICT DO NOTHING",
+                (user_id, capability),
+            )
+            changed = tx.execute(
+                "UPDATE usage_counters SET used=used+1 WHERE user_id=? AND capability=? AND period='lifetime' AND used<?",
+                (user_id, capability, limit),
+            )
+            if changed.rowcount != 1:
+                raise DomainError(capability + '_limit_reached', 429, {'tier': 'free', 'limit': limit})
+
     def feature_enabled(self, name):
         defaults = {'ai_scan': bool(os.getenv('AI_PROVIDER')), 'receipt_scan': bool(os.getenv('AI_PROVIDER')), 'ai_recipe': bool(os.getenv('AI_PROVIDER')), 'barcode_scan': bool(os.getenv('PRODUCT_CONTACT')), 'subscriptions': bool(os.getenv('REVENUECAT_SECRET_KEY'))}
         with self.db.transaction() as tx:
@@ -92,7 +194,16 @@ class LifecycleService:
             with self.db.transaction() as tx:
                 tx.execute('INSERT INTO subscriptions VALUES (?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET data=excluded.data,checked_at=excluded.checked_at', (user_id, 'revenuecat', encode(verified), now()))
             row = {'data': encode(verified), 'checked_at': now()}
-        return {'configured': bool(secret), 'entitlements': decode(row['data']) if row else {}, 'checked_at': row['checked_at'] if row else None, 'capabilities': {'manual_inventory': True, 'shopping': True, 'planning': True, 'cooking': True}, 'offerings_source': 'revenuecat' if secret else None}
+        verified = decode(row['data']) if row else {}
+        with self.db.transaction() as tx:
+            snapshot = self._entitlement_snapshot(tx, user_id, verified)
+        return {
+            'configured': bool(secret),
+            'entitlements': verified,
+            'checked_at': row['checked_at'] if row else None,
+            **snapshot,
+            'offerings_source': 'revenuecat' if secret else None,
+        }
 
     def analytics(self, user_id, data):
         with self.db.transaction() as tx:

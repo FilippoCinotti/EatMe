@@ -1,16 +1,16 @@
 # EatMe
 
-EatMe is a Flutter application for Android and iOS that connects household food inventory, recipe discovery, cooking, shopping and meal planning. A Python API owns dietary validation and inventory transactions. A Next.js studio manages catalog and evidence review.
+EatMe is a Flutter food decision engine for Android and iOS: **your recipes, your fridge, your diet, one decision**. ChefTable decides, Fridge tracks what is available, Plan organizes what comes next, and Profile controls how EatMe adapts. A Python API owns dietary validation, entitlements and inventory transactions. A Next.js studio manages catalog and evidence review.
 
 ## Screenshots
 
-ChefTable, Fridge, HealthyFood and Profile in light and dark themes. These are actual Flutter widget-test renders of the premium UI with isolated demonstration data, captured at 390 × 844 with bundled EatMe fonts. The food images are AI-generated illustrations bundled with the demo catalog; they do not represent a user's food or recognition results.
+ChefTable, Fridge, Plan and Profile in light and dark themes. These are actual Flutter widget-test renders of the premium UI with isolated demonstration data, captured at 390 × 844 with bundled EatMe fonts. The food images are AI-generated illustrations bundled with the demo catalog; they do not represent a user's food or recognition results.
 
 | Light theme | Dark theme |
 | :---: | :---: |
 | <img src="docs/screenshots/chef-light.png" width="280" alt="ChefTable with nearby recorded food dates and a zucchini and spinach pasta suggestion." /> | <img src="docs/screenshots/chef-dark.png" width="280" alt="ChefTable in the dark theme." /> |
 | <img src="docs/screenshots/fridge-light.png" width="280" alt="Fridge with storage filters, search and photographed inventory cards." /> | <img src="docs/screenshots/fridge-dark.png" width="280" alt="Fridge in the dark theme." /> |
-| <img src="docs/screenshots/healthy-food-light.png" width="280" alt="HealthyFood with ingredient categories and a photographic food grid." /> | <img src="docs/screenshots/healthy-food-dark.png" width="280" alt="HealthyFood in the dark theme." /> |
+| <img src="docs/screenshots/plan-light.png" width="280" alt="Plan week with meal slots and Smart Plan controls." /> | <img src="docs/screenshots/plan-dark.png" width="280" alt="Plan in the dark theme." /> |
 | <img src="docs/screenshots/profile-light.png" width="280" alt="Profile with dietary settings and kitchen tools." /> | <img src="docs/screenshots/profile-dark.png" width="280" alt="Profile in the dark theme." /> |
 
 The images are stored in this repository, so they remain available after CI artifacts expire. To regenerate them, run `flutter test test/visual_reference_test.dart test/premium_journeys_test.dart test/reference_features_test.dart test/social_recipe_import_test.dart` from `apps/mobile` with `FLUTTER_ROOT` pointing to the Flutter SDK; PNG renders are written to `build/screenshots/`. The committed copies are the original PNG renders without resizing. The tests also exercise 1.6× text scaling, compact Italian layouts, secondary journeys and persistent allergy warnings. See the [visual design notes](docs/product/visual-design.md) for the reference direction and asset provenance.
@@ -45,7 +45,7 @@ The valid feature work was preserved on the same branch before redesigning its p
 Install **Flutter 3.47.2**, **Python 3.12**, and Git. Android development also needs Android Studio, an Android SDK/emulator and JDK 17. iOS development needs a Mac with Xcode, its simulator runtimes and CocoaPods where required by Flutter plugins.
 
 ```bash
-git clone --branch feat/reference-features https://github.com/FilippoCinotti/EatMe.git
+git clone https://github.com/FilippoCinotti/EatMe.git
 cd EatMe
 python -m pip install -e 'services/api[dev]'
 python scripts/dev.py
@@ -68,11 +68,11 @@ Register a development account in the app. Local authentication and demonstratio
 
 ## Application workflows
 
-- **ChefTable:** constraint-aware suggestions, recipe detail, favorites, feedback, private imports, ingredient substitution drafts and guided cooking.
+- **ChefTable:** decision-first, constraint-aware suggestions, recipe detail, social import, favorites, feedback and guided cooking.
 - **Fridge:** individual batches, quantities, locations, dates, stock events, barcode products, confirmed photo/receipt imports and leftovers.
-- **HealthyFood:** ingredient compatibility, source-attributed nutrition where available, and approved evidence retrieval.
+- **Plan:** week and meal slots, non-persistent Smart Plan preview, generated/manual Shopping List and confirmed purchase-to-Fridge reconciliation.
 - **Profile:** dietary consent, household membership, preferences, reminders, export, deletion and offline synchronization.
-- **Shopping and planning:** weekly meal slots, automatic dinner suggestions, usable-stock deficit calculation, purchase-to-inventory transactions and concurrency checks.
+- **Diet & Health:** structured eating styles, allergies, intolerances, sensitivities, medical awareness, reviewed protocols, ethical/religious preferences, meal timing and explicit uncertainty.
 - **Editorial studio:** drafts, independent review, publication, deprecation, reports, feature flags and audit history.
 
 The canonical catalog is deliberately small in development. Unknown ingredients and unavailable scientific rules fail closed. RAD and other uncurated clinical profiles cannot be activated by a language-model answer.
@@ -94,5 +94,7 @@ The canonical catalog is deliberately small in development. Unknown ingredients 
 Copy `.env.example` to a local environment file and load it with your process manager. The scripts do not silently load arbitrary environment files. Configure external providers only when you intend to use them. No secret key belongs in the mobile app.
 
 Read [local development](docs/development/local-setup.md), [provider setup](docs/development/providers.md), [release process](docs/releases/release-process.md), and [verification](docs/product/verification.md). Store publication requires live backend configuration, signing accounts, public legal/support resources and device validation; source delivery alone does not satisfy those gates.
+
+Product architecture and commercial boundaries are documented in [Food Decision Engine](docs/product/food-decision-engine.md), [Free vs EatMe+](docs/product/free-vs-eatme-plus.md), and [Diet & Health safety](docs/product/diet-health-safety.md).
 
 All documentation, source comments and new GitHub review text are maintained in English. User-facing mobile strings support English and Italian.

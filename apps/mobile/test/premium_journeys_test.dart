@@ -5,17 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:eatme/core/models.dart';
+import 'package:eatme/core/entitlements.dart';
 import 'package:eatme/core/state.dart';
 import 'package:eatme/design_system/widgets.dart';
 import 'package:eatme/features/auth/login.dart';
+import 'package:eatme/features/onboarding/onboarding.dart';
 import 'package:eatme/features/chef_table/chef_table.dart';
 import 'package:eatme/features/fridge/fridge.dart';
 import 'package:eatme/features/fridge/expiry.dart';
 import 'package:eatme/features/profile/diet_health.dart';
 import 'package:eatme/features/organize/settings.dart';
+import 'package:eatme/features/organize/subscriptions.dart';
 import 'package:eatme/features/organize/household.dart';
 import 'package:eatme/features/profile/profile.dart';
 import 'package:eatme/features/recipe/recipe.dart';
+import 'package:eatme/main.dart';
 import 'application_test.dart' as support;
 import 'visual_reference_test.dart' as visual;
 
@@ -41,6 +45,10 @@ class JourneyController extends visual.VisualController {
       },
     },
     allergens: const ['gluten', 'eggs', 'peanut', 'milk', 'nuts'],
+    intolerances: const ['lactose', 'fructose', 'sorbitol'],
+    sensitivities: const ['caffeine', 'alcohol', 'spicy_food', 'histamine'],
+    medicalAwareness: const ['ibs', 'diabetes', 'renal', 'hypertension'],
+    ethicalPreferences: const ['halal', 'kosher', 'no_pork', 'no_alcohol'],
     diets: const [
       Diet(
         'diet-med',
@@ -92,6 +100,11 @@ class JourneyController extends visual.VisualController {
   Future<void> hydrate() async {}
 }
 
+class LaunchController extends JourneyController {
+  @override
+  AppState build() => super.build().copy(stage: Stage.loading);
+}
+
 class JourneyApi extends support.TestApi {
   @override
   Future<Json> request(
@@ -133,6 +146,16 @@ class JourneyApi extends support.TestApi {
           'daily_cap': 3,
         },
         'items': <Json>[],
+      };
+    }
+    if (path == '/entitlements') {
+      return {
+        'tier': 'free',
+        'configured': false,
+        'capabilities': <String, bool>{},
+        'limits': <String, dynamic>{'smart_import': 3},
+        'usage': <String, dynamic>{'smart_import': 2},
+        'remaining': <String, dynamic>{'smart_import': 1},
       };
     }
     if (path.startsWith('/recipes/')) {
@@ -192,9 +215,163 @@ Future<void> capture(
   });
 }
 
+Future<void> captureFinder(
+  WidgetTester tester,
+  Finder boundary,
+  String name,
+) async {
+  await tester.runAsync(() async {
+    final image = await (tester.renderObject(boundary) as RenderRepaintBoundary)
+        .toImage();
+    final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+    final file = File('build/screenshots/$name.png');
+    await file.parent.create(recursive: true);
+    await file.writeAsBytes(bytes!.buffer.asUint8List());
+    image.dispose();
+  });
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(visual.loadFonts);
+  for (final dark in [false, true]) {
+    testWidgets(
+      'launch and progressive onboarding ${dark ? 'dark' : 'light'}',
+      (tester) async {
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final launchBoundary = GlobalKey();
+        await tester.pumpWidget(
+          support.harness(
+            RepaintBoundary(key: launchBoundary, child: const LaunchPage()),
+            JourneyApi(),
+            dark: dark,
+            controller: LaunchController.new,
+          ),
+        );
+        await tester.pump();
+        await capture(
+          tester,
+          launchBoundary,
+          'native-splash-reference-${dark ? 'dark' : 'light'}',
+        );
+
+        final onboardingBoundary = GlobalKey();
+        await tester.pumpWidget(
+          support.harness(
+            RepaintBoundary(
+              key: onboardingBoundary,
+              child: const OnboardingPage(),
+            ),
+            JourneyApi(),
+            dark: dark,
+            controller: JourneyController.new,
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(FilledButton, 'Continue').last);
+        await tester.pumpAndSettle();
+        for (final name in [
+          'onboarding-eating-style',
+          'onboarding-allergies',
+          'onboarding-sensitivities',
+          'onboarding-medical',
+          'onboarding-meal-timing',
+        ]) {
+          await capture(
+            tester,
+            onboardingBoundary,
+            '$name-${dark ? 'dark' : 'light'}',
+          );
+          if (name != 'onboarding-meal-timing') {
+            await tester.tap(
+              find.widgetWithText(FilledButton, 'Continue').last,
+            );
+            await tester.pumpAndSettle();
+          }
+        }
+      },
+    );
+
+    testWidgets('EatMe+ and contextual paywall ${dark ? 'dark' : 'light'}', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final boundary = GlobalKey();
+      await tester.pumpWidget(
+        support.harness(
+          RepaintBoundary(
+            key: boundary,
+            child: const SubscriptionsPage(
+              illustrativePrices: [
+                IllustrativeStorePrice(
+                  title: 'Monthly',
+                  price: '€4.99',
+                  period: 'month',
+                ),
+                IllustrativeStorePrice(
+                  title: 'Annual',
+                  price: '€49.99',
+                  period: 'year',
+                  savingsPercent: 17,
+                ),
+              ],
+            ),
+          ),
+          JourneyApi(),
+          dark: dark,
+          controller: JourneyController.new,
+        ),
+      );
+      await tester.pumpAndSettle();
+      await capture(tester, boundary, 'eatme-plus-${dark ? 'dark' : 'light'}');
+      await tester.scrollUntilVisible(
+        find.text('Annual'),
+        360,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      await capture(
+        tester,
+        boundary,
+        'eatme-plus-pricing-${dark ? 'dark' : 'light'}',
+      );
+
+      await tester.pumpWidget(
+        support.harness(
+          Builder(
+            builder: (context) => Scaffold(
+              body: Center(
+                child: FilledButton(
+                  key: const ValueKey('show-plus'),
+                  onPressed: () => showContextualPlusPrompt(
+                    context,
+                    benefit: 'smart_import_plus_body',
+                  ),
+                  child: const Text('Show'),
+                ),
+              ),
+            ),
+          ),
+          JourneyApi(),
+          dark: dark,
+          controller: JourneyController.new,
+        ),
+      );
+      await tester.tap(find.byKey(const ValueKey('show-plus')));
+      await tester.pumpAndSettle();
+      await captureFinder(
+        tester,
+        find.byKey(const ValueKey('contextual-plus-boundary')),
+        'contextual-smart-import-paywall-${dark ? 'dark' : 'light'}',
+      );
+    });
+  }
   for (final dark in [false, true]) {
     for (final scale in [1.0, 1.6]) {
       for (final page in <(String, Widget)>[
@@ -335,6 +512,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('diet-section-eating')));
+    await tester.pumpAndSettle();
     final vegan = find.byKey(const ValueKey('diet-vegan'));
     await tester.scrollUntilVisible(
       vegan,
@@ -347,18 +526,6 @@ void main() {
         )
         .onTap!();
     await tester.pump();
-    final strictUnknown = find.byKey(const ValueKey('unknown-strict'));
-    await tester.scrollUntilVisible(
-      strictUnknown,
-      400,
-      scrollable: find.byType(Scrollable).first,
-    );
-    tester
-        .widget<InkWell>(
-          find.descendant(of: strictUnknown, matching: find.byType(InkWell)),
-        )
-        .onTap!();
-    await tester.pump();
     final save = find.byKey(const ValueKey('save-diet-health'));
     await tester.scrollUntilVisible(
       save,
@@ -367,16 +534,35 @@ void main() {
     );
     await tester.tap(save);
     await tester.pumpAndSettle();
-    final call = api.calls.lastWhere(
-      (value) => value['method'] == 'PUT' && value['path'] == '/profile',
-    );
-    final body = Map<String, dynamic>.from(call['body'] as Map);
-    expect(body['unknown_ingredient_policy'], 'strict');
+    final unknownSection = find.byKey(const ValueKey('diet-section-unknown'));
+    tester.widget<SettingRow>(unknownSection).onTap!();
+    await tester.pumpAndSettle();
+    final strictUnknown = find.byKey(const ValueKey('unknown-strict'));
+    tester
+        .widget<InkWell>(
+          find.descendant(of: strictUnknown, matching: find.byType(InkWell)),
+        )
+        .onTap!();
+    await tester.pump();
+    await tester
+        .widget<AsyncAction>(find.byKey(const ValueKey('save-diet-health')))
+        .action();
+    await tester.pumpAndSettle();
+    final calls = api.calls
+        .where(
+          (value) => value['method'] == 'PUT' && value['path'] == '/profile',
+        )
+        .toList();
+    final eatingBody = Map<String, dynamic>.from(calls.first['body'] as Map);
+    final unknownBody = Map<String, dynamic>.from(calls.last['body'] as Map);
     expect(
-      (body['diets'] as List).any((value) => value['diet_id'] == 'diet-vegan'),
+      (eatingBody['diets'] as List).any(
+        (value) => value['diet_id'] == 'diet-vegan',
+      ),
       isTrue,
     );
-    expect(body['never_suggest'], [visual.feta.id]);
+    expect(unknownBody['unknown_ingredient_policy'], 'strict');
+    expect(unknownBody['never_suggest'], [visual.feta.id]);
     expect(find.text('Diet & Health updated'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -402,27 +588,78 @@ void main() {
       await capture(
         tester,
         boundary,
-        'diet-health-profiles-${dark ? 'dark' : 'light'}',
+        'diet-health-hub-${dark ? 'dark' : 'light'}',
       );
-      for (final target in <(Key, String)>[
-        (const ValueKey('diet-rad'), 'diet-health-rad'),
-        (const ValueKey('allergen-milk'), 'diet-health-safety'),
-        (ValueKey('exclude-${visual.feta.id}'), 'diet-health-exclusions'),
-        (const ValueKey('unknown-review'), 'diet-health-unknown-policy'),
+      for (final target in <(Key, Key, String)>[
+        (
+          const ValueKey('diet-section-eating'),
+          const ValueKey('diet-mediterranean'),
+          'diet-health-eating-style',
+        ),
+        (
+          const ValueKey('diet-section-medical'),
+          const ValueKey('diet-rad'),
+          'diet-health-medical',
+        ),
+        (
+          const ValueKey('diet-section-allergies'),
+          const ValueKey('allergen-milk'),
+          'diet-health-allergies',
+        ),
+        (
+          const ValueKey('diet-section-sensitivities'),
+          const ValueKey('intolerance-lactose'),
+          'diet-health-sensitivities',
+        ),
+        (
+          const ValueKey('diet-section-therapeutic'),
+          const ValueKey('diet-gluten-free'),
+          'diet-health-therapeutic',
+        ),
+        (
+          const ValueKey('diet-section-ethics'),
+          const ValueKey('ethical-no_pork'),
+          'diet-health-ethical',
+        ),
+        (
+          const ValueKey('diet-section-timing'),
+          const ValueKey('meal-timing-standard'),
+          'diet-health-meal-timing',
+        ),
+        (
+          const ValueKey('diet-section-exclusions'),
+          ValueKey('exclude-${visual.feta.id}'),
+          'diet-health-exclusions',
+        ),
+        (
+          const ValueKey('diet-section-unknown'),
+          const ValueKey('unknown-review'),
+          'diet-health-unknown-policy',
+        ),
       ]) {
-        final finder = find.byKey(target.$1);
+        final section = find.byKey(target.$1);
+        await tester.scrollUntilVisible(
+          section,
+          260,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.tap(section);
+        await tester.pumpAndSettle();
+        final finder = find.byKey(target.$2);
         await tester.scrollUntilVisible(
           finder,
           360,
           scrollable: find.byType(Scrollable).first,
         );
         await tester.pumpAndSettle();
-        await capture(
+        await captureFinder(
           tester,
-          boundary,
-          '${target.$2}-${dark ? 'dark' : 'light'}',
+          find.byKey(const ValueKey('diet-health-editor-boundary')),
+          '${target.$3}-${dark ? 'dark' : 'light'}',
         );
         expect(tester.takeException(), isNull);
+        await tester.pageBack();
+        await tester.pumpAndSettle();
       }
     });
   }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="168dp"
+    android:height="54dp"
+    android:viewportWidth="336"
+    android:viewportHeight="108">
+    <!-- A compact native vector wordmark avoids bitmap scaling and network work. -->
+    <path android:fillColor="@color/launch_wordmark" android:pathData="M18,24 L76,24 L76,37 L34,37 L34,48 L70,48 L70,61 L34,61 L34,72 L78,72 L78,85 L18,85 Z"/>
+    <path android:fillColor="@color/launch_wordmark" android:pathData="M87,43 C98,35 120,35 131,43 C138,49 139,58 139,69 L139,85 L124,85 L124,79 C116,87 96,89 87,80 C79,72 81,59 91,54 C99,50 111,50 124,52 C123,45 109,43 96,50 Z M124,62 C113,59 98,60 97,68 C96,76 115,77 124,69 Z"/>
+    <path android:fillColor="@color/launch_wordmark" android:pathData="M154,25 L169,25 L169,38 L185,38 L185,50 L169,50 L169,67 C169,73 173,75 181,72 L186,83 C166,91 154,82 154,68 L154,50 L145,50 L145,38 L154,38 Z"/>
+    <path android:fillColor="@color/launch_wordmark" android:pathData="M199,24 L217,24 L238,61 L259,24 L277,24 L277,85 L261,85 L261,49 L243,80 L233,80 L215,49 L215,85 L199,85 Z"/>
+    <path android:fillColor="@color/launch_wordmark" android:pathData="M292,47 C304,34 327,37 334,51 C337,57 337,64 335,69 L303,69 C307,77 320,78 329,72 L335,82 C317,94 291,86 286,68 C284,60 286,52 292,47 Z M303,59 L323,59 C321,51 307,51 303,59 Z"/>
+    <path android:fillColor="@color/launch_accent" android:pathData="M302,19 C307,7 320,3 333,4 C332,17 323,26 310,27 C304,27 299,24 302,19 Z"/>
+</vector>
