@@ -21,7 +21,7 @@ class GuiltyPleasureSheet extends StatefulWidget {
   State<GuiltyPleasureSheet> createState() => _GuiltyPleasureSheetState();
 }
 
-class _GuiltyPleasureSheetState extends State<_GuiltyPleasureSheet> {
+class _GuiltyPleasureSheetState extends State<GuiltyPleasureSheet> {
   String scope = 'meal';
 
   @override
@@ -57,24 +57,29 @@ class _GuiltyPleasureSheetState extends State<_GuiltyPleasureSheet> {
           ),
         ),
         const SizedBox(height: 18),
-        if (!widget.active) ...[
-          Text(
-            context.t('guilty_pleasure_scope'),
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          RadioListTile<String>(
-            value: 'meal',
+        if (!widget.active)
+          RadioGroup<String>(
             groupValue: scope,
-            title: Text(context.t('this_meal')),
-            onChanged: (value) => setState(() => scope = value!),
+            onChanged: (value) =>
+                setState(() => scope = value ?? scope),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  context.t('guilty_pleasure_scope'),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                RadioListTile<String>(
+                  value: 'meal',
+                  title: Text(context.t('this_meal')),
+                ),
+                RadioListTile<String>(
+                  value: 'day',
+                  title: Text(context.t('today')),
+                ),
+              ],
+            ),
           ),
-          RadioListTile<String>(
-            value: 'day',
-            groupValue: scope,
-            title: Text(context.t('today')),
-            onChanged: (value) => setState(() => scope = value!),
-          ),
-        ],
         StatusNote(text: context.t('guilty_pleasure_safety')),
         const SizedBox(height: 18),
         FilledButton(
