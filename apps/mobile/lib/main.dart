@@ -1,10 +1,13 @@
 import 'features/profile/diet_health.dart';
+
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'core/api.dart';
 import 'core/localization.dart';
 import 'core/state.dart';
@@ -244,7 +247,14 @@ class _EatMeAppState extends ConsumerState<EatMeApp> {
       darkTheme: Tokens.theme(Brightness.dark),
       themeMode: state.theme,
       locale: state.locale,
-      supportedLocales: const [Locale('it'), Locale('en')],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('it'),
+        Locale('es'),
+        Locale('fr'),
+        Locale('de'),
+        Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+      ],
       localizationsDelegates: const [
         EatMeStrings.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -319,9 +329,8 @@ class AppShell extends StatelessWidget {
     extendBody: true,
     body: MediaQuery(
       data: MediaQuery.of(context).copyWith(
-        padding: MediaQuery.paddingOf(
-          context,
-        ).copyWith(bottom: MediaQuery.paddingOf(context).bottom + 92),
+        padding: MediaQuery.paddingOf(context)
+            .copyWith(bottom: MediaQuery.paddingOf(context).bottom + 92),
       ),
       child: child,
     ),

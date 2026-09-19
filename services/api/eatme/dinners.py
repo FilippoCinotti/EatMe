@@ -132,13 +132,19 @@ class DinnerService:
             "LEFT JOIN dinner_guest_responses r ON r.invitation_id=i.id WHERE i.token_hash=?",
             (_token_hash(token),),
         )
-        if (
-            not row
-            or row["revoked_at"]
-            or row["dinner_status"] != "planned"
-            or _utc(row["expires_at"], code="invitation_unavailable") <= datetime.now(timezone.utc)
-        ):
+        if not row:
             raise DomainError("invitation_unavailable", 404)
+        reason = None
+        if row["revoked_at"]:
+            reason = "revoked"
+        elif row["dinner_status"] == "cancelled":
+            reason = "cancelled"
+        elif row["dinner_status"] != "planned":
+            reason = "unavailable"
+        elif _utc(row["expires_at"], code="invitation_unavailable") <= datetime.now(timezone.utc):
+            reason = "expired"
+        if reason:
+            raise DomainError("invitation_unavailable", 404, {"reason": reason})
         return row
 
     def _participant_view(self, row: dict, *, include_response: bool = False) -> dict:

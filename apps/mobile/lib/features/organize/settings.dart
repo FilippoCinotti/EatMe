@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../core/localization.dart';
 import '../../core/reminders.dart';
 import '../../core/models.dart';
@@ -57,14 +58,30 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
             const SizedBox(height: 16),
             _ControlLabel(
               label: context.t('language'),
-              child: EatMeTabStrip(
-                values: [
-                  for (final language in ['it', 'en'])
-                    (language, context.t('language_$language')),
+              child: DropdownButtonFormField<String>(
+                isExpanded: true,
+                initialValue: context.language == 'zh'
+                    ? 'zh-Hans'
+                    : context.language,
+                items: [
+                  for (final language in [
+                    'en',
+                    'it',
+                    'es',
+                    'fr',
+                    'de',
+                    'zh-Hans',
+                  ])
+                    DropdownMenuItem(
+                      value: language,
+                      child: Text(context.t('language_$language')),
+                    ),
                 ],
-                selected: context.language,
-                onSelected: (value) =>
-                    ref.read(appProvider.notifier).setLocale(value),
+                onChanged: (value) {
+                  if (value != null) {
+                    ref.read(appProvider.notifier).setLocale(value);
+                  }
+                },
               ),
             ),
           ],
@@ -448,9 +465,8 @@ class _InsightsState extends ResourceState<InsightsPage> {
         const SizedBox(height: 8),
         Text(
           context.t('insights_support'),
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+          style: Theme.of(context).textTheme.bodyLarge
+              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: 24),
         EatMeTabStrip(

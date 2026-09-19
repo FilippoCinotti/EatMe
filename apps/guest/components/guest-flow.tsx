@@ -32,6 +32,23 @@ export type InvitePayload = {
   };
   expires_at: string;
 };
+export type InviteProblem = "unavailable" | "expired" | "revoked" | "cancelled" | "network";
+
+export function GuestUnavailable({ locale, problem }: { locale: Locale; problem: InviteProblem }) {
+  const t = copy[locale];
+  const title = problem === "unavailable" ? t.unavailable : t[problem];
+  const detail = problem === "unavailable" ? t.unavailableDetail : t[`${problem}Detail` as keyof typeof t];
+  return (
+    <main className="centered">
+      <div className="brand">EatMe</div>
+      <section className="card">
+        <span className="eyebrow">{t.invitation}</span>
+        <h1>{title}</h1>
+        <p>{detail}</p>
+      </section>
+    </main>
+  );
+}
 
 function label(value: string): string {
   return value.replaceAll("_", " ").replaceAll("-", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
@@ -79,15 +96,19 @@ export default function GuestFlow({
   invitation,
   locale,
   token,
+  initialStep,
+  initialStatus = "idle",
 }: {
   api: string;
   invitation: InvitePayload;
   locale: Locale;
   token: string;
+  initialStep?: number;
+  initialStatus?: "idle" | "saving" | "saved" | "deleted" | "error";
 }) {
   const t = copy[locale];
   const prior = invitation.response;
-  const [step, setStep] = useState(prior ? 7 : 0);
+  const [step, setStep] = useState(initialStep ?? (prior ? 7 : 0));
   const [rsvp, setRsvp] = useState<"accepted" | "declined">(prior?.rsvp ?? "accepted");
   const [style, setStyle] = useState(prior?.eating_style ?? "");
   const [allergies, setAllergies] = useState(prior?.settings.allergies ?? []);
@@ -96,7 +117,7 @@ export default function GuestFlow({
   const [avoidances, setAvoidances] = useState(prior?.settings.never_suggest ?? []);
   const [note, setNote] = useState(prior?.note ?? "");
   const [remember, setRemember] = useState(prior?.remember_me ?? false);
-  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "deleted" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "deleted" | "error">(initialStatus);
   const endpoint = `${api}/guest/invites/${encodeURIComponent(token)}/response`;
   const date = useMemo(
     () =>

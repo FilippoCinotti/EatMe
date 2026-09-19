@@ -1,8 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+
 import '../../core/api.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
@@ -84,9 +86,8 @@ class _CookingPageState extends ConsumerState<CookingPage> {
       );
       if (remaining == 0) {
         t.cancel();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.t('timer_done'))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.t('timer_done'))));
       }
     });
   }
@@ -149,9 +150,9 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                           child: CircularProgressIndicator(
                             value: remaining / (durationMinutes * 60),
                             strokeWidth: 7,
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primaryContainer,
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer,
                           ),
                         ),
                         const EatMeIcon(EatMeGlyph.timer, size: 32),
@@ -353,9 +354,9 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
                                     ),
                                     context.language,
                                   ),
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
                                 ),
                                 Text(
                                   '${raw['quantity']} ${raw['food']['unit']}',
@@ -419,6 +420,9 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
                   );
                   savedLeftovers = leftovers;
                 }
+                await ref
+                    .read(appProvider.notifier)
+                    .completeGuiltyPleasureMeal();
                 await ref.read(appProvider.notifier).refresh();
                 if (context.mounted) {
                   context.go(

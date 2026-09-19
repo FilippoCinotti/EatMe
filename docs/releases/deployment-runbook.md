@@ -2,7 +2,7 @@
 
 ## Prepare a staging environment
 
-1. Use a separate Supabase project and restricted database login. Apply all five immutable migrations using `MIGRATION_DATABASE_URL` and `python scripts/migrate.py`. Grant the API login membership in `eatme_backend`; it must not be the migration owner, a superuser or a role with `BYPASSRLS`.
+1. Use a separate Supabase project and restricted database login. Apply all six immutable migrations using `MIGRATION_DATABASE_URL` and `python scripts/migrate.py`. Grant the API login membership in `eatme_backend`; it must not be the migration owner, a superuser or a role with `BYPASSRLS`.
 2. Link the deployment to Supabase project `ngqetldudwzemdhjprmv` (`https://ngqetldudwzemdhjprmv.supabase.co`). Configure asymmetric JWT signing, email delivery, redirect URLs and Google/Apple identities as described in the provider guide. Supply the public publishable/anon key to the mobile build, and keep `SUPABASE_SERVICE_ROLE_KEY` only in the API/worker secret environment for identity deletion.
 3. Build the API image from the reviewed commit: `docker build -t YOUR_REGISTRY/eatme-api:COMMIT services/api`. Push it to your registry and record its immutable digest as `EATME_IMAGE`.
 4. Create a private `.env.production` from `.env.example`. Set the PostgreSQL connection, Supabase URL, stable encryption key, editorial bootstrap account and enabled integration credentials. Do not supply the migration credential to runtime containers. Keep `AI_PROVIDER` empty until its provider and disclosure are configured; never use `development` in staging or production.
@@ -33,3 +33,5 @@ Monitor API availability and error rates, database connections, processing jobs 
 Back up PostgreSQL and the stable encryption key using separate access controls. Back up private media only if the backup retention policy honors its short lifetime. Run a restore rehearsal in an isolated environment before release. Record restore time and verify tenant isolation after restoration. Restrict database, media and provider credentials to the smallest required service roles.
 
 Roll back the application by redeploying the previous immutable image and studio build. Applied migrations are immutable; do not run destructive reverse migrations. If a rollback cannot read the new schema, restore a rehearsed backup into a separate database and review data loss before switching traffic. Use server feature flags to disable optional integrations while investigating an incident. Retain the tested commit, mobile build numbers and migration checksums in each release record.
+
+The TestFlight signing and upload procedure is in [testflight.md](testflight.md). Infrastructure ownership, DNS/TLS, monitoring, AI limits and external blockers are tracked in [production-readiness.md](production-readiness.md).

@@ -1,7 +1,9 @@
 import 'premium_fonts.dart';
+
 import 'dart:io';
 import 'dart:convert';
 import 'dart:ui' as ui;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +14,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:eatme/core/api.dart';
 import 'package:eatme/core/entitlements.dart';
+import 'package:eatme/core/guilty_pleasure.dart';
 import 'package:eatme/core/localization.dart';
 import 'package:eatme/core/models.dart';
 import 'package:eatme/core/state.dart';
@@ -22,6 +25,7 @@ import 'package:eatme/features/chef_table/chef_table.dart';
 import 'package:eatme/features/organize/shopping.dart';
 import 'package:eatme/features/organize/household.dart';
 import 'package:eatme/features/organize/recipe_library.dart';
+import 'package:eatme/features/organize/guilty_pleasure.dart';
 
 const uid = '00000000-0000-4000-8000-000000000001';
 const home = '00000000-0000-4000-8000-000000000002';
@@ -29,20 +33,24 @@ const home = '00000000-0000-4000-8000-000000000002';
 class TestStrings extends LocalizationsDelegate<EatMeStrings> {
   const TestStrings();
   @override
-  bool isSupported(Locale locale) => ['en', 'it'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      ['en', 'it', 'es', 'fr', 'de', 'zh'].contains(locale.languageCode);
   @override
-  Future<EatMeStrings> load(Locale locale) => SynchronousFuture(
-    EatMeStrings(
-      Map<String, String>.from(
-        jsonDecode(
-              File(
-                'assets/l10n/${locale.languageCode}.json',
-              ).readAsStringSync(),
-            )
-            as Map,
-      ),
-    ),
-  );
+  Future<EatMeStrings> load(Locale locale) {
+    final values = Map<String, String>.from(
+      jsonDecode(File('assets/l10n/en.json').readAsStringSync()) as Map,
+    );
+    final tag = locale.languageCode == 'zh' ? 'zh-Hans' : locale.languageCode;
+    if (tag != 'en') {
+      values.addAll(
+        Map<String, String>.from(
+          jsonDecode(File('assets/l10n/$tag.json').readAsStringSync()) as Map,
+        ),
+      );
+    }
+    return SynchronousFuture(EatMeStrings(values));
+  }
+
   @override
   bool shouldReload(TestStrings old) => false;
 }
@@ -157,7 +165,14 @@ Widget harness(
   ],
   child: MaterialApp(
     locale: Locale(language),
-    supportedLocales: const [Locale('en'), Locale('it')],
+    supportedLocales: const [
+      Locale('en'),
+      Locale('it'),
+      Locale('es'),
+      Locale('fr'),
+      Locale('de'),
+      Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+    ],
     localizationsDelegates: const [
       TestStrings(),
       GlobalMaterialLocalizations.delegate,
@@ -219,6 +234,66 @@ void main() {
     expect(free.can(EntitlementCapability.smartPlanning), isFalse);
     expect(free.remainingFor('smart_import'), 2);
   });
+  test('Guilty Pleasure expires and scheduled meal scope stays isolated', () {
+    final now = DateTime(2026, 9, 19, 19);
+    expect(
+      GuiltyPleasureContext.restore(
+        'meal',
+        now.subtract(const Duration(minutes: 1)).toIso8601String(),
+        now,
+      ),
+      isNull,
+    );
+    final plans = <Json>[
+      {
+        'data': {
+          'preference_overrides': [
+            {
+              'mode': 'guilty_pleasure',
+              'scope': 'meal',
+              'date': '2026-09-19',
+              'slot': 'dinner',
+            },
+          ],
+        },
+      },
+    ];
+    expect(
+      scheduledPreferenceMode(plans, now, slot: 'dinner'),
+      'guilty_pleasure',
+    );
+    expect(scheduledPreferenceMode(plans, now, slot: 'lunch'), 'for_you');
+    expect(
+      scheduledPreferenceMode(plans, DateTime(2026, 9, 20), slot: 'dinner'),
+      'for_you',
+    );
+  });
+  for (final language in ['en', 'it', 'es', 'fr', 'de', 'zh-Hans']) {
+    testWidgets('Guilty Pleasure safety copy renders in $language', (
+      tester,
+    ) async {
+      final locale = language == 'zh-Hans' ? 'zh' : language;
+      await tester.pumpWidget(
+        harness(
+          Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => showGuiltyPleasureSheet(context),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+          TestApi(),
+          language: locale,
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      expect(find.byType(RadioListTile<String>), findsNWidgets(2));
+      expect(find.textContaining('unknown_error'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
   testWidgets('Plan shopping keeps the Plan destination selected', (
     tester,
   ) async {

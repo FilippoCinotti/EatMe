@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'api.dart';
 import 'models.dart';
 import 'reminders.dart';
+
 import 'package:flutter/services.dart';
 
+import 'guilty_pleasure.dart';
+
 enum Stage { loading, login, onboarding, ready, failed }
+
+Locale localeFromTag(String value) => value == 'zh-Hans'
+    ? const Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans')
+    : Locale(value);
 
 class AppState {
   const AppState({
@@ -27,6 +35,7 @@ class AppState {
     this.offline = false,
     this.isDemo = false,
     this.mode = 'for_you',
+    this.guiltyPleasure,
   });
   final Stage stage;
   final Json profile;
@@ -45,6 +54,9 @@ class AppState {
   final String? error;
   final bool offline, isDemo;
   final String mode;
+  final GuiltyPleasureContext? guiltyPleasure;
+  bool get guiltyPleasureActive =>
+      guiltyPleasure?.activeAt(DateTime.now()) == true;
   AppState copy({
     Stage? stage,
     Json? profile,
@@ -64,6 +76,8 @@ class AppState {
     bool? offline,
     bool? isDemo,
     String? mode,
+    GuiltyPleasureContext? guiltyPleasure,
+    bool clearGuiltyPleasure = false,
   }) => AppState(
     stage: stage ?? this.stage,
     profile: profile ?? this.profile,
@@ -83,6 +97,9 @@ class AppState {
     offline: offline ?? this.offline,
     isDemo: isDemo ?? this.isDemo,
     mode: mode ?? this.mode,
+    guiltyPleasure: clearGuiltyPleasure
+        ? null
+        : guiltyPleasure ?? this.guiltyPleasure,
   );
 }
 
@@ -101,12 +118,21 @@ class AppController extends Notifier<AppState> {
       await api.restore();
       final theme = await EatMeApi.secure.read(key: 'eatme.theme');
       final locale = await EatMeApi.secure.read(key: 'eatme.locale');
+      final pleasure = GuiltyPleasureContext.restore(
+        await EatMeApi.secure.read(key: _guiltyPleasureKey('scope')),
+        await EatMeApi.secure.read(key: _guiltyPleasureKey('expires_at')),
+        DateTime.now(),
+      );
+      if (pleasure == null) await _clearGuiltyPleasureStorage();
       state = state.copy(
         theme: ThemeMode.values.firstWhere(
           (t) => t.name == theme,
           orElse: () => ThemeMode.system,
         ),
-        locale: locale == null ? null : Locale(locale),
+        locale: locale == null ? null : localeFromTag(locale),
+        mode: pleasure == null ? 'for_you' : 'guilty_pleasure',
+        guiltyPleasure: pleasure,
+        clearGuiltyPleasure: pleasure == null,
       );
       if (api.token == null) {
         state = state.copy(stage: Stage.login);
@@ -171,6 +197,10 @@ class AppController extends Notifier<AppState> {
   }
 
   Future<void> refresh({String? mode}) async {
+    if (state.guiltyPleasure != null && !state.guiltyPleasureActive) {
+      await _clearGuiltyPleasureStorage();
+      state = state.copy(mode: 'for_you', clearGuiltyPleasure: true);
+    }
     final chosenMode = mode ?? state.mode;
     try {
       final inventory = await api.request('GET', '/inventory');
@@ -274,9 +304,51 @@ class AppController extends Notifier<AppState> {
   }
 
   Future<void> setLocale(String value) async {
-    state = state.copy(locale: Locale(value));
+    state = state.copy(locale: localeFromTag(value));
     await EatMeApi.secure.write(key: 'eatme.locale', value: value);
   }
+
+  Future<void> enableGuiltyPleasure(String scope) async {
+    final expiresAt = guiltyPleasureExpiry(scope, DateTime.now());
+    final value = GuiltyPleasureContext(scope: scope, expiresAt: expiresAt);
+    await EatMeApi.secure.write(key: _guiltyPleasureKey('scope'), value: scope);
+    await EatMeApi.secure.write(
+      key: _guiltyPleasureKey('expires_at'),
+      value: expiresAt.toIso8601String(),
+    );
+    state = state.copy(mode: 'guilty_pleasure', guiltyPleasure: value);
+    await refresh(mode: 'guilty_pleasure');
+  }
+
+  Future<void> setRecommendationMode(String value) async {
+    if (value != 'guilty_pleasure') {
+      await _clearGuiltyPleasureStorage();
+      state = state.copy(clearGuiltyPleasure: true);
+    }
+    await refresh(mode: value);
+  }
+
+  Future<void> disableGuiltyPleasure({
+    bool refreshRecommendations = true,
+  }) async {
+    await _clearGuiltyPleasureStorage();
+    state = state.copy(mode: 'for_you', clearGuiltyPleasure: true);
+    if (refreshRecommendations) await refresh(mode: 'for_you');
+  }
+
+  Future<void> completeGuiltyPleasureMeal() async {
+    if (state.guiltyPleasure?.scope == 'meal') {
+      await disableGuiltyPleasure(refreshRecommendations: false);
+    }
+  }
+
+  Future<void> _clearGuiltyPleasureStorage() async {
+    await EatMeApi.secure.delete(key: _guiltyPleasureKey('scope'));
+    await EatMeApi.secure.delete(key: _guiltyPleasureKey('expires_at'));
+  }
+
+  String _guiltyPleasureKey(String field) =>
+      'eatme.${api.userId ?? 'signed-out'}.guilty_pleasure.$field';
 
   Future<void> logout() async {
     await api.logout();

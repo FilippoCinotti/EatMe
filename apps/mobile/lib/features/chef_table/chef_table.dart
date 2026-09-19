@@ -1,12 +1,15 @@
 import 'recipe_favorite.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
 import '../fridge/fridge.dart';
+import '../organize/guilty_pleasure.dart';
 
 class ChefTablePage extends ConsumerStatefulWidget {
   const ChefTablePage({super.key});
@@ -115,15 +118,33 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                   'quick',
                   'no_shopping',
                   'health_first',
+                  'guilty_pleasure',
                 ]) ...[
                   _ModePill(
                     label: context.t(value),
                     selected: state.mode == value,
-                    onTap: state.offline
+                    onTap:
+                        state.offline &&
+                            !(value == 'guilty_pleasure' &&
+                                state.guiltyPleasureActive)
                         ? null
-                        : () => ref
-                              .read(appProvider.notifier)
-                              .refresh(mode: value),
+                        : () async {
+                            final controller = ref.read(appProvider.notifier);
+                            if (value == 'guilty_pleasure') {
+                              final choice = await showGuiltyPleasureSheet(
+                                context,
+                                active: state.guiltyPleasureActive,
+                              );
+                              if (!mounted) return;
+                              if (choice == 'off') {
+                                await controller.disableGuiltyPleasure();
+                              } else if (choice == 'meal' || choice == 'day') {
+                                await controller.enableGuiltyPleasure(choice!);
+                              }
+                            } else {
+                              await controller.setRecommendationMode(value);
+                            }
+                          },
                   ),
                   const SizedBox(width: 8),
                 ],
@@ -131,6 +152,37 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
             ),
           ),
           const SizedBox(height: 16),
+          if (state.guiltyPleasureActive) ...[
+            InformationPanel(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const EatMeIcon(EatMeGlyph.sparkles, size: 24),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          context.t('guilty_pleasure_tonight'),
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(context.t('guilty_pleasure_active_body')),
+                        TextButton(
+                          onPressed: () => ref
+                              .read(appProvider.notifier)
+                              .disableGuiltyPleasure(),
+                          child: Text(context.t('turn_off')),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
           SearchPill(
             hint: context.t('recipe_search_hint'),
             onChanged: (value) => setState(() => query = value),
@@ -514,9 +566,8 @@ class _ChefFiltersState extends ConsumerState<ChefFilters> {
       const SizedBox(height: 6),
       Text(
         context.t('cooking_your_way'),
-        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
+        style: Theme.of(context).textTheme.bodyLarge
+            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
       const SizedBox(height: 20),
       for (final value in [
@@ -625,9 +676,9 @@ class RecipeCard extends StatelessWidget {
                           meta,
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                               ),
                         ),
                         if (r.warnings.isNotEmpty) ...[

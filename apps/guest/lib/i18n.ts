@@ -34,6 +34,14 @@ export type Copy = {
   deleted: string;
   unavailable: string;
   unavailableDetail: string;
+  expired: string;
+  expiredDetail: string;
+  revoked: string;
+  revokedDetail: string;
+  cancelled: string;
+  cancelledDetail: string;
+  network: string;
+  networkDetail: string;
   privacy: string;
   privacyDetail: string;
   error: string;
@@ -71,6 +79,10 @@ export const copy: Record<Locale, Copy> = {
     deleted: "Your response was deleted.",
     unavailable: "This invitation is unavailable",
     unavailableDetail: "It may have expired, been replaced, or the dinner may have been cancelled. Ask the host for a new link.",
+    expired: "This invitation has expired", expiredDetail: "Ask the host for a new invitation link.",
+    revoked: "This invitation was replaced", revokedDetail: "Use the latest link from your host.",
+    cancelled: "This dinner was cancelled", cancelledDetail: "No response is needed.",
+    network: "We couldn’t load the invitation", networkDetail: "Check your connection and try again.",
     privacy: "Your privacy",
     privacyDetail: "Your answers are used only to plan this dinner unless you explicitly ask the household to remember them.",
     error: "We couldn’t save that. Check the link and try again.",
@@ -89,6 +101,10 @@ export const copy: Record<Locale, Copy> = {
     saved: "La tua risposta è stata salvata.", deleted: "La tua risposta è stata eliminata.",
     unavailable: "Questo invito non è disponibile",
     unavailableDetail: "Potrebbe essere scaduto, sostituito oppure la cena è stata annullata. Chiedi un nuovo link.",
+    expired: "Questo invito è scaduto", expiredDetail: "Chiedi a chi ospita un nuovo link di invito.",
+    revoked: "Questo invito è stato sostituito", revokedDetail: "Usa il link più recente ricevuto da chi ospita.",
+    cancelled: "Questa cena è stata annullata", cancelledDetail: "Non serve inviare una risposta.",
+    network: "Non è stato possibile caricare l’invito", networkDetail: "Controlla la connessione e riprova.",
     privacy: "La tua privacy",
     privacyDetail: "Le risposte servono solo per organizzare questa cena, salvo tua richiesta esplicita di ricordarle.",
     error: "Non è stato possibile salvare. Controlla il link e riprova.", yes: "Sì", no: "No",
@@ -105,6 +121,10 @@ export const copy: Record<Locale, Copy> = {
     saved: "Tu respuesta se ha guardado.", deleted: "Tu respuesta se ha eliminado.",
     unavailable: "Esta invitación no está disponible",
     unavailableDetail: "Puede haber caducado, sido reemplazada o la cena puede haberse cancelado. Pide un enlace nuevo.",
+    expired: "Esta invitación ha caducado", expiredDetail: "Pide a quien invita un enlace nuevo.",
+    revoked: "Esta invitación fue reemplazada", revokedDetail: "Usa el enlace más reciente de quien invita.",
+    cancelled: "Esta cena fue cancelada", cancelledDetail: "No hace falta responder.",
+    network: "No pudimos cargar la invitación", networkDetail: "Comprueba la conexión e inténtalo de nuevo.",
     privacy: "Tu privacidad", privacyDetail: "Tus respuestas solo se usan para organizar esta cena, salvo que pidas guardarlas.",
     error: "No pudimos guardar la respuesta. Comprueba el enlace e inténtalo de nuevo.", yes: "Sí", no: "No",
   },
@@ -120,6 +140,10 @@ export const copy: Record<Locale, Copy> = {
     saved: "Votre réponse est enregistrée.", deleted: "Votre réponse a été supprimée.",
     unavailable: "Cette invitation n’est pas disponible",
     unavailableDetail: "Elle a peut-être expiré, été remplacée ou le dîner a été annulé. Demandez un nouveau lien.",
+    expired: "Cette invitation a expiré", expiredDetail: "Demandez un nouveau lien à l’hôte.",
+    revoked: "Cette invitation a été remplacée", revokedDetail: "Utilisez le lien le plus récent envoyé par l’hôte.",
+    cancelled: "Ce dîner a été annulé", cancelledDetail: "Aucune réponse n’est nécessaire.",
+    network: "Impossible de charger l’invitation", networkDetail: "Vérifiez votre connexion et réessayez.",
     privacy: "Votre vie privée", privacyDetail: "Vos réponses servent uniquement à préparer ce dîner, sauf demande explicite de mémorisation.",
     error: "Impossible d’enregistrer. Vérifiez le lien et réessayez.", yes: "Oui", no: "Non",
   },
@@ -135,6 +159,10 @@ export const copy: Record<Locale, Copy> = {
     saved: "Deine Antwort wurde gespeichert.", deleted: "Deine Antwort wurde gelöscht.",
     unavailable: "Diese Einladung ist nicht verfügbar",
     unavailableDetail: "Sie ist möglicherweise abgelaufen, ersetzt oder das Essen wurde abgesagt. Bitte um einen neuen Link.",
+    expired: "Diese Einladung ist abgelaufen", expiredDetail: "Bitte den Gastgeber um einen neuen Einladungslink.",
+    revoked: "Diese Einladung wurde ersetzt", revokedDetail: "Verwende den neuesten Link des Gastgebers.",
+    cancelled: "Dieses Abendessen wurde abgesagt", cancelledDetail: "Eine Antwort ist nicht erforderlich.",
+    network: "Die Einladung konnte nicht geladen werden", networkDetail: "Prüfe deine Verbindung und versuche es erneut.",
     privacy: "Deine Privatsphäre", privacyDetail: "Deine Antworten werden nur für dieses Essen genutzt, sofern du das Speichern nicht erlaubst.",
     error: "Die Antwort konnte nicht gespeichert werden. Prüfe den Link und versuche es erneut.", yes: "Ja", no: "Nein",
   },
@@ -148,6 +176,10 @@ export const copy: Record<Locale, Copy> = {
     rememberDetail: "为今后与此家庭的晚餐保存这些选择。你现在可拒绝，也可稍后删除回复。",
     saved: "你的回复已保存。", deleted: "你的回复已删除。", unavailable: "此邀请不可用",
     unavailableDetail: "邀请可能已过期、被替换，或晚餐已取消。请向主人索取新链接。",
+    expired: "此邀请已过期", expiredDetail: "请向主人索取新的邀请链接。",
+    revoked: "此邀请已被替换", revokedDetail: "请使用主人发送的最新链接。",
+    cancelled: "本次聚餐已取消", cancelledDetail: "无需回复。",
+    network: "无法加载邀请", networkDetail: "请检查网络连接后重试。",
     privacy: "你的隐私", privacyDetail: "除非你明确同意保存，否则回答只用于筹备本次晚餐。",
     error: "无法保存。请检查链接后重试。", yes: "是", no: "否",
   },

@@ -1,4 +1,5 @@
 """FastAPI HTTP adapter. Live JWT integration needs configured Supabase keys."""
+import time
 from typing import Literal
 from uuid import uuid4
 
@@ -8,6 +9,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from .errors import DomainError
+from .observability import event
 from .transport import configured_router
 
 
@@ -85,6 +87,8 @@ def create_app(router=None):
 
     @app.middleware("http")
     async def headers(request:Request,call_next):
+        request_id = str(uuid4())
+        started = time.monotonic()
         # Header screening plus streamed size validation in the ASGI boundary.
         body = bytearray()
         async for chunk in request.stream():
@@ -92,14 +96,34 @@ def create_app(router=None):
             if len(body)>(6_000_000 if request.url.path == "/api/v1/media" else 262144):
                 return JSONResponse({"error":{"code":"payload_too_large"}},status_code=413)
         request._body = bytes(body)
-        response = await call_next(request)
-        response.headers["X-Request-ID"] = str(uuid4())
+        try:
+            response = await call_next(request)
+        except Exception:
+            event(
+                "http_request",
+                service="api",
+                status=500,
+                duration_ms=round((time.monotonic() - started) * 1000),
+                request_id=request_id,
+                code="unhandled_exception",
+            )
+            raise
+        response.headers["X-Request-ID"] = request_id
         response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Robots-Tag"] = "noindex, nofollow"
         response.headers["Referrer-Policy"] = "no-referrer"
         response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
         response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
+        route = request.scope.get("route")
+        event(
+            "http_request",
+            service="api",
+            status=response.status_code,
+            duration_ms=round((time.monotonic() - started) * 1000),
+            request_id=request_id,
+            route=getattr(route, "path", "unmatched"),
+        )
         return response
 
     @app.exception_handler(DomainError)
