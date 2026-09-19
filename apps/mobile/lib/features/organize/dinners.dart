@@ -308,11 +308,14 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
             children: [
               Semantics(
                 label: context.t('invitation_qr'),
-                child: ColoredBox(
-                  color: Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: QrImageView(data: url, size: 210),
+                child: SizedBox.square(
+                  dimension: 234,
+                  child: ColoredBox(
+                    color: Colors.white,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: QrImageView(data: url, size: 210),
+                    ),
                   ),
                 ),
               ),
