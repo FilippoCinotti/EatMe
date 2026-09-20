@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "source_commit": "1142e840f4a83fd10e4947048c085474ff1ad7a9",
-  "render_inventory_updated_at": "2026-09-19T18:30:20.053202+00:00",
+  "source_commit": "14fa521b0a060e36d96bb66d9650518778d98fe5",
+  "render_inventory_updated_at": "2026-09-20T20:08:30.593299+00:00",
   "count": 148,
   "screenshots": [
     {
@@ -578,7 +578,7 @@
     },
     {
       "screen_id": "eatme-plus",
-      "screen_name": "Eatme Plus",
+      "screen_name": "EatMe Premium",
       "platform": "mobile",
       "route_or_fixture": "/subscriptions",
       "theme": "dark",
@@ -589,7 +589,7 @@
     },
     {
       "screen_id": "eatme-plus-pricing",
-      "screen_name": "Eatme Plus Pricing",
+      "screen_name": "EatMe Premium Pricing",
       "platform": "mobile",
       "route_or_fixture": "/subscriptions#offering",
       "theme": "dark",
@@ -1216,7 +1216,7 @@
     },
     {
       "screen_id": "eatme-plus",
-      "screen_name": "Eatme Plus",
+      "screen_name": "EatMe Premium",
       "platform": "mobile",
       "route_or_fixture": "/subscriptions",
       "theme": "light",
@@ -1227,7 +1227,7 @@
     },
     {
       "screen_id": "eatme-plus-pricing",
-      "screen_name": "Eatme Plus Pricing",
+      "screen_name": "EatMe Premium Pricing",
       "platform": "mobile",
       "route_or_fixture": "/subscriptions#offering",
       "theme": "light",

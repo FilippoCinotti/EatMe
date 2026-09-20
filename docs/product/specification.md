@@ -4,9 +4,9 @@
 
 You are acting as the complete senior product and engineering team responsible for designing, implementing, testing, documenting and preparing for release a production-grade consumer application called:
 
-# EatMe
+# EatMe+
 
-EatMe is a cross-platform mobile application for iOS and Android.
+EatMe+ is a cross-platform mobile application for iOS and Android.
 
 This document is the **single source of truth for the product**.
 
@@ -3723,7 +3723,7 @@ Possible:
 
 Free
 
-EatMe+
+EatMe Premium
 
 ---
 

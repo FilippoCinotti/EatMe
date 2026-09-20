@@ -40,7 +40,7 @@ export function GuestUnavailable({ locale, problem }: { locale: Locale; problem:
   const detail = problem === "unavailable" ? t.unavailableDetail : t[`${problem}Detail` as keyof typeof t];
   return (
     <main className="centered">
-      <div className="brand">EatMe</div>
+      <div className="brand">EatMe+</div>
       <section className="card">
         <span className="eyebrow">{t.invitation}</span>
         <h1>{title}</h1>
@@ -181,7 +181,7 @@ export default function GuestFlow({
   return (
     <main>
       <header>
-        <div className="brand">EatMe</div>
+        <div className="brand">EatMe+</div>
         <nav aria-label="Language">
           {locales.map((item) => (
             <a aria-current={item === locale ? "page" : undefined} href={`/${item}/invite/${token}`} key={item}>

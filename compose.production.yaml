@@ -7,9 +7,8 @@ services:
     environment:
       EATME_ENV: production
       AUTH_MODE: supabase
-      MEDIA_DIRECTORY: /data/media
+      MEDIA_STORAGE_BACKEND: supabase
     ports: ["127.0.0.1:8000:8000"]
-    volumes: ["private-media:/data"]
     read_only: true
     tmpfs: ["/tmp"]
     security_opt: ["no-new-privileges:true"]
@@ -31,8 +30,7 @@ services:
     environment:
       EATME_ENV: production
       AUTH_MODE: supabase
-      MEDIA_DIRECTORY: /data/media
-    volumes: ["private-media:/data"]
+      MEDIA_STORAGE_BACKEND: supabase
     read_only: true
     tmpfs: ["/tmp"]
     security_opt: ["no-new-privileges:true"]
@@ -60,5 +58,3 @@ services:
     logging:
       driver: json-file
       options: {max-size: "10m", max-file: "3"}
-volumes:
-  private-media:

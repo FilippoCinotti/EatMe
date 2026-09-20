@@ -1,6 +1,6 @@
 # TestFlight release runbook
 
-This runbook is for the frozen EatMe 1.0 release candidate. Ordinary CI remains separate from `.github/workflows/testflight.yml`; the release workflow runs only by manual dispatch, checks out an exact commit that is already contained in `main`, and uses the protected `testflight` GitHub environment.
+This runbook is for the frozen EatMe+ 1.0 release candidate. Ordinary CI remains separate from `.github/workflows/testflight.yml`; the release workflow runs only by manual dispatch, checks out an exact commit that is already contained in `main`, and uses the protected `testflight` GitHub environment.
 
 ## Fixed release identity
 
@@ -42,6 +42,7 @@ Never guess a build number. App Store Connect requires a monotonically increasin
 | `APPLE_TEAM_ID` | Apple Developer team ID |
 | `SUPABASE_PUBLISHABLE_KEY` | Public mobile key, stored as a secret to reduce log exposure |
 | `REVENUECAT_IOS_PUBLISHABLE_KEY` | Public iOS SDK key (`appl_…`) |
+| `FIREBASE_IOS_CONFIG_PLIST_BASE64` | Base64 Firebase iOS configuration for project `eatme-project`; contains no service credential |
 
 ### Protected variables
 
@@ -58,13 +59,15 @@ Server secrets such as the Supabase service role, RevenueCat secret, Apple priva
 
 Before dispatch, ordinary CI and the screenshot coverage gate must be green on the exact reviewed SHA. In GitHub Actions, select **TestFlight release candidate**, enter that SHA and the next unused build number, leave upload enabled, and approve the protected environment.
 
-The workflow validates the source ancestry; tests API, Guest Web and Flutter; validates localization and screenshot coverage; checks a live API health endpoint; imports signing material into a temporary keychain; exports a real App Store IPA; checks bundle ID, version, build, privacy manifest, provisioning and signature; retains the IPA and checksum; validates and uploads with App Store Connect API authentication; and destroys temporary signing material.
+The workflow validates the source ancestry; tests API, Guest Web and Flutter; validates localization and screenshot coverage; checks a live API health endpoint; validates the Firebase project and bundle identifiers; imports signing material into a temporary keychain; exports a real App Store IPA; uploads every generated dSYM to Crashlytics; checks bundle ID, version, build, privacy manifest, provisioning and signature; retains the IPA and checksum; validates and uploads with App Store Connect API authentication; and destroys temporary signing material.
+
+Crashlytics collection is enabled only in the signed Release build. Follow [Crashlytics validation](crashlytics.md) for the one-off internal validation build; never enable its controlled event/crash flags in a public TestFlight build.
 
 The upload command succeeding means Apple accepted the binary upload. It does not mean processing has finished or the build is visible to testers. Confirm processing status in App Store Connect before assigning `EatMe Internal`.
 
 ## Internal acceptance
 
-Use internal testing first. Validate cold launch, native Light/Dark splash, signup/login/Sign in with Apple, onboarding, ChefTable, Guilty Pleasure, Fridge acquisition paths, Social Import, Diet-Fit and substitutions, Plan/Shopping, Dinner/Guest RSVP in a separate browser, Adaptive Serving, cooking/stock/leftovers, EatMe+ purchase and restore, offline/reconnect, logout/login and account deletion on a physical iPhone.
+Use internal testing first. Validate cold launch, native Light/Dark splash, signup/login/Sign in with Apple, onboarding, ChefTable, Guilty Pleasure, Fridge acquisition paths, Social Import, Diet-Fit and substitutions, Plan/Shopping, Dinner/Guest RSVP in a separate browser, Adaptive Serving, cooking/stock/leftovers, EatMe Premium purchase and restore, offline/reconnect, logout/login and account deletion on a physical iPhone.
 
 Test monthly and annual products with StoreKit/TestFlight pricing supplied by RevenueCat; never hard-code the illustrative prices as store truth. Validate purchase, restore, expiry/cancellation, reconnect and Free fallback. External testing waits until the internal pass is accepted.
 

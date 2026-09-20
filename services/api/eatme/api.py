@@ -80,7 +80,7 @@ class DeleteInput(StrictBody):
 def create_app(router=None):
     import os
     router = router or configured_router()
-    app = FastAPI(title="EatMe API",version="1.0.0",docs_url="/docs" if router.development else None)
+    app = FastAPI(title="EatMe+ API",version="1.0.0",docs_url="/docs" if router.development else None)
     origins = list(filter(None,os.getenv("CORS_ORIGINS","http://localhost:3000").split(",")))
     app.add_middleware(CORSMiddleware,allow_origins=origins,allow_methods=["GET","POST","PUT","PATCH","DELETE"],
                        allow_headers=["Authorization","Content-Type","Idempotency-Key"])

@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'core/api.dart';
+import 'core/crash_reporting.dart';
 import 'core/localization.dart';
 import 'core/state.dart';
 import 'design_system/theme.dart';
@@ -38,17 +39,26 @@ import 'features/recipe/recipe.dart';
 import 'features/cooking/cooking.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  if (!EatMeApi.development) {
-    await Supabase.initialize(
-      url: const String.fromEnvironment('SUPABASE_URL'),
-      publishableKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
-      authOptions: const FlutterAuthClientOptions(
-        localStorage: SecureAuthStorage(),
-      ),
-    );
-  }
-  runApp(const ProviderScope(child: EatMeApp()));
+  await runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await CrashReporting.initialize();
+    if (!EatMeApi.development) {
+      await Supabase.initialize(
+        url: const String.fromEnvironment('SUPABASE_URL'),
+        publishableKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
+        authOptions: const FlutterAuthClientOptions(
+          localStorage: SecureAuthStorage(),
+        ),
+      );
+    }
+    runApp(const ProviderScope(child: EatMeApp()));
+    if (const bool.fromEnvironment('CRASHLYTICS_VALIDATION_EVENT')) {
+      await CrashReporting.sendControlledValidationEvent();
+    }
+    if (const bool.fromEnvironment('CRASHLYTICS_VALIDATION_CRASH')) {
+      CrashReporting.forceControlledValidationCrash();
+    }
+  }, CrashReporting.recordUncaught);
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -240,7 +250,7 @@ class _EatMeAppState extends ConsumerState<EatMeApp> {
   Widget build(BuildContext context) {
     final state = ref.watch(appProvider);
     return MaterialApp.router(
-      title: 'EatMe',
+      title: 'EatMe+',
       debugShowCheckedModeBanner: false,
       builder: (context, child) => AdaptiveAppFrame(child: child!),
       theme: Tokens.theme(Brightness.light),
@@ -329,9 +339,8 @@ class AppShell extends StatelessWidget {
     extendBody: true,
     body: MediaQuery(
       data: MediaQuery.of(context).copyWith(
-        padding: MediaQuery.paddingOf(
-          context,
-        ).copyWith(bottom: MediaQuery.paddingOf(context).bottom + 92),
+        padding: MediaQuery.paddingOf(context)
+            .copyWith(bottom: MediaQuery.paddingOf(context).bottom + 92),
       ),
       child: child,
     ),

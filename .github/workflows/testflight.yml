@@ -50,6 +50,7 @@ jobs:
       IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
       IOS_PROVISIONING_PROFILE_NAME: ${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}
       IOS_KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+      FIREBASE_IOS_CONFIG_PLIST_BASE64: ${{ secrets.FIREBASE_IOS_CONFIG_PLIST_BASE64 }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -86,7 +87,10 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: apps/guest/package-lock.json
+          cache-dependency-path: |
+            apps/admin/package-lock.json
+            apps/guest/package-lock.json
+            apps/public/package-lock.json
 
       - name: Record toolchain
         run: |
@@ -126,6 +130,16 @@ jobs:
           python3 scripts/check_release_config.py build/release-public-config.json --expected-supabase-project-ref ngqetldudwzemdhjprmv --require-ios
           curl --fail --silent --show-error --max-time 15 "$API_URL/health" >/dev/null
 
+      - name: Install and validate Firebase iOS configuration
+        run: |
+          test -n "$FIREBASE_IOS_CONFIG_PLIST_BASE64" || { echo "Missing protected Firebase iOS configuration"; exit 1; }
+          printf '%s' "$FIREBASE_IOS_CONFIG_PLIST_BASE64" | base64 --decode > apps/mobile/ios/Runner/GoogleService-Info.plist
+          test "$(/usr/libexec/PlistBuddy -c 'Print PROJECT_ID' apps/mobile/ios/Runner/GoogleService-Info.plist)" = "eatme-project"
+          test "$(/usr/libexec/PlistBuddy -c 'Print BUNDLE_ID' apps/mobile/ios/Runner/GoogleService-Info.plist)" = "$BUNDLE_ID"
+          firebase_app_id=$(/usr/libexec/PlistBuddy -c 'Print GOOGLE_APP_ID' apps/mobile/ios/Runner/GoogleService-Info.plist)
+          test -n "$firebase_app_id"
+          echo "FIREBASE_IOS_APP_ID=$firebase_app_id" >> "$GITHUB_ENV"
+
       - name: API and RLS-independent test gate
         run: |
           python -m pip install -e 'services/api[dev]'
@@ -137,6 +151,20 @@ jobs:
         working-directory: apps/guest
         env:
           NEXT_PUBLIC_API_URL: ${{ env.API_URL }}
+        run: |
+          npm ci --ignore-scripts
+          npm run typecheck
+          npm run build
+
+      - name: Build and test Admin Studio
+        working-directory: apps/admin
+        run: |
+          npm ci --ignore-scripts
+          npm run typecheck
+          npm run build
+
+      - name: Build and test public and legal site
+        working-directory: apps/public
         run: |
           npm ci --ignore-scripts
           npm run typecheck
@@ -229,12 +257,24 @@ jobs:
             --dart-define="OAUTH_ENABLED=true" \
             --dart-define="PRIVACY_URL=$PRIVACY_URL" \
             --dart-define="TERMS_URL=$TERMS_URL" \
-            --dart-define="REVENUECAT_IOS_KEY=$REVENUECAT_IOS_KEY"
+            --dart-define="REVENUECAT_IOS_KEY=$REVENUECAT_IOS_KEY" \
+            --dart-define="FIREBASE_CRASHLYTICS_ENABLED=true"
           ipa=$(find build/ios/ipa -maxdepth 1 -name '*.ipa' -print -quit)
           test -n "$ipa"
           destination="build/ios/ipa/EatMe-$MARKETING_VERSION-$BUILD_NUMBER.ipa"
           mv "$ipa" "$destination"
           echo "EATME_IPA=$GITHUB_WORKSPACE/apps/mobile/$destination" >> "$GITHUB_ENV"
+
+      - name: Upload Flutter and iOS debug symbols to Crashlytics
+        run: |
+          upload_symbols=$(find "$HOME/Library/Developer/Xcode/DerivedData" "$GITHUB_WORKSPACE/apps/mobile/ios/Flutter/ephemeral" -type f -path '*/FirebaseCrashlytics/upload-symbols' -print -quit)
+          test -n "$upload_symbols" || { echo "Firebase Crashlytics upload-symbols was not found"; exit 1; }
+          dsym_root="$GITHUB_WORKSPACE/apps/mobile/build/ios/archive/Runner.xcarchive/dSYMs"
+          test -d "$dsym_root"
+          uploaded=$(find "$dsym_root" -maxdepth 1 -name '*.dSYM' | wc -l | tr -d ' ')
+          test "$uploaded" -gt 0
+          "$upload_symbols" -gsp "$GITHUB_WORKSPACE/apps/mobile/ios/Runner/GoogleService-Info.plist" -p ios "$dsym_root"
+          printf 'firebase_project=eatme-project\nfirebase_app_id=%s\ndsym_count=%s\n' "$FIREBASE_IOS_APP_ID" "$uploaded" > build/release-evidence/crashlytics-symbols.txt
 
       - name: Validate signed IPA
         env:
@@ -304,3 +344,4 @@ jobs:
           if [ -n "${EATME_KEYCHAIN:-}" ]; then security delete-keychain "$EATME_KEYCHAIN" || true; fi
           if [ -n "${EATME_PROFILE_UUID:-}" ]; then rm -f "$HOME/Library/MobileDevice/Provisioning Profiles/$EATME_PROFILE_UUID.mobileprovision"; fi
           rm -rf "$HOME/.appstoreconnect/private_keys"
+          rm -f apps/mobile/ios/Runner/GoogleService-Info.plist

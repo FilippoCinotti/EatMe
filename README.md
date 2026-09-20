@@ -1,6 +1,6 @@
-# EatMe
+# EatMe+
 
-EatMe is a Flutter food decision engine for Android and iOS: **your recipes, your fridge, your diet, one decision**. ChefTable decides, Fridge tracks what is available, Plan organizes what comes next, and Profile controls how EatMe adapts. A Python API owns dietary validation, entitlements and inventory transactions. A Next.js studio manages catalog and evidence review.
+EatMe+ is a Flutter food decision engine for Android and iOS: **your recipes, your fridge, your diet, one decision**. ChefTable decides, Fridge tracks what is available, Plan organizes what comes next, and Profile controls how EatMe+ adapts. A Python API owns dietary validation, entitlements and inventory transactions. Separate Next.js apps provide Guest RSVP, the public/legal site and the protected editorial studio.
 
 ## Screenshots
 
@@ -21,7 +21,7 @@ The [functional reconciliation CI](https://github.com/FilippoCinotti/EatMe/actio
 
 | Welcome | Recipe detail |
 | :---: | :---: |
-| <img src="docs/screenshots/mobile/en/light/welcome-light.png" width="280" alt="EatMe welcome screen rendered by Flutter." /> | <img src="docs/screenshots/mobile/en/light/recipe-light.png" width="280" alt="Recipe photograph, servings and ingredient sections rendered by Flutter." /> |
+| <img src="docs/screenshots/mobile/en/light/welcome-light.png" width="280" alt="EatMe+ welcome screen rendered by Flutter." /> | <img src="docs/screenshots/mobile/en/light/recipe-light.png" width="280" alt="Recipe photograph, servings and ingredient sections rendered by Flutter." /> |
 
 See the [complete screenshot gallery](docs/screenshots/README.md) for login, sign-up, diet and health, preferences, notifications, household, privacy, filters and both add-food stages in both themes.
 
@@ -84,7 +84,8 @@ The canonical catalog is deliberately small in development. Unknown ingredients 
 | `apps/mobile` | Flutter UI and device integrations |
 | `services/api/eatme` | Authentication boundary, domain services, recommendation engine and persistence |
 | `services/worker` | Durable processing jobs and media retention |
-| `apps/admin` | Editorial studio and public privacy/deletion pages |
+| `apps/admin` | Protected editorial studio |
+| `apps/public` | Public EatMe+ site, legal, support and account deletion |
 | `apps/guest` | No-login, localized Dinner RSVP web app |
 | `supabase/migrations` | Versioned PostgreSQL schema and access policies |
 | `services/api/tests` | Domain, HTTP, privacy, concurrency and processing tests |
@@ -96,7 +97,7 @@ Copy `.env.example` to a local environment file and load it with your process ma
 
 Read [local development](docs/development/local-setup.md), [provider setup](docs/development/providers.md), [release process](docs/releases/release-process.md), and [verification](docs/product/verification.md). Store publication requires live backend configuration, signing accounts, public legal/support resources and device validation; source delivery alone does not satisfy those gates.
 
-Product architecture and commercial boundaries are documented in [Food Decision Engine](docs/product/food-decision-engine.md), [Free vs EatMe+](docs/product/free-vs-eatme-plus.md), and [Diet & Health safety](docs/product/diet-health-safety.md).
+Product architecture and commercial boundaries are documented in [Food Decision Engine](docs/product/food-decision-engine.md), [Free vs EatMe Premium](docs/product/free-vs-eatme-plus.md), and [Diet & Health safety](docs/product/diet-health-safety.md).
 The frozen Dinner/Guest contract, privacy boundaries and release checks are documented in [Dinner and guest RSVP](docs/product/dinner-guests.md).
 
 All documentation, source comments and new GitHub review text are maintained in English. Frozen release-critical mobile and Guest flows support English, Italian, Spanish, French, German and Simplified Chinese; legacy mobile copy outside that translated surface falls back to canonical English.

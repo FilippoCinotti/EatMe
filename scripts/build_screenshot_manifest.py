@@ -69,6 +69,11 @@ ROUTES = {
     "estimated-savings": "/subscriptions#estimated-savings",
 }
 
+DISPLAY_NAMES = {
+    "eatme-plus": "EatMe Premium",
+    "eatme-plus-pricing": "EatMe Premium Pricing",
+}
+
 
 def split_name(path: Path) -> tuple[str, str]:
     stem = path.stem
@@ -95,7 +100,7 @@ def main() -> int:
         entries.append(
             {
                 "screen_id": screen_id,
-                "screen_name": screen_id.replace("-", " ").title(),
+                "screen_name": DISPLAY_NAMES.get(screen_id, screen_id.replace("-", " ").title()),
                 "platform": platform,
                 "route_or_fixture": ROUTES.get(screen_id, f"fixture:{screen_id}"),
                 "theme": theme,

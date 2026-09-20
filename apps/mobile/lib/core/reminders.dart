@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
+
 import 'models.dart';
 
 class Reminders {
@@ -108,7 +109,7 @@ class Reminders {
       }
       await plugin.zonedSchedule(
         id: identifier,
-        title: 'EatMe',
+        title: 'EatMe+',
         body: language == 'it'
             ? 'Un momento per organizzare la tua cucina.'
             : 'A moment to check in with your kitchen.',

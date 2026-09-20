@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+
 import 'models.dart';
 
 class DataExport {
@@ -27,7 +29,7 @@ class DataExport {
     await SharePlus.instance.share(
       ShareParams(
         files: [XFile(file.path, mimeType: 'application/json')],
-        title: 'EatMe data export',
+        title: 'EatMe+ data export',
         sharePositionOrigin: box == null
             ? null
             : box.localToGlobal(Offset.zero) & box.size,

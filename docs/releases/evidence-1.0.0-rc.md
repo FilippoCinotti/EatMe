@@ -1,4 +1,4 @@
-# EatMe 1.0.0 release-candidate evidence
+# EatMe+ 1.0.0 release-candidate evidence
 
 Evidence date: 2026-09-19 UTC. This record is intentionally explicit about uncompleted external release gates.
 

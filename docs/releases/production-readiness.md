@@ -1,6 +1,6 @@
 # Production infrastructure and operations
 
-This document separates code-ready controls from owner/provider actions that cannot be truthfully completed without account access. It does not assign a fictional EatMe domain.
+This document separates code-ready controls from owner/provider actions that cannot be truthfully completed without account access. The definitive product domain is `eatmeapplication.com`.
 
 ## Environment contract
 
@@ -21,7 +21,7 @@ After the owner selects or confirms a domain, use centralized environment values
 
 | Action | Service | Value/record required | Where the owner enters it | Sensitive? | Status |
 | --- | --- | --- | --- | --- | --- |
-| Confirm owned domain/TLD | Domain | Existing registrable domain | Registrar/account owner | No | Blocked |
+| Confirm owned domain/TLD | Domain | `eatmeapplication.com` | Cloudflare | No | Complete |
 | Route API | DNS | Host-provider-supplied A/AAAA or CNAME for `api` | Authoritative DNS | No | Blocked |
 | Route Guest Web | DNS | Host-provider-supplied A/AAAA or CNAME for `guest` | Authoritative DNS | No | Blocked |
 | Verify email domain | DNS | Provider-supplied SPF, DKIM and DMARC records | Authoritative DNS | Some verification tokens | Blocked |
@@ -32,7 +32,7 @@ Do not create DNS records until the provider destination is known. Validate each
 
 ## Hosting and security boundary
 
-`compose.production.yaml` supplies separate API, worker and Guest services, immutable images, loopback-only ports, read-only containers, dropped Linux capabilities, private shared media and health checks. Place a production HTTPS gateway in front with explicit CORS origins, request size/time limits, rate limiting and redacted access logs. Do not expose PostgreSQL or migration credentials.
+`render.yaml` supplies separate API, worker, Guest, public/legal and Admin services in one region. API and worker use a shared private Supabase Storage bucket rather than an impossible cross-service Render disk. `compose.production.yaml` remains a non-Render deployment option using the same object-storage backend. Do not expose PostgreSQL or migration credentials.
 
 Guest Web and Admin remain isolated. The Guest site must set restrictive CSP/frame/referrer/content-type/cache headers at the deployed edge. Invitation tokens, dietary answers and free text must never enter analytics or unrestricted error events.
 
@@ -40,7 +40,7 @@ The API emits provider-neutral JSON operational events with timestamp, service, 
 
 ## Supabase
 
-The approved production project is `ngqetldudwzemdhjprmv`. Six migrations are applied. The mobile app uses only the publishable key; service-role access stays with API/worker. Before internal invitations, manually verify email delivery and redirects, Apple provider credentials/callbacks, password recovery, account deletion, token revocation and a real authenticated RLS journey.
+The approved production project is `ngqetldudwzemdhjprmv`. Six migrations are applied. Every public table has RLS enabled; anonymous DML is revoked and Dinner/Guest tables are inaccessible directly to anon/authenticated roles. The private `eatme-private-media` bucket is configured with a 6.5 MB ciphertext limit and `application/octet-stream` only. The mobile app uses only the publishable key; service-role access stays with API/worker. Before internal invitations, manually verify email delivery and redirects, Apple provider credentials/callbacks, password recovery, account deletion, token revocation and a real authenticated RLS journey.
 
 ## AI, media and graceful fallback
 
@@ -50,7 +50,7 @@ Set `AI_PROVIDER=openai`, `AI_API_KEY`, `AI_MODEL` and `AI_MONTHLY_LIMIT` only i
 
 ## Monitoring and alerting
 
-No observability vendor is assumed. A coherent provider such as Sentry can cover mobile, web, API and worker after owner approval; an uptime service should independently probe Guest Web and `/api/v1/health`. DSNs and tokens are environment configuration. Required scrubbing includes authorization/cookies, guest tokens, Apple/Supabase tokens, medical/dietary fields, notes, images and all credentials.
+Mobile crash diagnostics use Firebase Crashlytics project `eatme-project`. Collection is Release-only, and application code attaches no recipe, food, dietary, health, image, authentication or guest metadata. An uptime service should independently probe Guest Web and `/api/v1/health`; Render health checks alone do not prove alert delivery. Required log scrubbing includes authorization/cookies, guest tokens, Apple/Supabase tokens, medical/dietary fields, notes, images and all credentials.
 
 Minimum grouped alerts:
 

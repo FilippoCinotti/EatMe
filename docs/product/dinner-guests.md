@@ -27,7 +27,7 @@ Dinner calls the same versioned compatibility engine used by recipes and cooking
 3. Non-blocking warnings: `works_with_notes`.
 4. Only a fully answered, conflict-free group: `works_for_everyone`.
 
-The host result identifies affected participants and reason codes but does not echo the allergen or medical value in the aggregate result. Safety status and hard-conflict checks are never an EatMe+ gate. Generated shopping remains governed by the existing planning entitlement.
+The host result identifies affected participants and reason codes but does not echo the allergen or medical value in the aggregate result. Safety status and hard-conflict checks are never an EatMe Premium gate. Generated shopping remains governed by the existing planning entitlement.
 
 ## Retention and release checks
 

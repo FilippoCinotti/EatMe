@@ -1,6 +1,8 @@
 import 'package:eatme/features/healthy_food/healthy_food.dart';
+
 import 'dart:io';
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,6 +22,7 @@ import 'package:eatme/features/organize/household.dart';
 import 'package:eatme/features/profile/profile.dart';
 import 'package:eatme/features/recipe/recipe.dart';
 import 'package:eatme/main.dart';
+
 import 'application_test.dart' as support;
 import 'visual_reference_test.dart' as visual;
 
@@ -295,82 +298,87 @@ void main() {
       },
     );
 
-    testWidgets('EatMe+ and contextual paywall ${dark ? 'dark' : 'light'}', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      final boundary = GlobalKey();
-      await tester.pumpWidget(
-        support.harness(
-          RepaintBoundary(
-            key: boundary,
-            child: const SubscriptionsPage(
-              illustrativePrices: [
-                IllustrativeStorePrice(
-                  title: 'Monthly',
-                  price: '€4.99',
-                  period: 'month',
-                ),
-                IllustrativeStorePrice(
-                  title: 'Annual',
-                  price: '€49.99',
-                  period: 'year',
-                  savingsPercent: 17,
-                ),
-              ],
-            ),
-          ),
-          JourneyApi(),
-          dark: dark,
-          controller: JourneyController.new,
-        ),
-      );
-      await tester.pumpAndSettle();
-      await capture(tester, boundary, 'eatme-plus-${dark ? 'dark' : 'light'}');
-      await tester.scrollUntilVisible(
-        find.text('Annual'),
-        360,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-      await capture(
-        tester,
-        boundary,
-        'eatme-plus-pricing-${dark ? 'dark' : 'light'}',
-      );
-
-      await tester.pumpWidget(
-        support.harness(
-          Builder(
-            builder: (context) => Scaffold(
-              body: Center(
-                child: FilledButton(
-                  key: const ValueKey('show-plus'),
-                  onPressed: () => showContextualPlusPrompt(
-                    context,
-                    benefit: 'smart_import_plus_body',
+    testWidgets(
+      'EatMe Premium and contextual paywall ${dark ? 'dark' : 'light'}',
+      (tester) async {
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final boundary = GlobalKey();
+        await tester.pumpWidget(
+          support.harness(
+            RepaintBoundary(
+              key: boundary,
+              child: const SubscriptionsPage(
+                illustrativePrices: [
+                  IllustrativeStorePrice(
+                    title: 'Monthly',
+                    price: '€4.99',
+                    period: 'month',
                   ),
-                  child: const Text('Show'),
+                  IllustrativeStorePrice(
+                    title: 'Annual',
+                    price: '€49.99',
+                    period: 'year',
+                    savingsPercent: 17,
+                  ),
+                ],
+              ),
+            ),
+            JourneyApi(),
+            dark: dark,
+            controller: JourneyController.new,
+          ),
+        );
+        await tester.pumpAndSettle();
+        await capture(
+          tester,
+          boundary,
+          'eatme-plus-${dark ? 'dark' : 'light'}',
+        );
+        await tester.scrollUntilVisible(
+          find.text('Annual'),
+          360,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+        await capture(
+          tester,
+          boundary,
+          'eatme-plus-pricing-${dark ? 'dark' : 'light'}',
+        );
+
+        await tester.pumpWidget(
+          support.harness(
+            Builder(
+              builder: (context) => Scaffold(
+                body: Center(
+                  child: FilledButton(
+                    key: const ValueKey('show-plus'),
+                    onPressed: () => showContextualPlusPrompt(
+                      context,
+                      benefit: 'smart_import_plus_body',
+                    ),
+                    child: const Text('Show'),
+                  ),
                 ),
               ),
             ),
+            JourneyApi(),
+            dark: dark,
+            controller: JourneyController.new,
           ),
-          JourneyApi(),
-          dark: dark,
-          controller: JourneyController.new,
-        ),
-      );
-      await tester.tap(find.byKey(const ValueKey('show-plus')));
-      await tester.pumpAndSettle();
-      await captureFinder(
-        tester,
-        find.byKey(const ValueKey('contextual-plus-boundary')),
-        'contextual-smart-import-paywall-${dark ? 'dark' : 'light'}',
-      );
-    });
+        );
+        await tester.tap(find.byKey(const ValueKey('show-plus')));
+        await tester.pumpAndSettle();
+        await captureFinder(
+          tester,
+          find.byKey(const ValueKey('contextual-plus-boundary')),
+          'contextual-smart-import-paywall-${dark ? 'dark' : 'light'}',
+        );
+      },
+    );
   }
   for (final dark in [false, true]) {
     for (final scale in [1.0, 1.6]) {
