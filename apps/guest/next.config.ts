@@ -25,7 +25,7 @@ const config: NextConfig = {
               "style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; " +
               `connect-src 'self' ${connectOrigin}`,
           },
-          ...(process.env.NODE_ENV === "production"
+          ...(process.env.ENABLE_HSTS === "true"
             ? [{ key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" }]
             : []),
         ],
