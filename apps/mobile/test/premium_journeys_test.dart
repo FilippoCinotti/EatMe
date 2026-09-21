@@ -461,7 +461,7 @@ void main() {
                 boundary,
                 'login-${dark ? 'dark' : 'light'}',
               );
-              await tester.tap(find.text('New to EatMe? Create an account'));
+              await tester.tap(find.text('New to EatMe+? Create an account'));
               await tester.pumpAndSettle();
               expect(find.text('Create your account'), findsAtLeastNWidgets(1));
               await capture(

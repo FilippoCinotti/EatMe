@@ -27,7 +27,32 @@ class EditorialHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(children: [const EatMeWordmark(), const Spacer(), ...actions]),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            // Keep the complete public wordmark readable at large text sizes.
+            // On compact phones, action buttons move below it instead of
+            // competing for horizontal space.
+            if (constraints.maxWidth < 300 && actions.isNotEmpty) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: EatMeWordmark(),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: actions,
+                  ),
+                ],
+              );
+            }
+            return Row(
+              children: [const EatMeWordmark(), const Spacer(), ...actions],
+            );
+          },
+        ),
         const SizedBox(height: 22),
         Text(
           eyebrow.toUpperCase(),
