@@ -495,8 +495,8 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                           padding: const EdgeInsets.only(top: 6),
                           child: Text(
                             context.t('start_timer_minutes', {
-                              'count':
-                                  ((row['timer_seconds'] as num) / 60).ceil(),
+                              'count': ((row['timer_seconds'] as num) / 60)
+                                  .ceil(),
                             }),
                             style: Theme.of(context).textTheme.labelMedium,
                           ),
