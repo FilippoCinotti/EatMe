@@ -229,6 +229,7 @@ jobs:
           import os, plistlib
           options = {
               'method': 'app-store-connect',
+              'signingCertificate': 'Apple Distribution',
               'signingStyle': 'manual',
               'teamID': os.environ['APPLE_TEAM_ID'],
               'provisioningProfiles': {
@@ -247,9 +248,9 @@ jobs:
           BUILD_NUMBER: ${{ inputs.build_number }}
         run: |
           flutter build ipa --release \
+            --no-codesign \
             --build-name="$MARKETING_VERSION" \
             --build-number="$BUILD_NUMBER" \
-            --export-options-plist="$GITHUB_WORKSPACE/build/ExportOptions.plist" \
             --dart-define="AUTH_MODE=supabase" \
             --dart-define="API_URL=$API_URL" \
             --dart-define="SUPABASE_URL=$SUPABASE_URL" \
@@ -259,6 +260,10 @@ jobs:
             --dart-define="TERMS_URL=$TERMS_URL" \
             --dart-define="REVENUECAT_IOS_KEY=$REVENUECAT_IOS_KEY" \
             --dart-define="FIREBASE_CRASHLYTICS_ENABLED=true"
+          xcodebuild -exportArchive \
+            -archivePath "$GITHUB_WORKSPACE/apps/mobile/build/ios/archive/Runner.xcarchive" \
+            -exportPath "$GITHUB_WORKSPACE/apps/mobile/build/ios/ipa" \
+            -exportOptionsPlist "$GITHUB_WORKSPACE/build/ExportOptions.plist"
           ipa=$(find build/ios/ipa -maxdepth 1 -name '*.ipa' -print -quit)
           test -n "$ipa"
           destination="build/ios/ipa/EatMe-$MARKETING_VERSION-$BUILD_NUMBER.ipa"
