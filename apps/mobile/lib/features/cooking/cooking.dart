@@ -65,14 +65,18 @@ class _CookingPageState extends ConsumerState<CookingPage> {
     super.dispose();
   }
 
-  void toggleTimer() {
+  void toggleTimer([int? requestedMinutes]) {
     if (remaining > 0) {
       timer?.cancel();
       setState(() => remaining = 0);
       return;
     }
-    timerEnd = DateTime.now().add(Duration(minutes: durationMinutes));
-    setState(() => remaining = durationMinutes * 60);
+    final minutes = requestedMinutes ?? durationMinutes;
+    timerEnd = DateTime.now().add(Duration(minutes: minutes));
+    setState(() {
+      durationMinutes = minutes;
+      remaining = minutes * 60;
+    });
     timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (!mounted) {
         t.cancel();
