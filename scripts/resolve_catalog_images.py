@@ -6,7 +6,7 @@ import urllib.request
 from pathlib import Path
 
 BASE = "https://huggingface.co/datasets/ionicam/ingredient-atlas/resolve/main"
-MANIFEST = f"{BASE}/data/manifest.compact.json"
+MANIFEST = f"{BASE}/manifest.compact.json"
 ROOT = Path(__file__).resolve().parents[1]
 TARGETS = ROOT / "scripts" / "catalog_image_targets.json"
 OUTPUT = ROOT / "generated" / "catalog_image_map.json"
