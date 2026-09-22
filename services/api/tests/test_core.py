@@ -10,7 +10,7 @@ from eatme.catalog import identifier, seed_catalog
 from eatme.engine import active_rules, amount_milli, compatibility, quantity
 from eatme.errors import DomainError
 from eatme.service import HEALTH_CONSENT, Service, new_id
-from eatme.storage import Database, decode
+from eatme.storage import Database, decode, encode
 from eatme.transport import Router
 
 
@@ -258,6 +258,39 @@ class EatMeCase(unittest.TestCase):
         recs = self.service.recommendations(self.user,"no_shopping")["items"]
         self.assertEqual(len(recs),1)
         self.assertEqual(recs[0]["available_count"],recs[0]["ingredient_count"])
+
+    def test_for_you_requires_meaningful_inventory_overlap(self):
+        self.add("olive-oil", 100)
+        self.assertEqual(self.service.recommendations(self.user, "for_you")["items"], [])
+
+    def test_mapped_packaged_product_drives_related_recommendations(self):
+        product_id = new_id()
+        barcode = "1234567890123"
+        with self.db.transaction() as tx:
+            tx.execute(
+                "INSERT INTO food_products VALUES (?,?,?,?,?,?)",
+                (
+                    product_id,
+                    barcode,
+                    identifier("food", "chickpea"),
+                    encode({"name": "Cooked chickpeas", "nutrition": None}),
+                    1,
+                    "2026-09-10T00:00:00+00:00",
+                ),
+            )
+        self.service.product_stock(
+            self.user,
+            {"product_id": product_id, "quantity": "1", "package_checked": True},
+            new_id(),
+        )
+        items = self.service.recommendations(self.user, "for_you")["items"]
+        self.assertTrue(items)
+        self.assertTrue(all(item["meaningful_match_count"] >= 1 for item in items))
+        self.assertNotIn(
+            identifier("recipe", "green-pasta"),
+            [item["recipe"]["id"] for item in items],
+        )
+        self.assertTrue(any(item["matched_inventory_count"] >= 1 for item in items))
 
     def test_explanations_match_recorded_scores(self):
         self.prepare_bowl()
