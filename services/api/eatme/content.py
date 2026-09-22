@@ -227,6 +227,7 @@ class ContentService:
         with self.db.transaction() as tx:
             self._member(tx, user_id)
             _, recipes, _, _ = self._catalog(tx, user_id)
+            recipes = [recipe for recipe in recipes if recipe.get("recommendation_eligible") is not False]
             favorites = {r["recipe_id"] for r in tx.all("SELECT recipe_id FROM recipe_favorites WHERE user_id=?", (user_id,))}
             return {"items": [{**r, "favorite": r["id"] in favorites} for r in recipes]}
 
