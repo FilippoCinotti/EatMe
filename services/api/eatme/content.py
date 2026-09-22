@@ -309,7 +309,18 @@ class ContentService:
             items = steps.get(lang) or steps.get("en")
             if not isinstance(items, list) or not 1 <= len(items) <= 30:
                 raise DomainError("invalid_recipe_steps", 422)
-            normalized[lang] = [text(s, maximum=2000) for s in items]
+            normalized[lang] = []
+            for step in items:
+                if isinstance(step, dict):
+                    row = {"text": text(step.get("text"), maximum=2000)}
+                    timer_seconds = step.get("timer_seconds")
+                    if timer_seconds is not None:
+                        if type(timer_seconds) is not int or not 1 <= timer_seconds <= 10_800:
+                            raise DomainError("invalid_recipe_steps", 422)
+                        row["timer_seconds"] = timer_seconds
+                    normalized[lang].append(row)
+                else:
+                    normalized[lang].append(text(step, maximum=2000))
         ingredients = value.get("ingredients")
         if not isinstance(ingredients, list) or not 1 <= len(ingredients) <= 40:
             raise DomainError("invalid_ingredients", 422)
