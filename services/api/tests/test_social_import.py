@@ -36,9 +36,14 @@ class SocialImportCase(unittest.TestCase):
             "name": "Tomato and feta pasta",
             "author": {"name": "Public creator"},
             "recipeYield": "2 servings",
+            "prepTime": "PT10M",
+            "cookTime": "PT15M",
             "totalTime": "PT25M",
             "recipeIngredient": ["160 g pasta", "200 g tomatoes", "100 g feta"],
-            "recipeInstructions": [{"text": "Cook the pasta."}, {"text": "Combine and serve."}],
+            "recipeInstructions": [
+                {"text": "Cook the pasta for 10 minutes."},
+                {"text": "Combine and serve."},
+            ],
         }
 
     def assert_code(self, code, call):
@@ -129,6 +134,11 @@ class SocialImportCase(unittest.TestCase):
         self.assertEqual(result["provenance"], "public-recipe-link")
         self.assertEqual(result["source_creator"], "Public creator")
         self.assertEqual(len(result["ingredient_rows"]), 3)
+        self.assertEqual(result["prep_minutes"], 10)
+        self.assertEqual(result["cook_minutes"], 15)
+        self.assertEqual(result["total_minutes"], 25)
+        self.assertEqual(result["timed_steps"][0]["timer_seconds"], 600)
+        self.assertNotIn("timer_seconds", result["timed_steps"][1])
 
     def test_unsupported_private_deleted_and_network_failures_are_distinct(self):
         self.assert_code(
