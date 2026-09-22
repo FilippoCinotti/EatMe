@@ -145,7 +145,12 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               ),
             Stack(
               children: [
-                FoodImage(id: recipe.id, height: 280, radius: 28),
+                FoodImage(
+                  id: recipe.id,
+                  imageUrl: recipe.imageUrl,
+                  height: 280,
+                  radius: 28,
+                ),
                 Positioned(
                   top: 14,
                   right: 14,

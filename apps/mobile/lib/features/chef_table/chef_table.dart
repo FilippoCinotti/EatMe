@@ -284,6 +284,7 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                   FoodPhotoCard(
                     id: batch.food.id,
                     photoId: batch.food.photoId,
+                    imageUrl: batch.food.imageUrl,
                     title: localized(batch.food.name, context.language),
                     subtitle: '${batch.quantity} ${batch.food.unit}',
                     imageHeight: 110,
@@ -662,7 +663,13 @@ class RecipeCard extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
-                  FoodImage(id: r.recipe.id, width: 70, height: 70, radius: 18),
+                  FoodImage(
+                    id: r.recipe.id,
+                    imageUrl: r.recipe.imageUrl,
+                    width: 70,
+                    height: 70,
+                    radius: 18,
+                  ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
@@ -704,6 +711,7 @@ class RecipeCard extends StatelessWidget {
     }
     return HeroRecipeCard(
       imageId: r.recipe.id,
+      imageUrl: r.recipe.imageUrl,
       title: localized(r.recipe.title, context.language),
       onTap: () => context.push('/recipes/${r.recipe.id}'),
       badge: StatusBadge(

@@ -21,13 +21,14 @@ class FoodImage extends ConsumerWidget {
     super.key,
     required this.id,
     this.photoId,
+    this.imageUrl,
     this.height = 160,
     this.width,
     this.radius = 16,
     this.fallback = Icons.restaurant_outlined,
   });
   final String id;
-  final String? photoId;
+  final String? photoId, imageUrl;
   final double height, radius;
   final double? width;
   final IconData fallback;
@@ -73,6 +74,30 @@ class FoodImage extends ConsumerWidget {
           ),
         );
       }
+    }
+    if (imageUrl != null && imageUrl!.trim().isNotEmpty) {
+      return ExcludeSemantics(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(radius),
+          child: Image.network(
+            imageUrl!,
+            width: width,
+            height: height,
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.medium,
+            errorBuilder: (_, _, _) => ColoredBox(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              child: Center(
+                child: Icon(
+                  fallback,
+                  size: math.min(height * .4, 64),
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
     }
     final cell = cells[id];
     final scheme = Theme.of(context).colorScheme;

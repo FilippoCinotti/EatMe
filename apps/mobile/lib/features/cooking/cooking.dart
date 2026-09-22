@@ -132,7 +132,12 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                 style: Theme.of(context).textTheme.labelLarge,
               ),
               const SizedBox(height: 16),
-              FoodImage(id: widget.recipeId, height: 190, radius: 22),
+              FoodImage(
+                id: widget.recipeId,
+                imageUrl: snapshot.data!.imageUrl,
+                height: 190,
+                radius: 22,
+              ),
               const SizedBox(height: 20),
               Text(
                 steps[step],
