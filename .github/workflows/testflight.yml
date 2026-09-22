@@ -272,7 +272,11 @@ jobs:
 
       - name: Upload Flutter and iOS debug symbols to Crashlytics
         run: |
-          upload_symbols=$(find "$HOME/Library/Developer/Xcode/DerivedData" "$GITHUB_WORKSPACE/apps/mobile/ios/Flutter/ephemeral" -type f -path '*/FirebaseCrashlytics/upload-symbols' -print -quit)
+          upload_symbols=$(find \
+            "$HOME/Library/Developer/Xcode/DerivedData" \
+            "$GITHUB_WORKSPACE/apps/mobile/build" \
+            "$GITHUB_WORKSPACE/apps/mobile/ios/Flutter/ephemeral" \
+            \( -type f -o -type l \) -name upload-symbols -print -quit 2>/dev/null)
           test -n "$upload_symbols" || { echo "Firebase Crashlytics upload-symbols was not found"; exit 1; }
           dsym_root="$GITHUB_WORKSPACE/apps/mobile/build/ios/archive/Runner.xcarchive/dSYMs"
           test -d "$dsym_root"
