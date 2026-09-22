@@ -233,7 +233,8 @@ class _RecipeLibraryRow extends StatelessWidget {
           children: [
             FoodImage(
               id: '${recipe['id']}',
-              imageUrl: '${recipe['hero_image_url'] ?? recipe['image_url'] ?? recipe['thumbnail_url'] ?? ''}',
+              imageUrl:
+                  '${recipe['hero_image_url'] ?? recipe['image_url'] ?? recipe['thumbnail_url'] ?? ''}',
               width: 72,
               height: 72,
               radius: 18,
