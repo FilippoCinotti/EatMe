@@ -172,6 +172,7 @@ jobs:
 
       - name: Bootstrap and verify Flutter
         run: |
+          flutter clean
           python3 ../../scripts/bootstrap_mobile.py
           dart format --output=none --set-exit-if-changed lib test integration_test
           flutter analyze
