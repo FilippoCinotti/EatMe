@@ -84,8 +84,9 @@ class EditorialHeader extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           subtitle,
-          style: Theme.of(context).textTheme.bodyLarge
-              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 24),
       ],
@@ -189,8 +190,9 @@ class SearchPill extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hint,
         fillColor: Colors.transparent,
-        hintStyle: Theme.of(context).textTheme.bodyMedium
-            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
         prefixIcon: const Center(
           widthFactor: 1,
           child: EatMeIcon(EatMeGlyph.search, size: 21),
@@ -454,8 +456,9 @@ class StatusBadge extends StatelessWidget {
           Flexible(
             child: Text(
               label,
-              style: Theme.of(context).textTheme.labelSmall
-                  ?.copyWith(color: color, height: 1.25),
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(color: color, height: 1.25),
             ),
           ),
         ],
@@ -526,10 +529,9 @@ class FoodPhotoCard extends StatelessWidget {
                     foregroundColor: actionEmphasis
                         ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.onSurface,
-                    backgroundColor: Theme.of(context)
-                        .colorScheme
-                        .surfaceContainer
-                        .withValues(alpha: .9),
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainer.withValues(alpha: .9),
                   ),
                 ),
             ],
@@ -898,8 +900,9 @@ class EatMeSelectionRow extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         subtitle,
-                        style: Theme.of(context).textTheme.bodySmall
-                            ?.copyWith(color: scheme.onSurfaceVariant),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
@@ -1034,9 +1037,9 @@ class EatMeTabStrip extends StatelessWidget {
                             ?.copyWith(
                               color: selected == value.$1
                                   ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                               fontWeight: selected == value.$1
                                   ? FontWeight.w700
                                   : FontWeight.w500,
