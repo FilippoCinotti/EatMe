@@ -107,7 +107,9 @@ class Recipe {
         .map((i) => Map<String, dynamic>.from(i as Map))
         .toList(),
     Map<String, dynamic>.from(j['steps'] as Map),
-    imageUrl: (j['hero_image_url'] ?? j['image_url'] ?? j['thumbnail_url']) as String?,
+    imageUrl:
+        (j['hero_image_url'] ?? j['image_url'] ?? j['thumbnail_url'])
+            as String?,
   );
   List<String> instructions(String language) =>
       List<String>.from(steps[language] ?? steps['en']);
