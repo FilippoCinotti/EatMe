@@ -65,14 +65,18 @@ class _CookingPageState extends ConsumerState<CookingPage> {
     super.dispose();
   }
 
-  void toggleTimer() {
+  void toggleTimer([int? requestedMinutes]) {
     if (remaining > 0) {
       timer?.cancel();
       setState(() => remaining = 0);
       return;
     }
-    timerEnd = DateTime.now().add(Duration(minutes: durationMinutes));
-    setState(() => remaining = durationMinutes * 60);
+    final minutes = requestedMinutes ?? durationMinutes;
+    timerEnd = DateTime.now().add(Duration(minutes: minutes));
+    setState(() {
+      durationMinutes = minutes;
+      remaining = minutes * 60;
+    });
     timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (!mounted) {
         t.cancel();
@@ -121,7 +125,9 @@ class _CookingPageState extends ConsumerState<CookingPage> {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
-          final steps = snapshot.data!.instructions(context.language);
+          final recipe = snapshot.data!;
+          final steps = recipe.instructions(context.language);
+          final suggestedTimer = recipe.timerMinutes(context.language, step);
           return PageBody(
             children: [
               Text(
@@ -189,12 +195,12 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                   },
                 ),
               OutlinedButton.icon(
-                onPressed: toggleTimer,
+                onPressed: () => toggleTimer(suggestedTimer),
                 icon: const EatMeIcon(EatMeGlyph.timer),
                 label: Text(
                   remaining == 0
                       ? context.t('start_timer_minutes', {
-                          'count': durationMinutes,
+                          'count': suggestedTimer ?? durationMinutes,
                         })
                       : '${(remaining ~/ 60).toString().padLeft(2, '0')}:${(remaining % 60).toString().padLeft(2, '0')}',
                 ),

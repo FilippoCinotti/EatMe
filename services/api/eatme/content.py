@@ -103,6 +103,34 @@ def _duration_minutes(value):
     return minutes if 1 <= minutes <= 1440 else None
 
 
+def _step_timer_seconds(value):
+    if not isinstance(value, str):
+        return None
+    normalized = re.sub(r"\s+", " ", value.casefold()).strip()
+    if re.search(r"\d+\s*[-–—]\s*\d+\s*(?:min|minute|minutes|minuti?|h|ore?|hours?)\b", normalized):
+        return None
+    minute = re.search(r"(?<!\d)(\d{1,3})\s*(?:min(?:\.|uti?|utes?)?|mins?)\b", normalized)
+    if minute:
+        amount = int(minute.group(1))
+        return amount * 60 if 1 <= amount <= 180 else None
+    hour = re.search(r"(?<!\d)(\d{1,2})(?:[.,](\d))?\s*(?:h|ora|ore|hour|hours)\b", normalized)
+    if hour:
+        amount = int(hour.group(1)) * 60 + int(hour.group(2) or 0) * 6
+        return amount * 60 if 1 <= amount <= 180 else None
+    return None
+
+
+def _timed_instruction_steps(value):
+    steps = []
+    for instruction in _instruction_text(value):
+        row = {"text": instruction}
+        seconds = _step_timer_seconds(instruction)
+        if seconds:
+            row["timer_seconds"] = seconds
+        steps.append(row)
+    return steps
+
+
 def _description_sections(description):
     lines = [re.sub(r"^\s*(?:[-–—•*]\s*|\d+[.)]\s*)", "", line).strip() for line in description.splitlines()]
     lines = [line for line in lines if line]
@@ -199,6 +227,7 @@ class ContentService:
         with self.db.transaction() as tx:
             self._member(tx, user_id)
             _, recipes, _, _ = self._catalog(tx, user_id)
+            recipes = [recipe for recipe in recipes if recipe.get("recommendation_eligible") is not False]
             favorites = {r["recipe_id"] for r in tx.all("SELECT recipe_id FROM recipe_favorites WHERE user_id=?", (user_id,))}
             return {"items": [{**r, "favorite": r["id"] in favorites} for r in recipes]}
 
@@ -280,7 +309,18 @@ class ContentService:
             items = steps.get(lang) or steps.get("en")
             if not isinstance(items, list) or not 1 <= len(items) <= 30:
                 raise DomainError("invalid_recipe_steps", 422)
-            normalized[lang] = [text(s, maximum=2000) for s in items]
+            normalized[lang] = []
+            for step in items:
+                if isinstance(step, dict):
+                    row = {"text": text(step.get("text"), maximum=2000)}
+                    timer_seconds = step.get("timer_seconds")
+                    if timer_seconds is not None:
+                        if type(timer_seconds) is not int or not 1 <= timer_seconds <= 10_800:
+                            raise DomainError("invalid_recipe_steps", 422)
+                        row["timer_seconds"] = timer_seconds
+                    normalized[lang].append(row)
+                else:
+                    normalized[lang].append(text(step, maximum=2000))
         ingredients = value.get("ingredients")
         if not isinstance(ingredients, list) or not 1 <= len(ingredients) <= 40:
             raise DomainError("invalid_ingredients", 422)
@@ -325,7 +365,9 @@ class ContentService:
         ingredients_text = recipe.get("recipeIngredient", []) if recipe else []
         description_ingredients, description_steps = _description_sections(description)
         ingredients_text = ingredients_text or description_ingredients
-        instructions = _instruction_text(recipe.get("recipeInstructions", [])) if recipe else description_steps
+        instruction_source = recipe.get("recipeInstructions", []) if recipe else description_steps
+        instructions = _instruction_text(instruction_source)
+        timed_steps = _timed_instruction_steps(instruction_source)
         if not ingredients_text and not instructions:
             raise DomainError("recipe_metadata_not_found", 422)
         with self.db.transaction() as tx:
@@ -335,14 +377,25 @@ class ContentService:
         title = (recipe.get("name") if recipe else parser.metadata.get("og:title")) or ""
         title = re.sub(r"\s*[-|]\s*(YouTube|Instagram)\s*$", "", str(title), flags=re.I)[:160]
         servings_match = re.search(r"\d+", str(recipe.get("recipeYield", ""))) if recipe else None
-        minutes = _duration_minutes(recipe.get("totalTime")) if recipe else None
+        prep_minutes = _duration_minutes(recipe.get("prepTime")) if recipe else None
+        cook_minutes = _duration_minutes(recipe.get("cookTime")) if recipe else None
+        total_minutes = _duration_minutes(recipe.get("totalTime")) if recipe else None
+        minutes = total_minutes or (
+            prep_minutes + cook_minutes
+            if prep_minutes is not None and cook_minutes is not None
+            else prep_minutes or cook_minutes
+        )
         thumbnail = parser.metadata.get("og:image", "")
         result = {
             "title": title,
             "ingredients_text": [str(item)[:500] for item in ingredients_text[:40]],
             "ingredient_rows": ingredient_rows,
             "steps": instructions,
+            "timed_steps": timed_steps,
             "servings": int(servings_match.group()) if servings_match and 1 <= int(servings_match.group()) <= 20 else None,
+            "prep_minutes": prep_minutes,
+            "cook_minutes": cook_minutes,
+            "total_minutes": total_minutes or minutes,
             "minutes": minutes,
             "source_url": url,
             "source_platform": platform,

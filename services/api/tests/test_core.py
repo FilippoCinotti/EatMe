@@ -263,6 +263,37 @@ class EatMeCase(unittest.TestCase):
         self.add("olive-oil", 100)
         self.assertEqual(self.service.recommendations(self.user, "for_you")["items"], [])
 
+    def test_unverified_catalog_recipe_is_not_recommended(self):
+        self.prepare_bowl()
+        with self.db.transaction() as tx:
+            row = tx.one("SELECT data FROM recipes WHERE id=?", (identifier("recipe", "sunny-bowl"),))
+            recipe = decode(row["data"])
+            recipe["recommendation_eligible"] = False
+            tx.execute(
+                "UPDATE recipes SET data=? WHERE id=?",
+                (encode(recipe), identifier("recipe", "sunny-bowl")),
+            )
+        items = self.service.recommendations(self.user, "for_you")["items"]
+        self.assertNotIn(
+            identifier("recipe", "sunny-bowl"),
+            [item["recipe"]["id"] for item in items],
+        )
+
+    def test_unverified_catalog_recipe_is_hidden_from_recipe_library(self):
+        with self.db.transaction() as tx:
+            row = tx.one("SELECT data FROM recipes WHERE id=?", (identifier("recipe", "sunny-bowl"),))
+            recipe = decode(row["data"])
+            recipe["recommendation_eligible"] = False
+            tx.execute(
+                "UPDATE recipes SET data=? WHERE id=?",
+                (encode(recipe), identifier("recipe", "sunny-bowl")),
+            )
+        items = self.service.recipes(self.user)["items"]
+        self.assertNotIn(
+            identifier("recipe", "sunny-bowl"),
+            [item["id"] for item in items],
+        )
+
     def test_mapped_packaged_product_drives_related_recommendations(self):
         product_id = new_id()
         barcode = "1234567890123"

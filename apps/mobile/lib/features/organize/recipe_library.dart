@@ -318,19 +318,17 @@ class _EditorState extends ConsumerState<RecipeEditorPage> {
           return value.expand((v) => List<String>.from(flatten(v))).toList();
         }
         if (value is Map) {
-          return value['text'] is String
-              ? [value['text'] as String]
-              : flatten(value['itemListElement']);
+          if (value['text'] is String) return [value['text'] as String];
+          final localizedSteps = value['en'] ?? value['it'];
+          if (localizedSteps != null) return flatten(localizedSteps);
+          return flatten(value['itemListElement']);
         }
         return <String>[];
       }
 
-      final rawSteps = value['steps'] ?? flatten(value['instructions']);
-      steps.text = rawSteps is Map
-          ? (rawSteps['en'] as List).join('\n')
-          : rawSteps is List
-          ? rawSteps.join('\n')
-          : '';
+      final rawSteps =
+          value['timed_steps'] ?? value['steps'] ?? value['instructions'];
+      steps.text = flatten(rawSteps).join('\n');
       servings.text = '${value['servings'] ?? 2}';
       minutes.text = '${value['minutes'] ?? 20}';
       ingredients = records(value['ingredients']);

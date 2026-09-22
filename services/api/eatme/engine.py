@@ -160,6 +160,12 @@ def rank(recipes: list[dict], foods: dict, inventory: list[dict], profile: dict,
                 soon.add(canonical_food_id)
     ranked, rejected = [], []
     for recipe in recipes:
+        if recipe.get("recommendation_eligible") is False:
+            rejected.append({
+                "recipe_id": recipe["id"],
+                "filters_failed": [{"code": "catalog_not_verified"}],
+            })
+            continue
         needed = requirements(recipe,servings)
         validation = compatibility(list(needed),foods,profile,rules)
         if validation["status"] == "not_compatible":

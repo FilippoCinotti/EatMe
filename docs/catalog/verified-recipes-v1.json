@@ -1,0 +1,22 @@
+{
+  "catalog_version": 3,
+  "policy": {
+    "source_facts": "Titles, ingredient facts, portions and timings are grounded in the cited editorial source.",
+    "instructions": "EatMe stores concise original wording derived from the verified cooking method; source prose is not copied.",
+    "images": "Source editorial photography is not republished without an explicit license. EatMe-owned or separately licensed imagery is required.",
+    "recommendation_visibility": "Only source-verified catalog recipes are eligible for recommendations and global recipe-library visibility; legacy synthetic rows are retained only for migration/audit."
+  },
+  "recipes": [
+    {"slug":"carbonara-romana-cremosa","source_name":"GialloZafferano","source_url":"https://ricette.giallozafferano.it/Carbonara-alla-romana-cremosa.html","prep_minutes":20,"cook_minutes":20,"rest_minutes":0,"servings":4,"status":"verified"},
+    {"slug":"risotto-alla-milanese","source_name":"GialloZafferano","source_url":"https://ricette.giallozafferano.it/Risotto-alla-milanese.html","prep_minutes":30,"cook_minutes":30,"rest_minutes":120,"servings":4,"status":"verified"},
+    {"slug":"pollo-al-curry-gz","source_name":"GialloZafferano","source_url":"https://ricette.giallozafferano.it/Pollo-al-curry.html","prep_minutes":15,"cook_minutes":55,"rest_minutes":0,"servings":4,"status":"verified"},
+    {"slug":"frittata-di-zucchine-gz","source_name":"GialloZafferano","source_url":"https://ricette.giallozafferano.it/Frittata-di-zucchine.html","prep_minutes":5,"cook_minutes":25,"rest_minutes":0,"servings":4,"status":"verified"},
+    {"slug":"polpette-al-sugo-gz","source_name":"GialloZafferano","source_url":"https://ricette.giallozafferano.it/Polpette-al-sugo.html","prep_minutes":30,"cook_minutes":25,"rest_minutes":0,"servings":6,"status":"verified"},
+    {"slug":"lasagne-alla-bolognese-gz","source_name":"GialloZafferano","source_url":"https://ricette.giallozafferano.it/Lasagne-alla-Bolognese.html","prep_minutes":120,"cook_minutes":180,"rest_minutes":30,"servings":8,"status":"verified"},
+    {"slug":"spaghetti-all-amatriciana-gz","source_name":"GialloZafferano","source_url":"https://ricette.giallozafferano.it/Spaghetti-all-Amatriciana.html","prep_minutes":10,"cook_minutes":25,"rest_minutes":0,"servings":4,"status":"verified"},
+    {"slug":"spaghetti-cacio-e-pepe-gz","source_name":"GialloZafferano","source_url":"https://ricette.giallozafferano.it/Spaghetti-Cacio-e-Pepe.html","prep_minutes":15,"cook_minutes":15,"rest_minutes":0,"servings":4,"status":"verified"},
+    {"slug":"minestrone-di-verdure-gz","source_name":"GialloZafferano","source_url":"https://ricette.giallozafferano.it/Minestrone-di-verdure.html","prep_minutes":30,"cook_minutes":50,"rest_minutes":0,"servings":8,"status":"verified"},
+    {"slug":"pasta-e-fagioli-gz","source_name":"GialloZafferano","source_url":"https://ricette.giallozafferano.it/Pasta-e-fagioli.html","prep_minutes":15,"cook_minutes":110,"rest_minutes":0,"servings":4,"status":"verified","timing_note":"Overnight bean soak is excluded from total time."},
+    {"slug":"salmone-e-patate-al-forno-gz","source_name":"GialloZafferano","source_url":"https://ricette.giallozafferano.it/Salmone-e-patate-al-forno.html","prep_minutes":10,"cook_minutes":50,"rest_minutes":0,"servings":4,"status":"verified"}
+  ]
+}
