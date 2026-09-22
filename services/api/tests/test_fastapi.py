@@ -32,6 +32,22 @@ class FastAPITests(unittest.TestCase):
         self.assertTrue(response.json()['onboarded'])
         self.assertEqual(self.client.get('/api/v1/inventory').status_code,401)
 
+    def test_profile_boundary_accepts_the_complete_mobile_onboarding_payload(self):
+        result=self.client.post('/api/v1/auth/register',json={'email':'complete@example.invalid','password':'boundary-test-long'})
+        token=result.json()['access_token']
+        diet_id=next(item['id'] for item in self.client.get('/api/v1/catalog',headers={'Authorization':'Bearer '+token}).json()['diets'] if not item['medical'])
+        response=self.client.put('/api/v1/profile',headers={'Authorization':'Bearer '+token,'Idempotency-Key':new_id()},json={
+            'name':'Alex','adult_confirmed':True,'primary_goal':'eat_better','primary_diet':diet_id,
+            'household_size':2,'timezone':'Europe/Rome',
+            'diets':[{'diet_id':diet_id,'strictness':'standard'}],
+            'allergies':[],'intolerances':[],'sensitivities':[],'medical_awareness':[],
+            'ethical_preferences':[],'trace_policy':'block',
+            'meal_timing':{'mode':'standard','slots':{'breakfast':True,'lunch':True,'dinner':True,'snack':True}},
+            'never_suggest':[],'unknown_ingredient_policy':'strict',
+        })
+        self.assertEqual(response.status_code,200,response.text)
+        self.assertTrue(response.json()['onboarded'])
+
     def test_body_limit_and_unknown_input(self):
         self.assertEqual(self.client.post('/api/v1/auth/login',content=b'x'*262145).status_code,413)
         self.assertEqual(self.client.post('/api/v1/auth/login',json={'email':'a','password':'b','user_id':'spoof'}).status_code,422)

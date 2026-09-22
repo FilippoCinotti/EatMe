@@ -4,7 +4,7 @@ services:
     runtime: docker
     region: frankfurt
     plan: starter
-    branch: feat/dinner-guests
+    branch: main
     autoDeployTrigger: off
     rootDir: services/api
     dockerfilePath: ./Dockerfile
@@ -68,7 +68,7 @@ services:
     runtime: docker
     region: frankfurt
     plan: starter
-    branch: feat/dinner-guests
+    branch: main
     autoDeployTrigger: off
     rootDir: services/api
     dockerfilePath: ./Dockerfile
@@ -114,7 +114,7 @@ services:
     runtime: docker
     region: frankfurt
     plan: starter
-    branch: feat/dinner-guests
+    branch: main
     autoDeployTrigger: off
     rootDir: apps/guest
     dockerfilePath: ./Dockerfile
@@ -130,7 +130,7 @@ services:
     runtime: docker
     region: frankfurt
     plan: starter
-    branch: feat/dinner-guests
+    branch: main
     autoDeployTrigger: off
     rootDir: apps/public
     dockerfilePath: ./Dockerfile
@@ -156,7 +156,7 @@ services:
     runtime: docker
     region: frankfurt
     plan: starter
-    branch: feat/dinner-guests
+    branch: main
     autoDeployTrigger: off
     rootDir: apps/admin
     dockerfilePath: ./Dockerfile

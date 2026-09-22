@@ -45,21 +45,21 @@ abstract final class Tokens {
     return base.copyWith(
       textTheme: base.textTheme.copyWith(
         displaySmall: base.textTheme.displaySmall?.copyWith(
-          fontFamily: 'EatMeDisplay',
+          fontFamily: 'EatMeSans',
           height: 1.02,
           fontSize: 35,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.9,
         ),
         headlineMedium: base.textTheme.headlineMedium?.copyWith(
-          fontFamily: 'EatMeDisplay',
+          fontFamily: 'EatMeSans',
           height: 1.08,
           fontSize: 25,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.7,
         ),
         titleLarge: base.textTheme.titleLarge?.copyWith(
-          fontFamily: 'EatMeDisplay',
+          fontFamily: 'EatMeSans',
           fontSize: 21,
           fontWeight: FontWeight.w700,
         ),

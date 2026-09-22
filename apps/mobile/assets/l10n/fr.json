@@ -16,6 +16,8 @@
   "shopping_list": "Liste de courses",
   "subscriptions": "Abonnements",
   "cancel": "Annuler",
+  "invalid_request": "Certaines informations n’ont pas pu être enregistrées. Vérifiez-les et réessayez.",
+  "request_failed": "Le service n’a pas pu terminer la demande. Réessayez.",
   "language_fr": "Français",
   "guilty_pleasure": "Guilty Pleasure",
   "guilty_pleasure_body": "Envie de changer ? Nous assouplissons vos préférences habituelles pour ce repas. Vos règles de sécurité restent actives.",

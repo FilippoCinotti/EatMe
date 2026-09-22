@@ -30,6 +30,12 @@
 				<string>com.filippocinotti.eatme</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.424607790676-eqh0n9ub9spash51ran0fqr1rnbi50aj</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>

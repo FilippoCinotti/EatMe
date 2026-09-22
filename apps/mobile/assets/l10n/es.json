@@ -16,6 +16,8 @@
   "shopping_list": "Lista de la compra",
   "subscriptions": "Suscripciones",
   "cancel": "Cancelar",
+  "invalid_request": "No se pudo guardar parte de la información. Revísala e inténtalo de nuevo.",
+  "request_failed": "El servicio no pudo completar la solicitud. Inténtalo de nuevo.",
   "language_es": "Español",
   "guilty_pleasure": "Guilty Pleasure",
   "guilty_pleasure_body": "¿Te apetece algo diferente? Relajaremos tus preferencias habituales para esta comida. Tus reglas de seguridad siguen activas.",

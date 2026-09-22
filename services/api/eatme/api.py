@@ -27,14 +27,36 @@ class Assignment(StrictBody):
     strictness: Literal["flexible","standard","strict"] = "standard"
 
 
+class MealSlots(StrictBody):
+    breakfast: bool = True
+    lunch: bool = True
+    dinner: bool = True
+    snack: bool = True
+
+
+class MealTiming(StrictBody):
+    mode: Literal["standard", "custom", "time_restricted"] = "standard"
+    start: str | None = None
+    end: str | None = None
+    preset: Literal["12:12", "14:10", "16:8", "18:6", "custom"] | None = None
+    slots: MealSlots = Field(default_factory=MealSlots)
+
+
 class ProfileInput(StrictBody):
     name: str = Field(min_length=1,max_length=80)
     adult_confirmed: bool
     household_size: int = Field(default=1,ge=1,le=20)
     timezone: str = "Europe/Rome"
     diets: list[Assignment] = Field(default_factory=list,max_length=8)
+    primary_goal: str | None = None
+    primary_diet: str | None = None
     allergies: list[str] = Field(default_factory=list)
     intolerances: list[str] = Field(default_factory=list)
+    sensitivities: list[str] = Field(default_factory=list)
+    medical_awareness: list[str] = Field(default_factory=list)
+    ethical_preferences: list[str] = Field(default_factory=list)
+    trace_policy: Literal["ignore", "review", "block"] = "block"
+    meal_timing: MealTiming = Field(default_factory=MealTiming)
     never_suggest: list[str] = Field(default_factory=list)
     unknown_ingredient_policy: Literal["strict","review"] = "strict"
     health_consent_version: str | None = None

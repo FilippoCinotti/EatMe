@@ -1,11 +1,14 @@
 import 'dart:convert';
+
 import 'package:crypto/crypto.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
+
 import 'models.dart';
 import 'offline.dart';
 import 'reminders.dart';
@@ -268,11 +271,18 @@ class EatMeApi {
       final code = data is Map && data['error'] is Map
           ? data['error']['code'] as String?
           : null;
+      final status = error.response?.statusCode;
       throw ApiFailure(
         code ??
-            (error.response?.statusCode == 401
+            (status == null
+                ? 'network_error'
+                : status == 401
                 ? 'unauthorized'
-                : 'network_error'),
+                : status == 422
+                ? 'invalid_request'
+                : status == 429
+                ? 'rate_limited'
+                : 'request_failed'),
         offline: error.response == null,
       );
     }
@@ -352,6 +362,31 @@ class EatMeApi {
           'authorization_code': credential.authorizationCode,
           'platform': android ? 'android' : 'ios',
         },
+      );
+      return;
+    }
+    if (provider == OAuthProvider.google &&
+        defaultTargetPlatform == TargetPlatform.iOS) {
+      const iosClientId =
+          '424607790676-eqh0n9ub9spash51ran0fqr1rnbi50aj.apps.googleusercontent.com';
+      const webClientId =
+          '424607790676-sdcpv2u9papfbrogq4d0skorr8edvfg7.apps.googleusercontent.com';
+      const scopes = <String>['email', 'profile'];
+      final google = GoogleSignIn.instance;
+      await google.initialize(
+        clientId: iosClientId,
+        serverClientId: webClientId,
+      );
+      final account = await google.authenticate(scopeHint: scopes);
+      final idToken = account.authentication.idToken;
+      final authorization =
+          await account.authorizationClient.authorizationForScopes(scopes) ??
+          await account.authorizationClient.authorizeScopes(scopes);
+      if (idToken == null) throw const ApiFailure('invalid_credentials');
+      await Supabase.instance.client.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: authorization.accessToken,
       );
       return;
     }

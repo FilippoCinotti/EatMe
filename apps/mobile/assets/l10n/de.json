@@ -16,6 +16,8 @@
   "shopping_list": "Einkaufsliste",
   "subscriptions": "Abonnements",
   "cancel": "Abbrechen",
+  "invalid_request": "Einige Angaben konnten nicht gespeichert werden. Bitte prüfen und erneut versuchen.",
+  "request_failed": "Der Dienst konnte die Anfrage nicht abschließen. Bitte erneut versuchen.",
   "language_de": "Deutsch",
   "guilty_pleasure": "Guilty Pleasure",
   "guilty_pleasure_body": "Lust auf etwas anderes? Für diese Mahlzeit lockern wir deine üblichen Vorlieben. Deine Sicherheitsregeln bleiben aktiv.",

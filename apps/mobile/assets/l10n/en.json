@@ -179,6 +179,8 @@
   "return_login": "Return to sign in",
   "unknown_error": "Something went wrong. Try again.",
   "network_error": "Connection unavailable. Check your network and try again.",
+  "invalid_request": "Some information could not be saved. Review it and try again.",
+  "request_failed": "The service could not complete the request. Try again.",
   "authentication_failed": "Sign-in failed. Check your details or try again.",
   "invalid_credentials": "Incorrect email or password.",
   "invalid_email": "Enter a valid email address.",
