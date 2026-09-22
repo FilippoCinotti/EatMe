@@ -465,9 +465,8 @@ class _InsightsState extends ResourceState<InsightsPage> {
         const SizedBox(height: 8),
         Text(
           context.t('insights_support'),
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+          style: Theme.of(context).textTheme.bodyLarge
+              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: 24),
         EatMeTabStrip(
@@ -662,7 +661,11 @@ class _InsightMetric extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(value, style: Theme.of(context).textTheme.displaySmall),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.displaySmall
+              ?.copyWith(fontFamily: 'EatMeSans'),
+        ),
         const SizedBox(height: 6),
         Text(label),
       ],
