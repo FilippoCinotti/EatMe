@@ -666,6 +666,7 @@ class RecipeCard extends StatelessWidget {
                   FoodImage(
                     id: r.recipe.id,
                     imageUrl: r.recipe.imageUrl,
+                    ingredientIds: r.recipe.ingredientIds,
                     width: 70,
                     height: 70,
                     radius: 18,
@@ -712,6 +713,7 @@ class RecipeCard extends StatelessWidget {
     return HeroRecipeCard(
       imageId: r.recipe.id,
       imageUrl: r.recipe.imageUrl,
+      ingredientIds: r.recipe.ingredientIds,
       title: localized(r.recipe.title, context.language),
       onTap: () => context.push('/recipes/${r.recipe.id}'),
       badge: StatusBadge(

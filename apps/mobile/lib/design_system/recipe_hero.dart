@@ -14,9 +14,11 @@ class HeroRecipeCard extends StatelessWidget {
     this.action,
     this.footer,
     this.imageUrl,
+    this.ingredientIds = const [],
   });
   final String imageId, title;
   final String? imageUrl;
+  final List<String> ingredientIds;
   final VoidCallback onTap;
   final List<Widget> metadata;
   final Widget? badge, action, footer;
@@ -35,6 +37,7 @@ class HeroRecipeCard extends StatelessWidget {
               FoodImage(
                 id: imageId,
                 imageUrl: imageUrl,
+                ingredientIds: ingredientIds,
                 height: 242,
                 radius: 0,
               ),

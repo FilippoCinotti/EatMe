@@ -148,6 +148,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 FoodImage(
                   id: recipe.id,
                   imageUrl: recipe.imageUrl,
+                  ingredientIds: recipe.ingredientIds,
                   height: 280,
                   radius: 28,
                 ),
