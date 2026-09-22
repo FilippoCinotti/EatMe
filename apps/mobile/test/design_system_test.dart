@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -21,6 +22,17 @@ Widget harness(Widget child, {Brightness brightness = Brightness.light}) =>
     );
 
 void main() {
+  testWidgets('display typography is reserved for page titles and wordmark', (
+    tester,
+  ) async {
+    final theme = Tokens.theme(Brightness.light);
+    expect(theme.textTheme.displaySmall?.fontFamily, 'EatMeDisplay');
+    expect(theme.textTheme.titleLarge?.fontFamily, 'EatMeSans');
+    expect(theme.textTheme.bodyLarge?.fontFamily, 'EatMeSans');
+
+    expect(EatMeWordmark.fontFamily, 'EatMeDisplay');
+  });
+
   testWidgets('busy action prevents duplicate consumption submissions', (
     tester,
   ) async {

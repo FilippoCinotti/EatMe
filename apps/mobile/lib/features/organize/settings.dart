@@ -662,7 +662,12 @@ class _InsightMetric extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(value, style: Theme.of(context).textTheme.displaySmall),
+        Text(
+          value,
+          style: Theme.of(
+            context,
+          ).textTheme.displaySmall?.copyWith(fontFamily: 'EatMeSans'),
+        ),
         const SizedBox(height: 6),
         Text(label),
       ],

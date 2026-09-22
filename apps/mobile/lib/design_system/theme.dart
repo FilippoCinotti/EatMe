@@ -45,7 +45,7 @@ abstract final class Tokens {
     return base.copyWith(
       textTheme: base.textTheme.copyWith(
         displaySmall: base.textTheme.displaySmall?.copyWith(
-          fontFamily: 'EatMeSans',
+          fontFamily: 'EatMeDisplay',
           height: 1.02,
           fontSize: 35,
           fontWeight: FontWeight.w700,
