@@ -1,8 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:eatme/core/localization.dart';
+import 'package:eatme/design_system/premium.dart';
 import 'package:eatme/design_system/theme.dart';
 import 'package:eatme/design_system/widgets.dart';
 
@@ -21,6 +23,20 @@ Widget harness(Widget child, {Brightness brightness = Brightness.light}) =>
     );
 
 void main() {
+  testWidgets('display typography is reserved for page titles and wordmark', (
+    tester,
+  ) async {
+    final theme = Tokens.theme(Brightness.light);
+    expect(theme.textTheme.displaySmall?.fontFamily, 'EatMeDisplay');
+    expect(theme.textTheme.titleLarge?.fontFamily, 'EatMeSans');
+    expect(theme.textTheme.bodyLarge?.fontFamily, 'EatMeSans');
+
+    await tester.pumpWidget(harness(const EatMeWordmark()));
+    await tester.pumpAndSettle();
+    final wordmark = tester.widget<Text>(find.text('EatMe+'));
+    expect(wordmark.style?.fontFamily, 'EatMeDisplay');
+  });
+
   testWidgets('busy action prevents duplicate consumption submissions', (
     tester,
   ) async {
@@ -63,9 +79,8 @@ void main() {
         harness(
           Builder(
             builder: (context) => MediaQuery(
-              data: MediaQuery.of(
-                context,
-              ).copyWith(textScaler: const TextScaler.linear(1.8)),
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: const TextScaler.linear(1.8)),
               child: const PageBody(
                 children: [
                   EmptyMessage(
