@@ -103,6 +103,34 @@ def _duration_minutes(value):
     return minutes if 1 <= minutes <= 1440 else None
 
 
+def _step_timer_seconds(value):
+    if not isinstance(value, str):
+        return None
+    normalized = re.sub(r"\s+", " ", value.casefold()).strip()
+    if re.search(r"\d+\s*[-–—]\s*\d+\s*(?:min|minute|minutes|minuti?|h|ore?|hours?)\b", normalized):
+        return None
+    minute = re.search(r"(?<!\d)(\d{1,3})\s*(?:min(?:\.|uti?|utes?)?|mins?)\b", normalized)
+    if minute:
+        amount = int(minute.group(1))
+        return amount * 60 if 1 <= amount <= 180 else None
+    hour = re.search(r"(?<!\d)(\d{1,2})(?:[.,](\d))?\s*(?:h|ora|ore|hour|hours)\b", normalized)
+    if hour:
+        amount = int(hour.group(1)) * 60 + int(hour.group(2) or 0) * 6
+        return amount * 60 if 1 <= amount <= 180 else None
+    return None
+
+
+def _timed_instruction_steps(value):
+    steps = []
+    for instruction in _instruction_text(value):
+        row = {"text": instruction}
+        seconds = _step_timer_seconds(instruction)
+        if seconds:
+            row["timer_seconds"] = seconds
+        steps.append(row)
+    return steps
+
+
 def _description_sections(description):
     lines = [re.sub(r"^\s*(?:[-–—•*]\s*|\d+[.)]\s*)", "", line).strip() for line in description.splitlines()]
     lines = [line for line in lines if line]
