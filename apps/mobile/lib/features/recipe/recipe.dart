@@ -478,13 +478,30 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                   ),
                 ),
             if (tab == 'steps')
-              for (final (index, instruction)
-                  in recipe.instructions(context.language).indexed)
+              for (final (index, row)
+                  in recipe.instructionSteps(context.language).indexed)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Text(
-                    '${index + 1}. $instruction',
-                    style: Theme.of(context).textTheme.bodyLarge,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${index + 1}. ${row['text'] ?? ''}',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      if (row['timer_seconds'] is num &&
+                          (row['timer_seconds'] as num) > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Text(
+                            context.t('start_timer_minutes', {
+                              'count':
+                                  ((row['timer_seconds'] as num) / 60).ceil(),
+                            }),
+                            style: Theme.of(context).textTheme.labelMedium,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
             if (tab == 'nutrition') ...[
