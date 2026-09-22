@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 import plistlib
 import zipfile
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 
 def main() -> int:
@@ -18,7 +18,16 @@ def main() -> int:
     args = parser.parse_args()
     failures: list[str] = []
     with zipfile.ZipFile(args.ipa) as archive:
-        info_names = [name for name in archive.namelist() if name.count("/") == 3 and name.endswith(".app/Info.plist")]
+        info_names = []
+        for name in archive.namelist():
+            parts = PurePosixPath(name).parts
+            if (
+                len(parts) == 3
+                and parts[0] == "Payload"
+                and parts[1].endswith(".app")
+                and parts[2] == "Info.plist"
+            ):
+                info_names.append(name)
         if len(info_names) != 1:
             raise SystemExit(f"Expected one application Info.plist, found {len(info_names)}")
         app_prefix = info_names[0].removesuffix("Info.plist")
