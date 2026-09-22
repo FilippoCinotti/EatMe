@@ -32,7 +32,12 @@ void main() {
 
     await tester.pumpWidget(harness(const EatMeWordmark()));
     await tester.pumpAndSettle();
-    final wordmark = tester.widget<Text>(find.text('EatMe+'));
+    final wordmark = tester.widget<Text>(
+      find.descendant(
+        of: find.byType(EatMeWordmark),
+        matching: find.byType(Text),
+      ),
+    );
     expect(wordmark.style?.fontFamily, 'EatMeDisplay');
   });
 
