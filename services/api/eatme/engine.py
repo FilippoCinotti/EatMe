@@ -144,13 +144,20 @@ def rank(recipes: list[dict], foods: dict, inventory: list[dict], profile: dict,
     if weight_mode not in profiles:
         raise DomainError("unknown_mode",422)
     available: dict[str,int] = {}
+    semantic_available = set()
     soon = set()
     for batch in inventory:
         if not batch_usable(batch,today) or not batch["quantity_milli"]:
             continue
         available[batch["food_id"]] = available.get(batch["food_id"],0)+batch["quantity_milli"]
+        semantic_available.add(batch["food_id"])
+        canonical_food_id = batch.get("canonical_food_id")
+        if canonical_food_id:
+            semantic_available.add(canonical_food_id)
         if batch["expiry_date"] and 0 <= (date.fromisoformat(batch["expiry_date"])-today).days <= 2:
             soon.add(batch["food_id"])
+            if canonical_food_id:
+                soon.add(canonical_food_id)
     ranked, rejected = [], []
     for recipe in recipes:
         needed = requirements(recipe,servings)
@@ -160,23 +167,42 @@ def rank(recipes: list[dict], foods: dict, inventory: list[dict], profile: dict,
             continue
         if mode == 'plant_based' and any(foods[f].get('group') not in {'vegetable', 'fruit', 'legume', 'grain', 'oil', 'nuts', 'seed', 'herb'} for f in needed):
             continue
-        coverage = sum(min(available.get(f,0)/q,1) for f,q in needed.items()) / max(len(needed),1)
+        exact_coverage = sum(min(available.get(f,0)/q,1) for f,q in needed.items()) / max(len(needed),1)
         fully_available = sum(available.get(f,0) >= q for f,q in needed.items())
+        matched = {f for f in needed if f in semantic_available}
+        meaningful_matched = {
+            f for f in matched
+            if foods[f].get("group") not in {"oil", "herb", "spice", "condiment", "sweetener", "other"}
+        }
+        # A recipe presented as a fridge-driven recommendation must actually
+        # relate to a meaningful food the household has. Pantry-only overlap
+        # (oil, herbs, condiments, etc.) is not enough.
+        if inventory and mode != "no_shopping" and not meaningful_matched:
+            rejected.append({"recipe_id":recipe["id"],"filters_failed":[{"code":"no_inventory_match"}]})
+            continue
         if mode == "no_shopping" and fully_available < len(needed):
             rejected.append({"recipe_id":recipe["id"],"filters_failed":[{"code":"missing_ingredients"}]})
             continue
         if mode == "quick" and recipe["minutes"] > 15:
             continue
+        semantic_coverage = len(matched) / max(len(needed),1)
+        # Mapped packaged products count as semantic evidence for ranking, but
+        # never as quantity-confirmed stock. This keeps cooking allocation safe.
+        coverage = max(exact_coverage, semantic_coverage * 0.75)
         expiring = sorted(set(needed) & soon)
         components = {"availability":coverage,"expiry":len(expiring)/max(len(needed),1),
                       "diet":max(0,min(validation["preference_matches"]/max(len(needed),1),1)-0.3*len(validation["warnings"])),
                       "speed":max(0,1-recipe["minutes"]/60)}
         score = sum(components[k]*v for k,v in profiles[weight_mode].items())
         ranked.append({"recipe":recipe,"score":round(score,6),"component_scores":components,
-                       "available_count":fully_available,"ingredient_count":len(needed),"use_soon_food_ids":expiring,
-                       "filters_passed":["canonical_ingredients","allergens","intolerances","explicit_exclusions","published_diet_rules"],
+                       "available_count":fully_available,"matched_inventory_count":len(matched),
+                       "meaningful_match_count":len(meaningful_matched),
+                       "ingredient_count":len(needed),"use_soon_food_ids":expiring,
+                       "filters_passed":["canonical_ingredients","allergens","intolerances","explicit_exclusions","published_diet_rules","inventory_relevance"],
                        "warnings":validation["warnings"],"minutes":recipe["minutes"],
-                       "explanations":{"available":fully_available,"total":len(needed),"use_soon":expiring,"minutes":recipe["minutes"]}})
+                       "explanations":{"available":fully_available,"matched":len(matched),
+                                       "meaningful_matched":len(meaningful_matched),
+                                       "total":len(needed),"use_soon":expiring,"minutes":recipe["minutes"]}})
     ranked.sort(key=lambda r:(-r["score"],r["recipe"]["id"]))
     # Greedy diversification of the primary ingredient; preserve all filtered candidates.
     diverse, repeated, seen = [], [], set()
