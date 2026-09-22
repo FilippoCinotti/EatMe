@@ -106,13 +106,35 @@ class Recipe {
     (j['ingredients'] as List)
         .map((i) => Map<String, dynamic>.from(i as Map))
         .toList(),
-    Map<String, dynamic>.from(j['steps'] as Map),
+    Map<String, dynamic>.from((j['timed_steps'] ?? j['steps']) as Map),
     imageUrl:
         (j['hero_image_url'] ?? j['image_url'] ?? j['thumbnail_url'])
             as String?,
   );
-  List<String> instructions(String language) =>
-      List<String>.from(steps[language] ?? steps['en']);
+
+  List<Json> instructionSteps(String language) {
+    final raw = (steps[language] ?? steps['en'] ?? const <dynamic>[]) as List;
+    return raw
+        .map(
+          (item) => item is Map
+              ? Map<String, dynamic>.from(item)
+              : <String, dynamic>{'text': '${item}'},
+        )
+        .toList();
+  }
+
+  List<String> instructions(String language) => instructionSteps(
+    language,
+  ).map((step) => '${step['text'] ?? ''}').toList();
+
+  int? timerMinutes(String language, int index) {
+    final rows = instructionSteps(language);
+    if (index < 0 || index >= rows.length) return null;
+    final seconds = rows[index]['timer_seconds'];
+    if (seconds is! num || seconds <= 0) return null;
+    return (seconds / 60).ceil().clamp(1, 180).toInt();
+  }
+
   List<String> get ingredientIds => ingredients
       .map((ingredient) => ingredient['food_id'] as String?)
       .whereType<String>()
