@@ -24,7 +24,7 @@ jobs:
         run: python3 scripts/resolve_catalog_images.py
       - name: Commit resolved mapping
         run: |
-          if git diff --quiet -- generated/catalog_image_map.json; then
+          if [ -z "$(git status --porcelain -- generated/catalog_image_map.json)" ]; then
             echo "No mapping changes"
             exit 0
           fi
