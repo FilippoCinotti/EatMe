@@ -140,17 +140,13 @@ class FoodImage extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: Row(
-                            children: [
-                              for (final url in top) tile(url),
-                            ],
+                            children: [for (final url in top) tile(url)],
                           ),
                         ),
                         if (bottom.isNotEmpty)
                           Expanded(
                             child: Row(
-                              children: [
-                                for (final url in bottom) tile(url),
-                              ],
+                              children: [for (final url in bottom) tile(url)],
                             ),
                           ),
                       ],
