@@ -318,9 +318,10 @@ class _EditorState extends ConsumerState<RecipeEditorPage> {
           return value.expand((v) => List<String>.from(flatten(v))).toList();
         }
         if (value is Map) {
-          return value['text'] is String
-              ? [value['text'] as String]
-              : flatten(value['itemListElement']);
+          if (value['text'] is String) return [value['text'] as String];
+          final localizedSteps = value['en'] ?? value['it'];
+          if (localizedSteps != null) return flatten(localizedSteps);
+          return flatten(value['itemListElement']);
         }
         return <String>[];
       }
