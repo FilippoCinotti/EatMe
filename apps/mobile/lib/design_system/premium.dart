@@ -472,6 +472,7 @@ class FoodPhotoCard extends StatelessWidget {
     required this.subtitle,
     required this.onTap,
     this.photoId,
+    this.imageUrl,
     this.badge,
     this.onAction,
     this.actionIcon = EatMeGlyph.ellipsis,
@@ -480,7 +481,7 @@ class FoodPhotoCard extends StatelessWidget {
     this.imageHeight = 144,
   });
   final String id, title, subtitle;
-  final String? photoId, actionLabel;
+  final String? photoId, imageUrl, actionLabel;
   final VoidCallback? onTap;
   final VoidCallback? onAction;
   final EatMeGlyph actionIcon;
@@ -502,6 +503,7 @@ class FoodPhotoCard extends StatelessWidget {
               FoodImage(
                 id: id,
                 photoId: photoId,
+                imageUrl: imageUrl,
                 height: imageHeight,
                 radius: 0,
                 fallback: Icons.eco_outlined,
