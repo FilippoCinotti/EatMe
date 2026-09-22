@@ -179,6 +179,8 @@
   "return_login": "Torna all’accesso",
   "unknown_error": "Qualcosa non è andato a buon fine. Riprova.",
   "network_error": "Connessione non disponibile. Controlla la rete e riprova.",
+  "invalid_request": "Non è stato possibile salvare alcune informazioni. Controllale e riprova.",
+  "request_failed": "Il servizio non ha completato la richiesta. Riprova.",
   "authentication_failed": "Accesso non riuscito. Verifica i dati o riprova.",
   "invalid_credentials": "Email o password non corrette.",
   "invalid_email": "Inserisci un indirizzo email valido.",

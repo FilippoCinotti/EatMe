@@ -268,11 +268,18 @@ class EatMeApi {
       final code = data is Map && data['error'] is Map
           ? data['error']['code'] as String?
           : null;
+      final status = error.response?.statusCode;
       throw ApiFailure(
         code ??
-            (error.response?.statusCode == 401
+            (status == null
+                ? 'network_error'
+                : status == 401
                 ? 'unauthorized'
-                : 'network_error'),
+                : status == 422
+                ? 'invalid_request'
+                : status == 429
+                ? 'rate_limited'
+                : 'request_failed'),
         offline: error.response == null,
       );
     }

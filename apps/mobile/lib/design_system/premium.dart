@@ -108,7 +108,7 @@ class EatMeWordmark extends StatelessWidget {
           Text(
             context.t('eatme'),
             style: TextStyle(
-              fontFamily: 'EatMeDisplay',
+              fontFamily: 'EatMeSans',
               fontWeight: FontWeight.w700,
               fontSize: large ? 52 : 30,
               height: 1,

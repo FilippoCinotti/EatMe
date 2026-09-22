@@ -16,6 +16,8 @@
   "shopping_list": "购物清单",
   "subscriptions": "订阅",
   "cancel": "取消",
+  "invalid_request": "部分信息无法保存。请检查后重试。",
+  "request_failed": "服务无法完成请求。请重试。",
   "language_zh-Hans": "简体中文",
   "guilty_pleasure": "轻松享用",
   "guilty_pleasure_body": "想换个口味？这顿饭会适当放宽你的日常偏好，但安全规则始终有效。",
