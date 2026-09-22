@@ -365,7 +365,9 @@ class ContentService:
         ingredients_text = recipe.get("recipeIngredient", []) if recipe else []
         description_ingredients, description_steps = _description_sections(description)
         ingredients_text = ingredients_text or description_ingredients
-        instructions = _instruction_text(recipe.get("recipeInstructions", [])) if recipe else description_steps
+        instruction_source = recipe.get("recipeInstructions", []) if recipe else description_steps
+        instructions = _instruction_text(instruction_source)
+        timed_steps = _timed_instruction_steps(instruction_source)
         if not ingredients_text and not instructions:
             raise DomainError("recipe_metadata_not_found", 422)
         with self.db.transaction() as tx:
