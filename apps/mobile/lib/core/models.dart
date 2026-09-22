@@ -118,7 +118,7 @@ class Recipe {
         .map(
           (item) => item is Map
               ? Map<String, dynamic>.from(item)
-              : <String, dynamic>{'text': '${item}'},
+              : <String, dynamic>{'text': '$item'},
         )
         .toList();
   }
