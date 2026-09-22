@@ -387,6 +387,20 @@ class Service(
             profile,foods,recipes,rules,versions,today = self._context(tx,user_id)
             size = tx.one("SELECT size FROM households WHERE id=?",(household_id,))["size"]
             inventory = self._inventory(tx,household_id)
+            # Barcode/imported products remain separate food entities because their
+            # package quantity and safety metadata are not interchangeable with a
+            # canonical ingredient.  A reviewed food_products.food_id mapping may,
+            # however, be used as a semantic inventory match for recommendation
+            # ranking (never for quantity-aware cooking allocation).
+            product_mappings = {
+                row["id"]: row["food_id"]
+                for row in tx.all("SELECT id,food_id FROM food_products WHERE food_id IS NOT NULL")
+            }
+            for batch in inventory:
+                product_id = batch.get("metadata", {}).get("product_id")
+                canonical_food_id = product_mappings.get(product_id)
+                if canonical_food_id in foods:
+                    batch["canonical_food_id"] = canonical_food_id
             if food_id:
                 recipes = [r for r in recipes if food_id in {i["food_id"] for i in r["ingredients"]}]
             prefs_row = tx.one("SELECT data FROM user_preferences WHERE user_id=?",(user_id,))
