@@ -113,6 +113,10 @@ class Recipe {
   );
   List<String> instructions(String language) =>
       List<String>.from(steps[language] ?? steps['en']);
+  List<String> get ingredientIds => ingredients
+      .map((ingredient) => ingredient['food_id'] as String?)
+      .whereType<String>()
+      .toList();
 }
 
 class Recommendation {
