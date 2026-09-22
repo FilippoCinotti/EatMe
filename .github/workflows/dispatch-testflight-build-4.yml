@@ -1,0 +1,27 @@
+name: Dispatch TestFlight build 4
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/dispatch-testflight-build-4.yml
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch image-enabled release to TestFlight
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run testflight.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main \
+            -f release_sha="6a5d87a5b42bdd7a4c9937c4412113fd512b82df" \
+            -f build_number=4 \
+            -f upload_to_testflight=true
