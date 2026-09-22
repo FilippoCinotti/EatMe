@@ -75,8 +75,9 @@ void main() {
         harness(
           Builder(
             builder: (context) => MediaQuery(
-              data: MediaQuery.of(context)
-                  .copyWith(textScaler: const TextScaler.linear(1.8)),
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: const TextScaler.linear(1.8)),
               child: const PageBody(
                 children: [
                   EmptyMessage(
