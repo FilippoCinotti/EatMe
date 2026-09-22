@@ -135,6 +135,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
               FoodImage(
                 id: widget.recipeId,
                 imageUrl: snapshot.data!.imageUrl,
+                ingredientIds: snapshot.data!.ingredientIds,
                 height: 190,
                 radius: 22,
               ),
