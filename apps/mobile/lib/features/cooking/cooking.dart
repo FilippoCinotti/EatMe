@@ -195,12 +195,12 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                   },
                 ),
               OutlinedButton.icon(
-                onPressed: toggleTimer,
+                onPressed: () => toggleTimer(suggestedTimer),
                 icon: const EatMeIcon(EatMeGlyph.timer),
                 label: Text(
                   remaining == 0
                       ? context.t('start_timer_minutes', {
-                          'count': durationMinutes,
+                          'count': suggestedTimer ?? durationMinutes,
                         })
                       : '${(remaining ~/ 60).toString().padLeft(2, '0')}:${(remaining % 60).toString().padLeft(2, '0')}',
                 ),
