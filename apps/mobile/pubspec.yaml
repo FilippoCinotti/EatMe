@@ -35,6 +35,9 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   flutter_lints: '>=5.0.0 <7.0.0'
+dependency_overrides:
+  # Xcode 26 exports an invalid IPA when 2.6.0 bundles objective_c.framework.
+  path_provider_foundation: 2.5.1
 flutter:
   uses-material-design: true
   assets:
