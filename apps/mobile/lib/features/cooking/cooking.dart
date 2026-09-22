@@ -125,7 +125,9 @@ class _CookingPageState extends ConsumerState<CookingPage> {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
-          final steps = snapshot.data!.instructions(context.language);
+          final recipe = snapshot.data!;
+          final steps = recipe.instructions(context.language);
+          final suggestedTimer = recipe.timerMinutes(context.language, step);
           return PageBody(
             children: [
               Text(
