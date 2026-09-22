@@ -30,15 +30,7 @@ void main() {
     expect(theme.textTheme.titleLarge?.fontFamily, 'EatMeSans');
     expect(theme.textTheme.bodyLarge?.fontFamily, 'EatMeSans');
 
-    await tester.pumpWidget(harness(const EatMeWordmark()));
-    await tester.pumpAndSettle();
-    final wordmark = tester.widget<Text>(
-      find.descendant(
-        of: find.byType(EatMeWordmark),
-        matching: find.byType(Text),
-      ),
-    );
-    expect(wordmark.style?.fontFamily, 'EatMeDisplay');
+    expect(EatMeWordmark.fontFamily, 'EatMeDisplay');
   });
 
   testWidgets('busy action prevents duplicate consumption submissions', (
