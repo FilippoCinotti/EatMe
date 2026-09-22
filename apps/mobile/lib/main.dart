@@ -1,17 +1,22 @@
 import 'features/profile/diet_health.dart';
+
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'core/api.dart';
+import 'core/crash_reporting.dart';
 import 'core/localization.dart';
 import 'core/state.dart';
 import 'design_system/theme.dart';
 import 'design_system/widgets.dart';
 import 'features/organize/shopping.dart';
 import 'features/organize/planner.dart';
+import 'features/organize/dinners.dart';
 import 'features/organize/household.dart';
 import 'features/organize/leftovers.dart';
 import 'features/organize/recipe_library.dart';
@@ -34,17 +39,26 @@ import 'features/recipe/recipe.dart';
 import 'features/cooking/cooking.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  if (!EatMeApi.development) {
-    await Supabase.initialize(
-      url: const String.fromEnvironment('SUPABASE_URL'),
-      publishableKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
-      authOptions: const FlutterAuthClientOptions(
-        localStorage: SecureAuthStorage(),
-      ),
-    );
-  }
-  runApp(const ProviderScope(child: EatMeApp()));
+  await runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await CrashReporting.initialize();
+    if (!EatMeApi.development) {
+      await Supabase.initialize(
+        url: const String.fromEnvironment('SUPABASE_URL'),
+        publishableKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
+        authOptions: const FlutterAuthClientOptions(
+          localStorage: SecureAuthStorage(),
+        ),
+      );
+    }
+    runApp(const ProviderScope(child: EatMeApp()));
+    if (const bool.fromEnvironment('CRASHLYTICS_VALIDATION_EVENT')) {
+      await CrashReporting.sendControlledValidationEvent();
+    }
+    if (const bool.fromEnvironment('CRASHLYTICS_VALIDATION_CRASH')) {
+      CrashReporting.forceControlledValidationCrash();
+    }
+  }, CrashReporting.recordUncaught);
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -94,6 +108,15 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/plan/shopping',
             builder: (_, _) => const ShoppingPage(),
+          ),
+          GoRoute(
+            path: '/plan/dinners',
+            builder: (_, _) => const DinnersPage(),
+          ),
+          GoRoute(
+            path: '/plan/dinners/:id',
+            builder: (_, state) =>
+                DinnerDetailPage(dinnerId: state.pathParameters['id']!),
           ),
           GoRoute(path: '/profile', builder: (_, _) => const ProfilePage()),
         ],
@@ -227,14 +250,21 @@ class _EatMeAppState extends ConsumerState<EatMeApp> {
   Widget build(BuildContext context) {
     final state = ref.watch(appProvider);
     return MaterialApp.router(
-      title: 'EatMe',
+      title: 'EatMe+',
       debugShowCheckedModeBanner: false,
       builder: (context, child) => AdaptiveAppFrame(child: child!),
       theme: Tokens.theme(Brightness.light),
       darkTheme: Tokens.theme(Brightness.dark),
       themeMode: state.theme,
       locale: state.locale,
-      supportedLocales: const [Locale('it'), Locale('en')],
+      supportedLocales: const [
+        Locale('en'),
+        Locale('it'),
+        Locale('es'),
+        Locale('fr'),
+        Locale('de'),
+        Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+      ],
       localizationsDelegates: const [
         EatMeStrings.delegate,
         GlobalMaterialLocalizations.delegate,

@@ -146,11 +146,13 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
         EatMeTabStrip(
           values: [
             ('plan', context.t('my_plan')),
+            ('dinners', context.t('dinners')),
             ('shopping', context.t('shopping_list')),
           ],
           selected: 'shopping',
           onSelected: (value) {
             if (value == 'plan') context.go('/plan');
+            if (value == 'dinners') context.go('/plan/dinners');
           },
         ),
         const SizedBox(height: 24),

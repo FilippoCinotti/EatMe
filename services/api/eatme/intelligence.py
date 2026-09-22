@@ -5,11 +5,12 @@ import json
 import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import quote
 
 from .auth import now
 from .engine import amount_milli, quantity
 from .errors import DomainError
-from .providers import json_request
+from .providers import https_request, json_request
 from .storage import decode, encode
 from .validation import choice, decimal, new_id, text, valid_date, valid_uuid
 
@@ -26,16 +27,99 @@ SCAN_SCHEMA = object_schema({'items': {'type': 'array', 'items': DETECTION}})
 RECIPE_SCHEMA = object_schema({'title': {'type': 'string'}, 'servings': {'type': 'integer'}, 'minutes': {'type': 'integer'}, 'cuisine': {'type': 'string'}, 'ingredients': {'type': 'array', 'items': object_schema({'food_id': {'type': 'string'}, 'quantity': {'type': 'string'}})}, 'steps': {'type': 'array', 'items': {'type': 'string'}}})
 
 
-class PrivateMedia:
+class FilesystemMediaStore:
+    """Local/test adapter. Production API and worker must not assume a shared disk."""
+
     def __init__(self):
-        from cryptography.fernet import Fernet
         self.root = Path(os.getenv('MEDIA_DIRECTORY', 'var/media')).resolve()
         self.root.mkdir(parents=True, exist_ok=True, mode=0o700)
+
+    def write(self, identifier, encrypted):
+        path = self.root / valid_uuid(identifier)
+        path.write_bytes(encrypted)
+        path.chmod(0o600)
+
+    def read(self, identifier):
+        try:
+            return (self.root / valid_uuid(identifier)).read_bytes()
+        except FileNotFoundError:
+            raise DomainError('media_expired', 409) from None
+
+    def delete(self, identifier):
+        (self.root / valid_uuid(identifier)).unlink(missing_ok=True)
+
+
+class SupabaseMediaStore:
+    """Server-only adapter for the private shared production Storage bucket."""
+
+    def __init__(self):
+        self.url = os.getenv('SUPABASE_URL', '').rstrip('/')
+        self.key = os.getenv('SUPABASE_SERVICE_ROLE_KEY', '')
+        self.bucket = os.getenv('SUPABASE_MEDIA_BUCKET', 'eatme-private-media')
+        if not self.url.startswith('https://') or not self.key or not self.bucket.replace('-', '').isalnum():
+            raise DomainError('media_storage_not_configured', 503)
+
+    def _url(self, identifier):
+        return f"{self.url}/storage/v1/object/{quote(self.bucket, safe='')}/{valid_uuid(identifier)}"
+
+    def _headers(self, **extra):
+        return {'Authorization': 'Bearer ' + self.key, 'apikey': self.key, **extra}
+
+    def write(self, identifier, encrypted):
+        try:
+            https_request(
+                self._url(identifier),
+                method='POST',
+                body=encrypted,
+                headers=self._headers(**{'Content-Type': 'application/octet-stream', 'x-upsert': 'false'}),
+                maximum=262144,
+                redirects=0,
+            )
+        except DomainError as error:
+            raise DomainError('media_storage_unavailable', 503) from error
+
+    def read(self, identifier):
+        try:
+            return https_request(
+                self._url(identifier),
+                headers=self._headers(),
+                maximum=6_500_000,
+                redirects=0,
+            )
+        except DomainError as error:
+            if error.code == 'provider_not_found':
+                raise DomainError('media_expired', 409) from None
+            raise DomainError('media_storage_unavailable', 503) from error
+
+    def delete(self, identifier):
+        try:
+            https_request(
+                f"{self.url}/storage/v1/object/{quote(self.bucket, safe='')}",
+                method='DELETE',
+                body=encode({'prefixes': [valid_uuid(identifier)]}).encode(),
+                headers=self._headers(**{'Content-Type': 'application/json'}),
+                maximum=262144,
+                redirects=0,
+            )
+        except DomainError as error:
+            if error.code != 'provider_not_found':
+                raise DomainError('media_storage_unavailable', 503) from error
+
+
+class PrivateMedia:
+    """Encrypt media before passing it to the configured persistence adapter."""
+
+    def __init__(self):
+        from cryptography.fernet import Fernet
+        backend = os.getenv('MEDIA_STORAGE_BACKEND', 'filesystem')
+        if backend not in {'filesystem', 'supabase'}:
+            raise DomainError('media_storage_not_configured', 503)
+        self.store = SupabaseMediaStore() if backend == 'supabase' else FilesystemMediaStore()
         key = os.getenv('MEDIA_ENCRYPTION_KEY')
         if not key:
-            if os.getenv('EATME_ENV', 'development') != 'development':
+            if os.getenv('EATME_ENV', 'development') != 'development' or backend != 'filesystem':
                 raise DomainError('media_storage_not_configured', 503)
-            key_path = self.root / 'development.key'
+            key_path = self.store.root / 'development.key'
             try:
                 with key_path.open('xb') as handle:
                     handle.write(Fernet.generate_key())
@@ -43,21 +127,23 @@ class PrivateMedia:
             except FileExistsError:
                 pass
             key = key_path.read_bytes()
-        self.cipher = Fernet(key)
+        try:
+            self.cipher = Fernet(key)
+        except (TypeError, ValueError):
+            raise DomainError('media_storage_not_configured', 503) from None
 
     def write(self, identifier, raw):
-        path = self.root / valid_uuid(identifier)
-        path.write_bytes(self.cipher.encrypt(raw))
-        path.chmod(0o600)
+        self.store.write(identifier, self.cipher.encrypt(raw))
 
     def read(self, identifier):
+        from cryptography.fernet import InvalidToken
         try:
-            return self.cipher.decrypt((self.root / valid_uuid(identifier)).read_bytes())
-        except FileNotFoundError:
-            raise DomainError('media_expired', 409) from None
+            return self.cipher.decrypt(self.store.read(identifier))
+        except InvalidToken:
+            raise DomainError('media_decryption_failed', 503) from None
 
     def delete(self, identifier):
-        (self.root / valid_uuid(identifier)).unlink(missing_ok=True)
+        self.store.delete(identifier)
 
 
 def normalize_image(raw, avatar=False):

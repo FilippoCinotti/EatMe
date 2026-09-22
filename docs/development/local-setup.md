@@ -7,7 +7,7 @@
 | API and worker | Python 3.12, pip, Git |
 | Android | Flutter 3.47.2, Android Studio, Android SDK 36, emulator system image, JDK 17 |
 | iOS | macOS, Flutter 3.47.2, compatible Xcode with iOS simulator runtime, command-line tools; CocoaPods for plugin integration |
-| Editorial studio | Node.js 22 and npm |
+| Editorial studio and guest RSVP | Node.js 22 and npm |
 | Production-like database | PostgreSQL 17 or Supabase; Docker is convenient locally |
 
 Use `flutter doctor -v` to resolve SDK, license and native toolchain issues. Android Studio's Device Manager creates Android virtual devices. Xcode's Settings → Platforms installs simulator runtimes; launch Simulator from Xcode's developer tools. iOS Simulator cannot run on Windows or Linux. A Windows development computer can run Android immediately and use a Mac for iOS.
@@ -65,12 +65,27 @@ npm run dev
 
 Set `EATME_API_URL=http://127.0.0.1:8000/api/v1`. Create/onboard an account through the app, then add its UUID to the API's `ADMIN_USER_IDS` for local administration and restart the API. Use a separate account for independent publication review. Production deployments should assign persisted editorial roles and restrict bootstrap superadmin UUIDs.
 
+## Guest RSVP
+
+```bash
+cd apps/guest
+cp .env.example .env.local
+npm ci --ignore-scripts
+npm run dev
+```
+
+The guest app listens on `127.0.0.1:3000` and calls the public capability-link endpoints configured by `NEXT_PUBLIC_API_URL`. Set the API's `GUEST_APP_URL` to the externally reachable guest origin when testing links on another device. No Supabase key, login credential or analytics provider belongs in this app.
+
 ## Verification commands
 
 ```bash
 python -m unittest discover -s services/api/tests -v
 python -m ruff check services/api services/worker scripts
 python scripts/check_repository.py
+cd apps/guest
+npm ci --ignore-scripts
+npm run typecheck
+npm run build
 cd apps/mobile
 flutter analyze
 flutter test

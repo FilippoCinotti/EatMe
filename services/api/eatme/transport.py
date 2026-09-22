@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import re
+import hashlib
 import threading
 import time
 from collections import OrderedDict
@@ -63,6 +64,21 @@ class Router:
                 raise DomainError("use_supabase_auth",404)
             self.limiter.check("auth:"+client,12)
             return self.auth.login(body.get("email"),body.get("password"),route.endswith("register"))
+        guest = re.fullmatch(r"/api/v1/guest/invites/([A-Za-z0-9_-]{32,512})(/response)?", route)
+        if guest:
+            token, response_route = guest[1], guest[2]
+            digest = hashlib.sha256(token.encode()).hexdigest()
+            limit = 30 if method == "GET" else 12
+            self.limiter.check("guest:"+client+":"+digest, limit)
+            self.service.guest_rate_limit("guest-client:"+client, 60)
+            self.service.guest_rate_limit("guest-token:"+client+":"+digest, limit)
+            if method == "GET" and not response_route:
+                return self.service.public_guest_invite(token)
+            if method == "PUT" and response_route:
+                return self.service.public_guest_respond(token, body)
+            if method == "DELETE" and response_route:
+                return self.service.public_guest_delete_response(token)
+            raise DomainError("not_found",404)
         if len(authorization)>8192 or not authorization.startswith("Bearer "):
             raise DomainError("unauthorized",401)
         token = authorization[7:]
@@ -78,6 +94,8 @@ class Router:
                 self.auth.logout(token)
             return {"logged_out":True}
         reads = {"/shopping":self.service.shopping, "/plans":self.service.plans,
+                 "/dinners":self.service.dinners,
+                 "/dinner-guests":self.service.dinner_saved_guests,
                  "/wellbeing":self.service.wellbeing, "/households/activity":self.service.household_activity,
                  "/households":self.service.households, "/preferences":self.service.preferences,
                  "/recipes":self.service.recipes, "/jobs":self.service.jobs,
@@ -85,6 +103,7 @@ class Router:
                  "/entitlements":self.service.entitlements, "/recalls":self.service.recalls,
                  "/admin/content":self.service.admin_content}
         actions = {"/shopping":self.service.shopping_action, "/plans":self.service.plan_action,
+                   "/dinners":self.service.dinner_action,
                    "/foods":self.service.food_action, "/wellbeing":self.service.wellbeing_action,
                    "/households":self.service.household_action, "/preferences":self.service.preferences,
                    "/leftovers":self.service.leftover_action, "/recipes":self.service.recipe_action,
@@ -143,6 +162,15 @@ class Router:
         match = re.fullmatch(r"/api/v1/recipes/([a-f0-9-]{36})",route)
         if match and method=="GET":
             return self.service.recipe(user_id,match[1])
+        match = re.fullmatch(r"/api/v1/dinners/([a-f0-9-]{36})", route)
+        if match and method=="GET":
+            return self.service.dinner(user_id, match[1])
+        match = re.fullmatch(r"/api/v1/dinners/([a-f0-9-]{36})/adaptive-servings", route)
+        if match and method=="GET":
+            return self.service.dinner_adaptive_servings(user_id, match[1])
+        match = re.fullmatch(r"/api/v1/dinners/([a-f0-9-]{36})/invitations", route)
+        if match and method=="POST":
+            return self.service.dinner_invite_action(user_id, match[1], body, operation_key)
         match = re.fullmatch(r"/api/v1/foods/([a-f0-9-]{36})/compatibility",route)
         if match and method=="GET":
             return self.service.food_compatibility(user_id,match[1])

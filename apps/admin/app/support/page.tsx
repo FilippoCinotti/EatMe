@@ -1,6 +1,6 @@
 export default function Support() {
   const contact = process.env.PRIVACY_CONTACT;
-  return <main><header><a className="brand" href="/">EatMe</a><span>Support</span></header>
+  return <main><header><a className="brand" href="/">EatMe+</a><span>Support</span></header>
     <h1>Help with your kitchen.</h1>
     <h2>Changes waiting to sync</h2><p>Open Profile → Offline sync. Reconnect and sync, or discard a conflicting change after reviewing the current household. Cooking and purchases require a live connection.</p>
     <h2>Account access</h2><p>Use the password recovery option on the sign-in screen. For Apple or Google accounts, use the original sign-in provider.</p>

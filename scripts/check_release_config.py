@@ -9,11 +9,11 @@ ALLOWED = {
     'AUTH_MODE', 'API_URL', 'SUPABASE_URL', 'SUPABASE_ANON_KEY',
     'OAUTH_ENABLED', 'REVENUECAT_ANDROID_KEY', 'REVENUECAT_IOS_KEY',
     'PRIVACY_URL', 'TERMS_URL', 'APPLE_ANDROID_CLIENT_ID',
-    'APPLE_ANDROID_CALLBACK_URL',
+    'APPLE_ANDROID_CALLBACK_URL', 'APPLE_IOS_BUNDLE_ID',
 }
 
 
-def validate(config):
+def validate(config, expected_project_ref=None, require_ios=False):
     errors = []
     if not isinstance(config, dict):
         return ['Configuration must be a JSON object.']
@@ -29,13 +29,17 @@ def validate(config):
         try:
             url = urlsplit(value)
             valid = url.scheme == 'https' and bool(url.hostname) and not url.username and not url.password and not url.fragment
-            valid = valid and not any(marker in value.lower() for marker in ('your_', 'example.', 'localhost', '127.0.0.1'))
+            valid = valid and not any(marker in value.lower() for marker in (
+                'your_', 'example.', '.invalid', 'localhost', '127.0.0.1', '10.0.2.2',
+            ))
         except ValueError:
             valid = False
         if not valid:
             errors.append(f'{name} must be an operational HTTPS URL without placeholders or credentials.')
     if not str(config.get('API_URL', '')).endswith('/api/v1'):
         errors.append('API_URL must end with /api/v1.')
+    if expected_project_ref and config.get('SUPABASE_URL') != f'https://{expected_project_ref}.supabase.co':
+        errors.append(f'SUPABASE_URL must target the approved project {expected_project_ref}.')
     key = config.get('SUPABASE_ANON_KEY', '')
     public = isinstance(key, str) and key.startswith('sb_publishable_') and len(key) > 25
     if isinstance(key, str) and key.count('.') == 2:
@@ -50,13 +54,16 @@ def validate(config):
     if type(config.get('OAUTH_ENABLED')) is not bool:
         errors.append('OAUTH_ENABLED must be a boolean.')
     if config.get('OAUTH_ENABLED') is True:
+        if require_ios and config.get('APPLE_IOS_BUNDLE_ID') != 'com.filippocinotti.eatme':
+            errors.append('APPLE_IOS_BUNDLE_ID must match the production iOS bundle identifier.')
         client = config.get('APPLE_ANDROID_CLIENT_ID')
         callback = config.get('APPLE_ANDROID_CALLBACK_URL')
-        if not isinstance(client, str) or not client or 'YOUR_' in client:
-            errors.append('Apple Android Services ID is required when social login is enabled.')
-        expected = str(config.get('API_URL', '')) + '/auth/apple/callback'
-        if callback != expected:
-            errors.append('Apple Android callback must match the API /auth/apple/callback endpoint.')
+        if client or callback:
+            if not isinstance(client, str) or not client or 'YOUR_' in client:
+                errors.append('Apple Android Services ID is required when its callback is configured.')
+            expected = str(config.get('API_URL', '')) + '/auth/apple/callback'
+            if callback != expected:
+                errors.append('Apple Android callback must match the API /auth/apple/callback endpoint.')
     for name in ('REVENUECAT_ANDROID_KEY', 'REVENUECAT_IOS_KEY'):
         value = config.get(name, '')
         prefix = 'goog_' if name.endswith('ANDROID_KEY') else 'appl_'
@@ -68,9 +75,15 @@ def validate(config):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('config', type=Path)
+    parser.add_argument('--expected-supabase-project-ref')
+    parser.add_argument('--require-ios', action='store_true')
     args = parser.parse_args()
     try:
-        errors = validate(json.loads(args.config.read_text()))
+        errors = validate(
+            json.loads(args.config.read_text()),
+            expected_project_ref=args.expected_supabase_project_ref,
+            require_ios=args.require_ios,
+        )
     except (OSError, ValueError):
         raise SystemExit('Cannot read a valid JSON configuration.') from None
     if errors:

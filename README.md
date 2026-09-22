@@ -1,6 +1,6 @@
-# EatMe
+# EatMe+
 
-EatMe is a Flutter food decision engine for Android and iOS: **your recipes, your fridge, your diet, one decision**. ChefTable decides, Fridge tracks what is available, Plan organizes what comes next, and Profile controls how EatMe adapts. A Python API owns dietary validation, entitlements and inventory transactions. A Next.js studio manages catalog and evidence review.
+EatMe+ is a Flutter food decision engine for Android and iOS: **your recipes, your fridge, your diet, one decision**. ChefTable decides, Fridge tracks what is available, Plan organizes what comes next, and Profile controls how EatMe+ adapts. A Python API owns dietary validation, entitlements and inventory transactions. Separate Next.js apps provide Guest RSVP, the public/legal site and the protected editorial studio.
 
 ## Screenshots
 
@@ -8,10 +8,10 @@ ChefTable, Fridge, Plan and Profile in light and dark themes. These are actual F
 
 | Light theme | Dark theme |
 | :---: | :---: |
-| <img src="docs/screenshots/chef-light.png" width="280" alt="ChefTable with nearby recorded food dates and a zucchini and spinach pasta suggestion." /> | <img src="docs/screenshots/chef-dark.png" width="280" alt="ChefTable in the dark theme." /> |
-| <img src="docs/screenshots/fridge-light.png" width="280" alt="Fridge with storage filters, search and photographed inventory cards." /> | <img src="docs/screenshots/fridge-dark.png" width="280" alt="Fridge in the dark theme." /> |
-| <img src="docs/screenshots/plan-light.png" width="280" alt="Plan week with meal slots and Smart Plan controls." /> | <img src="docs/screenshots/plan-dark.png" width="280" alt="Plan in the dark theme." /> |
-| <img src="docs/screenshots/profile-light.png" width="280" alt="Profile with dietary settings and kitchen tools." /> | <img src="docs/screenshots/profile-dark.png" width="280" alt="Profile in the dark theme." /> |
+| <img src="docs/screenshots/mobile/en/light/chef-light.png" width="280" alt="ChefTable with nearby recorded food dates and a zucchini and spinach pasta suggestion." /> | <img src="docs/screenshots/mobile/en/dark/chef-dark.png" width="280" alt="ChefTable in the dark theme." /> |
+| <img src="docs/screenshots/mobile/en/light/fridge-light.png" width="280" alt="Fridge with storage filters, search and photographed inventory cards." /> | <img src="docs/screenshots/mobile/en/dark/fridge-dark.png" width="280" alt="Fridge in the dark theme." /> |
+| <img src="docs/screenshots/mobile/en/light/plan-light.png" width="280" alt="Plan week with meal slots and Smart Plan controls." /> | <img src="docs/screenshots/mobile/en/dark/plan-dark.png" width="280" alt="Plan in the dark theme." /> |
+| <img src="docs/screenshots/mobile/en/light/profile-light.png" width="280" alt="Profile with dietary settings and kitchen tools." /> | <img src="docs/screenshots/mobile/en/dark/profile-dark.png" width="280" alt="Profile in the dark theme." /> |
 
 The images are stored in this repository, so they remain available after CI artifacts expire. To regenerate them, run `flutter test test/visual_reference_test.dart test/premium_journeys_test.dart test/reference_features_test.dart test/social_recipe_import_test.dart` from `apps/mobile` with `FLUTTER_ROOT` pointing to the Flutter SDK; PNG renders are written to `build/screenshots/`. The committed copies are the original PNG renders without resizing. The tests also exercise 1.6× text scaling, compact Italian layouts, secondary journeys and persistent allergy warnings. See the [visual design notes](docs/product/visual-design.md) for the reference direction and asset provenance.
 
@@ -21,7 +21,7 @@ The [functional reconciliation CI](https://github.com/FilippoCinotti/EatMe/actio
 
 | Welcome | Recipe detail |
 | :---: | :---: |
-| <img src="docs/screenshots/welcome-light.png" width="280" alt="EatMe welcome screen rendered by Flutter." /> | <img src="docs/screenshots/recipe-light.png" width="280" alt="Recipe photograph, servings and ingredient sections rendered by Flutter." /> |
+| <img src="docs/screenshots/mobile/en/light/welcome-light.png" width="280" alt="EatMe+ welcome screen rendered by Flutter." /> | <img src="docs/screenshots/mobile/en/light/recipe-light.png" width="280" alt="Recipe photograph, servings and ingredient sections rendered by Flutter." /> |
 
 See the [complete screenshot gallery](docs/screenshots/README.md) for login, sign-up, diet and health, preferences, notifications, household, privacy, filters and both add-food stages in both themes.
 
@@ -29,10 +29,10 @@ See the [complete screenshot gallery](docs/screenshots/README.md) for login, sig
 
 | New light-theme flows | New dark-theme flows |
 | :---: | :---: |
-| <img src="docs/screenshots/wellbeing-light.png" width="280" alt="Personal goals with weekly self-reported check-ins." /> | <img src="docs/screenshots/wellbeing-dark.png" width="280" alt="Weekly goals in dark theme." /> |
-| <img src="docs/screenshots/custom-food-light.png" width="280" alt="Custom household food entry with optional photo and package date." /> | <img src="docs/screenshots/custom-food-dark.png" width="280" alt="Custom food entry in dark theme." /> |
-| <img src="docs/screenshots/import-review-light.png" width="280" alt="Mandatory imported recipe review before compatibility." /> | <img src="docs/screenshots/compatibility-conflict-dark.png" width="280" alt="Diet compatibility conflict in dark theme." /> |
-| <img src="docs/screenshots/adapted-success-light.png" width="280" alt="Adapted recipe after a full compatibility re-check." /> | <img src="docs/screenshots/estimated-savings-dark.png" width="280" alt="Conservative estimated savings in dark theme." /> |
+| <img src="docs/screenshots/mobile/en/light/wellbeing-light.png" width="280" alt="Personal goals with weekly self-reported check-ins." /> | <img src="docs/screenshots/mobile/en/dark/wellbeing-dark.png" width="280" alt="Weekly goals in dark theme." /> |
+| <img src="docs/screenshots/mobile/en/light/custom-food-light.png" width="280" alt="Custom household food entry with optional photo and package date." /> | <img src="docs/screenshots/mobile/en/dark/custom-food-dark.png" width="280" alt="Custom food entry in dark theme." /> |
+| <img src="docs/screenshots/mobile/en/light/import-review-light.png" width="280" alt="Mandatory imported recipe review before compatibility." /> | <img src="docs/screenshots/mobile/en/dark/compatibility-conflict-dark.png" width="280" alt="Diet compatibility conflict in dark theme." /> |
+| <img src="docs/screenshots/mobile/en/light/adapted-success-light.png" width="280" alt="Adapted recipe after a full compatibility re-check." /> | <img src="docs/screenshots/mobile/en/dark/estimated-savings-dark.png" width="280" alt="Conservative estimated savings in dark theme." /> |
 
 These images are real Flutter test renders with fixture data, generated by the reference and social-import suites at 390 × 844. They have also passed layout checks at 1.6× text scaling and in compact Italian layouts.
 
@@ -70,7 +70,7 @@ Register a development account in the app. Local authentication and demonstratio
 
 - **ChefTable:** decision-first, constraint-aware suggestions, recipe detail, social import, favorites, feedback and guided cooking.
 - **Fridge:** individual batches, quantities, locations, dates, stock events, barcode products, confirmed photo/receipt imports and leftovers.
-- **Plan:** week and meal slots, non-persistent Smart Plan preview, generated/manual Shopping List and confirmed purchase-to-Fridge reconciliation.
+- **Plan:** week and meal slots, Dinner events with private guest RSVP and group Diet-Fit, Smart Plan, Shopping and purchase-to-Fridge reconciliation.
 - **Profile:** dietary consent, household membership, preferences, reminders, export, deletion and offline synchronization.
 - **Diet & Health:** structured eating styles, allergies, intolerances, sensitivities, medical awareness, reviewed protocols, ethical/religious preferences, meal timing and explicit uncertainty.
 - **Editorial studio:** drafts, independent review, publication, deprecation, reports, feature flags and audit history.
@@ -84,7 +84,9 @@ The canonical catalog is deliberately small in development. Unknown ingredients 
 | `apps/mobile` | Flutter UI and device integrations |
 | `services/api/eatme` | Authentication boundary, domain services, recommendation engine and persistence |
 | `services/worker` | Durable processing jobs and media retention |
-| `apps/admin` | Editorial studio and public privacy/deletion pages |
+| `apps/admin` | Protected editorial studio |
+| `apps/public` | Public EatMe+ site, legal, support and account deletion |
+| `apps/guest` | No-login, localized Dinner RSVP web app |
 | `supabase/migrations` | Versioned PostgreSQL schema and access policies |
 | `services/api/tests` | Domain, HTTP, privacy, concurrency and processing tests |
 | `docs` | Product, architecture, setup, verification and release documentation |
@@ -95,6 +97,7 @@ Copy `.env.example` to a local environment file and load it with your process ma
 
 Read [local development](docs/development/local-setup.md), [provider setup](docs/development/providers.md), [release process](docs/releases/release-process.md), and [verification](docs/product/verification.md). Store publication requires live backend configuration, signing accounts, public legal/support resources and device validation; source delivery alone does not satisfy those gates.
 
-Product architecture and commercial boundaries are documented in [Food Decision Engine](docs/product/food-decision-engine.md), [Free vs EatMe+](docs/product/free-vs-eatme-plus.md), and [Diet & Health safety](docs/product/diet-health-safety.md).
+Product architecture and commercial boundaries are documented in [Food Decision Engine](docs/product/food-decision-engine.md), [Free vs EatMe Premium](docs/product/free-vs-eatme-plus.md), and [Diet & Health safety](docs/product/diet-health-safety.md).
+The frozen Dinner/Guest contract, privacy boundaries and release checks are documented in [Dinner and guest RSVP](docs/product/dinner-guests.md).
 
-All documentation, source comments and new GitHub review text are maintained in English. User-facing mobile strings support English and Italian.
+All documentation, source comments and new GitHub review text are maintained in English. Frozen release-critical mobile and Guest flows support English, Italian, Spanish, French, German and Simplified Chinese; legacy mobile copy outside that translated surface falls back to canonical English.

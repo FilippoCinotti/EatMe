@@ -5,6 +5,7 @@ import threading
 import time
 
 from eatme.errors import DomainError
+from eatme.observability import event
 from eatme.transport import configured_router
 
 logger = logging.getLogger(__name__)
@@ -20,11 +21,17 @@ def main():
         try:
             if time.monotonic() - last_cleanup > 60:
                 service.purge_expired_media()
+                service.cleanup_dinner_guests()
                 service.retry_account_deletions()
                 last_cleanup = time.monotonic()
             worked = service.run_next_job()
-        except (DomainError, OSError):
+        except (DomainError, OSError) as error:
             logger.error('worker_iteration_failed')
+            event(
+                "worker_iteration_failed",
+                service="worker",
+                code=error.code if isinstance(error, DomainError) else "io_error",
+            )
             worked = False
         if not worked:
             stop.wait(2)

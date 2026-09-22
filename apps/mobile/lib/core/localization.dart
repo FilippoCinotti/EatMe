@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -19,13 +20,23 @@ class EatMeStrings {
 class _EatMeStringsDelegate extends LocalizationsDelegate<EatMeStrings> {
   const _EatMeStringsDelegate();
   @override
-  bool isSupported(Locale locale) => ['it', 'en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      const {'en', 'it', 'es', 'fr', 'de', 'zh'}.contains(locale.languageCode);
   @override
   Future<EatMeStrings> load(Locale locale) async {
-    final json = await rootBundle.loadString(
-      'assets/l10n/${locale.languageCode}.json',
+    final canonical = Map<String, String>.from(
+      jsonDecode(await rootBundle.loadString('assets/l10n/en.json')) as Map,
     );
-    return EatMeStrings(Map<String, String>.from(jsonDecode(json) as Map));
+    final tag = locale.languageCode == 'zh' ? 'zh-Hans' : locale.languageCode;
+    if (tag != 'en') {
+      canonical.addAll(
+        Map<String, String>.from(
+          jsonDecode(await rootBundle.loadString('assets/l10n/$tag.json'))
+              as Map,
+        ),
+      );
+    }
+    return EatMeStrings(canonical);
   }
 
   @override

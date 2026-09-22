@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../core/api.dart';
 import '../../core/entitlements.dart';
 import '../../core/localization.dart';
@@ -8,6 +9,7 @@ import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
 import 'shared.dart';
+import 'guilty_pleasure.dart';
 
 class PlannerPage extends ConsumerStatefulWidget {
   const PlannerPage({super.key, this.initialRecipeId});
@@ -43,15 +45,65 @@ class _PlannerState extends ResourceState<PlannerPage> {
     }
   }
 
-  Future<void> saveMeals(List<Json> meals) async {
+  List<Json> get preferenceOverrides =>
+      records(selected?['data']?['preference_overrides']);
+
+  Future<void> saveMeals(List<Json> meals, {List<Json>? overrides}) async {
+    final source = overrides ?? preferenceOverrides;
+    final validTargets = {
+      for (final meal in meals) '${meal['date']}:${meal['slot']}',
+    };
+    final safeOverrides = source
+        .where(
+          (item) =>
+              item['scope'] == 'day' ||
+              validTargets.contains('${item['date']}:${item['slot']}'),
+        )
+        .toList();
     final result = await command({
       'action': 'save',
       'start_date': isoDay(start),
       'meals': meals,
+      'preference_overrides': safeOverrides,
       if (selected != null) 'id': selected!['id'],
       if (selected != null) 'expected_version': selected!['version'],
     });
     if (mounted && result['id'] != null) setState(() => selected = result);
+  }
+
+  bool hasGuiltyPleasure(Json meal, List<Json> overrides) => overrides.any(
+    (item) =>
+        item['mode'] == 'guilty_pleasure' &&
+        item['date'] == meal['date'] &&
+        (item['scope'] == 'day' ||
+            (item['scope'] == 'meal' && item['slot'] == meal['slot'])),
+  );
+
+  Future<void> changeGuiltyPleasure(Json meal) async {
+    final overrides = [...preferenceOverrides];
+    final active = hasGuiltyPleasure(meal, overrides);
+    final choice = await showGuiltyPleasureSheet(context, active: active);
+    if (choice == null || !mounted) return;
+    if (choice == 'off') {
+      overrides.removeWhere(
+        (item) =>
+            item['date'] == meal['date'] &&
+            (item['scope'] == 'day' || item['slot'] == meal['slot']),
+      );
+    } else {
+      overrides.removeWhere(
+        (item) =>
+            item['date'] == meal['date'] &&
+            (choice == 'day' || item['slot'] == meal['slot']),
+      );
+      overrides.add({
+        'mode': 'guilty_pleasure',
+        'scope': choice,
+        'date': meal['date'],
+        if (choice == 'meal') 'slot': meal['slot'],
+      });
+    }
+    await saveMeals(records(selected?['data']?['meals']), overrides: overrides);
   }
 
   Future<void> addMeal(DateTime day, String slot) async {
@@ -115,6 +167,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
   @override
   Widget build(BuildContext context) {
     final meals = draftMeals ?? records(selected?['data']?['meals']);
+    final overrides = preferenceOverrides;
     final entitlement = ref.watch(entitlementsProvider).asData?.value;
     final canSmartPlan =
         entitlement?.can(EntitlementCapability.smartPlanning) == true;
@@ -140,10 +193,12 @@ class _PlannerState extends ResourceState<PlannerPage> {
         EatMeTabStrip(
           values: [
             ('plan', context.t('my_plan')),
+            ('dinners', context.t('dinners')),
             ('shopping', context.t('shopping_list')),
           ],
           selected: 'plan',
           onSelected: (value) {
+            if (value == 'dinners') context.go('/plan/dinners');
             if (value == 'shopping') context.go('/plan/shopping');
           },
         ),
@@ -325,6 +380,8 @@ class _PlannerState extends ResourceState<PlannerPage> {
                 final recipe = recipes
                     .where((r) => r['id'] == meal?['recipe_id'])
                     .firstOrNull;
+                final guiltyPleasure =
+                    meal != null && hasGuiltyPleasure(meal, overrides);
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: InformationPanel(
@@ -342,8 +399,26 @@ class _PlannerState extends ResourceState<PlannerPage> {
                       title: Text(context.t(slot)),
                       subtitle: meal == null
                           ? null
-                          : Text(
-                              '${labelOf(recipe?['title'] ?? '', context)} · ${meal['servings']}',
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${labelOf(recipe?['title'] ?? '', context)} · ${meal['servings']}',
+                                ),
+                                if (guiltyPleasure)
+                                  Text(
+                                    context.t('guilty_pleasure'),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.primary,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                  ),
+                              ],
                             ),
                       trailing: meal == null
                           ? const EatMeIcon(EatMeGlyph.plus)
@@ -357,6 +432,8 @@ class _PlannerState extends ResourceState<PlannerPage> {
                                       meals.where((m) => m != meal).toList(),
                                     );
                                   }
+                                } else if (action == 'guilty_pleasure') {
+                                  await changeGuiltyPleasure(meal);
                                 } else {
                                   await replaceMeal(day, slot, meal);
                                 }
@@ -365,6 +442,16 @@ class _PlannerState extends ResourceState<PlannerPage> {
                                 PopupMenuItem(
                                   value: 'replace',
                                   child: Text(context.t('replace')),
+                                ),
+                                PopupMenuItem(
+                                  value: 'guilty_pleasure',
+                                  child: Text(
+                                    context.t(
+                                      guiltyPleasure
+                                          ? 'view_guilty_pleasure_context'
+                                          : 'make_guilty_pleasure',
+                                    ),
+                                  ),
                                 ),
                                 PopupMenuItem(
                                   value: 'delete',

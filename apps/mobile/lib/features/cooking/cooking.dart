@@ -1,8 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+
 import '../../core/api.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
@@ -419,6 +421,9 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
                   );
                   savedLeftovers = leftovers;
                 }
+                await ref
+                    .read(appProvider.notifier)
+                    .completeGuiltyPleasureMeal();
                 await ref.read(appProvider.notifier).refresh();
                 if (context.mounted) {
                   context.go(

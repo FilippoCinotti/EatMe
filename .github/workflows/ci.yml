@@ -47,6 +47,8 @@ jobs:
       - run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/202609100002_rls.sql
       - run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/202609110003_domains.sql
       - run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/202609110004_identity.sql
+      - run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/202609170005_dinners.sql
+      - run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/202609190006_security_hardening.sql
       - run: psql -v ON_ERROR_STOP=1 -f supabase/tests/rls.sql
       - uses: actions/setup-python@v7
         with: {python-version: '3.12'}
@@ -95,6 +97,11 @@ jobs:
         working-directory: apps/mobile
       - run: flutter test
         working-directory: apps/mobile
+      - name: Validate localization and screenshot route policy
+        if: runner.os == 'Linux'
+        run: |
+          python3 scripts/check_localizations.py apps/mobile/assets/l10n
+          python3 scripts/check_screenshot_coverage.py --routes-only
       - if: runner.os == 'Linux'
         run: flutter build apk --debug
         timeout-minutes: 20
@@ -164,3 +171,66 @@ jobs:
         working-directory: apps/admin
       - run: npm audit --omit=dev
         working-directory: apps/admin
+      - run: docker build -t eatme-admin:ci .
+        working-directory: apps/admin
+  public:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/public
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/public/package-lock.json
+      - run: npm ci --ignore-scripts
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm audit --omit=dev
+      - run: docker build -t eatme-public:ci .
+  guest:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/guest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/guest/package-lock.json
+      - run: npm ci --ignore-scripts
+      - run: npm run typecheck
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_API_URL: https://api.eatme.invalid/api/v1
+      - name: Capture deterministic Guest Web baseline
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes fonts-noto-cjk
+          npx playwright install chromium
+          SCREENSHOT_MODE=1 PORT=3000 npm start -- --hostname 127.0.0.1 > "$RUNNER_TEMP/guest.log" 2>&1 &
+          guest_pid=$!
+          trap 'kill "$guest_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:3000/screenshot-fixture/landing?locale=en >/dev/null; then break; fi
+            if [ "$attempt" = 30 ]; then cat "$RUNNER_TEMP/guest.log"; exit 1; fi
+            sleep 1
+          done
+          npm run screenshots
+        env:
+          SCREENSHOT_BASE_URL: http://127.0.0.1:3000
+      - name: Upload Guest Web screenshot evidence
+        uses: actions/upload-artifact@v7
+        with:
+          name: guest-web-screenshot-baseline
+          path: |
+            docs/screenshots/guest
+            docs/screenshots/localization
+          if-no-files-found: error
+          retention-days: 14
+      - run: npm audit --omit=dev
+      - run: docker build --build-arg NEXT_PUBLIC_API_URL=https://api.eatme.invalid/api/v1 -t eatme-guest:ci .

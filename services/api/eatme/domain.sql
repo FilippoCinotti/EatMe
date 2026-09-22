@@ -149,3 +149,55 @@ CREATE TABLE IF NOT EXISTS identity_tokens (
  PRIMARY KEY(user_id,provider)
 );
 INSERT INTO schema_versions(version) VALUES ('0004') ON CONFLICT DO NOTHING;
+
+-- Dinner planning and public guest RSVP. Public access is mediated by the API;
+-- the database never grants anonymous access to these records.
+CREATE TABLE IF NOT EXISTS dinners (
+ id TEXT PRIMARY KEY, household_id TEXT NOT NULL REFERENCES households(id) ON DELETE CASCADE,
+ host_user_id TEXT NOT NULL REFERENCES profiles(user_id) ON DELETE CASCADE,
+ title TEXT NOT NULL, starts_at TEXT NOT NULL, timezone TEXT NOT NULL, location TEXT,
+ status TEXT NOT NULL CHECK(status IN ('planned','cancelled','completed')),
+ data TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS dinners_host_start ON dinners(host_user_id,starts_at);
+CREATE TABLE IF NOT EXISTS dinner_saved_guests (
+ id TEXT PRIMARY KEY, household_id TEXT NOT NULL REFERENCES households(id) ON DELETE CASCADE,
+ display_name TEXT NOT NULL, data TEXT NOT NULL, consented_at TEXT NOT NULL,
+ created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS dinner_participants (
+ id TEXT PRIMARY KEY, dinner_id TEXT NOT NULL REFERENCES dinners(id) ON DELETE CASCADE,
+ kind TEXT NOT NULL CHECK(kind IN ('host','household_member','saved_guest','temporary_guest')),
+ user_id TEXT REFERENCES profiles(user_id) ON DELETE SET NULL,
+ saved_guest_id TEXT REFERENCES dinner_saved_guests(id) ON DELETE SET NULL,
+ display_name TEXT NOT NULL,
+ status TEXT NOT NULL CHECK(status IN ('host','accepted','invited','responded','declined')),
+ created_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS dinner_participants_event ON dinner_participants(dinner_id,status);
+CREATE TABLE IF NOT EXISTS dinner_invitations (
+ id TEXT PRIMARY KEY, dinner_id TEXT NOT NULL REFERENCES dinners(id) ON DELETE CASCADE,
+ participant_id TEXT NOT NULL UNIQUE REFERENCES dinner_participants(id) ON DELETE CASCADE,
+ token_hash TEXT NOT NULL UNIQUE, expires_at TEXT NOT NULL, revoked_at TEXT,
+ rotated_at TEXT, created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS dinner_invites_expiry ON dinner_invitations(expires_at);
+CREATE TABLE IF NOT EXISTS dinner_guest_responses (
+ invitation_id TEXT PRIMARY KEY REFERENCES dinner_invitations(id) ON DELETE CASCADE,
+ data TEXT NOT NULL, remembered_guest_id TEXT REFERENCES dinner_saved_guests(id) ON DELETE SET NULL,
+ submitted_at TEXT NOT NULL, updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS dinner_memories (
+ id TEXT PRIMARY KEY, dinner_id TEXT NOT NULL UNIQUE REFERENCES dinners(id) ON DELETE CASCADE,
+ household_id TEXT NOT NULL REFERENCES households(id) ON DELETE CASCADE,
+ data TEXT NOT NULL, created_at TEXT NOT NULL
+);
+INSERT INTO schema_versions(version) VALUES ('0005') ON CONFLICT DO NOTHING;
+CREATE INDEX IF NOT EXISTS dinners_household ON dinners(household_id);
+CREATE INDEX IF NOT EXISTS dinner_saved_guests_household ON dinner_saved_guests(household_id);
+CREATE INDEX IF NOT EXISTS dinner_participants_user ON dinner_participants(user_id);
+CREATE INDEX IF NOT EXISTS dinner_participants_saved_guest ON dinner_participants(saved_guest_id);
+CREATE INDEX IF NOT EXISTS dinner_invitations_dinner ON dinner_invitations(dinner_id);
+CREATE INDEX IF NOT EXISTS dinner_guest_responses_saved_guest ON dinner_guest_responses(remembered_guest_id);
+CREATE INDEX IF NOT EXISTS dinner_memories_household ON dinner_memories(household_id);
+INSERT INTO schema_versions(version) VALUES ('0006') ON CONFLICT DO NOTHING;

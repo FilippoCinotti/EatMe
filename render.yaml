@@ -1,0 +1,172 @@
+services:
+  - type: web
+    name: eatme-api
+    runtime: docker
+    region: frankfurt
+    plan: starter
+    branch: feat/dinner-guests
+    autoDeployTrigger: off
+    rootDir: services/api
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/v1/health
+    domains:
+      - api.eatmeapplication.com
+    envVars:
+      - key: EATME_ENV
+        value: production
+      - key: AUTH_MODE
+        value: supabase
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_PROJECT_REF
+        value: ngqetldudwzemdhjprmv
+      - key: SUPABASE_URL
+        value: https://ngqetldudwzemdhjprmv.supabase.co
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://guest.eatmeapplication.com,https://admin.eatmeapplication.com
+      - key: MEDIA_STORAGE_BACKEND
+        value: supabase
+      - key: SUPABASE_MEDIA_BUCKET
+        value: eatme-private-media
+      - key: MEDIA_ENCRYPTION_KEY
+        sync: false
+      - key: AI_PROVIDER
+        sync: false
+      - key: AI_API_KEY
+        sync: false
+      - key: AI_MODEL
+        sync: false
+      - key: AI_MONTHLY_LIMIT
+        value: "50"
+      - key: PRODUCT_CONTACT
+        sync: false
+      - key: REVENUECAT_SECRET_KEY
+        sync: false
+      - key: PRIVACY_OPERATOR
+        sync: false
+      - key: PRIVACY_CONTACT
+        sync: false
+      - key: GUEST_APP_URL
+        value: https://guest.eatmeapplication.com
+      - key: APPLE_CLIENT_ID
+        value: com.filippocinotti.eatme
+      - key: APPLE_ANDROID_CLIENT_ID
+        sync: false
+      - key: APPLE_TEAM_ID
+        sync: false
+      - key: APPLE_KEY_ID
+        sync: false
+      - key: APPLE_PRIVATE_KEY
+        sync: false
+
+  - type: worker
+    name: eatme-worker
+    runtime: docker
+    region: frankfurt
+    plan: starter
+    branch: feat/dinner-guests
+    autoDeployTrigger: off
+    rootDir: services/api
+    dockerfilePath: ./Dockerfile
+    dockerCommand: python -m eatme.worker
+    envVars:
+      - key: EATME_ENV
+        value: production
+      - key: AUTH_MODE
+        value: supabase
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        value: https://ngqetldudwzemdhjprmv.supabase.co
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: MEDIA_STORAGE_BACKEND
+        value: supabase
+      - key: SUPABASE_MEDIA_BUCKET
+        value: eatme-private-media
+      - key: MEDIA_ENCRYPTION_KEY
+        sync: false
+      - key: AI_PROVIDER
+        sync: false
+      - key: AI_API_KEY
+        sync: false
+      - key: AI_MODEL
+        sync: false
+      - key: AI_MONTHLY_LIMIT
+        value: "50"
+      - key: REVENUECAT_SECRET_KEY
+        sync: false
+      - key: APPLE_CLIENT_ID
+        value: com.filippocinotti.eatme
+      - key: APPLE_TEAM_ID
+        sync: false
+      - key: APPLE_KEY_ID
+        sync: false
+      - key: APPLE_PRIVATE_KEY
+        sync: false
+
+  - type: web
+    name: eatme-guest
+    runtime: docker
+    region: frankfurt
+    plan: starter
+    branch: feat/dinner-guests
+    autoDeployTrigger: off
+    rootDir: apps/guest
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    domains:
+      - guest.eatmeapplication.com
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://api.eatmeapplication.com/api/v1
+
+  - type: web
+    name: eatme-public
+    runtime: docker
+    region: frankfurt
+    plan: starter
+    branch: feat/dinner-guests
+    autoDeployTrigger: off
+    rootDir: apps/public
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    domains:
+      - eatmeapplication.com
+    envVars:
+      - key: EATME_API_URL
+        value: https://api.eatmeapplication.com/api/v1
+      - key: SUPABASE_URL
+        value: https://ngqetldudwzemdhjprmv.supabase.co
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: PRIVACY_OPERATOR
+        sync: false
+      - key: PRIVACY_CONTACT
+        sync: false
+      - key: SUPPORT_CONTACT
+        sync: false
+
+  - type: web
+    name: eatme-admin
+    runtime: docker
+    region: frankfurt
+    plan: starter
+    branch: feat/dinner-guests
+    autoDeployTrigger: off
+    rootDir: apps/admin
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    domains:
+      - admin.eatmeapplication.com
+    envVars:
+      - key: EATME_API_URL
+        value: https://api.eatmeapplication.com/api/v1
+      - key: SUPABASE_URL
+        value: https://ngqetldudwzemdhjprmv.supabase.co
+      - key: SUPABASE_ANON_KEY
+        sync: false

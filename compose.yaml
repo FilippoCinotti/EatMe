@@ -29,5 +29,15 @@ services:
     volumes: [eatme_local:/data]
     depends_on: [api]
     security_opt: ['no-new-privileges:true']
+  guest:
+    build:
+      context: apps/guest
+      args:
+        NEXT_PUBLIC_API_URL: http://127.0.0.1:8000/api/v1
+    environment:
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:8000/api/v1
+    ports: ['127.0.0.1:3000:3000']
+    depends_on: [api]
+    security_opt: ['no-new-privileges:true']
 volumes:
   eatme_local:

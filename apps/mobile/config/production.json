@@ -1,0 +1,14 @@
+{
+  "AUTH_MODE": "supabase",
+  "API_URL": "https://api.eatmeapplication.com/api/v1",
+  "SUPABASE_URL": "https://ngqetldudwzemdhjprmv.supabase.co",
+  "SUPABASE_ANON_KEY": "sb_publishable_leS9UrSy0Bjp6DFMPuCrbQ_E8EEDJqR",
+  "OAUTH_ENABLED": true,
+  "REVENUECAT_ANDROID_KEY": "",
+  "REVENUECAT_IOS_KEY": "appl_bAMHxIBdSGRFPHCgQoWGTIlxMfD",
+  "PRIVACY_URL": "https://eatmeapplication.com/privacy",
+  "TERMS_URL": "https://eatmeapplication.com/terms",
+  "APPLE_ANDROID_CLIENT_ID": "com.filippocinotti.eatme.signin",
+  "APPLE_ANDROID_CALLBACK_URL": "https://api.eatmeapplication.com/api/v1/auth/apple/callback",
+  "APPLE_IOS_BUNDLE_ID": "com.filippocinotti.eatme"
+}

@@ -8,7 +8,46 @@ from .storage import decode, encode
 from .validation import choice, integer, new_id, text, valid_date, valid_uuid
 
 
+def preference_mode(overrides, day, slot):
+    """Resolve a temporary ranking context without changing a profile."""
+    for override in overrides or []:
+        if override.get("mode") != "guilty_pleasure" or override.get("date") != day:
+            continue
+        if override.get("scope") == "day" or (
+            override.get("scope") == "meal" and override.get("slot") == slot
+        ):
+            return "guilty_pleasure"
+    return "for_you"
+
+
 class PlanningService:
+    def _preference_overrides(self, value, start, meals):
+        if value is None:
+            return []
+        if not isinstance(value, list) or len(value) > 14:
+            raise DomainError("invalid_preference_override", 422)
+        week = date.fromisoformat(start)
+        meal_keys = {(meal.get("date"), meal.get("slot")) for meal in meals}
+        normalized, targets = [], set()
+        for raw in value:
+            if not isinstance(raw, dict) or raw.get("mode") != "guilty_pleasure":
+                raise DomainError("invalid_preference_override", 422)
+            scope = choice(raw.get("scope", "meal"), {"meal", "day"})
+            day = valid_date(raw.get("date"))
+            if not day or not 0 <= (date.fromisoformat(day) - week).days < 7:
+                raise DomainError("invalid_preference_override", 422)
+            slot = None
+            if scope == "meal":
+                slot = choice(raw.get("slot"), {"breakfast", "lunch", "dinner", "snack"})
+                if (day, slot) not in meal_keys:
+                    raise DomainError("invalid_preference_override", 422)
+            target = (scope, day, slot)
+            if target in targets:
+                raise DomainError("duplicate_preference_override", 422)
+            targets.add(target)
+            normalized.append({"mode": "guilty_pleasure", "scope": scope, "date": day, **({"slot": slot} if slot else {})})
+        return normalized
+
     def shopping(self, user_id):
         with self.db.transaction() as tx:
             home = self._member(tx, user_id)["household_id"]
@@ -164,11 +203,14 @@ class PlanningService:
                     if not day or not 0 <= (date.fromisoformat(day) - date.fromisoformat(start)).days < 7 or (day, slot) in slots:
                         raise DomainError("invalid_meal_slot", 422)
                     slots.add((day, slot))
+                previous = decode(existing["data"]) if existing else {}
+                override_input = data.get("preference_overrides", previous.get("preference_overrides", []))
+                overrides = self._preference_overrides(override_input, start, meals)
                 if data.get("action") == "preview_generate":
-                    return {"preview": True, "start_date": start, "data": {"meals": meals}}
+                    return {"preview": True, "start_date": start, "data": {"meals": meals, "preference_overrides": overrides}}
                 identifier, stamp = existing["id"] if existing else new_id(), now()
                 version = existing["version"] + 1 if existing else 1
-                value = {"meals": meals}
+                value = {"meals": meals, "preference_overrides": overrides}
                 tx.execute("INSERT INTO meal_plans VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET start_date=excluded.start_date,data=excluded.data,version=excluded.version,updated_at=excluded.updated_at", (identifier, user_id, home, start, encode(value), version, existing["created_at"] if existing else stamp, stamp))
                 return {"id": identifier, "version": version, "start_date": start, "data": value}
             return self._once(tx, user_id, key, "plan", data, save)

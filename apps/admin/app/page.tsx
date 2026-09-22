@@ -47,14 +47,14 @@ export default function Review() {
   }
   async function transition(record: RecordData, action: string) { await run(async () => { await request({action, id: record.id, expected_status: record.status}); await refresh(); setSelected(null); }); }
   return <main>
-    <header><span className="brand">EatMe</span><span>Content & evidence studio</span></header>
+    <header><span className="brand">EatMe+</span><span>Content & evidence studio</span></header>
     <h1>Thoughtful content.<br />Accountable decisions.</h1>
     <p className="intro">Maintain the food catalog, inspect reports and publish reviewed content. Every publication requires a different reviewer from its author.</p>
     {error && <p role="alert" className="error">{error.replaceAll('_', ' ')}</p>}
     {!data ? <form onSubmit={login}>
       <label htmlFor="email">Email</label><input id="email" type="email" autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} required />
       <label htmlFor="password">Password</label><input id="password" type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} required />
-      <p className="muted">Use an existing EatMe account with an assigned editorial role. Sessions use an HTTP-only cookie and expire after 30 minutes.</p>
+      <p className="muted">Use an existing EatMe+ account with an assigned editorial role. Sessions use an HTTP-only cookie and expire after 30 minutes.</p>
       <button disabled={busy}>{busy ? 'Signing in…' : 'Open studio'}</button>
     </form> : <>
       <div className="summary"><strong>{data.role}</strong><span>{data.items.length} revisions</span>

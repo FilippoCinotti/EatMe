@@ -24,7 +24,7 @@ Respect provider rate limits and complete the required usage registration. Revie
 
 ## Assisted processing
 
-Set `AI_PROVIDER=openai`, `AI_API_KEY`, `AI_MODEL`, `AI_MONTHLY_LIMIT`, `MEDIA_DIRECTORY` and a stable `MEDIA_ENCRYPTION_KEY`. Generate an encryption key using `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` and store it in a secret manager. All API replicas and workers must use the same private media volume and encryption key. Back it up separately from encrypted media.
+Set `AI_PROVIDER=openai`, `AI_API_KEY`, `AI_MODEL`, `AI_MONTHLY_LIMIT` and a stable `MEDIA_ENCRYPTION_KEY`. Generate an encryption key using `python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"` and store it in a secret manager. Local development uses `MEDIA_STORAGE_BACKEND=filesystem` and `MEDIA_DIRECTORY`; Render production uses `MEDIA_STORAGE_BACKEND=supabase`, `SUPABASE_MEDIA_BUCKET=eatme-private-media` and the server-only service-role key. All API replicas and workers must use the same backend and encryption key. Back the key up separately from encrypted media.
 
 The adapter uses structured outputs, a versioned prompt, bounded responses and server-side validation. Health-profile fields are excluded from provider requests. Model output cannot publish scientific rules or write stock directly. Photo and receipt jobs require user confirmation. Recipe drafts must pass canonical ingredient and dietary validation when saved. [Structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs).
 
@@ -45,7 +45,7 @@ The runner refuses unset or fixture providers. For each image it uses the produc
 
 ## Subscriptions
 
-`REVENUECAT_SECRET_KEY` remains server-only. Configure native SDK publishable keys separately, product offerings in RevenueCat and products in each store. The API verifies entitlements against RevenueCat instead of trusting device purchase assertions. No price is hardcoded. Decide and document the actual paid capability policy before enabling a paywall; the basic manual workflows remain available by default.
+`REVENUECAT_SECRET_KEY` remains server-only. The customer-facing tier is EatMe Premium; existing internal identifiers such as `eatme_plus`, `eatme_plus_monthly` and `eatme_plus_annual` remain unchanged for compatibility. Configure native SDK publishable keys separately, product offerings in RevenueCat and products in each store. The API verifies entitlements against RevenueCat instead of trusting device purchase assertions. No price is hardcoded. Decide and document the actual paid capability policy before enabling a paywall; the basic manual workflows remain available by default.
 
 ## Availability controls
 

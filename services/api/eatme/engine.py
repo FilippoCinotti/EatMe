@@ -131,12 +131,15 @@ DEFAULT_WEIGHTS = {
     "no_shopping":{"availability":0.70,"expiry":0.15,"diet":0.10,"speed":0.05},
     "quick":{"availability":0.30,"expiry":0.15,"diet":0.10,"speed":0.45},
     "health_first":{"availability":0.25,"expiry":0.15,"diet":0.55,"speed":0.05},
+    # This mode deliberately changes ranking only. compatibility() still runs
+    # first with the complete profile and every participant's hard rules.
+    "guilty_pleasure":{"availability":0.45,"expiry":0.20,"diet":0.05,"speed":0.30},
 }
 
 
 def rank(recipes: list[dict], foods: dict, inventory: list[dict], profile: dict, rules: list[dict],
          today: date, mode: str, servings: int, weights: dict | None = None) -> tuple[list[dict],list[dict]]:
-    profiles = weights if weights is not None else DEFAULT_WEIGHTS
+    profiles = {**DEFAULT_WEIGHTS, **(weights or {})}
     weight_mode = "for_you" if mode == "plant_based" else mode
     if weight_mode not in profiles:
         raise DomainError("unknown_mode",422)

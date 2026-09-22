@@ -11,6 +11,7 @@ from .governance import GovernanceService
 from .content import ContentService
 from .households import HouseholdService
 from .planning import PlanningService
+from .dinners import DinnerService
 from .reference_features import ReferenceFeaturesService, GOALS
 from .auth import now
 from .catalog import ALLERGENS, ETHICAL_PREFERENCES, INTOLERANCES, MEDICAL_AWARENESS, SENSITIVITIES
@@ -45,7 +46,16 @@ def valid_date(value) -> str | None:
         raise DomainError("invalid_date",422) from None
 
 
-class Service(ReferenceFeaturesService, HouseholdService, PlanningService, ContentService, GovernanceService, IntelligenceService, LifecycleService):
+class Service(
+    ReferenceFeaturesService,
+    HouseholdService,
+    PlanningService,
+    DinnerService,
+    ContentService,
+    GovernanceService,
+    IntelligenceService,
+    LifecycleService,
+):
     def __init__(self, db: Database, *, clock=None, weights=None):
         self.db, self.clock, self.weights = db, clock, weights
 
@@ -381,7 +391,8 @@ class Service(ReferenceFeaturesService, HouseholdService, PlanningService, Conte
                 recipes = [r for r in recipes if food_id in {i["food_id"] for i in r["ingredients"]}]
             prefs_row = tx.one("SELECT data FROM user_preferences WHERE user_id=?",(user_id,))
             preferences = decode(prefs_row["data"]) if prefs_row else {}
-            if preferences.get("max_minutes"):
+            relax_soft = mode == "guilty_pleasure"
+            if preferences.get("max_minutes") and not relax_soft:
                 recipes = [r for r in recipes if r["minutes"] <= preferences["max_minutes"]]
             skill = {'beginner': 0, 'confident': 1, 'advanced': 2}
             if preferences.get('skill'):
@@ -390,13 +401,14 @@ class Service(ReferenceFeaturesService, HouseholdService, PlanningService, Conte
             feedback = {r["recipe_id"]:r["rating"] for r in tx.all("SELECT recipe_id,rating FROM recipe_feedback WHERE user_id=?",(user_id,))} if preferences.get("learning") else {}
             cuisines = {c.casefold() for c in preferences.get("cuisines",[])}
             for item in ranked:
-                item["preference_adjustment"] = .05 * feedback.get(item["recipe"]["id"],0) + (.03 if item["recipe"].get("cuisine","").casefold() in cuisines else 0)
-                if preferences.get('budget') in {'low', 'medium'}:
+                item["preference_adjustment"] = 0 if relax_soft else (.05 * feedback.get(item["recipe"]["id"],0) + (.03 if item["recipe"].get("cuisine","").casefold() in cuisines else 0))
+                if not relax_soft and preferences.get('budget') in {'low', 'medium'}:
                     item['preference_adjustment'] += item['component_scores']['availability'] * (.06 if preferences['budget'] == 'low' else .03)
                 seasonal = [foods[i['food_id']] for i in item['recipe']['ingredients'] if foods[i['food_id']].get('season_months')]
-                if preferences.get('seasonal') and seasonal:
+                if not relax_soft and preferences.get('seasonal') and seasonal:
                     item['preference_adjustment'] += .03 * sum(today.month in f['season_months'] for f in seasonal) / len(seasonal)
                 item["score"] = round(item["score"]+item["preference_adjustment"],6)
+                item["soft_preferences_relaxed"] = relax_soft
             if any(item['preference_adjustment'] for item in ranked):
                 ranked.sort(key=lambda item:(-item["score"],item["recipe"]["id"]))
                 diverse, repeated, seen = [], [], set()
@@ -412,6 +424,8 @@ class Service(ReferenceFeaturesService, HouseholdService, PlanningService, Conte
                      "inventory_snapshot":snapshot,"ranked":ranked,"rejected":rejected,"servings":size}
             tx.execute("INSERT INTO recommendation_traces VALUES (?,?,?,?,?)",(trace_id,user_id,household_id,encode(trace),now()))
             return {"trace_id":trace_id,"items":ranked[:4],"servings":size,"diet_rules_version":versions,
+                    "preference_context":{"mode":mode,"soft_preferences_relaxed":relax_soft,
+                                          "hard_restrictions_active":True},
                     "profile_context":{"diet_ids":[a["diet_id"] for a in profile["settings"]["diets"]],
                                        "primary_diet":profile["settings"].get("primary_diet"),
                                        "allergy_count":len(profile["settings"].get("allergies", [])),

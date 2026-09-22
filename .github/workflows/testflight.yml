@@ -1,0 +1,347 @@
+name: TestFlight release candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Reviewed commit from main to build
+        required: true
+        type: string
+      build_number:
+        description: Unused monotonically increasing App Store build number
+        required: true
+        type: number
+      upload_to_testflight:
+        description: Validate and upload the signed IPA to App Store Connect
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: testflight-${{ inputs.release_sha }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and upload iOS RC
+    runs-on: macos-15
+    timeout-minutes: 90
+    environment: testflight
+    env:
+      BUNDLE_ID: com.filippocinotti.eatme
+      MARKETING_VERSION: 1.0.0
+      FLUTTER_VERSION: 3.47.2
+      XCODE_VERSION: '26.3'
+      API_URL: ${{ vars.PRODUCTION_API_URL }}
+      SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+      PRIVACY_URL: ${{ vars.PRIVACY_URL }}
+      TERMS_URL: ${{ vars.TERMS_URL }}
+      REVENUECAT_IOS_KEY: ${{ secrets.REVENUECAT_IOS_PUBLISHABLE_KEY }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      APP_STORE_CONNECT_API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8 }}
+      IOS_DISTRIBUTION_CERTIFICATE_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_BASE64 }}
+      IOS_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+      IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+      IOS_PROVISIONING_PROFILE_NAME: ${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}
+      IOS_KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+      FIREBASE_IOS_CONFIG_PLIST_BASE64: ${{ secrets.FIREBASE_IOS_CONFIG_PLIST_BASE64 }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Restrict release source to main
+        env:
+          RELEASE_SHA: ${{ inputs.release_sha }}
+        run: |
+          git fetch origin main --no-tags
+          git cat-file -e "$RELEASE_SHA^{commit}"
+          git merge-base --is-ancestor "$RELEASE_SHA" origin/main
+          git checkout --detach "$RELEASE_SHA"
+
+      - name: Select the supported stable Xcode toolchain
+        run: |
+          developer_dir="/Applications/Xcode_${XCODE_VERSION}.app/Contents/Developer"
+          test -d "$developer_dir" || { echo "Required Xcode $XCODE_VERSION is not installed on this runner"; exit 1; }
+          sudo xcode-select --switch "$developer_dir"
+          xcodebuild -version | grep -F "Xcode $XCODE_VERSION"
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            apps/admin/package-lock.json
+            apps/guest/package-lock.json
+            apps/public/package-lock.json
+
+      - name: Record toolchain
+        run: |
+          mkdir -p build/release-evidence
+          xcodebuild -version | tee build/release-evidence/xcode.txt
+          flutter --version | tee build/release-evidence/flutter.txt
+          sw_vers | tee build/release-evidence/macos.txt
+
+      - name: Validate public release configuration
+        env:
+          BUILD_NUMBER: ${{ inputs.build_number }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          required = ('API_URL', 'SUPABASE_URL', 'SUPABASE_ANON_KEY', 'PRIVACY_URL', 'TERMS_URL')
+          missing = [name for name in required if not os.environ.get(name)]
+          if missing:
+              raise SystemExit('Missing protected release configuration: ' + ', '.join(missing))
+          config = {
+              'AUTH_MODE': 'supabase',
+              'API_URL': os.environ['API_URL'],
+              'SUPABASE_URL': os.environ['SUPABASE_URL'],
+              'SUPABASE_ANON_KEY': os.environ['SUPABASE_ANON_KEY'],
+              'OAUTH_ENABLED': True,
+              'REVENUECAT_ANDROID_KEY': '',
+              'REVENUECAT_IOS_KEY': os.environ.get('REVENUECAT_IOS_KEY', ''),
+              'PRIVACY_URL': os.environ['PRIVACY_URL'],
+              'TERMS_URL': os.environ['TERMS_URL'],
+              'APPLE_ANDROID_CLIENT_ID': '',
+              'APPLE_ANDROID_CALLBACK_URL': '',
+              'APPLE_IOS_BUNDLE_ID': os.environ['BUNDLE_ID'],
+          }
+          path = 'build/release-public-config.json'
+          with open(path, 'w') as output:
+              json.dump(config, output)
+          PY
+          python3 scripts/check_release_config.py build/release-public-config.json --expected-supabase-project-ref ngqetldudwzemdhjprmv --require-ios
+          curl --fail --silent --show-error --max-time 15 "$API_URL/health" >/dev/null
+
+      - name: Install and validate Firebase iOS configuration
+        run: |
+          test -n "$FIREBASE_IOS_CONFIG_PLIST_BASE64" || { echo "Missing protected Firebase iOS configuration"; exit 1; }
+          printf '%s' "$FIREBASE_IOS_CONFIG_PLIST_BASE64" | base64 --decode > apps/mobile/ios/Runner/GoogleService-Info.plist
+          test "$(/usr/libexec/PlistBuddy -c 'Print PROJECT_ID' apps/mobile/ios/Runner/GoogleService-Info.plist)" = "eatme-project"
+          test "$(/usr/libexec/PlistBuddy -c 'Print BUNDLE_ID' apps/mobile/ios/Runner/GoogleService-Info.plist)" = "$BUNDLE_ID"
+          firebase_app_id=$(/usr/libexec/PlistBuddy -c 'Print GOOGLE_APP_ID' apps/mobile/ios/Runner/GoogleService-Info.plist)
+          test -n "$firebase_app_id"
+          echo "FIREBASE_IOS_APP_ID=$firebase_app_id" >> "$GITHUB_ENV"
+
+      - name: API and RLS-independent test gate
+        run: |
+          python -m pip install -e 'services/api[dev]'
+          python -m unittest discover -s services/api/tests -v
+          python -m ruff check services/api services/worker scripts
+          python scripts/check_repository.py
+
+      - name: Build and test Guest Web
+        working-directory: apps/guest
+        env:
+          NEXT_PUBLIC_API_URL: ${{ env.API_URL }}
+        run: |
+          npm ci --ignore-scripts
+          npm run typecheck
+          npm run build
+
+      - name: Build and test Admin Studio
+        working-directory: apps/admin
+        run: |
+          npm ci --ignore-scripts
+          npm run typecheck
+          npm run build
+
+      - name: Build and test public and legal site
+        working-directory: apps/public
+        run: |
+          npm ci --ignore-scripts
+          npm run typecheck
+          npm run build
+
+      - name: Bootstrap and verify Flutter
+        run: |
+          python3 scripts/bootstrap_mobile.py
+          dart format --output=none --set-exit-if-changed lib test integration_test
+          flutter analyze
+          flutter test
+        working-directory: apps/mobile
+
+      - name: Validate localization contract
+        run: python3 scripts/check_localizations.py apps/mobile/assets/l10n
+
+      - name: Build screenshot evidence
+        env:
+          SCREENSHOT_MODE: '1'
+          NEXT_PUBLIC_API_URL: ${{ env.API_URL }}
+        run: |
+          python3 scripts/collect_screenshots.py apps/mobile/build/screenshots
+          cd apps/guest
+          npx playwright install chromium
+          PORT=3000 npm start -- --hostname 127.0.0.1 > "$RUNNER_TEMP/guest.log" 2>&1 &
+          guest_pid=$!
+          trap 'kill "$guest_pid" 2>/dev/null || true' EXIT
+          for attempt in {1..30}; do curl --fail --silent http://127.0.0.1:3000/en/screenshot-fixture/landing >/dev/null && break; sleep 1; done
+          npm run screenshots
+          cd ../..
+          python3 scripts/build_screenshot_manifest.py --commit "${{ inputs.release_sha }}"
+          python3 scripts/check_screenshot_coverage.py --require-files
+
+      - name: Import signing material into a temporary keychain
+        run: |
+          for name in APPLE_TEAM_ID APP_STORE_CONNECT_ISSUER_ID APP_STORE_CONNECT_KEY_ID APP_STORE_CONNECT_API_KEY_P8 IOS_DISTRIBUTION_CERTIFICATE_BASE64 IOS_DISTRIBUTION_CERTIFICATE_PASSWORD IOS_PROVISIONING_PROFILE_BASE64 IOS_PROVISIONING_PROFILE_NAME IOS_KEYCHAIN_PASSWORD; do
+            test -n "${!name}" || { echo "Missing protected signing setting: $name"; exit 1; }
+          done
+          cert="$RUNNER_TEMP/eatme-distribution.p12"
+          profile="$RUNNER_TEMP/eatme.mobileprovision"
+          keychain="$RUNNER_TEMP/eatme-signing.keychain-db"
+          printf '%s' "$IOS_DISTRIBUTION_CERTIFICATE_BASE64" | base64 --decode > "$cert"
+          printf '%s' "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > "$profile"
+          security create-keychain -p "$IOS_KEYCHAIN_PASSWORD" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$IOS_KEYCHAIN_PASSWORD" "$keychain"
+          security import "$cert" -P "$IOS_DISTRIBUTION_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k "$keychain"
+          security list-keychain -d user -s "$keychain" login.keychain-db
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$IOS_KEYCHAIN_PASSWORD" "$keychain"
+          profile_uuid=$(/usr/libexec/PlistBuddy -c 'Print UUID' /dev/stdin <<< "$(security cms -D -i "$profile")")
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$profile" "$HOME/Library/MobileDevice/Provisioning Profiles/$profile_uuid.mobileprovision"
+          mkdir -p "$HOME/.appstoreconnect/private_keys"
+          printf '%s' "$APP_STORE_CONNECT_API_KEY_P8" > "$HOME/.appstoreconnect/private_keys/AuthKey_$APP_STORE_CONNECT_KEY_ID.p8"
+          chmod 600 "$HOME/.appstoreconnect/private_keys/AuthKey_$APP_STORE_CONNECT_KEY_ID.p8"
+          echo "EATME_KEYCHAIN=$keychain" >> "$GITHUB_ENV"
+          echo "EATME_PROFILE_UUID=$profile_uuid" >> "$GITHUB_ENV"
+
+      - name: Create App Store export options
+        run: |
+          python3 - <<'PY'
+          import os, plistlib
+          options = {
+              'method': 'app-store-connect',
+              'signingStyle': 'manual',
+              'teamID': os.environ['APPLE_TEAM_ID'],
+              'provisioningProfiles': {
+                  os.environ['BUNDLE_ID']: os.environ['IOS_PROVISIONING_PROFILE_NAME'],
+              },
+              'stripSwiftSymbols': True,
+              'uploadBitcode': False,
+          }
+          with open('build/ExportOptions.plist', 'wb') as output:
+              plistlib.dump(options, output)
+          PY
+
+      - name: Build signed release IPA
+        working-directory: apps/mobile
+        env:
+          BUILD_NUMBER: ${{ inputs.build_number }}
+        run: |
+          flutter build ipa --release \
+            --build-name="$MARKETING_VERSION" \
+            --build-number="$BUILD_NUMBER" \
+            --export-options-plist="$GITHUB_WORKSPACE/build/ExportOptions.plist" \
+            --dart-define="AUTH_MODE=supabase" \
+            --dart-define="API_URL=$API_URL" \
+            --dart-define="SUPABASE_URL=$SUPABASE_URL" \
+            --dart-define="SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" \
+            --dart-define="OAUTH_ENABLED=true" \
+            --dart-define="PRIVACY_URL=$PRIVACY_URL" \
+            --dart-define="TERMS_URL=$TERMS_URL" \
+            --dart-define="REVENUECAT_IOS_KEY=$REVENUECAT_IOS_KEY" \
+            --dart-define="FIREBASE_CRASHLYTICS_ENABLED=true"
+          ipa=$(find build/ios/ipa -maxdepth 1 -name '*.ipa' -print -quit)
+          test -n "$ipa"
+          destination="build/ios/ipa/EatMe-$MARKETING_VERSION-$BUILD_NUMBER.ipa"
+          mv "$ipa" "$destination"
+          echo "EATME_IPA=$GITHUB_WORKSPACE/apps/mobile/$destination" >> "$GITHUB_ENV"
+
+      - name: Upload Flutter and iOS debug symbols to Crashlytics
+        run: |
+          upload_symbols=$(find "$HOME/Library/Developer/Xcode/DerivedData" "$GITHUB_WORKSPACE/apps/mobile/ios/Flutter/ephemeral" -type f -path '*/FirebaseCrashlytics/upload-symbols' -print -quit)
+          test -n "$upload_symbols" || { echo "Firebase Crashlytics upload-symbols was not found"; exit 1; }
+          dsym_root="$GITHUB_WORKSPACE/apps/mobile/build/ios/archive/Runner.xcarchive/dSYMs"
+          test -d "$dsym_root"
+          uploaded=$(find "$dsym_root" -maxdepth 1 -name '*.dSYM' | wc -l | tr -d ' ')
+          test "$uploaded" -gt 0
+          "$upload_symbols" -gsp "$GITHUB_WORKSPACE/apps/mobile/ios/Runner/GoogleService-Info.plist" -p ios "$dsym_root"
+          printf 'firebase_project=eatme-project\nfirebase_app_id=%s\ndsym_count=%s\n' "$FIREBASE_IOS_APP_ID" "$uploaded" > build/release-evidence/crashlytics-symbols.txt
+
+      - name: Validate signed IPA
+        env:
+          BUILD_NUMBER: ${{ inputs.build_number }}
+        run: |
+          python3 scripts/validate_ipa.py "$EATME_IPA" --bundle-id "$BUNDLE_ID" --version "$MARKETING_VERSION" --build "$BUILD_NUMBER"
+          work="$RUNNER_TEMP/ipa-validation"
+          mkdir -p "$work"
+          ditto -x -k "$EATME_IPA" "$work"
+          app=$(find "$work/Payload" -maxdepth 1 -name '*.app' -print -quit)
+          codesign --verify --deep --strict --verbose=2 "$app"
+          codesign -d --entitlements :- "$app" > build/release-evidence/entitlements.plist
+          security cms -D -i "$app/embedded.mobileprovision" > build/release-evidence/provisioning.plist
+          shasum -a 256 "$EATME_IPA" | tee build/release-evidence/ipa-sha256.txt
+
+      - name: Upload signed IPA artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: EatMe-${{ env.MARKETING_VERSION }}-${{ inputs.build_number }}-signed
+          path: ${{ env.EATME_IPA }}
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Validate and upload to TestFlight
+        if: inputs.upload_to_testflight
+        run: |
+          xcrun altool --validate-app --type ios --file "$EATME_IPA" --apiKey "$APP_STORE_CONNECT_KEY_ID" --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID"
+          xcrun altool --upload-app --type ios --file "$EATME_IPA" --apiKey "$APP_STORE_CONNECT_KEY_ID" --apiIssuer "$APP_STORE_CONNECT_ISSUER_ID" | tee build/release-evidence/upload.txt
+
+      - name: Write release evidence
+        if: always()
+        env:
+          BUILD_NUMBER: ${{ inputs.build_number }}
+          RELEASE_SHA: ${{ inputs.release_sha }}
+          UPLOAD_RESULT: ${{ job.status }}
+        run: |
+          python3 - <<'PY'
+          import json, os, platform
+          evidence = {
+              'git_sha': os.environ['RELEASE_SHA'],
+              'version': os.environ['MARKETING_VERSION'],
+              'build': os.environ['BUILD_NUMBER'],
+              'bundle_id': os.environ['BUNDLE_ID'],
+              'flutter': os.environ['FLUTTER_VERSION'],
+              'xcode': os.environ['XCODE_VERSION'],
+              'runner': 'macos-15',
+              'upload_requested': '${{ inputs.upload_to_testflight }}',
+              'workflow_result': os.environ['UPLOAD_RESULT'],
+              'python': platform.python_version(),
+          }
+          os.makedirs('build/release-evidence', exist_ok=True)
+          with open('build/release-evidence/release.json', 'w') as output:
+              json.dump(evidence, output, indent=2)
+          PY
+
+      - name: Upload release evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-evidence-${{ inputs.build_number }}
+          path: build/release-evidence
+          retention-days: 90
+
+      - name: Destroy temporary signing material
+        if: always()
+        run: |
+          if [ -n "${EATME_KEYCHAIN:-}" ]; then security delete-keychain "$EATME_KEYCHAIN" || true; fi
+          if [ -n "${EATME_PROFILE_UUID:-}" ]; then rm -f "$HOME/Library/MobileDevice/Provisioning Profiles/$EATME_PROFILE_UUID.mobileprovision"; fi
+          rm -rf "$HOME/.appstoreconnect/private_keys"
+          rm -f apps/mobile/ios/Runner/GoogleService-Info.plist

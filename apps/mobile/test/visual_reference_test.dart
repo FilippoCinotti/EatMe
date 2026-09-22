@@ -1,18 +1,24 @@
 import 'premium_fonts.dart';
+
 import 'dart:io';
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:eatme/core/models.dart';
+import 'package:eatme/core/guilty_pleasure.dart';
 import 'package:eatme/core/state.dart';
 import 'package:eatme/design_system/widgets.dart';
 import 'package:eatme/features/chef_table/chef_table.dart';
 import 'package:eatme/features/fridge/fridge.dart';
+import 'package:eatme/features/organize/dinners.dart';
+import 'package:eatme/features/organize/guilty_pleasure.dart';
 import 'package:eatme/features/organize/planner.dart';
 import 'package:eatme/features/profile/profile.dart';
 import 'package:eatme/main.dart';
+
 import 'application_test.dart' as support;
 
 const tomato = Food(
@@ -126,6 +132,17 @@ class VisualController extends support.TestController {
   }
 }
 
+class GuiltyVisualController extends VisualController {
+  @override
+  AppState build() => super.build().copy(
+    mode: 'guilty_pleasure',
+    guiltyPleasure: GuiltyPleasureContext(
+      scope: 'meal',
+      expiresAt: DateTime.now().add(const Duration(hours: 2)),
+    ),
+  );
+}
+
 class VisualApi extends support.TestApi {
   @override
   Future<Json> request(
@@ -135,6 +152,18 @@ class VisualApi extends support.TestApi {
     String? operationKey,
     bool allowCache = true,
   }) async {
+    if (method == 'GET' && path == '/dinners') {
+      return {
+        'items': [
+          {
+            'id': 'dinner-1',
+            'title': 'Dinner with friends',
+            'starts_at': '2030-09-20T17:00:00+00:00',
+            'status': 'planned',
+          },
+        ],
+      };
+    }
     if (method == 'GET' && path.startsWith('/recipes/')) {
       return {'favorite': false};
     }
@@ -187,6 +216,7 @@ void main() {
       ('chef', '/chef', const ChefTablePage()),
       ('fridge', '/fridge', const FridgePage()),
       ('plan', '/plan', const PlannerPage()),
+      ('dinners', '/plan/dinners', const DinnersPage()),
       ('profile', '/profile', const ProfilePage()),
     ]) {
       for (final scale in [1.0, 1.6]) {
@@ -239,6 +269,49 @@ void main() {
           },
         );
       }
+    }
+    for (final state in <(String, Widget, AppController Function())>[
+      (
+        'guilty-pleasure-active',
+        const AppShell(path: '/chef', child: ChefTablePage()),
+        GuiltyVisualController.new,
+      ),
+      (
+        'guilty-pleasure-sheet',
+        const Scaffold(body: GuiltyPleasureSheet(active: false)),
+        VisualController.new,
+      ),
+    ]) {
+      testWidgets('${state.$1} ${dark ? 'dark' : 'light'}', (tester) async {
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final boundary = GlobalKey();
+        await tester.pumpWidget(
+          support.harness(
+            RepaintBoundary(key: boundary, child: state.$2),
+            VisualApi(),
+            dark: dark,
+            controller: state.$3,
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        await tester.runAsync(() async {
+          final image =
+              await (boundary.currentContext!.findRenderObject()!
+                      as RenderRepaintBoundary)
+                  .toImage();
+          final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+          final file = File(
+            'build/screenshots/${state.$1}-${dark ? 'dark' : 'light'}.png',
+          );
+          await file.parent.create(recursive: true);
+          await file.writeAsBytes(bytes!.buffer.asUint8List());
+          image.dispose();
+        });
+      });
     }
   }
   testWidgets('unknown content does not borrow a demo photograph', (

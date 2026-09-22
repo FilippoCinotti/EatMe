@@ -22,6 +22,8 @@ apps/mobile/ios/Pods/
 apps/mobile/ios/.symlinks/
 apps/mobile/ios/Flutter/Generated.xcconfig
 apps/mobile/ios/Flutter/flutter_export_environment.sh
+apps/mobile/ios/Runner/GoogleService-Info.plist
+apps/mobile/android/app/google-services.json
 *.jks
 *.keystore
 *.p12
@@ -31,7 +33,6 @@ apps/mobile/ios/Flutter/flutter_export_environment.sh
 var/
 
 mobile-sources.zip
-apps/mobile/config/production.json
 apps/mobile/config/development.json
 
 ci-review.zip

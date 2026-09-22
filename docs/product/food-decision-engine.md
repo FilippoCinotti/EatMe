@@ -3,7 +3,7 @@
 EatMe’s consumer promise is **“Your recipes. Your fridge. Your diet. One decision.”** The product loop is:
 
 1. **Decide** — ChefTable ranks only compatible candidates and explains one or two real reasons.
-2. **Plan** — the user places a reviewed recipe into a week or previews an EatMe+ generated week before accepting it.
+2. **Plan** — the user places a reviewed recipe into a week or previews an EatMe Premium generated week before accepting it.
 3. **Shop if needed** — generated requirements subtract usable known inventory; manual shopping remains available to Free users.
 4. **Adapt** — Social Import and recipe detail use the authoritative canonical mapping and Diet-Fit engine.
 5. **Cook** — Cook Mode keeps the current recipe and step in focus.
@@ -16,7 +16,7 @@ EatMe’s consumer promise is **“Your recipes. Your fridge. Your diet. One dec
 | ChefTable | What should I eat? | Explained, context-aware decision and recipe entry points |
 | Fridge | What do I have? | Low-effort inventory, Use Soon, recognition review and leftovers |
 | Plan | What am I eating next? | Week, meal slots, Smart Plan preview and Shopping List |
-| Profile | How should EatMe adapt to me? | Diet & Health, household, preferences, privacy and EatMe+ |
+| Profile | How should EatMe+ adapt to me? | Diet & Health, household, preferences, privacy and EatMe Premium |
 
 HealthyFood is no longer a primary destination. Its useful compatibility, nutrition and evidence capabilities remain available from recipe detail, discovery and Profile. The legacy route remains temporarily available for deep-link compatibility.
 

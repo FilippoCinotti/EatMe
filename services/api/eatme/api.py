@@ -1,4 +1,5 @@
 """FastAPI HTTP adapter. Live JWT integration needs configured Supabase keys."""
+import time
 from typing import Literal
 from uuid import uuid4
 
@@ -8,6 +9,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from .errors import DomainError
+from .observability import event
 from .transport import configured_router
 
 
@@ -78,13 +80,15 @@ class DeleteInput(StrictBody):
 def create_app(router=None):
     import os
     router = router or configured_router()
-    app = FastAPI(title="EatMe API",version="1.0.0",docs_url="/docs" if router.development else None)
+    app = FastAPI(title="EatMe+ API",version="1.0.0",docs_url="/docs" if router.development else None)
     origins = list(filter(None,os.getenv("CORS_ORIGINS","http://localhost:3000").split(",")))
     app.add_middleware(CORSMiddleware,allow_origins=origins,allow_methods=["GET","POST","PUT","PATCH","DELETE"],
                        allow_headers=["Authorization","Content-Type","Idempotency-Key"])
 
     @app.middleware("http")
     async def headers(request:Request,call_next):
+        request_id = str(uuid4())
+        started = time.monotonic()
         # Header screening plus streamed size validation in the ASGI boundary.
         body = bytearray()
         async for chunk in request.stream():
@@ -92,10 +96,34 @@ def create_app(router=None):
             if len(body)>(6_000_000 if request.url.path == "/api/v1/media" else 262144):
                 return JSONResponse({"error":{"code":"payload_too_large"}},status_code=413)
         request._body = bytes(body)
-        response = await call_next(request)
-        response.headers["X-Request-ID"] = str(uuid4())
+        try:
+            response = await call_next(request)
+        except Exception:
+            event(
+                "http_request",
+                service="api",
+                status=500,
+                duration_ms=round((time.monotonic() - started) * 1000),
+                request_id=request_id,
+                code="unhandled_exception",
+            )
+            raise
+        response.headers["X-Request-ID"] = request_id
         response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Robots-Tag"] = "noindex, nofollow"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
+        route = request.scope.get("route")
+        event(
+            "http_request",
+            service="api",
+            status=response.status_code,
+            duration_ms=round((time.monotonic() - started) * 1000),
+            request_id=request_id,
+            route=getattr(route, "path", "unmatched"),
+        )
         return response
 
     @app.exception_handler(DomainError)
@@ -132,7 +160,26 @@ def create_app(router=None):
     @app.get("/api/v1/leftovers")
     @app.get("/api/v1/privacy/export")
     @app.get("/api/v1/admin/catalog")
+    @app.get("/api/v1/dinners")
+    @app.get("/api/v1/dinner-guests")
     def get_resource(request:Request):
+        return dispatch(request)
+
+    @app.get("/api/v1/dinners/{dinner_id}")
+    @app.get("/api/v1/dinners/{dinner_id}/adaptive-servings")
+    def dinner(dinner_id:str,request:Request):
+        return dispatch(request)
+
+    @app.get("/api/v1/guest/invites/{token}")
+    def guest_invite(token:str,request:Request):
+        return dispatch(request)
+
+    @app.put("/api/v1/guest/invites/{token}/response")
+    def guest_response(token:str,body:dict,request:Request):
+        return dispatch(request,body)
+
+    @app.delete("/api/v1/guest/invites/{token}/response")
+    def delete_guest_response(token:str,request:Request):
         return dispatch(request)
 
     @app.get("/api/v1/recipes/{recipe_id}")
@@ -183,7 +230,8 @@ def create_app(router=None):
     def domain_command(body:dict,request:Request):
         return dispatch(request,body)
 
-    for resource in ("shopping", "plans", "households", "preferences", "leftovers", "recipes", "jobs", "notifications", "admin/content", "reports", "inventory/metadata", "media", "recipes/import-url", "recipes/import-review", "analytics", "entitlements/refresh", "products/stock", "auth/apple-authorization"):
+    for resource in ("shopping", "plans", "dinners", "households", "preferences", "leftovers", "recipes", "jobs", "notifications", "admin/content", "reports", "inventory/metadata", "media", "recipes/import-url", "recipes/import-review", "analytics", "entitlements/refresh", "products/stock", "auth/apple-authorization"):
         app.add_api_route("/api/v1/"+resource, domain_command, methods=["POST"], name=resource+"_command")
+    app.add_api_route("/api/v1/dinners/{dinner_id}/invitations", domain_command, methods=["POST"], name="dinner_invitation_command")
     app.add_api_route("/api/v1/products/{code}", get_resource, methods=["GET"], name="product_lookup")
     return app

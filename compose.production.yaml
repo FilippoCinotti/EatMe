@@ -7,9 +7,8 @@ services:
     environment:
       EATME_ENV: production
       AUTH_MODE: supabase
-      MEDIA_DIRECTORY: /data/media
+      MEDIA_STORAGE_BACKEND: supabase
     ports: ["127.0.0.1:8000:8000"]
-    volumes: ["private-media:/data"]
     read_only: true
     tmpfs: ["/tmp"]
     security_opt: ["no-new-privileges:true"]
@@ -31,8 +30,7 @@ services:
     environment:
       EATME_ENV: production
       AUTH_MODE: supabase
-      MEDIA_DIRECTORY: /data/media
-    volumes: ["private-media:/data"]
+      MEDIA_STORAGE_BACKEND: supabase
     read_only: true
     tmpfs: ["/tmp"]
     security_opt: ["no-new-privileges:true"]
@@ -41,5 +39,22 @@ services:
     logging:
       driver: json-file
       options: {max-size: "10m", max-file: "3"}
-volumes:
-  private-media:
+  guest:
+    image: ${EATME_GUEST_IMAGE:?Set an immutable guest image digest}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${PUBLIC_API_URL:?Set the public API URL}
+    ports: ["127.0.0.1:3000:3000"]
+    read_only: true
+    tmpfs: ["/tmp"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: ["ALL"]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 6s
+      retries: 3
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
