@@ -377,7 +377,14 @@ class ContentService:
         title = (recipe.get("name") if recipe else parser.metadata.get("og:title")) or ""
         title = re.sub(r"\s*[-|]\s*(YouTube|Instagram)\s*$", "", str(title), flags=re.I)[:160]
         servings_match = re.search(r"\d+", str(recipe.get("recipeYield", ""))) if recipe else None
-        minutes = _duration_minutes(recipe.get("totalTime")) if recipe else None
+        prep_minutes = _duration_minutes(recipe.get("prepTime")) if recipe else None
+        cook_minutes = _duration_minutes(recipe.get("cookTime")) if recipe else None
+        total_minutes = _duration_minutes(recipe.get("totalTime")) if recipe else None
+        minutes = total_minutes or (
+            prep_minutes + cook_minutes
+            if prep_minutes is not None and cook_minutes is not None
+            else prep_minutes or cook_minutes
+        )
         thumbnail = parser.metadata.get("og:image", "")
         result = {
             "title": title,
