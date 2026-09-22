@@ -174,6 +174,16 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               localized(recipe.title, context.language),
               style: Theme.of(context).textTheme.displaySmall,
             ),
+            if (rawRecipe['description'] is Map) ...[
+              const SizedBox(height: 10),
+              Text(
+                localized(
+                  Map<String, dynamic>.from(rawRecipe['description'] as Map),
+                  context.language,
+                ),
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ],
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
