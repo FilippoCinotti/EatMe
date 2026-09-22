@@ -22,6 +22,7 @@ class FoodImage extends ConsumerWidget {
     required this.id,
     this.photoId,
     this.imageUrl,
+    this.ingredientIds = const [],
     this.height = 160,
     this.width,
     this.radius = 16,
@@ -29,6 +30,7 @@ class FoodImage extends ConsumerWidget {
   });
   final String id;
   final String? photoId, imageUrl;
+  final List<String> ingredientIds;
   final double height, radius;
   final double? width;
   final IconData fallback;
@@ -98,6 +100,65 @@ class FoodImage extends ConsumerWidget {
           ),
         ),
       );
+    }
+    if (ingredientIds.isNotEmpty) {
+      final foodsById = {
+        for (final food in ref.watch(appProvider).foods) food.id: food,
+      };
+      final urls = ingredientIds
+          .map((foodId) => foodsById[foodId]?.imageUrl)
+          .whereType<String>()
+          .where((url) => url.trim().isNotEmpty)
+          .take(4)
+          .toList();
+      if (urls.isNotEmpty) {
+        Widget tile(String url) => Expanded(
+          child: Image.network(
+            url,
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.medium,
+            errorBuilder: (_, _, _) => ColoredBox(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              child: Icon(
+                fallback,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ),
+        );
+        final top = urls.take(2).toList();
+        final bottom = urls.skip(2).take(2).toList();
+        return ExcludeSemantics(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: SizedBox(
+              width: width,
+              height: height,
+              child: urls.length == 1
+                  ? Row(children: [tile(urls.first)])
+                  : Column(
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              for (final url in top) tile(url),
+                            ],
+                          ),
+                        ),
+                        if (bottom.isNotEmpty)
+                          Expanded(
+                            child: Row(
+                              children: [
+                                for (final url in bottom) tile(url),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+            ),
+          ),
+        );
+      }
     }
     final cell = cells[id];
     final scheme = Theme.of(context).colorScheme;
