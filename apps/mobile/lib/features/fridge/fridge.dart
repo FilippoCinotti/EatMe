@@ -144,6 +144,7 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                   FoodPhotoCard(
                     id: batch.food.id,
                     photoId: batch.food.photoId,
+                    imageUrl: batch.food.imageUrl,
                     title: localized(batch.food.name, context.language),
                     subtitle: '${batch.quantity} ${batch.food.unit}',
                     imageHeight: 125,
@@ -181,6 +182,7 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                 FoodPhotoCard(
                   id: batch.food.id,
                   photoId: batch.food.photoId,
+                  imageUrl: batch.food.imageUrl,
                   title: localized(batch.food.name, context.language),
                   subtitle:
                       '${batch.quantity} ${batch.food.unit} · ${context.t(batch.location)}',
@@ -491,6 +493,7 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
         FoodImage(
           id: batch.food.id,
           photoId: batch.food.photoId,
+          imageUrl: batch.food.imageUrl,
           height: 200,
           radius: 22,
         ),
