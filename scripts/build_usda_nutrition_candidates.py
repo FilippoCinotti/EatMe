@@ -127,22 +127,68 @@ def fetch_food_rows(dataset: dict) -> list[dict]:
         dataset["url"],
         headers={"User-Agent": "EatMe nutrition catalog builder/1.0"},
     )
-    with urllib.request.urlopen(request, timeout=60) as response:
+    with urllib.request.urlopen(request, timeout=90) as response:
         archive = response.read()
     with zipfile.ZipFile(io.BytesIO(archive)) as zipped:
-        name = next(
-            (
-                item
-                for item in zipped.namelist()
-                if item.lower().endswith("/food.csv") or item.lower() == "food.csv"
-            ),
-            None,
-        )
-        if name is None:
+        def rows_for(basename):
+            name = next(
+                (
+                    item
+                    for item in zipped.namelist()
+                    if item.lower().endswith("/" + basename.lower())
+                    or item.lower() == basename.lower()
+                ),
+                None,
+            )
+            if name is None:
+                return []
+            with zipped.open(name) as raw:
+                text = io.TextIOWrapper(raw, encoding="latin-1", newline="")
+                return list(csv.DictReader(text))
+
+        rows = rows_for("food.csv")
+        if not rows:
             raise RuntimeError(f"food.csv missing from {dataset['name']}")
-        with zipped.open(name) as raw:
-            text = io.TextIOWrapper(raw, encoding="latin-1", newline="")
-            rows = list(csv.DictReader(text))
+
+        # Candidate records must actually expose source nutrient values through
+        # the downloadable food_nutrient table. This excludes Foundation sample
+        # records that look like excellent textual matches but cannot seed the
+        # canonical nutrition payload.
+        nutrient_names = {
+            row["id"]: row.get("name", "")
+            for row in rows_for("nutrient.csv")
+            if row.get("id")
+        }
+        supported_names = {
+            "Energy",
+            "Energy (Atwater General Factors)",
+            "Energy (Atwater Specific Factors)",
+            "Protein",
+            "Carbohydrate, by difference",
+            "Total lipid (fat)",
+            "Fatty acids, total saturated",
+            "Sugars, total including NLEA",
+            "Sugars, Total NLEA",
+            "Sugars, total",
+            "Fiber, total dietary",
+            "Sodium, Na",
+        }
+        supported_ids = {
+            nutrient_id
+            for nutrient_id, name in nutrient_names.items()
+            if name in supported_names
+        }
+        nutritional_ids = {
+            row.get("fdc_id")
+            for row in rows_for("food_nutrient.csv")
+            if row.get("nutrient_id") in supported_ids
+            and row.get("amount") not in (None, "")
+        }
+        # Some legacy archives omit nutrient.csv but use stable nutrient IDs
+        # from the current Foundation support tables. In that case retain the
+        # rows; the reviewed seed generator resolves them against current tables.
+        require_coverage = bool(supported_ids)
+
     return [
         {
             "fdc_id": row["fdc_id"],
@@ -153,7 +199,9 @@ def fetch_food_rows(dataset: dict) -> list[dict]:
             "priority": dataset["priority"],
         }
         for row in rows
-        if row.get("fdc_id") and row.get("description")
+        if row.get("fdc_id")
+        and row.get("description")
+        and (not require_coverage or row["fdc_id"] in nutritional_ids)
     ]
 
 
