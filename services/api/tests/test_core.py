@@ -103,7 +103,7 @@ class EatMeCase(unittest.TestCase):
         with self.db.transaction() as tx:
             row = tx.one("SELECT data FROM diet_definitions WHERE id=?", (diet_id,))
             data = decode(row["data"])
-            data.update(status="PUBLISHED", self_declared=True, medical=False)
+            data.update(status="PUBLISHED", is_demo=False, self_declared=True, medical=False)
             data.pop("evidence_references", None)
             tx.execute("UPDATE diet_definitions SET data=? WHERE id=?", (encode(data), diet_id))
         diet = next(item for item in self.service.catalog()["diets"] if item["id"] == diet_id)
@@ -114,7 +114,7 @@ class EatMeCase(unittest.TestCase):
         with self.db.transaction() as tx:
             row = tx.one("SELECT data FROM diet_definitions WHERE id=?", (diet_id,))
             data = decode(row["data"])
-            data.update(status="PUBLISHED", self_declared=True, medical=True)
+            data.update(status="PUBLISHED", is_demo=False, self_declared=True, medical=True)
             data.pop("evidence_references", None)
             tx.execute("UPDATE diet_definitions SET data=? WHERE id=?", (encode(data), diet_id))
         diet = next(item for item in self.service.catalog()["diets"] if item["id"] == diet_id)
