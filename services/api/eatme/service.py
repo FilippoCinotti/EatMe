@@ -259,6 +259,17 @@ class Service(
                 never = data.get("never_suggest",[])
                 if not isinstance(never,list) or any(f not in foods for f in never):
                     raise DomainError("invalid_food",422)
+                existing = tx.one("SELECT * FROM profiles WHERE user_id=?",(user_id,))
+                previous_settings = decode(existing["settings"]) if existing else {}
+                avatar_id = data.get("avatar_id") if "avatar_id" in data else previous_settings.get("avatar_id")
+                if avatar_id is not None:
+                    avatar_id = valid_uuid(avatar_id)
+                    avatar = tx.one(
+                        "SELECT 1 FROM media_objects WHERE id=? AND user_id=? AND kind='avatar'",
+                        (avatar_id, user_id),
+                    )
+                    if not avatar:
+                        raise DomainError("invalid_avatar", 422)
                 settings = {"diets":assignments,"allergies":sorted(set(allergies)),"intolerances":sorted(set(intolerances)),
                             "sensitivities":sorted(set(sensitivities)),"medical_awareness":sorted(set(medical_awareness)),
                             "ethical_preferences":sorted(set(ethical_preferences)),"trace_policy":trace_policy,
@@ -266,7 +277,8 @@ class Service(
                             "never_suggest":never,"timezone":timezone,"adult_confirmed":True,
                             "primary_goal":primary_goal,"primary_diet":primary_diet,
                             "unknown_ingredient_policy":unknown_policy}
-                existing = tx.one("SELECT * FROM profiles WHERE user_id=?",(user_id,))
+                if avatar_id is not None:
+                    settings["avatar_id"] = avatar_id
                 stamp = now()
                 if existing:
                     if data.get("expected_version") != existing["version"]:
