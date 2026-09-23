@@ -163,6 +163,38 @@ class _RecipePageState extends ConsumerState<RecipePage> {
     );
   }
 
+  Future<void> substituteIngredient(Recipe recipe, Food original) async {
+    final replacement = await chooseReplacement(recipe, original);
+    if (replacement == null || !mounted) return;
+    final originalIngredient = recipe.ingredients
+        .where((item) => item['food_id'] == original.id)
+        .firstOrNull;
+    final amount = await askText(
+      context,
+      '${context.t('quantity')} (${replacement.unit})',
+      initial: replacement.unit == original.unit
+          ? '${originalIngredient?['quantity'] ?? ''}'
+          : '',
+      numeric: true,
+    );
+    if (amount == null) return;
+    final changed = await Mutation().send(
+      ref.read(apiProvider),
+      'POST',
+      '/recipes',
+      {
+        'action': 'substitute',
+        'recipe_id': recipe.id,
+        'food_id': original.id,
+        'replacement_id': replacement.id,
+        'quantity': amount,
+      },
+    );
+    if (mounted && context.mounted) {
+      context.push('/recipe-editor', extra: changed);
+    }
+  }
+
   Future<(Recipe, Json)> load() async {
     final api = ref.read(apiProvider);
     final recipe = await api.request('GET', '/recipes/${widget.recipeId}');
@@ -274,7 +306,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                   id: recipe.id,
                   imageUrl: recipe.imageUrl,
                   ingredientIds: recipe.ingredientIds,
-                  height: 280,
+                  height: 320,
                   radius: 28,
                 ),
                 Positioned(
@@ -518,7 +550,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 runSpacing: 10,
                 children: [
                   for (final diner in selectedDiners)
-                    _DinerChip(name: diner['name'] as String? ?? ''),
+                    _DinerChip(diner: diner),
                 ],
               ),
             ],
@@ -578,45 +610,79 @@ class _RecipePageState extends ConsumerState<RecipePage> {
             ],
             if (tab == 'ingredients')
               for (final item in ingredientRows)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: InformationPanel(
-                    tinted: false,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    child: Row(
-                      children: [
-                        const EatMeIcon(EatMeGlyph.leaf, size: 20),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                localized(
-                                  Map<String, dynamic>.from(
-                                    item['food']['name'] as Map,
-                                  ),
-                                  context.language,
-                                ),
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              Text(
-                                context.t('required_available', {
-                                  'required': item['quantity'] as String,
-                                  'available': item['available'] as String,
-                                  'unit': item['food']['unit'] as String,
-                                }),
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
+                Builder(
+                  builder: (context) {
+                    final required = double.tryParse('${item['quantity']}');
+                    final available = double.tryParse('${item['available']}');
+                    final isAvailable =
+                        required != null &&
+                        available != null &&
+                        available >= required;
+                    final foodId = item['food_id'] as String?;
+                    final food = ref
+                        .watch(appProvider)
+                        .foods
+                        .where((value) => value.id == foodId)
+                        .firstOrNull;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: InformationPanel(
+                        tinted: false,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
                         ),
-                      ],
-                    ),
-                  ),
+                        child: Row(
+                          children: [
+                            EatMeIcon(
+                              isAvailable
+                                  ? EatMeGlyph.circleCheck
+                                  : EatMeGlyph.shoppingBasket,
+                              size: 20,
+                              color: isAvailable
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    localized(
+                                      Map<String, dynamic>.from(
+                                        item['food']['name'] as Map,
+                                      ),
+                                      context.language,
+                                    ),
+                                    style: Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    context.t('required_available', {
+                                      'required': item['quantity'] as String,
+                                      'available': item['available'] as String,
+                                      'unit': item['food']['unit'] as String,
+                                    }),
+                                    style: Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (food != null)
+                              IconButton(
+                                tooltip: context.t('substitute_ingredient'),
+                                onPressed: () => substituteIngredient(recipe, food),
+                                icon: const EatMeIcon(
+                                  EatMeGlyph.refreshCw,
+                                  size: 19,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
             if (tab == 'steps')
               for (final (index, row)
@@ -773,34 +839,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                           .toList(),
                     );
                     if (original == null || !context.mounted) return;
-                    final replacement = await chooseReplacement(
-                      recipe,
-                      original,
-                    );
-                    if (replacement == null || !context.mounted) return;
-                    final originalIngredient = recipe.ingredients
-                        .where((item) => item['food_id'] == original.id)
-                        .firstOrNull;
-                    final amount = await askText(
-                      context,
-                      '${context.t('quantity')} (${replacement.unit})',
-                      initial: replacement.unit == original.unit
-                          ? '${originalIngredient?['quantity'] ?? ''}'
-                          : '',
-                      numeric: true,
-                    );
-                    if (amount == null) return;
-                    final changed = await Mutation()
-                        .send(ref.read(apiProvider), 'POST', '/recipes', {
-                          'action': 'substitute',
-                          'recipe_id': recipe.id,
-                          'food_id': original.id,
-                          'replacement_id': replacement.id,
-                          'quantity': amount,
-                        });
-                    if (context.mounted) {
-                      context.push('/recipe-editor', extra: changed);
-                    }
+                    await substituteIngredient(recipe, original);
                   },
                 ),
                 const SizedBox(height: 24),
@@ -872,37 +911,40 @@ class _RecipePageState extends ConsumerState<RecipePage> {
   );
 }
 
-class _DinerChip extends StatelessWidget {
-  const _DinerChip({required this.name});
-  final String name;
+class _DinerChip extends ConsumerWidget {
+  const _DinerChip({required this.diner});
+  final Json diner;
 
   @override
-  Widget build(BuildContext context) {
-    final trimmed = name.trim();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final trimmed = (diner['name'] as String? ?? '').trim();
     final initials = trimmed
-        .split(RegExp(r'\s+'))
+        .split(RegExp(r'\\s+'))
         .where((part) => part.isNotEmpty)
         .take(2)
         .map((part) => part.substring(0, 1).toUpperCase())
         .join();
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 6, 12, 6),
+      padding: const EdgeInsets.fromLTRB(7, 5, 12, 5),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outlineVariant,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            child: Text(
-              initials.isEmpty ? '•' : initials,
-              style: Theme.of(context).textTheme.labelMedium,
+          Transform.scale(
+            scale: .78,
+            child: MemberAvatar(
+              api: ref.read(apiProvider),
+              mediaId: diner['avatar_media_id'] as String?,
+              initials: initials,
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 5),
           Text(trimmed, style: Theme.of(context).textTheme.labelLarge),
         ],
       ),
