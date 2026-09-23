@@ -159,6 +159,31 @@ class DietHealthPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(context.t('diet_health_hub_body')),
+                const SizedBox(height: 14),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    if (dietSummary(medical: false) != context.t('not_configured'))
+                      StatusBadge(
+                        label: dietSummary(medical: false),
+                        icon: EatMeGlyph.leaf,
+                        emphasis: true,
+                      ),
+                    if (dietSummary(medical: true) != context.t('not_configured'))
+                      StatusBadge(
+                        label: dietSummary(medical: true),
+                        icon: EatMeGlyph.shield,
+                      ),
+                    if ((settings['never_suggest'] as List? ?? const []).isNotEmpty)
+                      StatusBadge(
+                        label: context.t('selected_count', {
+                          'count': (settings['never_suggest'] as List).length,
+                        }),
+                        icon: EatMeGlyph.triangleAlert,
+                      ),
+                  ],
+                ),
               ],
             ),
           ),
