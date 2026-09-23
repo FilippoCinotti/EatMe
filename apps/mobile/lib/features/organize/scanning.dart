@@ -267,7 +267,12 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                     ),
                     OutlinedButton(
                       onPressed: () async {
-                        final food = await chooseFood(context, foods);
+                        final food = await chooseFood(
+                          context,
+                          foods
+                              .where((food) => food.group != 'packaged')
+                              .toList(),
+                        );
                         if (food != null && mounted) {
                           setState(() {
                             item['food_id'] = food.id;
