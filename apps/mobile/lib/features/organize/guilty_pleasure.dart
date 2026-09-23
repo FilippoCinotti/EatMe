@@ -8,6 +8,7 @@ Future<String?> showGuiltyPleasureSheet(
   bool active = false,
 }) => showModalBottomSheet<String>(
   context: context,
+  useRootNavigator: true,
   useSafeArea: true,
   isScrollControlled: true,
   builder: (context) => GuiltyPleasureSheet(active: active),
