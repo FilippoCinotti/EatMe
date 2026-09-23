@@ -198,9 +198,7 @@ abstract final class Tokens {
         contentTextStyle: base.textTheme.bodyMedium?.copyWith(
           color: scheme.onInverseSurface,
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: scheme.surface,

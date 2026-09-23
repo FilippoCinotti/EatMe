@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+
 import '../../core/api.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
@@ -28,9 +30,8 @@ class _ScanningState extends ResourceState<ScanningPage> {
   void initState() {
     super.initState();
     timer = Timer.periodic(const Duration(seconds: 4), (_) {
-      if (records(
-        data?['items'],
-      ).any((j) => ['queued', 'processing'].contains(j['status']))) {
+      if (records(data?['items'])
+          .any((j) => ['queued', 'processing'].contains(j['status']))) {
         load();
       }
     });
@@ -232,9 +233,9 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
   @override
   void initState() {
     super.initState();
-    items = records(
-      widget.job['result']['items'],
-    ).map((i) => {...i, 'confirmed': i['food_id'] != null}).toList();
+    items = records(widget.job['result']['items'])
+        .map((i) => {...i, 'confirmed': i['food_id'] != null})
+        .toList();
     final mediaId = widget.job['media_id'] as String?;
     if (mediaId != null) {
       preview = ref.read(apiProvider).request('GET', '/media/$mediaId');
@@ -311,9 +312,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                       child: Text(
                         foods
                                 .where((f) => f.id == item['food_id'])
-                                .map(
-                                  (f) => localized(f.name, context.language),
-                                )
+                                .map((f) => localized(f.name, context.language))
                                 .firstOrNull ??
                             context.t('choose_food'),
                       ),
@@ -542,13 +541,17 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
                 numeric: true,
               );
               if (amount == null) return;
-              await Mutation()
-                  .send(ref.read(apiProvider), 'POST', '/products/stock', {
-                    'product_id': product!['id'],
-                    'food_id': classification!.id,
-                    'quantity': amount,
-                    'package_checked': true,
-                  });
+              await Mutation().send(
+                ref.read(apiProvider),
+                'POST',
+                '/products/stock',
+                {
+                  'product_id': product!['id'],
+                  'food_id': classification!.id,
+                  'quantity': amount,
+                  'package_checked': true,
+                },
+              );
               await ref.read(appProvider.notifier).refresh();
               if (context.mounted) context.pop();
             },

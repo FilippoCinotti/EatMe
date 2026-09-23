@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../core/api.dart';
 import '../../core/entitlements.dart';
 import '../../core/localization.dart';
@@ -46,12 +47,16 @@ class _RecipePageState extends ConsumerState<RecipePage> {
   }
 
   Future<Food?> chooseReplacement(Recipe recipe, Food original) async {
-    final response = await mutation
-        .send(ref.read(apiProvider), 'POST', '/recipes', {
-          'action': 'substitution_candidates',
-          'recipe_id': recipe.id,
-          'food_id': original.id,
-        });
+    final response = await mutation.send(
+      ref.read(apiProvider),
+      'POST',
+      '/recipes',
+      {
+        'action': 'substitution_candidates',
+        'recipe_id': recipe.id,
+        'food_id': original.id,
+      },
+    );
     if (!mounted) return null;
     final candidates = records(response['candidates']);
     final allFoods = ref
@@ -121,9 +126,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                     ),
                                     context.language,
                                   ),
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
                                 ),
                                 Text(
                                   context.t(
@@ -319,9 +324,8 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                     foregroundColor: favorite
                         ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.onSurface,
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.surface.withValues(alpha: .92),
+                    backgroundColor: Theme.of(context).colorScheme.surface
+                        .withValues(alpha: .92),
                     onPressed: toggleFavorite,
                   ),
                 ),
@@ -455,9 +459,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                 }),
                                 style: Theme.of(context).textTheme.bodySmall
                                     ?.copyWith(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary,
                                     ),
                               ),
                             ),
@@ -549,8 +553,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 spacing: 10,
                 runSpacing: 10,
                 children: [
-                  for (final diner in selectedDiners)
-                    _DinerChip(diner: diner),
+                  for (final diner in selectedDiners) _DinerChip(diner: diner),
                 ],
               ),
             ],
@@ -641,7 +644,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                               size: 20,
                               color: isAvailable
                                   ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(context).colorScheme.onSurfaceVariant,
+                                  : Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -655,7 +660,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                       ),
                                       context.language,
                                     ),
-                                    style: Theme.of(context).textTheme.titleMedium,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium,
                                   ),
                                   const SizedBox(height: 3),
                                   Text(
@@ -664,7 +671,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                       'available': item['available'] as String,
                                       'unit': item['food']['unit'] as String,
                                     }),
-                                    style: Theme.of(context).textTheme.bodySmall,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall,
                                   ),
                                 ],
                               ),
@@ -672,7 +681,8 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                             if (food != null)
                               IconButton(
                                 tooltip: context.t('substitute_ingredient'),
-                                onPressed: () => substituteIngredient(recipe, food),
+                                onPressed: () =>
+                                    substituteIngredient(recipe, food),
                                 icon: const EatMeIcon(
                                   EatMeGlyph.refreshCw,
                                   size: 19,
@@ -812,12 +822,16 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                         ),
                         secondary: true,
                         action: () async {
-                          await Mutation()
-                              .send(ref.read(apiProvider), 'POST', '/recipes', {
-                                'action': 'feedback',
-                                'recipe_id': recipe.id,
-                                'rating': rating,
-                              });
+                          await Mutation().send(
+                            ref.read(apiProvider),
+                            'POST',
+                            '/recipes',
+                            {
+                              'action': 'feedback',
+                              'recipe_id': recipe.id,
+                              'rating': rating,
+                            },
+                          );
                         },
                       ),
                   ],
@@ -929,9 +943,7 @@ class _DinerChip extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant,
-        ),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

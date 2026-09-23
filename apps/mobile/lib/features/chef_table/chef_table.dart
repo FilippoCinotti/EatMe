@@ -569,9 +569,8 @@ class _ChefFiltersState extends ConsumerState<ChefFilters> {
       const SizedBox(height: 6),
       Text(
         context.t('cooking_your_way'),
-        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
+        style: Theme.of(context).textTheme.bodyLarge
+            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
       const SizedBox(height: 20),
       for (final value in [
@@ -687,9 +686,9 @@ class RecipeCard extends StatelessWidget {
                           meta,
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                               ),
                         ),
                         if (r.warnings.isNotEmpty) ...[
@@ -762,10 +761,7 @@ class RecipeCard extends StatelessWidget {
             ],
           ),
           if (r.warnings.isNotEmpty)
-            StatusNote(
-              text: context.t('preference_warning'),
-              warning: true,
-            ),
+            StatusNote(text: context.t('preference_warning'), warning: true),
         ],
       ),
     );
