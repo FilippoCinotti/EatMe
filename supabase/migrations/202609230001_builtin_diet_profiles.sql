@@ -24,25 +24,25 @@ INSERT INTO diet_definitions(id, slug, data)
 SELECT id, slug, data FROM builtin
 ON CONFLICT (slug) DO NOTHING;
 
-WITH builtin(slug, rules) AS (
+WITH builtin(slug, version_id, rules) AS (
   VALUES
-    ('balanced','[]'),
-    ('omnivore','[]'),
-    ('mediterranean','[{"type":"PREFER","groups":["vegetable","legume"],"hard_constraint":false}]'),
-    ('vegetarian','[{"type":"EXCLUDE","groups":["meat","fish"],"hard_constraint":false}]'),
-    ('vegan','[{"type":"EXCLUDE","groups":["meat","fish","dairy","egg","honey"],"hard_constraint":false}]'),
-    ('pescatarian','[{"type":"EXCLUDE","groups":["meat"],"hard_constraint":false}]'),
-    ('flexitarian','[{"type":"PREFER","groups":["vegetable","legume"],"hard_constraint":false}]'),
-    ('plant-forward','[{"type":"PREFER","groups":["vegetable","legume"],"hard_constraint":false}]'),
-    ('low-carb','[]'),
-    ('low-fat','[]'),
-    ('high-protein','[{"type":"PREFER","groups":["legume","meat","fish","egg","dairy"],"hard_constraint":false}]'),
-    ('whole-food','[]'),
-    ('gluten-free','[{"type":"EXCLUDE","allergens":["gluten"],"hard_constraint":true}]')
+    ('balanced','3f051ecb-1239-5827-b505-623b33919c2e','[]'),
+    ('omnivore','ce233f49-057f-5b4a-bd1f-47bdbba98c5b','[]'),
+    ('mediterranean','09dcdf98-2dfa-530a-9d6e-02e9ee84184e','[{"type":"PREFER","groups":["vegetable","legume"],"hard_constraint":false}]'),
+    ('vegetarian','135bdaa2-51f9-5c4d-be19-29bb3a35f0ec','[{"type":"EXCLUDE","groups":["meat","fish"],"hard_constraint":false}]'),
+    ('vegan','1403f33c-9326-586d-97a8-05dc3b1dc732','[{"type":"EXCLUDE","groups":["meat","fish","dairy","egg","honey"],"hard_constraint":false}]'),
+    ('pescatarian','62eb58a6-eae2-501d-b8d1-38a8f8a98852','[{"type":"EXCLUDE","groups":["meat"],"hard_constraint":false}]'),
+    ('flexitarian','1ad38a69-2033-5150-9ddb-c6c3394f2de8','[{"type":"PREFER","groups":["vegetable","legume"],"hard_constraint":false}]'),
+    ('plant-forward','074293ca-986d-576c-b0a6-d961f1c36cfc','[{"type":"PREFER","groups":["vegetable","legume"],"hard_constraint":false}]'),
+    ('low-carb','fb5dd169-1f9a-5686-a220-9222abd9d6ae','[]'),
+    ('low-fat','7fa24aca-4574-5e8a-87c5-106c588fdd43','[]'),
+    ('high-protein','d2f6a861-7da8-5fd3-8039-62d9b505f140','[{"type":"PREFER","groups":["legume","meat","fish","egg","dairy"],"hard_constraint":false}]'),
+    ('whole-food','e307c811-1d23-5f39-bb5c-37cd39683ed1','[]'),
+    ('gluten-free','05ba5a9f-930d-5e47-9dba-f5d4d0988888','[{"type":"EXCLUDE","allergens":["gluten"],"hard_constraint":true}]')
 )
 INSERT INTO diet_versions(id, diet_id, version, status, effective_from, effective_until, rules)
 SELECT
-  'builtin-' || b.slug || '-20260923',
+  b.version_id,
   d.id,
   COALESCE((SELECT MAX(v.version) + 1 FROM diet_versions v WHERE v.diet_id = d.id), 1),
   'PUBLISHED',
@@ -55,7 +55,6 @@ WHERE NOT EXISTS (
   SELECT 1 FROM diet_versions v
   WHERE v.diet_id = d.id
     AND v.status = 'PUBLISHED'
-    AND v.effective_until IS NULL
 );
 
 COMMIT;
