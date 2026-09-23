@@ -157,6 +157,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                   right: 14,
                   child: EatMeIconButton(
                     glyph: EatMeGlyph.heart,
+                    filled: favorite,
                     label: context.t(favorite ? 'remove_favorite' : 'favorite'),
                     foregroundColor: favorite
                         ? Theme.of(context).colorScheme.primary
