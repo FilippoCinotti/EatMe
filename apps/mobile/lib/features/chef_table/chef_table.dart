@@ -1,6 +1,7 @@
 import 'recipe_favorite.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -129,6 +130,7 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                                 state.guiltyPleasureActive)
                         ? null
                         : () async {
+                            HapticFeedback.selectionClick();
                             final controller = ref.read(appProvider.notifier);
                             if (value == 'guilty_pleasure') {
                               final choice = await showGuiltyPleasureSheet(
@@ -667,9 +669,9 @@ class RecipeCard extends StatelessWidget {
                     id: r.recipe.id,
                     imageUrl: r.recipe.imageUrl,
                     ingredientIds: r.recipe.ingredientIds,
-                    width: 70,
-                    height: 70,
-                    radius: 18,
+                    width: 82,
+                    height: 82,
+                    radius: 20,
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -735,9 +737,37 @@ class RecipeCard extends StatelessWidget {
           icon: EatMeGlyph.house,
         ),
       ],
-      footer: r.warnings.isEmpty
-          ? null
-          : StatusNote(text: context.t('preference_warning'), warning: true),
+      footer: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              EatMeIcon(
+                r.useSoon.isNotEmpty ? EatMeGlyph.clockAlert : EatMeGlyph.house,
+                size: 18,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  r.useSoon.isNotEmpty
+                      ? context.t('uses_expiring', {'count': r.useSoon.length})
+                      : context.t('ingredients_at_home', {
+                          'available': r.available,
+                          'total': r.total,
+                        }),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            ],
+          ),
+          if (r.warnings.isNotEmpty)
+            StatusNote(
+              text: context.t('preference_warning'),
+              warning: true,
+            ),
+        ],
+      ),
     );
   }
 }
