@@ -599,6 +599,7 @@ class ContentService:
     def recipe_nutrition(self, recipe, foods, servings):
         from decimal import Decimal, InvalidOperation
         totals, missing, sources, coverage, units, conversions = {}, [], {}, {}, {}, {}
+        estimated_food_ids = []
         needed = requirements(recipe, servings)
 
         def positive(value):
@@ -651,6 +652,8 @@ class ContentService:
 
             sources[food_id] = nutrients["source_url"]
             conversions[food_id] = conversion
+            if nutrients.get("estimated") is True:
+                estimated_food_ids.append(food_id)
             divisor = Decimal(1000) if basis == "1pcs" else Decimal(100000)
             for name, value in nutrients["values"].items():
                 if name in units and units[name] != value["unit"]:
@@ -676,8 +679,8 @@ class ContentService:
             and not missing
             and all(count == len(needed) for count in coverage.values()),
             "missing_food_ids": missing,
-            "estimated_food_ids": [],
-            "estimated": False,
+            "estimated_food_ids": estimated_food_ids,
+            "estimated": bool(estimated_food_ids),
             "sources": sources,
             "basis_conversions": conversions,
             "method": "source_backed_ingredient_amounts_no_cooking_retention_adjustment",
