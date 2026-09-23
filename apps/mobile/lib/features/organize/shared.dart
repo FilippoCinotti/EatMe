@@ -166,7 +166,9 @@ class _FoodPickerState extends State<FoodPicker> {
               ListTile(
                 leading: FoodMark(food: food),
                 title: Text(localized(food.name, context.language)),
-                subtitle: Text(food.unit),
+                subtitle: Text(
+                  '${context.t('food_group_${food.group}')} · ${food.unit}',
+                ),
                 onTap: () => Navigator.pop(context, food),
               ),
           ],
