@@ -208,6 +208,10 @@ def create_app(router=None):
     def recipe(recipe_id:str,request:Request):
         return dispatch(request)
 
+    @app.get("/api/v1/media/{media_id}")
+    def media(media_id:str,request:Request):
+        return dispatch(request)
+
     @app.get("/api/v1/foods/{food_id}/compatibility")
     def food(food_id:str,request:Request):
         return dispatch(request)
