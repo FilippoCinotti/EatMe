@@ -195,29 +195,114 @@ Future<List<String>?> chooseDiners(
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(context.t('diner_consent_notice')),
-              for (final member in members)
-                CheckboxListTile(
-                  title: Text(member['name'] as String),
-                  value: selected.contains(member['user_id']),
-                  subtitle:
-                      member['user_id'] != api.userId &&
-                          member['share_constraints'] != 1
-                      ? Text(context.t('sharing_not_enabled'))
-                      : null,
-                  onChanged:
-                      member['user_id'] != api.userId &&
-                          member['share_constraints'] != 1
-                      ? null
-                      : (value) => update(() {
-                          if (value == true) {
-                            selected.add(member['user_id'] as String);
-                          } else {
-                            selected.remove(member['user_id']);
-                          }
-                        }),
+              const SizedBox(height: 16),
+              for (final member in members) ...[
+                Builder(
+                  builder: (context) {
+                    final id = member['user_id'] as String;
+                    final name = (member['name'] as String? ?? '').trim();
+                    final blocked =
+                        id != api.userId && member['share_constraints'] != 1;
+                    final active = selected.contains(id);
+                    final initials = name
+                        .split(RegExp(r'\s+'))
+                        .where((part) => part.isNotEmpty)
+                        .take(2)
+                        .map((part) => part.substring(0, 1).toUpperCase())
+                        .join();
+                    return Material(
+                      color: active
+                          ? Theme.of(context).colorScheme.primaryContainer
+                          : Theme.of(context).colorScheme.surfaceContainer,
+                      borderRadius: BorderRadius.circular(22),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(22),
+                        onTap: blocked
+                            ? null
+                            : () => update(() {
+                                if (active) {
+                                  selected.remove(id);
+                                } else {
+                                  selected.add(id);
+                                }
+                              }),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 22,
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.surface,
+                                child: Text(
+                                  initials.isEmpty ? '•' : initials,
+                                  style: Theme.of(context).textTheme.labelLarge,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      name,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium,
+                                    ),
+                                    if (blocked)
+                                      Text(
+                                        context.t('sharing_not_enabled'),
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall,
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 160),
+                                width: 30,
+                                height: 30,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: active
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Colors.transparent,
+                                  border: Border.all(
+                                    color: active
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Theme.of(
+                                            context,
+                                          ).colorScheme.outlineVariant,
+                                  ),
+                                ),
+                                child: active
+                                    ? Icon(
+                                        Icons.check,
+                                        size: 18,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onPrimary,
+                                      )
+                                    : null,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
+                const SizedBox(height: 10),
+              ],
             ],
           ),
         ),
