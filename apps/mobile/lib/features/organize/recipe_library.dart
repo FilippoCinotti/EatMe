@@ -276,6 +276,7 @@ class _RecipeLibraryRow extends StatelessWidget {
             const SizedBox(width: 8),
             EatMeIconButton(
               glyph: EatMeGlyph.heart,
+              filled: recipe['favorite'] == true,
               label: context.t('favorite'),
               onPressed: onFavorite,
               foregroundColor: recipe['favorite'] == true
