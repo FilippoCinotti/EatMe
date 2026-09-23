@@ -178,7 +178,7 @@ void main() {
             .value,
         isFalse,
       );
-      expect(find.text('Tomatoes · Vegetables'), findsNWidgets(2));
+      expect(find.text('Tomatoes'), findsNWidgets(2));
       await tester.tap(find.byTooltip('Delete').first);
       await tester.pumpAndSettle();
       expect(find.text('First item'), findsNothing);
