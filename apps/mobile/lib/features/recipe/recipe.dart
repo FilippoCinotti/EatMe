@@ -29,6 +29,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
   Json rawRecipe = {};
   final mutation = Mutation();
   List<String>? participants;
+  List<Json> selectedDiners = [];
   Future<void> toggleFavorite() async {
     final next = !favorite;
     setState(() => favorite = next);
@@ -490,24 +491,43 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             AsyncAction(
               label: context.t('who_is_eating'),
               secondary: true,
               action: () async {
+                final api = ref.read(apiProvider);
                 final value = await chooseDiners(
                   context,
-                  ref.read(apiProvider),
+                  api,
                   participants,
                 );
                 if (value != null && mounted) {
+                  final home = await api.request('GET', '/households');
+                  if (!mounted) return;
+                  final members = records(home['members']);
                   setState(() {
                     participants = value;
+                    selectedDiners = members
+                        .where((member) => value.contains(member['user_id']))
+                        .toList();
                     future = load();
                   });
                 }
               },
             ),
+            if (selectedDiners.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  for (final diner in selectedDiners)
+                    _DinerChip(name: diner['name'] as String? ?? ''),
+                ],
+              ),
+            ],
+            const SizedBox(height: 24),
             EatMeTabStrip(
               values: [
                 for (final value in [
@@ -850,4 +870,43 @@ class _RecipePageState extends ConsumerState<RecipePage> {
       },
     ),
   );
+}
+
+
+class _DinerChip extends StatelessWidget {
+  const _DinerChip({required this.name});
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    final trimmed = name.trim();
+    final initials = trimmed
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .take(2)
+        .map((part) => part.substring(0, 1).toUpperCase())
+        .join();
+    return Container(
+      padding: const EdgeInsets.fromLTRB(8, 6, 12, 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            radius: 16,
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            child: Text(
+              initials.isEmpty ? '•' : initials,
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(trimmed, style: Theme.of(context).textTheme.labelLarge),
+        ],
+      ),
+    );
+  }
 }
