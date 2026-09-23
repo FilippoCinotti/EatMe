@@ -156,6 +156,8 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
             if (value == 'dinners') context.go('/plan/dinners');
           },
         ),
+        const SizedBox(height: 14),
+        const KitchenLoopBanner(),
         const SizedBox(height: 24),
         Text(
           context.t('shopping_intro'),
