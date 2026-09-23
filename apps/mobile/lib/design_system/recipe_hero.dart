@@ -32,25 +32,31 @@ class HeroRecipeCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Stack(
-            children: [
-              FoodImage(
-                id: imageId,
-                imageUrl: imageUrl,
-                ingredientIds: ingredientIds,
-                height: 242,
-                radius: 0,
-              ),
-              if (badge != null)
-                Positioned(
-                  left: 16,
-                  top: 16,
-                  right: action == null ? 16 : 76,
-                  child: Align(alignment: Alignment.centerLeft, child: badge),
+          SizedBox(
+            width: double.infinity,
+            height: 242,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                FoodImage(
+                  id: imageId,
+                  imageUrl: imageUrl,
+                  ingredientIds: ingredientIds,
+                  width: double.infinity,
+                  height: 242,
+                  radius: 0,
                 ),
-              if (action != null)
-                Positioned(right: 12, top: 12, child: action!),
-            ],
+                if (badge != null)
+                  Positioned(
+                    left: 16,
+                    top: 16,
+                    right: action == null ? 16 : 76,
+                    child: Align(alignment: Alignment.centerLeft, child: badge),
+                  ),
+                if (action != null)
+                  Positioned(right: 12, top: 12, child: action!),
+              ],
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(18),
