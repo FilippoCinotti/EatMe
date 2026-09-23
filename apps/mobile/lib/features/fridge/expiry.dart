@@ -83,6 +83,7 @@ Future<void> showAddFoodMethods(
 }) async {
   final method = await showModalBottomSheet<String>(
     context: context,
+    useRootNavigator: true,
     useSafeArea: true,
     showDragHandle: true,
     builder: (context) => AddFoodMethodsPanel(
