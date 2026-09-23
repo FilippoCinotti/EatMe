@@ -82,6 +82,28 @@ class EatMeCase(unittest.TestCase):
         for slug in ["omnivore", "mediterranean", "vegetarian", "vegan", "pescatarian", "flexitarian", "plant-forward", "low-carb", "low-fat", "high-protein", "whole-food", "gluten-free", "celiac", "rad"]:
             self.assertTrue(diets[slug]["selectable"], slug)
 
+    def test_self_declared_non_medical_profile_does_not_require_governed_evidence(self):
+        diet_id = identifier("diet", "mediterranean")
+        with self.db.transaction() as tx:
+            row = tx.one("SELECT data FROM diet_definitions WHERE id=?", (diet_id,))
+            data = decode(row["data"])
+            data.update(status="PUBLISHED", self_declared=True, medical=False)
+            data.pop("evidence_references", None)
+            tx.execute("UPDATE diet_definitions SET data=? WHERE id=?", (encode(data), diet_id))
+        diet = next(item for item in self.service.catalog()["diets"] if item["id"] == diet_id)
+        self.assertTrue(diet["selectable"])
+
+    def test_medical_profile_without_governed_evidence_remains_unselectable(self):
+        diet_id = identifier("diet", "mediterranean")
+        with self.db.transaction() as tx:
+            row = tx.one("SELECT data FROM diet_definitions WHERE id=?", (diet_id,))
+            data = decode(row["data"])
+            data.update(status="PUBLISHED", self_declared=True, medical=True)
+            data.pop("evidence_references", None)
+            tx.execute("UPDATE diet_definitions SET data=? WHERE id=?", (encode(data), diet_id))
+        diet = next(item for item in self.service.catalog()["diets"] if item["id"] == diet_id)
+        self.assertFalse(diet["selectable"])
+
     def test_celiac_gluten_rule_is_hard_even_when_profile_is_flexible(self):
         from eatme.service import MEDICAL_CONSENT
         self.update_profile(
