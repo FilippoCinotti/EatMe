@@ -234,7 +234,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
     super.initState();
     items = records(
       widget.job['result']['items'],
-    ).map((i) => {...i, 'confirmed': false}).toList();
+    ).map((i) => {...i, 'confirmed': i['food_id'] != null}).toList();
     final mediaId = widget.job['media_id'] as String?;
     if (mediaId != null) {
       preview = ref.read(apiProvider).request('GET', '/media/$mediaId');
@@ -304,7 +304,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                           setState(() {
                             item['food_id'] = food.id;
                             item['unit'] = food.unit;
-                            item['confirmed'] = false;
+                            item['confirmed'] = true;
                           });
                         }
                       },
@@ -312,8 +312,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                         foods
                                 .where((f) => f.id == item['food_id'])
                                 .map(
-                                  (f) =>
-                                      '${localized(f.name, context.language)} · ${context.t('food_group_${f.group}')}',
+                                  (f) => localized(f.name, context.language),
                                 )
                                 .firstOrNull ??
                             context.t('choose_food'),
@@ -354,41 +353,11 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                         }
                       },
                     ),
-                    CheckboxListTile(
-                      title: Text(
-                        context.t('confirm_identification_and_family'),
+                    if (item['food_id'] == null)
+                      StatusNote(
+                        text: context.t('choose_food_before_confirming'),
+                        warning: true,
                       ),
-                      subtitle: item['food_id'] == null
-                          ? Text(context.t('choose_food_before_confirming'))
-                          : null,
-                      value: item['confirmed'] == true,
-                      onChanged: (v) async {
-                        if (v != true) {
-                          if (mounted) {
-                            setState(() => item['confirmed'] = false);
-                          }
-                          return;
-                        }
-                        if (item['food_id'] == null) {
-                          final food = await chooseFood(
-                            context,
-                            foods
-                                .where((food) => food.group != 'packaged')
-                                .toList(),
-                          );
-                          if (food == null || !mounted) return;
-                          setState(() {
-                            item['food_id'] = food.id;
-                            item['unit'] = food.unit;
-                            item['confirmed'] = true;
-                          });
-                          return;
-                        }
-                        if (mounted) {
-                          setState(() => item['confirmed'] = true);
-                        }
-                      },
-                    ),
                   ],
                 ),
               ),
