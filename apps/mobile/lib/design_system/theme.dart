@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 abstract final class Tokens {
   static const cream = Color(0xfff8f9f5);
@@ -81,6 +82,11 @@ abstract final class Tokens {
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: scheme.surface,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: dark ? Brightness.light : Brightness.dark,
+          statusBarBrightness: dark ? Brightness.dark : Brightness.light,
+        ),
         scrolledUnderElevation: 0,
         centerTitle: false,
         titleTextStyle: base.textTheme.titleLarge?.copyWith(
