@@ -668,13 +668,14 @@
       "slug": "milk",
       "unit": "ml",
       "status": "approved",
-      "review_note": "Reviewed source-backed proxy; composition may vary because the canonical ingredient is less specific.",
-      "fdc_id": "320027",
-      "dataset": "Foundation Foods",
-      "source_release": "2026-04-30",
-      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320027/nutrients",
-      "description": "MILK, 2% ",
-      "match_quality": "proxy"
+      "review_note": "Reviewed proxy for generic milk. Density is derived from the USDA household measure 1 cup = 244 g using the standard US cup volume; fat content remains explicitly proxy-estimated.",
+      "fdc_id": "171265",
+      "dataset": "SR Legacy",
+      "source_release": "2018-04",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171265/nutrients",
+      "description": "Milk, whole, 3.25% milkfat, with added vitamin D",
+      "match_quality": "proxy",
+      "density_g_per_ml": "1.0313"
     },
     {
       "id": "d7e783b5-80ed-52ad-a019-955e4c556710",
