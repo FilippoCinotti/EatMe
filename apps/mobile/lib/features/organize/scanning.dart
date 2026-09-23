@@ -523,7 +523,7 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
             child: Text(
               classification == null
                   ? context.t('classify_product')
-                  : '${localized(classification!.name, context.language)} · ${context.t('food_group_${classification!.group}')}',
+                  : localized(classification!.name, context.language),
             ),
           ),
           if (classification == null)
