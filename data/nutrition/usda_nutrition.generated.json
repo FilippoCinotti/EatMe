@@ -607,7 +607,7 @@
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
-        "estimated": false
+        "estimated": true
       }
     },
     {
@@ -1033,7 +1033,7 @@
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
-        "estimated": false
+        "estimated": true
       }
     },
     {
@@ -1257,7 +1257,7 @@
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
-        "estimated": false
+        "estimated": true
       }
     },
     {
@@ -1423,7 +1423,7 @@
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
-        "estimated": false
+        "estimated": true
       }
     },
     {
@@ -1475,7 +1475,7 @@
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
-        "estimated": false
+        "estimated": true
       }
     },
     {
@@ -1575,7 +1575,7 @@
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
-        "estimated": false
+        "estimated": true
       }
     },
     {
@@ -1833,7 +1833,7 @@
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
-        "estimated": false
+        "estimated": true
       }
     },
     {
@@ -1885,7 +1885,7 @@
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
-        "estimated": false
+        "estimated": true
       }
     },
     {
@@ -2177,7 +2177,7 @@
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
-        "estimated": false
+        "estimated": true
       }
     },
     {
@@ -2903,7 +2903,7 @@
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
-        "estimated": false
+        "estimated": true
       }
     },
     {
@@ -3007,7 +3007,7 @@
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
-        "estimated": false
+        "estimated": true
       }
     },
     {
@@ -3173,7 +3173,7 @@
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
-        "estimated": false
+        "estimated": true
       }
     },
     {
@@ -3277,7 +3277,7 @@
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
-        "estimated": false
+        "estimated": true
       }
     },
     {
@@ -3439,7 +3439,7 @@
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
-        "estimated": false
+        "estimated": true
       }
     },
     {
@@ -3631,7 +3631,7 @@
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
-        "estimated": false,
+        "estimated": true,
         "density_g_per_ml": "0.9299",
         "conversion_method": "usda_portion_density"
       }
@@ -3869,7 +3869,7 @@
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
-        "estimated": false,
+        "estimated": true,
         "density_g_per_ml": "1.0077",
         "conversion_method": "usda_portion_density"
       }
