@@ -32,8 +32,8 @@
   "turn_off": "Désactiver",
   "make_guilty_pleasure": "Passer en Guilty Pleasure",
   "view_guilty_pleasure_context": "Voir le contexte Guilty Pleasure",
-  "confirm_identification_and_family": "J’ai vérifié l’aliment, la quantité et la famille alimentaire",
-  "classify_product": "Classer le produit",
-  "product_family_required": "Choisissez l’aliment correspondant afin qu’EatMe attribue le produit à une famille alimentaire avant de l’ajouter.",
-  "map_product_to_food": "Classer et ajouter le produit"
+  "confirm_identification_and_family": "J’ai vérifié l’aliment et la quantité",
+  "classify_product": "Choisir l’aliment correspondant",
+  "product_family_required": "Choisissez l’aliment correspondant à ce produit avant de l’ajouter au frigo.",
+  "map_product_to_food": "Confirmer et ajouter au frigo"
 }
