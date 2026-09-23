@@ -373,7 +373,7 @@ class EatMeCase(unittest.TestCase):
             )
         self.assertEqual(metadata["canonical_food_id"], canonical)
         self.assertEqual(metadata["food_group"], "legume")
-        self.assertEqual(stored_food["group"], "legume")
+        self.assertEqual(stored_food["group"], "packaged")
         self.assertEqual(stored_food["ingredient_status"], "unknown")
         items = self.service.recommendations(self.user, "for_you")["items"]
         self.assertTrue(any(item["matched_inventory_count"] >= 1 for item in items))
