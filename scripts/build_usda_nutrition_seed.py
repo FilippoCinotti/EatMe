@@ -304,7 +304,7 @@ def main():
             "source_basis": "100g",
             "match_quality": row.get("match_quality", "reviewed"),
             "reviewed": True,
-            "estimated": False,
+            "estimated": row.get("match_quality") != "exact",
         }
 
         # Normalize published values to EatMe's canonical quantity unit so the
