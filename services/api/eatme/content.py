@@ -570,10 +570,11 @@ class ContentService:
                     raise DomainError('whole_units_required', 422)
                 from .catalog import identifier
                 food_id = identifier('product-food', row['barcode'])
-                food = {'id': food_id, 'name': {'en': product['name'], 'it': product['name']}, 'group': canonical['group'], 'unit': 'pcs', 'ingredient_status': 'unknown', 'allergens': [], 'may_contain': [], 'intolerances': [], 'nutrition': product.get('nutrition'), 'provenance': 'openfoodfacts-unreviewed', 'is_demo': False}
-                # The package remains an unknown-ingredient entity for safety. The
-                # user-selected canonical food is stored only as semantic/family
-                # metadata and never transfers allergen or medical guarantees.
+                food = {'id': food_id, 'name': {'en': product['name'], 'it': product['name']}, 'group': 'packaged', 'unit': 'pcs', 'ingredient_status': 'unknown', 'allergens': [], 'may_contain': [], 'intolerances': [], 'nutrition': product.get('nutrition'), 'provenance': 'openfoodfacts-unreviewed', 'is_demo': False}
+                # The shared package entity remains deliberately unclassified for
+                # safety. The user-selected canonical food and family are stored
+                # on this inventory batch only, so one household cannot change
+                # another household's semantic classification.
                 tx.execute('INSERT INTO foods VALUES (?,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data', (food_id, encode(food)))
                 batch_id, stamp = new_id(), now()
                 tx.execute('INSERT INTO inventory_batches VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', (batch_id, home, food_id, amount, 'fridge', None, 'unknown', None, 'barcode-confirmed', 1, stamp, stamp))
