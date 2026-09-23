@@ -1024,5 +1024,12 @@
   "turn_off_guilty_pleasure": "Disattiva Guilty Pleasure",
   "turn_off": "Disattiva",
   "make_guilty_pleasure": "Rendilo un Guilty Pleasure",
-  "view_guilty_pleasure_context": "Vedi contesto Guilty Pleasure"
+  "view_guilty_pleasure_context": "Vedi contesto Guilty Pleasure",
+  "choose_food_before_confirming": "Scegli l’ingrediente corretto prima di confermare.",
+  "change_profile_photo": "Cambia foto profilo",
+  "suggested_substitutions_body": "Alternative simili a {food}, dando priorità agli abbinamenti culinari revisionati e alla stessa famiglia alimentare.",
+  "no_suggested_substitutions": "Nessuna alternativa molto simile trovata. Puoi sfogliare tutti gli ingredienti.",
+  "curated_culinary_match": "Alternativa culinaria revisionata",
+  "same_food_family": "Ingrediente simile · stessa famiglia alimentare",
+  "browse_all_ingredients": "Sfoglia tutti gli ingredienti"
 }
