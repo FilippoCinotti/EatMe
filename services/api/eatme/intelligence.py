@@ -173,7 +173,7 @@ class OpenAIProvider:
         if not key or not model:
             raise DomainError('ai_provider_not_configured', 503)
         schema = RECIPE_SCHEMA if kind == 'recipe' else SCAN_SCHEMA
-        content = [{'type': 'text', 'text': encode({'task': kind, 'user_text': payload.get('text', ''), 'catalog': [{'id': f['id'], 'name': f['name'], 'unit': f['unit']} for f in foods.values()]})}]
+        content = [{'type': 'text', 'text': encode({'task': kind, 'user_text': payload.get('text', ''), 'catalog': [{'id': f['id'], 'name': f['name'], 'unit': f['unit'], 'group': f['group']} for f in foods.values() if f.get('group') != 'packaged']})}]
         if image:
             content.append({'type': 'image_url', 'image_url': {'url': 'data:image/jpeg;base64,' + base64.b64encode(image).decode()}})
         request = {'model': model, 'store': False, 'max_completion_tokens': 6000, 'messages': [{'role': 'system', 'content': PROMPT}, {'role': 'user', 'content': content}], 'response_format': {'type': 'json_schema', 'json_schema': {'name': 'eatme_' + kind, 'strict': True, 'schema': schema}}}
@@ -273,6 +273,8 @@ class IntelligenceService:
                     if not isinstance(item, dict) or item.get('confirmed') is not True or item.get('food_id') not in foods:
                         raise DomainError('detection_confirmation_required', 422)
                     food = foods[item['food_id']]
+                    if food.get('group') == 'packaged':
+                        raise DomainError('detection_family_required', 422)
                     amount = amount_milli(item.get('quantity'))
                     if food['unit'] == 'pcs' and amount % 1000:
                         raise DomainError('whole_units_required', 422)
@@ -321,7 +323,7 @@ class IntelligenceService:
                         raise DomainError('invalid_ai_response', 502)
                     item['name'] = text(item['name'], maximum=240)
                     item['confidence'] = float(decimal(item['confidence'], maximum=1))
-                    if item['food_id'] not in foods:
+                    if item['food_id'] not in foods or foods[item['food_id']].get('group') == 'packaged':
                         item['food_id'] = None
                     if item['quantity'] is not None:
                         item['quantity'] = quantity(amount_milli(item['quantity']))
