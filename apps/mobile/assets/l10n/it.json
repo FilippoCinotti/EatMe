@@ -1032,5 +1032,6 @@
   "curated_culinary_match": "Alternativa culinaria revisionata",
   "same_food_family": "Ingrediente simile · stessa famiglia alimentare",
   "browse_all_ingredients": "Sfoglia tutti gli ingredienti",
-  "in_fridge": "Nel tuo frigo"
+  "in_fridge": "Nel tuo frigo",
+  "nutrition_proxy_method": "Calcolato da dati nutrizionali con fonte; alcuni ingredienti usano un proxy revisionato. Perdite e variazioni durante la cottura non sono modellate."
 }
