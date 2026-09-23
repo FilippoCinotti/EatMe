@@ -113,6 +113,9 @@ class Router:
         resource = route.removeprefix("/api/v1")
         if resource=="/media" and method=="POST":
             return self.service.media_upload(user_id,body)
+        media_match = re.fullmatch(r"/media/([a-f0-9-]{36})", resource)
+        if media_match and method=="GET":
+            return self.service.media_preview(user_id, media_match[1])
         if resource=="/recipes/import-url" and method=="POST":
             self.limiter.check("recipe-import:"+user_id,12)
             return self.service.import_url(user_id,body)
