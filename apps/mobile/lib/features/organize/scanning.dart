@@ -234,7 +234,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
   void initState() {
     super.initState();
     items = records(widget.job['result']['items'])
-        .map((i) => {...i, 'confirmed': i['food_id'] != null})
+        .map((i) => {...i, 'confirmed': false})
         .toList();
     final mediaId = widget.job['media_id'] as String?;
     if (mediaId != null) {
@@ -305,7 +305,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                           setState(() {
                             item['food_id'] = food.id;
                             item['unit'] = food.unit;
-                            item['confirmed'] = true;
+                            item['confirmed'] = false;
                           });
                         }
                       },
@@ -351,6 +351,17 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                           });
                         }
                       },
+                    ),
+                    CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      value: item['confirmed'] == true,
+                      onChanged: item['food_id'] == null
+                          ? null
+                          : (value) => setState(
+                              () => item['confirmed'] = value == true,
+                            ),
+                      title: Text(context.t('confirm_identification_and_family')),
+                      controlAffinity: ListTileControlAffinity.leading,
                     ),
                     if (item['food_id'] == null)
                       StatusNote(
