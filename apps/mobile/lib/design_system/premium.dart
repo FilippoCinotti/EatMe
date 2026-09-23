@@ -241,6 +241,32 @@ class InformationPanel extends StatelessWidget {
   );
 }
 
+class KitchenLoopBanner extends StatelessWidget {
+  const KitchenLoopBanner({super.key});
+
+  @override
+  Widget build(BuildContext context) => InformationPanel(
+    tinted: false,
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    child: Row(
+      children: [
+        EatMeIcon(
+          EatMeGlyph.chefHat,
+          size: 20,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            '${context.t('chef_table')}  →  ${context.t('cooking_mode')}  →  ${context.t('fridge')}',
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 class GlassSurface extends StatelessWidget {
   const GlassSurface({super.key, required this.child});
   final Widget child;
