@@ -202,12 +202,6 @@ abstract final class Tokens {
           borderRadius: BorderRadius.circular(16),
         ),
       ),
-      pageTransitionsTheme: const PageTransitionsTheme(
-        builders: {
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-        },
-      ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: scheme.surface,
         indicatorColor: scheme.primary.withValues(alpha: 0.12),
