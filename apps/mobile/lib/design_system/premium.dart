@@ -501,42 +501,48 @@ class FoodPhotoCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Stack(
-            children: [
-              FoodImage(
-                id: id,
-                photoId: photoId,
-                imageUrl: imageUrl,
-                height: imageHeight,
-                radius: 0,
-                fallback: Icons.eco_outlined,
-              ),
-              if (badge != null)
-                Positioned(
-                  left: 8,
-                  right: 8,
-                  bottom: 8,
-                  child: Align(alignment: Alignment.centerLeft, child: badge),
+          SizedBox(
+            width: double.infinity,
+            height: imageHeight,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                FoodImage(
+                  id: id,
+                  photoId: photoId,
+                  imageUrl: imageUrl,
+                  width: double.infinity,
+                  height: imageHeight,
+                  radius: 0,
+                  fallback: Icons.eco_outlined,
                 ),
-              if (onAction != null)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: EatMeIconButton(
-                    glyph: actionIcon,
-                    label: actionLabel ?? '',
-                    onPressed: onAction,
-                    size: 44,
-                    iconSize: 20,
-                    foregroundColor: actionEmphasis
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.onSurface,
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainer.withValues(alpha: .9),
+                if (badge != null)
+                  Positioned(
+                    left: 8,
+                    right: 8,
+                    bottom: 8,
+                    child: Align(alignment: Alignment.centerLeft, child: badge),
                   ),
-                ),
-            ],
+                if (onAction != null)
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: EatMeIconButton(
+                      glyph: actionIcon,
+                      label: actionLabel ?? '',
+                      onPressed: onAction,
+                      size: 44,
+                      iconSize: 20,
+                      foregroundColor: actionEmphasis
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurface,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainer.withValues(alpha: .9),
+                    ),
+                  ),
+              ],
+            ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 14),
