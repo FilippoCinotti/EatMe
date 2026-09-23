@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -33,7 +35,7 @@ class _AsyncActionState extends State<AsyncAction> {
     setState(() => busy = true);
     try {
       await widget.action();
-      await HapticFeedback.lightImpact();
+      unawaited(HapticFeedback.lightImpact());
     } catch (error) {
       if (mounted) {
         final code = error is ApiFailure
