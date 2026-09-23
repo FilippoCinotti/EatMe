@@ -221,6 +221,48 @@ class IntelligenceService:
             raise
         return {'id': identifier, 'mime_type': 'image/jpeg'}
 
+    def media(self, user_id, media_id):
+        self._household(user_id)
+        identifier = valid_uuid(media_id)
+        with self.db.transaction() as tx:
+            media = tx.one(
+                'SELECT * FROM media_objects WHERE id=? AND user_id=?',
+                (identifier, user_id),
+            )
+            if not media:
+                raise DomainError('media_not_found', 404)
+            if media['expires_at'] and media['expires_at'] < now():
+                raise DomainError('media_expired', 409)
+        return {
+            'base64': base64.b64encode(PrivateMedia().read(media['storage_key'])).decode(),
+            'mime_type': media['mime_type'],
+        }
+
+    def avatar(self, user_id, target_user_id):
+        home = self._household(user_id)
+        target = valid_uuid(target_user_id)
+        with self.db.transaction() as tx:
+            linked = tx.one(
+                'SELECT p.settings FROM household_members m JOIN profiles p ON p.user_id=m.user_id '
+                'WHERE m.household_id=? AND m.user_id=?',
+                (home, target),
+            )
+            if not linked:
+                raise DomainError('forbidden', 403)
+            avatar_id = decode(linked['settings']).get('avatar_id')
+            if not avatar_id:
+                return {'base64': None, 'mime_type': None}
+            media = tx.one(
+                "SELECT * FROM media_objects WHERE id=? AND user_id=? AND kind='avatar'",
+                (avatar_id, target),
+            )
+            if not media:
+                return {'base64': None, 'mime_type': None}
+        return {
+            'base64': base64.b64encode(PrivateMedia().read(media['storage_key'])).decode(),
+            'mime_type': media['mime_type'],
+        }
+
     def jobs(self, user_id):
         with self.db.transaction() as tx:
             self._profile(tx, user_id)
