@@ -421,7 +421,6 @@ class PrivacyPage extends ConsumerWidget {
   );
 }
 
-
 class _ProfileAvatar extends ConsumerStatefulWidget {
   const _ProfileAvatar({
     required this.name,
@@ -454,10 +453,7 @@ class _ProfileAvatarState extends ConsumerState<_ProfileAvatar> {
       final media = await api.request(
         'POST',
         '/media',
-        body: {
-          'kind': 'avatar',
-          'base64': base64Encode(bytes),
-        },
+        body: {'kind': 'avatar', 'base64': base64Encode(bytes)},
       );
       final profile = ref.read(appProvider).profile;
       await Mutation().send(api, 'POST', '/profile/avatar', {
