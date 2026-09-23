@@ -205,6 +205,7 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
     ).where((item) => !existing.contains(item['user_id'])).toList();
     final selected = await showModalBottomSheet<Json>(
       context: context,
+      useRootNavigator: true,
       useSafeArea: true,
       builder: (context) => ListView(
         children: [
@@ -233,6 +234,7 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
     if (!mounted) return;
     final selected = await showModalBottomSheet<Json>(
       context: context,
+      useRootNavigator: true,
       useSafeArea: true,
       builder: (context) => ListView(
         children: [
@@ -257,6 +259,7 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
   Future<void> showAddParticipant() async {
     final action = await showModalBottomSheet<String>(
       context: context,
+      useRootNavigator: true,
       useSafeArea: true,
       builder: (context) => ListView(
         shrinkWrap: true,
