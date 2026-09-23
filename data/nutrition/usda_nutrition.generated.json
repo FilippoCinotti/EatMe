@@ -315,6 +315,110 @@
       }
     },
     {
+      "id": "5050e411-4e4a-5607-ae38-4e1575b30b14",
+      "slug": "brown-sugar",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "energy": {
+            "value": "380",
+            "unit": "kcal"
+          },
+          "protein": {
+            "value": "0.12",
+            "unit": "g"
+          },
+          "carbohydrates": {
+            "value": "98.09",
+            "unit": "g"
+          },
+          "fat": {
+            "value": "0",
+            "unit": "g"
+          },
+          "saturated_fat": {
+            "value": "0",
+            "unit": "g"
+          },
+          "fiber": {
+            "value": "0",
+            "unit": "g"
+          },
+          "sodium": {
+            "value": "28",
+            "unit": "mg"
+          },
+          "salt": {
+            "value": "0.07",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168833/nutrients",
+        "source_dataset": "SR Legacy",
+        "source_release": "2018-04",
+        "source_id": "168833",
+        "source_basis": "100g",
+        "match_quality": "exact",
+        "reviewed": true,
+        "estimated": false
+      }
+    },
+    {
+      "id": "0bb1cb99-e021-5027-af0b-193103838992",
+      "slug": "butter",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "energy": {
+            "value": "717",
+            "unit": "kcal"
+          },
+          "protein": {
+            "value": "0.85",
+            "unit": "g"
+          },
+          "carbohydrates": {
+            "value": "0.06",
+            "unit": "g"
+          },
+          "fat": {
+            "value": "81.11",
+            "unit": "g"
+          },
+          "saturated_fat": {
+            "value": "51.368",
+            "unit": "g"
+          },
+          "fiber": {
+            "value": "0",
+            "unit": "g"
+          },
+          "sodium": {
+            "value": "643",
+            "unit": "mg"
+          },
+          "salt": {
+            "value": "1.6075",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173410/nutrients",
+        "source_dataset": "SR Legacy",
+        "source_release": "2018-04",
+        "source_id": "173410",
+        "source_basis": "100g",
+        "match_quality": "proxy",
+        "reviewed": true,
+        "estimated": true
+      }
+    },
+    {
       "id": "52152e89-30a9-5a62-a6ad-5b669eeb8bcd",
       "slug": "cabbage",
       "nutrition": {
@@ -360,6 +464,58 @@
         "source_dataset": "SR Legacy",
         "source_release": "2018-04",
         "source_id": "169975",
+        "source_basis": "100g",
+        "match_quality": "exact",
+        "reviewed": true,
+        "estimated": false
+      }
+    },
+    {
+      "id": "16ed199f-9cf4-590c-a2bc-639b4d7a6d5b",
+      "slug": "carrot",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "energy": {
+            "value": "41",
+            "unit": "kcal"
+          },
+          "protein": {
+            "value": "0.93",
+            "unit": "g"
+          },
+          "carbohydrates": {
+            "value": "9.58",
+            "unit": "g"
+          },
+          "fat": {
+            "value": "0.24",
+            "unit": "g"
+          },
+          "saturated_fat": {
+            "value": "0.032",
+            "unit": "g"
+          },
+          "fiber": {
+            "value": "2.8",
+            "unit": "g"
+          },
+          "sodium": {
+            "value": "69",
+            "unit": "mg"
+          },
+          "salt": {
+            "value": "0.1725",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170393/nutrients",
+        "source_dataset": "SR Legacy",
+        "source_release": "2018-04",
+        "source_id": "170393",
         "source_basis": "100g",
         "match_quality": "exact",
         "reviewed": true,
@@ -608,6 +764,58 @@
         "match_quality": "proxy",
         "reviewed": true,
         "estimated": true
+      }
+    },
+    {
+      "id": "37f6566a-7ec3-5793-af41-cd97d3914177",
+      "slug": "chicken",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "energy": {
+            "value": "119",
+            "unit": "kcal"
+          },
+          "protein": {
+            "value": "21.39",
+            "unit": "g"
+          },
+          "carbohydrates": {
+            "value": "0",
+            "unit": "g"
+          },
+          "fat": {
+            "value": "3.08",
+            "unit": "g"
+          },
+          "saturated_fat": {
+            "value": "0.79",
+            "unit": "g"
+          },
+          "fiber": {
+            "value": "0",
+            "unit": "g"
+          },
+          "sodium": {
+            "value": "77",
+            "unit": "mg"
+          },
+          "salt": {
+            "value": "0.1925",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171052/nutrients",
+        "source_dataset": "SR Legacy",
+        "source_release": "2018-04",
+        "source_id": "171052",
+        "source_basis": "100g",
+        "match_quality": "exact",
+        "reviewed": true,
+        "estimated": false
       }
     },
     {
@@ -1479,6 +1687,28 @@
       }
     },
     {
+      "id": "16f6f33c-83f1-5c93-a2cd-1c08b928109c",
+      "slug": "garlic",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "fiber": {
+            "value": "3.4",
+            "unit": "g"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104595/nutrients",
+        "source_dataset": "Foundation Foods",
+        "source_release": "2026-04-30",
+        "source_id": "1104595",
+        "source_basis": "100g",
+        "match_quality": "exact",
+        "reviewed": true,
+        "estimated": false
+      }
+    },
+    {
       "id": "e5fce8ff-616a-5876-af69-56e13519cdad",
       "slug": "ginger",
       "nutrition": {
@@ -1572,6 +1802,54 @@
         "source_dataset": "Foundation Foods",
         "source_release": "2026-04-30",
         "source_id": "325036",
+        "source_basis": "100g",
+        "match_quality": "proxy",
+        "reviewed": true,
+        "estimated": true
+      }
+    },
+    {
+      "id": "730d507f-0f02-5868-a0e4-feb0502c48a0",
+      "slug": "greek-yogurt",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "energy": {
+            "value": "93.6776",
+            "unit": "kcal"
+          },
+          "protein": {
+            "value": "8.77888",
+            "unit": "g"
+          },
+          "carbohydrates": {
+            "value": "4.75402",
+            "unit": "g"
+          },
+          "fat": {
+            "value": "4.394",
+            "unit": "g"
+          },
+          "saturated_fat": {
+            "value": "2.393",
+            "unit": "g"
+          },
+          "sodium": {
+            "value": "33.76",
+            "unit": "mg"
+          },
+          "salt": {
+            "value": "0.0844",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2259794/nutrients",
+        "source_dataset": "Foundation Foods",
+        "source_release": "2026-04-30",
+        "source_id": "2259794",
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
@@ -1676,6 +1954,34 @@
         "match_quality": "exact",
         "reviewed": true,
         "estimated": false
+      }
+    },
+    {
+      "id": "c71ff90c-c8c5-5205-a9f4-f0f3d785187c",
+      "slug": "ground-beef",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "sodium": {
+            "value": "55.4",
+            "unit": "mg"
+          },
+          "salt": {
+            "value": "0.1385",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514880/nutrients",
+        "source_dataset": "Foundation Foods",
+        "source_release": "2026-04-30",
+        "source_id": "2514880",
+        "source_basis": "100g",
+        "match_quality": "proxy",
+        "reviewed": true,
+        "estimated": true
       }
     },
     {
@@ -1889,6 +2195,46 @@
       }
     },
     {
+      "id": "d1da8afc-780f-594a-a0b6-febbc32c321b",
+      "slug": "lamb",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "energy": {
+            "value": "236.6068",
+            "unit": "kcal"
+          },
+          "protein": {
+            "value": "17.4625",
+            "unit": "g"
+          },
+          "fat": {
+            "value": "18.64",
+            "unit": "g"
+          },
+          "sodium": {
+            "value": "53.45",
+            "unit": "mg"
+          },
+          "salt": {
+            "value": "0.133625",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2727570/nutrients",
+        "source_dataset": "Foundation Foods",
+        "source_release": "2026-04-30",
+        "source_id": "2727570",
+        "source_basis": "100g",
+        "match_quality": "proxy",
+        "reviewed": true,
+        "estimated": true
+      }
+    },
+    {
       "id": "2f0795d9-0b2d-5a88-a47e-8e492e057c10",
       "slug": "lard",
       "nutrition": {
@@ -1934,6 +2280,94 @@
         "source_dataset": "SR Legacy",
         "source_release": "2018-04",
         "source_id": "171401",
+        "source_basis": "100g",
+        "match_quality": "exact",
+        "reviewed": true,
+        "estimated": false
+      }
+    },
+    {
+      "id": "34358b90-d189-5cc5-ac52-2f38eabc4eec",
+      "slug": "leek",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "protein": {
+            "value": "1.4675",
+            "unit": "g"
+          },
+          "fiber": {
+            "value": "3",
+            "unit": "g"
+          },
+          "sodium": {
+            "value": "17.66",
+            "unit": "mg"
+          },
+          "salt": {
+            "value": "0.04415",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2727584/nutrients",
+        "source_dataset": "Foundation Foods",
+        "source_release": "2026-04-30",
+        "source_id": "2727584",
+        "source_basis": "100g",
+        "match_quality": "exact",
+        "reviewed": true,
+        "estimated": false
+      }
+    },
+    {
+      "id": "dca8bc49-90d3-564e-a689-deb6b13af39a",
+      "slug": "lime",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "energy": {
+            "value": "30",
+            "unit": "kcal"
+          },
+          "protein": {
+            "value": "0.7",
+            "unit": "g"
+          },
+          "carbohydrates": {
+            "value": "10.54",
+            "unit": "g"
+          },
+          "fat": {
+            "value": "0.2",
+            "unit": "g"
+          },
+          "saturated_fat": {
+            "value": "0.022",
+            "unit": "g"
+          },
+          "fiber": {
+            "value": "2.8",
+            "unit": "g"
+          },
+          "sodium": {
+            "value": "2",
+            "unit": "mg"
+          },
+          "salt": {
+            "value": "0.005",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168155/nutrients",
+        "source_dataset": "SR Legacy",
+        "source_release": "2018-04",
+        "source_id": "168155",
         "source_basis": "100g",
         "match_quality": "exact",
         "reviewed": true,
@@ -2126,6 +2560,58 @@
         "estimated": false,
         "density_g_per_ml": "0.9130",
         "conversion_method": "usda_portion_density"
+      }
+    },
+    {
+      "id": "d159f797-7c4e-5378-a3ba-196b210b46b4",
+      "slug": "onion",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "energy": {
+            "value": "40",
+            "unit": "kcal"
+          },
+          "protein": {
+            "value": "1.1",
+            "unit": "g"
+          },
+          "carbohydrates": {
+            "value": "9.34",
+            "unit": "g"
+          },
+          "fat": {
+            "value": "0.1",
+            "unit": "g"
+          },
+          "saturated_fat": {
+            "value": "0.042",
+            "unit": "g"
+          },
+          "fiber": {
+            "value": "1.7",
+            "unit": "g"
+          },
+          "sodium": {
+            "value": "4",
+            "unit": "mg"
+          },
+          "salt": {
+            "value": "0.01",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170000/nutrients",
+        "source_dataset": "SR Legacy",
+        "source_release": "2018-04",
+        "source_id": "170000",
+        "source_basis": "100g",
+        "match_quality": "exact",
+        "reviewed": true,
+        "estimated": false
       }
     },
     {
@@ -2585,6 +3071,58 @@
       }
     },
     {
+      "id": "571ca290-7621-5567-ad90-fd2cefaca1d9",
+      "slug": "potato",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "energy": {
+            "value": "77",
+            "unit": "kcal"
+          },
+          "protein": {
+            "value": "2.05",
+            "unit": "g"
+          },
+          "carbohydrates": {
+            "value": "17.49",
+            "unit": "g"
+          },
+          "fat": {
+            "value": "0.09",
+            "unit": "g"
+          },
+          "saturated_fat": {
+            "value": "0.025",
+            "unit": "g"
+          },
+          "fiber": {
+            "value": "2.1",
+            "unit": "g"
+          },
+          "sodium": {
+            "value": "6",
+            "unit": "mg"
+          },
+          "salt": {
+            "value": "0.015",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170026/nutrients",
+        "source_dataset": "SR Legacy",
+        "source_release": "2018-04",
+        "source_id": "170026",
+        "source_basis": "100g",
+        "match_quality": "exact",
+        "reviewed": true,
+        "estimated": false
+      }
+    },
+    {
       "id": "f66701f6-328c-5006-a0ed-e2e817a2727b",
       "slug": "pumpkin",
       "nutrition": {
@@ -2689,6 +3227,28 @@
       }
     },
     {
+      "id": "2163e4ec-4679-5dfb-aff6-9ba1b0cbc331",
+      "slug": "red-onion",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "fiber": {
+            "value": "2.3",
+            "unit": "g"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790513/nutrients",
+        "source_dataset": "Foundation Foods",
+        "source_release": "2026-04-30",
+        "source_id": "790513",
+        "source_basis": "100g",
+        "match_quality": "exact",
+        "reviewed": true,
+        "estimated": false
+      }
+    },
+    {
       "id": "e5f6ea41-7259-54b8-a918-4172719c6ddf",
       "slug": "red-wine",
       "nutrition": {
@@ -2748,6 +3308,102 @@
         "estimated": false,
         "density_g_per_ml": "0.9941",
         "conversion_method": "usda_portion_density"
+      }
+    },
+    {
+      "id": "d27698e7-4b9c-5947-aac4-264b47d1c042",
+      "slug": "rice",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "energy": {
+            "value": "360",
+            "unit": "kcal"
+          },
+          "protein": {
+            "value": "6.61",
+            "unit": "g"
+          },
+          "carbohydrates": {
+            "value": "79.34",
+            "unit": "g"
+          },
+          "fat": {
+            "value": "0.58",
+            "unit": "g"
+          },
+          "saturated_fat": {
+            "value": "0.158",
+            "unit": "g"
+          },
+          "sodium": {
+            "value": "1",
+            "unit": "mg"
+          },
+          "salt": {
+            "value": "0.0025",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169760/nutrients",
+        "source_dataset": "SR Legacy",
+        "source_release": "2018-04",
+        "source_id": "169760",
+        "source_basis": "100g",
+        "match_quality": "proxy",
+        "reviewed": true,
+        "estimated": true
+      }
+    },
+    {
+      "id": "a4d60618-8c0e-5d4c-ad37-1f7633fd5c7c",
+      "slug": "ricotta-salata",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "energy": {
+            "value": "157.0",
+            "unit": "kcal"
+          },
+          "protein": {
+            "value": "7.81",
+            "unit": "g"
+          },
+          "carbohydrates": {
+            "value": "6.86",
+            "unit": "g"
+          },
+          "fat": {
+            "value": "11.0",
+            "unit": "g"
+          },
+          "saturated_fat": {
+            "value": "6.97",
+            "unit": "g"
+          },
+          "sodium": {
+            "value": "105.0",
+            "unit": "mg"
+          },
+          "salt": {
+            "value": "0.2625",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323444/nutrients",
+        "source_dataset": "Foundation Foods",
+        "source_release": "2026-04-30",
+        "source_id": "323444",
+        "source_basis": "100g",
+        "match_quality": "proxy",
+        "reviewed": true,
+        "estimated": true
       }
     },
     {
@@ -2900,6 +3556,58 @@
         "source_dataset": "SR Legacy",
         "source_release": "2018-04",
         "source_id": "175167",
+        "source_basis": "100g",
+        "match_quality": "proxy",
+        "reviewed": true,
+        "estimated": true
+      }
+    },
+    {
+      "id": "25eb320c-8b39-5ed9-aaaa-f0759e4e332b",
+      "slug": "sausage",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "energy": {
+            "value": "290",
+            "unit": "kcal"
+          },
+          "protein": {
+            "value": "13.9",
+            "unit": "g"
+          },
+          "carbohydrates": {
+            "value": "2.97",
+            "unit": "g"
+          },
+          "fat": {
+            "value": "24.26",
+            "unit": "g"
+          },
+          "saturated_fat": {
+            "value": "8.615",
+            "unit": "g"
+          },
+          "fiber": {
+            "value": "0",
+            "unit": "g"
+          },
+          "sodium": {
+            "value": "563",
+            "unit": "mg"
+          },
+          "salt": {
+            "value": "1.4075",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171631/nutrients",
+        "source_dataset": "SR Legacy",
+        "source_release": "2018-04",
+        "source_id": "171631",
         "source_basis": "100g",
         "match_quality": "proxy",
         "reviewed": true,
@@ -3174,6 +3882,58 @@
         "match_quality": "proxy",
         "reviewed": true,
         "estimated": true
+      }
+    },
+    {
+      "id": "335b053a-ada0-5fc4-a827-5e0c280d5a52",
+      "slug": "spinach",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "energy": {
+            "value": "23",
+            "unit": "kcal"
+          },
+          "protein": {
+            "value": "2.86",
+            "unit": "g"
+          },
+          "carbohydrates": {
+            "value": "3.63",
+            "unit": "g"
+          },
+          "fat": {
+            "value": "0.39",
+            "unit": "g"
+          },
+          "saturated_fat": {
+            "value": "0.063",
+            "unit": "g"
+          },
+          "fiber": {
+            "value": "2.2",
+            "unit": "g"
+          },
+          "sodium": {
+            "value": "79",
+            "unit": "mg"
+          },
+          "salt": {
+            "value": "0.1975",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168462/nutrients",
+        "source_dataset": "SR Legacy",
+        "source_release": "2018-04",
+        "source_id": "168462",
+        "source_basis": "100g",
+        "match_quality": "exact",
+        "reviewed": true,
+        "estimated": false
       }
     },
     {
@@ -3751,6 +4511,80 @@
       }
     },
     {
+      "id": "9e62e9f9-bef3-5ef7-a7b8-8d504cfbd611",
+      "slug": "white-onion",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "fiber": {
+            "value": "1.3",
+            "unit": "g"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104917/nutrients",
+        "source_dataset": "Foundation Foods",
+        "source_release": "2026-04-30",
+        "source_id": "1104917",
+        "source_basis": "100g",
+        "match_quality": "exact",
+        "reviewed": true,
+        "estimated": false
+      }
+    },
+    {
+      "id": "e4f7bb4b-157b-5ec9-aa44-c7f0c4bcbb7d",
+      "slug": "white-sugar",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "energy": {
+            "value": "387",
+            "unit": "kcal"
+          },
+          "protein": {
+            "value": "0",
+            "unit": "g"
+          },
+          "carbohydrates": {
+            "value": "99.98",
+            "unit": "g"
+          },
+          "fat": {
+            "value": "0",
+            "unit": "g"
+          },
+          "saturated_fat": {
+            "value": "0",
+            "unit": "g"
+          },
+          "fiber": {
+            "value": "0",
+            "unit": "g"
+          },
+          "sodium": {
+            "value": "1",
+            "unit": "mg"
+          },
+          "salt": {
+            "value": "0.0025",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169655/nutrients",
+        "source_dataset": "SR Legacy",
+        "source_release": "2018-04",
+        "source_id": "169655",
+        "source_basis": "100g",
+        "match_quality": "exact",
+        "reviewed": true,
+        "estimated": false
+      }
+    },
+    {
       "id": "ca62e428-5fd5-5895-a82d-277add65dca9",
       "slug": "white-wine",
       "nutrition": {
@@ -3935,92 +4769,50 @@
         "density_g_per_ml": "1.1624",
         "conversion_method": "usda_portion_density"
       }
-    }
-  ],
-  "skipped": [
-    {
-      "id": "16f6f33c-83f1-5c93-a2cd-1c08b928109c",
-      "slug": "garlic",
-      "unit": "g",
-      "status": "approved",
-      "fdc_id": "1104593",
-      "dataset": "Foundation Foods",
-      "source_release": "2026-04-30",
-      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104593/nutrients",
-      "description": "GARLIC",
-      "match_quality": "exact",
-      "review_note": "Canonical ingredient and preparation form match the USDA source closely.",
-      "reason": "no_supported_nutrients"
-    },
-    {
-      "id": "2163e4ec-4679-5dfb-aff6-9ba1b0cbc331",
-      "slug": "red-onion",
-      "unit": "g",
-      "status": "approved",
-      "fdc_id": "790509",
-      "dataset": "Foundation Foods",
-      "source_release": "2026-04-30",
-      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790509/nutrients",
-      "description": "ONIONS, RED",
-      "match_quality": "exact",
-      "review_note": "Canonical ingredient and preparation form match the USDA source closely.",
-      "reason": "no_supported_nutrients"
-    },
-    {
-      "id": "a4d60618-8c0e-5d4c-ad37-1f7633fd5c7c",
-      "slug": "ricotta-salata",
-      "unit": "g",
-      "status": "approved",
-      "fdc_id": "323360",
-      "dataset": "Foundation Foods",
-      "source_release": "2026-04-30",
-      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323360/nutrients",
-      "description": "Ricotta cheese, whole milk",
-      "match_quality": "proxy",
-      "review_note": "Reviewed culinary/nutritional proxy; canonical ingredient is more specific or preparation details are unspecified.",
-      "reason": "no_supported_nutrients"
-    },
-    {
-      "id": "9e62e9f9-bef3-5ef7-a7b8-8d504cfbd611",
-      "slug": "white-onion",
-      "unit": "g",
-      "status": "approved",
-      "fdc_id": "1104914",
-      "dataset": "Foundation Foods",
-      "source_release": "2026-04-30",
-      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104914/nutrients",
-      "description": "ONIONS, WHITE",
-      "match_quality": "exact",
-      "review_note": "Canonical ingredient and preparation form match the USDA source closely.",
-      "reason": "no_supported_nutrients"
-    },
-    {
-      "id": "e4f7bb4b-157b-5ec9-aa44-c7f0c4bcbb7d",
-      "slug": "white-sugar",
-      "unit": "g",
-      "status": "approved",
-      "fdc_id": "334201",
-      "dataset": "Foundation Foods",
-      "source_release": "2026-04-30",
-      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334201/nutrients",
-      "description": "C&H Granulated White Sugar (OK1) - NFY040Y38",
-      "match_quality": "proxy",
-      "review_note": "Reviewed culinary/nutritional proxy; canonical ingredient is more specific or preparation details are unspecified.",
-      "reason": "no_supported_nutrients"
     },
     {
       "id": "85c10915-ddb7-5db8-ae2f-32cc47cb7b95",
       "slug": "zucchini",
-      "unit": "g",
+      "nutrition": {
+        "basis": "100g",
+        "values": {
+          "sodium": {
+            "value": "0.0",
+            "unit": "mg"
+          },
+          "salt": {
+            "value": "0",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium"
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685933/nutrients",
+        "source_dataset": "Foundation Foods",
+        "source_release": "2026-04-30",
+        "source_id": "2685933",
+        "source_basis": "100g",
+        "match_quality": "exact",
+        "reviewed": true,
+        "estimated": false
+      }
+    }
+  ],
+  "skipped": [
+    {
+      "id": "b1c7f67c-3001-5f6f-a7a0-590e5204a039",
+      "slug": "milk",
+      "unit": "ml",
       "status": "approved",
-      "fdc_id": "2685584",
+      "review_note": "Reviewed source-backed proxy; composition may vary because the canonical ingredient is less specific.",
+      "fdc_id": "320027",
       "dataset": "Foundation Foods",
       "source_release": "2026-04-30",
-      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685584/nutrients",
-      "description": "Squash, zucchini, raw",
-      "match_quality": "exact",
-      "review_note": "Canonical ingredient and preparation form match the USDA source closely.",
-      "reason": "no_supported_nutrients"
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320027/nutrients",
+      "description": "MILK, 2% ",
+      "match_quality": "proxy",
+      "reason": "density_required"
     }
   ]
 }
