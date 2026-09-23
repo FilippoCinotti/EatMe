@@ -238,7 +238,7 @@ class ContentService:
                 action = data.get("action")
                 recipe_id = data.get("recipe_id")
                 recipe = next((r for r in recipes if r["id"] == recipe_id), None)
-                if action in {"favorite", "feedback", "substitute", "delete"} and not recipe:
+                if action in {"favorite", "feedback", "substitute", "substitution_candidates", "delete"} and not recipe:
                     raise DomainError("recipe_not_found", 404)
                 if action == "favorite":
                     if type(data.get("enabled")) is not bool:
@@ -265,6 +265,56 @@ class ContentService:
                     tx.execute("DELETE FROM content_ownership WHERE kind='recipe' AND content_id=?", (recipe_id,))
                     tx.execute("DELETE FROM recipes WHERE id=?", (recipe_id,))
                     return {"deleted": True}
+                if action == "substitution_candidates":
+                    original_id = valid_uuid(data.get("food_id"))
+                    original = foods.get(original_id)
+                    if not original or original_id not in {i["food_id"] for i in recipe["ingredients"]}:
+                        raise DomainError("invalid_substitution", 422)
+                    home = self._household(user_id)
+                    inventory = self._inventory(tx, home)
+                    available = {}
+                    for batch in inventory:
+                        if batch_usable(batch, self.today(profile["settings"])):
+                            canonical_id = batch.get("canonical_food_id") or batch["food_id"]
+                            available[canonical_id] = available.get(canonical_id, 0) + batch["quantity_milli"]
+                    by_slug = {food.get("slug"): food for food in foods.values() if food.get("slug")}
+                    candidates, seen = [], set()
+
+                    def add_candidate(food, role, source):
+                        if (
+                            not food
+                            or food["id"] == original_id
+                            or food["id"] in seen
+                            or food.get("group") == "packaged"
+                            or food.get("ingredient_status") != "known"
+                            or compatibility([food["id"]], foods, profile["settings"], rules)["reasons"]
+                        ):
+                            return
+                        seen.add(food["id"])
+                        candidates.append({
+                            "food": food,
+                            "role": role,
+                            "source": source,
+                            "at_home": available.get(food["id"], 0) > 0,
+                            "available": quantity(available.get(food["id"], 0)),
+                        })
+
+                    for candidate in CURATED_SUBSTITUTIONS.get(original.get("slug"), []):
+                        add_candidate(by_slug.get(candidate["slug"]), candidate["role"], "curated")
+                    peers = sorted(
+                        (
+                            food
+                            for food in foods.values()
+                            if food.get("group") == original.get("group")
+                            and food.get("unit") == original.get("unit")
+                        ),
+                        key=lambda food: (0 if available.get(food["id"], 0) > 0 else 1, food.get("slug", food["id"])),
+                    )
+                    for food in peers:
+                        add_candidate(food, "same_food_family", "family")
+                        if len(candidates) >= 8:
+                            break
+                    return {"original": original, "candidates": candidates[:8]}
                 if action == "substitute":
                     original, replacement = valid_uuid(data.get("food_id")), valid_uuid(data.get("replacement_id"))
                     if replacement not in foods or original not in {i["food_id"] for i in recipe["ingredients"]}:
