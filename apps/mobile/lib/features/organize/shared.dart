@@ -319,7 +319,6 @@ Future<List<String>?> chooseDiners(
   );
 }
 
-
 class _MemberAvatar extends StatelessWidget {
   const _MemberAvatar({
     required this.api,
