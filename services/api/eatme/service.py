@@ -397,8 +397,9 @@ class Service(
                 for row in tx.all("SELECT id,food_id FROM food_products WHERE food_id IS NOT NULL")
             }
             for batch in inventory:
-                product_id = batch.get("metadata", {}).get("product_id")
-                canonical_food_id = product_mappings.get(product_id)
+                metadata = batch.get("metadata", {})
+                product_id = metadata.get("product_id")
+                canonical_food_id = metadata.get("canonical_food_id") or product_mappings.get(product_id)
                 if canonical_food_id in foods:
                     batch["canonical_food_id"] = canonical_food_id
             if food_id:
