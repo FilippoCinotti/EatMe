@@ -60,7 +60,7 @@ abstract final class Tokens {
           letterSpacing: -0.7,
         ),
         titleLarge: base.textTheme.titleLarge?.copyWith(
-          fontFamily: 'EatMeDisplay',
+          fontFamily: 'EatMeSans',
           fontSize: 21,
           fontWeight: FontWeight.w700,
         ),
