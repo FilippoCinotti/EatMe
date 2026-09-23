@@ -152,14 +152,14 @@ void main() {
         'result': {
           'items': [
             {
-              'food_id': 'tomato',
+              'food_id': visual.tomato.id,
               'name': 'First item',
               'quantity': '100',
               'unit': 'g',
               'confidence': 0.8,
             },
             {
-              'food_id': 'tomato',
+              'food_id': visual.tomato.id,
               'name': 'Second item',
               'quantity': '250',
               'unit': 'g',
@@ -178,6 +178,7 @@ void main() {
             .value,
         isFalse,
       );
+      expect(find.text('Tomatoes · Vegetables'), findsNWidgets(2));
       await tester.tap(find.byTooltip('Delete').first);
       await tester.pumpAndSettle();
       expect(find.text('First item'), findsNothing);
