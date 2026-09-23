@@ -455,11 +455,21 @@ class _ProfileAvatarState extends ConsumerState<_ProfileAvatar> {
         '/media',
         body: {'kind': 'avatar', 'base64': base64Encode(bytes)},
       );
-      final profile = ref.read(appProvider).profile;
-      await Mutation().send(api, 'POST', '/profile/avatar', {
-        'media_id': media['id'],
-        'expected_version': profile['version'],
-      });
+      Future<void> saveAvatar() async {
+        final profile = ref.read(appProvider).profile;
+        await Mutation().send(api, 'POST', '/profile/avatar', {
+          'media_id': media['id'],
+          'expected_version': profile['version'],
+        });
+      }
+
+      try {
+        await saveAvatar();
+      } on ApiFailure catch (error) {
+        if (error.code != 'stale_profile') rethrow;
+        await ref.read(appProvider.notifier).hydrate();
+        await saveAvatar();
+      }
       await ref.read(appProvider.notifier).hydrate();
     } on ApiFailure catch (error) {
       if (mounted) {
