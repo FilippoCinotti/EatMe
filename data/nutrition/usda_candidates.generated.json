@@ -111,12 +111,12 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171185/nutrients"
         },
         {
-          "fdc_id": "748326",
+          "fdc_id": "748330",
           "description": "Soybean oil",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.16,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/748326/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/748330/nutrients"
         }
       ]
     },
@@ -145,36 +145,36 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346390/nutrients"
         },
         {
-          "fdc_id": "2346516",
+          "fdc_id": "2347988",
           "description": "Lettuce, leaf, red, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.456071,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346516/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2347988/nutrients"
         },
         {
-          "fdc_id": "2346518",
+          "fdc_id": "2347989",
           "description": "Lettuce, leaf, red, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.456071,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346518/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2347989/nutrients"
         },
         {
-          "fdc_id": "2346520",
+          "fdc_id": "2347990",
           "description": "Lettuce, leaf, red, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.456071,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346520/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2347990/nutrients"
         },
         {
-          "fdc_id": "2346522",
+          "fdc_id": "2347991",
           "description": "Lettuce, leaf, red, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.456071,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346522/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2347991/nutrients"
         }
       ]
     },
@@ -187,52 +187,52 @@
       "review": "manual",
       "candidates": [
         {
-          "fdc_id": "2646257",
+          "fdc_id": "2646591",
           "description": "beef, top round, boneless",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.510833,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2646257/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2646591/nutrients"
         },
         {
-          "fdc_id": "2646259",
+          "fdc_id": "2646600",
           "description": "beef, top round, boneless",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.510833,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2646259/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2646600/nutrients"
         },
         {
-          "fdc_id": "2646261",
+          "fdc_id": "2646861",
           "description": "beef, top round, boneless",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.510833,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2646261/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2646861/nutrients"
         },
         {
-          "fdc_id": "2646263",
+          "fdc_id": "2646870",
           "description": "beef, top round, boneless",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.510833,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2646263/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2646870/nutrients"
         },
         {
-          "fdc_id": "2646265",
+          "fdc_id": "2646879",
           "description": "beef, top round, boneless",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.510833,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2646265/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2646879/nutrients"
         },
         {
-          "fdc_id": "2646267",
+          "fdc_id": "2646888",
           "description": "beef, top round, boneless",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.510833,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2646267/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2646888/nutrients"
         }
       ]
     },
@@ -245,52 +245,52 @@
       "review": "manual",
       "candidates": [
         {
-          "fdc_id": "334968",
-          "description": "Beef, T-Bone Steak, cooked (TB31-C-1)",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.581922,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334968/nutrients"
+          "fdc_id": "169800",
+          "description": "Caribou, bone marrow, raw (Alaska Native)",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.569591,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169800/nutrients"
         },
         {
-          "fdc_id": "334969",
-          "description": "Beef, T-Bone Steak, cooked (TB31-C-2)",
+          "fdc_id": "334978",
+          "description": "Proximates, Beef, T-Bone Steak, lean only, cooked, animal 1, upperchoice",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.581922,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334969/nutrients"
+          "score": 0.539061,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334978/nutrients"
         },
         {
-          "fdc_id": "334970",
-          "description": "Beef, T-Bone Steak, cooked (TB31-C-6)",
+          "fdc_id": "335006",
+          "description": "Proximates, Beef, T-Bone Steak, lean only, cooked, animal 2, upperchoice",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.581922,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334970/nutrients"
+          "score": 0.539061,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/335006/nutrients"
         },
         {
-          "fdc_id": "334971",
-          "description": "Beef, T-Bone Steak, cooked (TB31-C-7)",
+          "fdc_id": "335008",
+          "description": "Proximates, Beef, T-Bone Steak, lean only, cooked, animal 6, upperchoice",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.581922,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334971/nutrients"
+          "score": 0.539061,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/335008/nutrients"
         },
         {
-          "fdc_id": "335028",
-          "description": "Beef, T-Bone Steak, cooked (TB31-C-3)",
+          "fdc_id": "335010",
+          "description": "Proximates, Beef, T-Bone Steak, lean only, cooked, animal 7, upperchoice",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.581922,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/335028/nutrients"
+          "score": 0.539061,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/335010/nutrients"
         },
         {
-          "fdc_id": "335029",
-          "description": "Beef, T-Bone Steak, cooked (TB31-C-4)",
+          "fdc_id": "335037",
+          "description": "Proximates, Beef, T-Bone Steak, lean only, cooked, animal 3, lowerchoice",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.581922,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/335029/nutrients"
+          "score": 0.539061,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/335037/nutrients"
         }
       ]
     },
@@ -319,36 +319,36 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2710825/nutrients"
         },
         {
-          "fdc_id": "2711025",
+          "fdc_id": "2712492",
           "description": "Rice, black, unenriched, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.484527,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2711025/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2712492/nutrients"
         },
         {
-          "fdc_id": "2711027",
+          "fdc_id": "2712494",
           "description": "Rice, black, unenriched, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.484527,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2711027/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2712494/nutrients"
         },
         {
-          "fdc_id": "2711029",
+          "fdc_id": "2712502",
           "description": "Rice, black, unenriched, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.484527,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2711029/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2712502/nutrients"
         },
         {
-          "fdc_id": "2711031",
+          "fdc_id": "2712504",
           "description": "Rice, black, unenriched, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.484527,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2711031/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2712504/nutrients"
         }
       ]
     },
@@ -473,56 +473,56 @@
       "slug": "brown-sugar",
       "group": "sweetener",
       "unit": "g",
-      "query": "sugar brown",
+      "query": "sugars brown",
       "review": "required",
       "candidates": [
         {
-          "fdc_id": "170675",
-          "description": "Sweeteners, sugar substitute, granulated, brown",
+          "fdc_id": "168833",
+          "description": "Sugars, brown",
           "dataset": "SR Legacy",
           "release": "2018-04",
-          "score": 0.753,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170675/nutrients"
+          "score": 1.005,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168833/nutrients"
         },
         {
-          "fdc_id": "172801",
-          "description": "Toaster pastries, brown-sugar-cinnamon",
-          "dataset": "SR Legacy",
-          "release": "2018-04",
-          "score": 0.738333,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/172801/nutrients"
+          "fdc_id": "334247",
+          "description": "Sugars, granulated",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.551552,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334247/nutrients"
         },
         {
-          "fdc_id": "170672",
-          "description": "Sweeteners, for baking, brown, contains sugar and sucralose",
-          "dataset": "SR Legacy",
-          "release": "2018-04",
-          "score": 0.700394,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170672/nutrients"
+          "fdc_id": "746784",
+          "description": "Sugars, granulated",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.551552,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/746784/nutrients"
         },
         {
-          "fdc_id": "173922",
-          "description": "Cereals, QUAKER, Weight Control Instant Oatmeal, maple and brown sugar",
+          "fdc_id": "169656",
+          "description": "Sugars, powdered",
           "dataset": "SR Legacy",
           "release": "2018-04",
-          "score": 0.694744,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173922/nutrients"
+          "score": 0.536667,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169656/nutrients"
         },
         {
-          "fdc_id": "173907",
-          "description": "Cereals, QUAKER, Instant Oatmeal, maple and brown sugar, dry",
+          "fdc_id": "169655",
+          "description": "Sugars, granulated",
           "dataset": "SR Legacy",
           "release": "2018-04",
-          "score": 0.68847,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173907/nutrients"
+          "score": 0.526552,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169655/nutrients"
         },
         {
-          "fdc_id": "173920",
-          "description": "Cereals, oats, instant, fortified, maple and brown sugar, dry",
+          "fdc_id": "169658",
+          "description": "Sugars, maple",
           "dataset": "SR Legacy",
           "release": "2018-04",
-          "score": 0.68847,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173920/nutrients"
+          "score": 0.518333,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169658/nutrients"
         }
       ]
     },
@@ -543,30 +543,6 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173410/nutrients"
         },
         {
-          "fdc_id": "790277",
-          "description": "BUTTER, STICK, SALTED",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.8156,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790277/nutrients"
-        },
-        {
-          "fdc_id": "790278",
-          "description": "BUTTER, STICK, SALTED",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.8156,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790278/nutrients"
-        },
-        {
-          "fdc_id": "790279",
-          "description": "BUTTER, STICK, SALTED",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.8156,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790279/nutrients"
-        },
-        {
           "fdc_id": "790280",
           "description": "BUTTER, STICK, SALTED",
           "dataset": "Foundation Foods",
@@ -575,12 +551,36 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790280/nutrients"
         },
         {
-          "fdc_id": "790281",
+          "fdc_id": "790283",
           "description": "BUTTER, STICK, SALTED",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.8156,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790281/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790283/nutrients"
+        },
+        {
+          "fdc_id": "790291",
+          "description": "Butter, stick, salted",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.8156,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790291/nutrients"
+        },
+        {
+          "fdc_id": "790297",
+          "description": "BUTTER, STICK, SALTED",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.8156,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790297/nutrients"
+        },
+        {
+          "fdc_id": "790299",
+          "description": "BUTTER, STICK, SALTED",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.8156,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790299/nutrients"
         }
       ]
     },
@@ -617,28 +617,28 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346408/nutrients"
         },
         {
-          "fdc_id": "2346804",
+          "fdc_id": "2351278",
           "description": "cabbage, red, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.85,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346804/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2351278/nutrients"
         },
         {
-          "fdc_id": "2346806",
+          "fdc_id": "2351282",
           "description": "cabbage, red, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.85,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346806/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2351282/nutrients"
         },
         {
-          "fdc_id": "2346808",
+          "fdc_id": "2351285",
           "description": "cabbage, red, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.85,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346808/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2351285/nutrients"
         }
       ]
     },
@@ -647,56 +647,56 @@
       "slug": "carrot",
       "group": "vegetable",
       "unit": "g",
-      "query": "carrot",
+      "query": "carrots raw",
       "review": "required",
       "candidates": [
         {
-          "fdc_id": "170500",
-          "description": "Carrot, dehydrated",
+          "fdc_id": "170393",
+          "description": "Carrots, raw",
           "dataset": "SR Legacy",
           "release": "2018-04",
-          "score": 0.824783,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170500/nutrients"
+          "score": 1.005,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170393/nutrients"
         },
         {
-          "fdc_id": "170491",
-          "description": "Carrot juice, canned",
-          "dataset": "SR Legacy",
-          "release": "2018-04",
-          "score": 0.7906,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170491/nutrients"
+          "fdc_id": "2258587",
+          "description": "Carrots, baby, raw",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.909259,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258587/nutrients"
         },
         {
-          "fdc_id": "169043",
-          "description": "Babyfood, juice, orange-carrot",
-          "dataset": "SR Legacy",
-          "release": "2018-04",
-          "score": 0.720147,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169043/nutrients"
+          "fdc_id": "2258586",
+          "description": "Carrots, mature, raw",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.896897,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258586/nutrients"
         },
         {
-          "fdc_id": "174932",
-          "description": "Cake, pudding-type, carrot, dry mix",
-          "dataset": "SR Legacy",
-          "release": "2018-04",
-          "score": 0.699474,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/174932/nutrients"
+          "fdc_id": "2259219",
+          "description": "carrots, mature, raw",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.896897,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2259219/nutrients"
         },
         {
-          "fdc_id": "171184",
-          "description": "SMART SOUP, Vietnamese Carrot Lemongrass",
-          "dataset": "SR Legacy",
-          "release": "2018-04",
-          "score": 0.693667,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171184/nutrients"
+          "fdc_id": "2259231",
+          "description": "carrots, mature, raw",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.896897,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2259231/nutrients"
         },
         {
-          "fdc_id": "173487",
-          "description": "Babyfood, GERBER, 2nd Foods, apple, carrot and squash, organic",
-          "dataset": "SR Legacy",
-          "release": "2018-04",
-          "score": 0.665655,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173487/nutrients"
+          "fdc_id": "2259232",
+          "description": "carrots, mature, raw",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.896897,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2259232/nutrients"
         }
       ]
     },
@@ -717,44 +717,44 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685573/nutrients"
         },
         {
-          "fdc_id": "2685664",
+          "fdc_id": "2686293",
           "description": "Cauliflower, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.921154,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685664/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686293/nutrients"
         },
         {
-          "fdc_id": "2685666",
+          "fdc_id": "2686302",
           "description": "Cauliflower, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.921154,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685666/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686302/nutrients"
         },
         {
-          "fdc_id": "2685668",
+          "fdc_id": "2686311",
           "description": "Cauliflower, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.921154,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685668/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686311/nutrients"
         },
         {
-          "fdc_id": "2685670",
+          "fdc_id": "2686320",
           "description": "Cauliflower, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.921154,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685670/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686320/nutrients"
         },
         {
-          "fdc_id": "2685672",
+          "fdc_id": "2686329",
           "description": "Cauliflower, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.921154,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685672/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686329/nutrients"
         }
       ]
     },
@@ -833,44 +833,44 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346405/nutrients"
         },
         {
-          "fdc_id": "2346756",
+          "fdc_id": "2351207",
           "description": "celery, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.9,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346756/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2351207/nutrients"
         },
         {
-          "fdc_id": "2346758",
+          "fdc_id": "2351208",
           "description": "celery, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.9,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346758/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2351208/nutrients"
         },
         {
-          "fdc_id": "2346760",
+          "fdc_id": "2351211",
           "description": "celery, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.9,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346760/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2351211/nutrients"
         },
         {
-          "fdc_id": "2346762",
+          "fdc_id": "2351216",
           "description": "celery, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.9,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346762/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2351216/nutrients"
         },
         {
-          "fdc_id": "2346764",
+          "fdc_id": "2351218",
           "description": "celery, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.9,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346764/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2351218/nutrients"
         }
       ]
     },
@@ -891,44 +891,44 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/328637/nutrients"
         },
         {
-          "fdc_id": "327937",
-          "description": "Cheddar cheese, sliced, TILLAMOOK (CA1) - NFY120D4X",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.744231,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/327937/nutrients"
+          "fdc_id": "170899",
+          "description": "Cheese, cheddar, sharp, sliced",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.733088,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170899/nutrients"
         },
         {
-          "fdc_id": "327938",
-          "description": "Cheddar cheese, sliced, TILLAMOOK (CA1) - NFY120D50",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.744231,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/327938/nutrients"
+          "fdc_id": "172108",
+          "description": "LEAN POCKETS, Ham N Cheddar",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.728333,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/172108/nutrients"
         },
         {
-          "fdc_id": "327939",
-          "description": "Cheddar cheese, sliced, TILLAMOOK (CO1) - NFY120D51",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.744231,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/327939/nutrients"
+          "fdc_id": "169901",
+          "description": "Cheese, american cheddar, imitation",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.7195,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169901/nutrients"
         },
         {
-          "fdc_id": "327940",
-          "description": "Cheddar cheese, sliced, TILLAMOOK (CA1) - NFY120D4Z",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.744231,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/327940/nutrients"
+          "fdc_id": "173439",
+          "description": "Cheese, low fat, cheddar or colby",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.716053,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173439/nutrients"
         },
         {
-          "fdc_id": "327941",
-          "description": "Cheddar cheese, sliced, TILLAMOOK (CO1) - NFY120D54",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.744231,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/327941/nutrients"
+          "fdc_id": "171295",
+          "description": "Cheese, cheddar, nonfat or fat free",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.712,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171295/nutrients"
         }
       ]
     },
@@ -995,56 +995,56 @@
       "slug": "chicken",
       "group": "meat",
       "unit": "g",
-      "query": "chicken breast meat only raw",
+      "query": "chicken broilers fryers breast meat only raw",
       "review": "required",
       "candidates": [
         {
-          "fdc_id": "2514795",
-          "description": "Chicken, ground, breast meat only, raw",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.950556,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514795/nutrients"
+          "fdc_id": "171052",
+          "description": "Chicken, broilers or fryers, meat only, raw",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.865952,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171052/nutrients"
         },
         {
-          "fdc_id": "2514801",
-          "description": "Chicken, ground, breast meat only, raw",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.950556,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514801/nutrients"
+          "fdc_id": "171509",
+          "description": "Chicken, broilers or fryers, breast, skinless, boneless, meat only, with added solution, raw",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.850532,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171509/nutrients"
         },
         {
-          "fdc_id": "2514794",
-          "description": "Chicken, ground, breast meat only, raw",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.950556,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514794/nutrients"
+          "fdc_id": "171073",
+          "description": "Chicken, broilers or fryers, back, meat only, raw",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.848467,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171073/nutrients"
         },
         {
-          "fdc_id": "2514800",
-          "description": "Chicken, ground, breast meat only, raw",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.950556,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514800/nutrients"
+          "fdc_id": "171067",
+          "description": "Chicken, broilers or fryers, dark meat, meat only, raw",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.84731,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171067/nutrients"
         },
         {
-          "fdc_id": "2514850",
-          "description": "Chicken, ground, breast meat only, raw",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.950556,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514850/nutrients"
+          "fdc_id": "173619",
+          "description": "Chicken, broilers or fryers, leg, meat only, raw",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.845714,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173619/nutrients"
         },
         {
-          "fdc_id": "2514853",
-          "description": "Chicken, ground, breast meat only, raw",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.950556,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514853/nutrients"
+          "fdc_id": "173623",
+          "description": "Chicken, broilers or fryers, neck, meat only, raw",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.843523,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173623/nutrients"
         }
       ]
     },
@@ -1081,28 +1081,28 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2727567/nutrients"
         },
         {
-          "fdc_id": "2727607",
+          "fdc_id": "2728114",
           "description": "Chicken, thigh, meat and skin, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.816069,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2727607/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2728114/nutrients"
         },
         {
-          "fdc_id": "2727609",
+          "fdc_id": "2728123",
           "description": "Chicken, thigh, meat and skin, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.816069,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2727609/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2728123/nutrients"
         },
         {
-          "fdc_id": "2727611",
+          "fdc_id": "2728132",
           "description": "Chicken, thigh, meat and skin, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.816069,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2727611/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2728132/nutrients"
         }
       ]
     },
@@ -1495,20 +1495,20 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2758998/nutrients"
         },
         {
-          "fdc_id": "2759272",
+          "fdc_id": "2765421",
           "description": "Pasta, dry, enriched, spaghetti",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.676667,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759272/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2765421/nutrients"
         },
         {
-          "fdc_id": "2759274",
+          "fdc_id": "2765437",
           "description": "Pasta, dry, enriched, spaghetti",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.676667,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759274/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2765437/nutrients"
         }
       ]
     },
@@ -1537,36 +1537,36 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/172189/nutrients"
         },
         {
-          "fdc_id": "747709",
-          "description": "EGG, GRADE A, LARGE, WHOLE, RAW, FRESH",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.876484,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/747709/nutrients"
+          "fdc_id": "172190",
+          "description": "Egg, goose, whole, fresh, raw",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.875,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/172190/nutrients"
         },
         {
-          "fdc_id": "747723",
-          "description": "EGG, GRADE A, LARGE, WHOLE, RAW, FRESH",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.876484,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/747723/nutrients"
+          "fdc_id": "172191",
+          "description": "Egg, quail, whole, fresh, raw",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.875,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/172191/nutrients"
         },
         {
-          "fdc_id": "747737",
-          "description": "EGG, GRADE A, LARGE, WHOLE, RAW, FRESH",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.876484,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/747737/nutrients"
+          "fdc_id": "172192",
+          "description": "Egg, turkey, whole, fresh, raw",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.871667,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/172192/nutrients"
         },
         {
-          "fdc_id": "747900",
-          "description": "EGG, GRADE A, LARGE, WHOLE, RAW, FRESH",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.876484,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/747900/nutrients"
+          "fdc_id": "172183",
+          "description": "Egg, white, raw, fresh",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.769342,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/172183/nutrients"
         }
       ]
     },
@@ -1587,44 +1587,44 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/172184/nutrients"
         },
         {
-          "fdc_id": "747739",
-          "description": "EGG, GRADE A, LARGE, YOLK, RAW, FRESH",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.874114,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/747739/nutrients"
+          "fdc_id": "171287",
+          "description": "Egg, whole, raw, fresh",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.76277,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171287/nutrients"
         },
         {
-          "fdc_id": "747780",
-          "description": "EGG, GRADE A, LARGE, YOLK, RAW, FRESH",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.874114,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/747780/nutrients"
+          "fdc_id": "172183",
+          "description": "Egg, white, raw, fresh",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.738986,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/172183/nutrients"
         },
         {
-          "fdc_id": "747798",
-          "description": "EGG, GRADE A, LARGE, YOLK, RAW, FRESH",
+          "fdc_id": "329596",
+          "description": "Egg, yolk, raw, frozen, pasteurized",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.874114,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/747798/nutrients"
+          "score": 0.727653,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/329596/nutrients"
         },
         {
-          "fdc_id": "747833",
-          "description": "EGG, GRADE A, LARGE, YOLK, RAW, FRESH",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.874114,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/747833/nutrients"
+          "fdc_id": "173421",
+          "description": "Egg, yolk, raw, frozen, pasteurized",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.702653,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173421/nutrients"
         },
         {
-          "fdc_id": "747882",
-          "description": "EGG, GRADE A, LARGE, YOLK, RAW, FRESH",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.874114,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/747882/nutrients"
+          "fdc_id": "172192",
+          "description": "Egg, turkey, whole, fresh, raw",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.68,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/172192/nutrients"
         }
       ]
     },
@@ -1661,28 +1661,28 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169892/nutrients"
         },
         {
-          "fdc_id": "2685728",
+          "fdc_id": "2686581",
           "description": "Eggplant, Italian, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.835714,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685728/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686581/nutrients"
         },
         {
-          "fdc_id": "2685730",
+          "fdc_id": "2686590",
           "description": "Eggplant, Italian, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.835714,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685730/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686590/nutrients"
         },
         {
-          "fdc_id": "2685732",
+          "fdc_id": "2686599",
           "description": "Eggplant, Italian, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.835714,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685732/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686599/nutrients"
         }
       ]
     },
@@ -1785,20 +1785,20 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258588/nutrients"
         },
         {
-          "fdc_id": "2258625",
+          "fdc_id": "2258699",
           "description": "peppers, bell, green, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.681112,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258625/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258699/nutrients"
         },
         {
-          "fdc_id": "2258627",
+          "fdc_id": "2258711",
           "description": "peppers, bell, green, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.681112,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258627/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258711/nutrients"
         }
       ]
     },
@@ -1835,28 +1835,28 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685577/nutrients"
         },
         {
-          "fdc_id": "2685680",
+          "fdc_id": "2686365",
           "description": "Collards, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.561667,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685680/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686365/nutrients"
         },
         {
-          "fdc_id": "2685682",
+          "fdc_id": "2686374",
           "description": "Collards, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.561667,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685682/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686374/nutrients"
         },
         {
-          "fdc_id": "2685684",
+          "fdc_id": "2686383",
           "description": "Collards, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.561667,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685684/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686383/nutrients"
         }
       ]
     },
@@ -2001,36 +2001,36 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2758975/nutrients"
         },
         {
-          "fdc_id": "2759008",
+          "fdc_id": "2759384",
           "description": "Rhubarb, stalk, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.156207,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759008/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759384/nutrients"
         },
         {
-          "fdc_id": "2759010",
+          "fdc_id": "2759390",
           "description": "Rhubarb, stalk, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.156207,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759010/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759390/nutrients"
         },
         {
-          "fdc_id": "2759012",
+          "fdc_id": "2759397",
           "description": "Rhubarb, stalk, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.156207,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759012/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759397/nutrients"
         },
         {
-          "fdc_id": "2759014",
+          "fdc_id": "2759410",
           "description": "Rhubarb, stalk, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.156207,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759014/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759410/nutrients"
         }
       ]
     },
@@ -2043,22 +2043,6 @@
       "review": "required",
       "candidates": [
         {
-          "fdc_id": "1104593",
-          "description": "GARLIC",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 1.03,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104593/nutrients"
-        },
-        {
-          "fdc_id": "1104594",
-          "description": "GARLIC",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 1.03,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104594/nutrients"
-        },
-        {
           "fdc_id": "1104595",
           "description": "GARLIC",
           "dataset": "Foundation Foods",
@@ -2067,28 +2051,44 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104595/nutrients"
         },
         {
-          "fdc_id": "1104596",
+          "fdc_id": "1104600",
           "description": "GARLIC",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 1.03,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104596/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104600/nutrients"
         },
         {
-          "fdc_id": "1104597",
+          "fdc_id": "1104604",
           "description": "GARLIC",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 1.03,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104597/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104604/nutrients"
         },
         {
-          "fdc_id": "1104598",
+          "fdc_id": "1104609",
           "description": "GARLIC",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 1.03,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104598/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104609/nutrients"
+        },
+        {
+          "fdc_id": "1104613",
+          "description": "GARLIC",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 1.03,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104613/nutrients"
+        },
+        {
+          "fdc_id": "1104618",
+          "description": "GARLIC",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 1.03,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104618/nutrients"
         }
       ]
     },
@@ -2199,12 +2199,12 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171247/nutrients"
         },
         {
-          "fdc_id": "324862",
-          "description": "Parmesan cheese, grated, KRAFT 100% (FL) - NFY120BZI",
+          "fdc_id": "2259795",
+          "description": "Cheese, parmesan, grated, refrigerated",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.812857,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/324862/nutrients"
+          "score": 0.8106,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2259795/nutrients"
         }
       ]
     },
@@ -2249,20 +2249,20 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171304/nutrients"
         },
         {
-          "fdc_id": "2259814",
+          "fdc_id": "2260177",
           "description": "Yogurt, Greek, whole milk, plain",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.888511,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2259814/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2260177/nutrients"
         },
         {
-          "fdc_id": "2259816",
+          "fdc_id": "2260194",
           "description": "Yogurt, Greek, whole milk, plain",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.888511,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2259816/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2260194/nutrients"
         }
       ]
     },
@@ -2299,28 +2299,28 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169965/nutrients"
         },
         {
-          "fdc_id": "2346644",
+          "fdc_id": "2349732",
           "description": "Green beans, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.748143,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346644/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2349732/nutrients"
         },
         {
-          "fdc_id": "2346646",
+          "fdc_id": "2349734",
           "description": "Green beans, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.748143,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346646/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2349734/nutrients"
         },
         {
-          "fdc_id": "2346648",
+          "fdc_id": "2349738",
           "description": "Green beans, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.748143,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346648/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2349738/nutrients"
         }
       ]
     },
@@ -2399,44 +2399,44 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168608/nutrients"
         },
         {
-          "fdc_id": "2514751",
+          "fdc_id": "2514880",
           "description": "Beef, ground, 90% lean, 10% fat, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.840952,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514751/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514880/nutrients"
         },
         {
-          "fdc_id": "2514755",
+          "fdc_id": "2514898",
           "description": "Beef, ground, 90% lean, 10% fat, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.840952,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514755/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514898/nutrients"
         },
         {
-          "fdc_id": "2514761",
+          "fdc_id": "2514925",
           "description": "Beef, ground, 90% lean, 10% fat, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.840952,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514761/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514925/nutrients"
         },
         {
-          "fdc_id": "2514763",
+          "fdc_id": "2514934",
           "description": "Beef, ground, 90% lean, 10% fat, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.840952,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514763/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514934/nutrients"
         },
         {
-          "fdc_id": "2514765",
+          "fdc_id": "2514943",
           "description": "Beef, ground, 80% lean, 20% fat, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.840952,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514765/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514943/nutrients"
         }
       ]
     },
@@ -2531,28 +2531,28 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346386/nutrients"
         },
         {
-          "fdc_id": "2346452",
+          "fdc_id": "2347052",
           "description": "heavy cream",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.561351,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346452/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2347052/nutrients"
         },
         {
-          "fdc_id": "2346454",
+          "fdc_id": "2347055",
           "description": "heavy cream",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.561351,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346454/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2347055/nutrients"
         },
         {
-          "fdc_id": "2346456",
+          "fdc_id": "2347058",
           "description": "heavy cream",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.561351,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346456/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2347058/nutrients"
         }
       ]
     },
@@ -2573,44 +2573,44 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2747661/nutrients"
         },
         {
-          "fdc_id": "2747800",
+          "fdc_id": "2748937",
           "description": "Peppers, jalapeno, seeded, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.503214,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2747800/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2748937/nutrients"
         },
         {
-          "fdc_id": "2747802",
+          "fdc_id": "2748946",
           "description": "Peppers, jalapeno, seeded, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.503214,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2747802/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2748946/nutrients"
         },
         {
-          "fdc_id": "2747804",
+          "fdc_id": "2748952",
           "description": "Peppers, jalapeno, seeded, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.503214,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2747804/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2748952/nutrients"
         },
         {
-          "fdc_id": "2747806",
+          "fdc_id": "2748961",
           "description": "Peppers, jalapeno, seeded, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.503214,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2747806/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2748961/nutrients"
         },
         {
-          "fdc_id": "2747808",
+          "fdc_id": "2748970",
           "description": "Peppers, jalapeno, seeded, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.503214,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2747808/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2748970/nutrients"
         }
       ]
     },
@@ -2647,28 +2647,28 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169756/nutrients"
         },
         {
-          "fdc_id": "2512463",
+          "fdc_id": "2513100",
           "description": "white rice, long grain, unenriched",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.772947,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2512463/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2513100/nutrients"
         },
         {
-          "fdc_id": "2512465",
+          "fdc_id": "2513109",
           "description": "white rice, long grain, unenriched",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.772947,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2512465/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2513109/nutrients"
         },
         {
-          "fdc_id": "2512467",
+          "fdc_id": "2513118",
           "description": "white rice, long grain, unenriched",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.772947,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2512467/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2513118/nutrients"
         }
       ]
     },
@@ -2747,44 +2747,44 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2727570/nutrients"
         },
         {
-          "fdc_id": "2727651",
+          "fdc_id": "2728312",
           "description": "Lamb, ground, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.802632,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2727651/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2728312/nutrients"
         },
         {
-          "fdc_id": "2727653",
+          "fdc_id": "2728321",
           "description": "Lamb, ground, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.802632,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2727653/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2728321/nutrients"
         },
         {
-          "fdc_id": "2727655",
+          "fdc_id": "2728330",
           "description": "Lamb, ground, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.802632,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2727655/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2728330/nutrients"
         },
         {
-          "fdc_id": "2727657",
+          "fdc_id": "2728339",
           "description": "Lamb, ground, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.802632,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2727657/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2728339/nutrients"
         },
         {
-          "fdc_id": "2727659",
+          "fdc_id": "2728348",
           "description": "Lamb, ground, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.802632,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2727659/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2728348/nutrients"
         }
       ]
     },
@@ -2851,56 +2851,56 @@
       "slug": "leek",
       "group": "vegetable",
       "unit": "g",
-      "query": "leek",
+      "query": "leeks raw",
       "review": "required",
       "candidates": [
         {
-          "fdc_id": "323449",
-          "description": "Kale",
+          "fdc_id": "2727584",
+          "description": "Leeks, bulb and greens, root removed, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.16,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323449/nutrients"
+          "score": 0.764255,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2727584/nutrients"
         },
         {
-          "fdc_id": "323455",
-          "description": "Kale",
+          "fdc_id": "2729290",
+          "description": "Leeks, bulb and greens, root removed, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.16,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323455/nutrients"
+          "score": 0.764255,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2729290/nutrients"
         },
         {
-          "fdc_id": "323456",
-          "description": "Kale",
+          "fdc_id": "2729299",
+          "description": "Leeks, bulb and greens, root removed, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.16,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323456/nutrients"
+          "score": 0.764255,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2729299/nutrients"
         },
         {
-          "fdc_id": "323462",
-          "description": "Kale",
+          "fdc_id": "2729308",
+          "description": "Leeks, bulb and greens, root removed, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.16,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323462/nutrients"
+          "score": 0.764255,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2729308/nutrients"
         },
         {
-          "fdc_id": "323463",
-          "description": "Kale",
+          "fdc_id": "2729317",
+          "description": "Leeks, bulb and greens, root removed, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.16,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323463/nutrients"
+          "score": 0.764255,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2729317/nutrients"
         },
         {
-          "fdc_id": "323464",
-          "description": "Kale",
+          "fdc_id": "2729326",
+          "description": "Leeks, bulb and greens, root removed, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.16,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323464/nutrients"
+          "score": 0.764255,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2729326/nutrients"
         }
       ]
     },
@@ -2909,56 +2909,56 @@
       "slug": "lime",
       "group": "fruit",
       "unit": "g",
-      "query": "lime",
+      "query": "limes raw",
       "review": "required",
       "candidates": [
         {
-          "fdc_id": "168156",
-          "description": "Lime juice, raw",
+          "fdc_id": "168155",
+          "description": "Limes, raw",
           "dataset": "SR Legacy",
           "release": "2018-04",
-          "score": 0.782778,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168156/nutrients"
+          "score": 1.005,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168155/nutrients"
         },
         {
-          "fdc_id": "168157",
-          "description": "Lime juice, canned or bottled, unsweetened",
-          "dataset": "SR Legacy",
-          "release": "2018-04",
-          "score": 0.705,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168157/nutrients"
+          "fdc_id": "323505",
+          "description": "Kale, raw",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.570294,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323505/nutrients"
         },
         {
-          "fdc_id": "175229",
-          "description": "SILK Key Lime soy yogurt",
-          "dataset": "SR Legacy",
-          "release": "2018-04",
-          "score": 0.697857,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/175229/nutrients"
+          "fdc_id": "2263889",
+          "description": "Blueberries, raw",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.561667,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2263889/nutrients"
         },
         {
-          "fdc_id": "169638",
-          "description": "Frozen novelties, ice type, lime",
-          "dataset": "SR Legacy",
-          "release": "2018-04",
-          "score": 0.686765,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169638/nutrients"
+          "fdc_id": "2346411",
+          "description": "Blueberries, raw",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.561667,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346411/nutrients"
         },
         {
-          "fdc_id": "173434",
-          "description": "Yogurt, Greek, 2% fat, key lime blend, CHOBANI",
-          "dataset": "SR Legacy",
-          "release": "2018-04",
-          "score": 0.662861,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173434/nutrients"
+          "fdc_id": "2685576",
+          "description": "Beets, raw",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.561667,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685576/nutrients"
         },
         {
-          "fdc_id": "173205",
-          "description": "Beverages, carbonated, lemon-lime soda, no caffeine",
-          "dataset": "SR Legacy",
-          "release": "2018-04",
-          "score": 0.660275,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173205/nutrients"
+          "fdc_id": "2686509",
+          "description": "Beets, raw",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.561667,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686509/nutrients"
         }
       ]
     },
@@ -2979,44 +2979,44 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2758986/nutrients"
         },
         {
-          "fdc_id": "2759116",
+          "fdc_id": "2761880",
           "description": "Mayonnaise, Regular",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 1.03,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759116/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2761880/nutrients"
         },
         {
-          "fdc_id": "2759118",
+          "fdc_id": "2761941",
           "description": "Mayonnaise, Regular",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 1.03,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759118/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2761941/nutrients"
         },
         {
-          "fdc_id": "2759120",
+          "fdc_id": "2762002",
           "description": "Mayonnaise, Regular",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 1.03,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759120/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2762002/nutrients"
         },
         {
-          "fdc_id": "2759122",
+          "fdc_id": "2762063",
           "description": "Mayonnaise, Regular",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 1.03,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759122/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2762063/nutrients"
         },
         {
-          "fdc_id": "2759124",
+          "fdc_id": "2762124",
           "description": "Mayonnaise, Regular",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 1.03,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759124/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2762124/nutrients"
         }
       ]
     },
@@ -3037,22 +3037,6 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320027/nutrients"
         },
         {
-          "fdc_id": "320028",
-          "description": "MILK, 2% ",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.911,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320028/nutrients"
-        },
-        {
-          "fdc_id": "320029",
-          "description": "MILK, 2% ",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.911,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320029/nutrients"
-        },
-        {
           "fdc_id": "320033",
           "description": "MILK, 2% ",
           "dataset": "Foundation Foods",
@@ -3061,20 +3045,36 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320033/nutrients"
         },
         {
-          "fdc_id": "320034",
+          "fdc_id": "320039",
           "description": "MILK, 2% ",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.911,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320034/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320039/nutrients"
         },
         {
-          "fdc_id": "320035",
+          "fdc_id": "320045",
           "description": "MILK, 2% ",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.911,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320035/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320045/nutrients"
+        },
+        {
+          "fdc_id": "320047",
+          "description": "MILK, 2% ",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.911,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320047/nutrients"
+        },
+        {
+          "fdc_id": "320050",
+          "description": "MILK, 2% ",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.911,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320050/nutrients"
         }
       ]
     },
@@ -3103,22 +3103,6 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170846/nutrients"
         },
         {
-          "fdc_id": "323360",
-          "description": "Ricotta cheese, whole milk",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.763538,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323360/nutrients"
-        },
-        {
-          "fdc_id": "323443",
-          "description": "Ricotta cheese, whole milk",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.763538,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323443/nutrients"
-        },
-        {
           "fdc_id": "323444",
           "description": "Cheese, ricotta, whole milk",
           "dataset": "Foundation Foods",
@@ -3133,6 +3117,22 @@
           "release": "2026-04-30",
           "score": 0.738632,
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/746766/nutrients"
+        },
+        {
+          "fdc_id": "170851",
+          "description": "Cheese, ricotta, whole milk",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.713632,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170851/nutrients"
+        },
+        {
+          "fdc_id": "2259796",
+          "description": "Cheese, feta, whole milk, crumbled",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.70178,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2259796/nutrients"
         }
       ]
     },
@@ -3161,36 +3161,36 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171326/nutrients"
         },
         {
-          "fdc_id": "320413",
+          "fdc_id": "320448",
           "description": "TOMATOES, GRAPE",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.138,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320413/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320448/nutrients"
         },
         {
-          "fdc_id": "320414",
+          "fdc_id": "320450",
           "description": "TOMATOES, GRAPE",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.138,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320414/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320450/nutrients"
         },
         {
-          "fdc_id": "320415",
+          "fdc_id": "320456",
           "description": "TOMATOES, GRAPE",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.138,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320415/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320456/nutrients"
         },
         {
-          "fdc_id": "320416",
+          "fdc_id": "320457",
           "description": "TOMATOES, GRAPE",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.138,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320416/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320457/nutrients"
         }
       ]
     },
@@ -3257,56 +3257,56 @@
       "slug": "onion",
       "group": "vegetable",
       "unit": "g",
-      "query": "onion",
+      "query": "onions raw",
       "review": "required",
       "candidates": [
         {
-          "fdc_id": "171327",
-          "description": "Spices, onion powder",
+          "fdc_id": "170000",
+          "description": "Onions, raw",
           "dataset": "SR Legacy",
           "release": "2018-04",
-          "score": 0.746667,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171327/nutrients"
+          "score": 1.005,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170000/nutrients"
         },
         {
-          "fdc_id": "171165",
-          "description": "Soup, onion, dry, mix",
-          "dataset": "SR Legacy",
-          "release": "2018-04",
-          "score": 0.738152,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171165/nutrients"
-        },
-        {
-          "fdc_id": "169844",
-          "description": "DENNY'S, onion rings",
-          "dataset": "SR Legacy",
-          "release": "2018-04",
-          "score": 0.734167,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169844/nutrients"
-        },
-        {
-          "fdc_id": "171172",
-          "description": "Gravy, onion, dry, mix",
-          "dataset": "SR Legacy",
-          "release": "2018-04",
-          "score": 0.734167,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171172/nutrients"
-        },
-        {
-          "fdc_id": "170771",
-          "description": "BURGER KING, Onion Rings",
-          "dataset": "SR Legacy",
-          "release": "2018-04",
-          "score": 0.721071,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170771/nutrients"
-        },
-        {
-          "fdc_id": "324177",
-          "description": "Onion rings, frozen, oven-heated, ALEXIA (FL,MO) - CY1205D",
+          "fdc_id": "790577",
+          "description": "Onions, red, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.715952,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/324177/nutrients"
+          "score": 0.913333,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790577/nutrients"
+        },
+        {
+          "fdc_id": "1104962",
+          "description": "Onions, white, raw",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.899231,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104962/nutrients"
+        },
+        {
+          "fdc_id": "790646",
+          "description": "Onions, yellow, raw",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.892963,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790646/nutrients"
+        },
+        {
+          "fdc_id": "170007",
+          "description": "Onions, welsh, raw",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.874231,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170007/nutrients"
+        },
+        {
+          "fdc_id": "170008",
+          "description": "Onions, sweet, raw",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.874231,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170008/nutrients"
         }
       ]
     },
@@ -3327,30 +3327,6 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171328/nutrients"
         },
         {
-          "fdc_id": "748326",
-          "description": "Soybean oil",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.172222,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/748326/nutrients"
-        },
-        {
-          "fdc_id": "748327",
-          "description": "Soybean oil",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.172222,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/748327/nutrients"
-        },
-        {
-          "fdc_id": "748328",
-          "description": "Soybean oil",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.172222,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/748328/nutrients"
-        },
-        {
           "fdc_id": "748330",
           "description": "Soybean oil",
           "dataset": "Foundation Foods",
@@ -3359,12 +3335,36 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/748330/nutrients"
         },
         {
-          "fdc_id": "748331",
+          "fdc_id": "748345",
           "description": "Soybean oil",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.172222,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/748331/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/748345/nutrients"
+        },
+        {
+          "fdc_id": "748353",
+          "description": "Soybean oil",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.172222,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/748353/nutrients"
+        },
+        {
+          "fdc_id": "748362",
+          "description": "Soybean oil",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.172222,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/748362/nutrients"
+        },
+        {
+          "fdc_id": "748363",
+          "description": "Soybean oil",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.172222,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/748363/nutrients"
         }
       ]
     },
@@ -3401,28 +3401,28 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2747659/nutrients"
         },
         {
-          "fdc_id": "2747770",
+          "fdc_id": "2749897",
           "description": "Parsnips, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.165789,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2747770/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2749897/nutrients"
         },
         {
-          "fdc_id": "2747772",
+          "fdc_id": "2749906",
           "description": "Parsnips, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.165789,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2747772/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2749906/nutrients"
         },
         {
-          "fdc_id": "2747774",
+          "fdc_id": "2749912",
           "description": "Parsnips, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.165789,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2747774/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2749912/nutrients"
         }
       ]
     },
@@ -3475,12 +3475,12 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171247/nutrients"
         },
         {
-          "fdc_id": "324862",
-          "description": "Parmesan cheese, grated, KRAFT 100% (FL) - NFY120BZI",
+          "fdc_id": "2259795",
+          "description": "Cheese, parmesan, grated, refrigerated",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.812857,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/324862/nutrients"
+          "score": 0.8106,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2259795/nutrients"
         }
       ]
     },
@@ -3533,12 +3533,12 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323455/nutrients"
         },
         {
-          "fdc_id": "323456",
+          "fdc_id": "323462",
           "description": "Kale",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.17,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323456/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323462/nutrients"
         }
       ]
     },
@@ -3583,20 +3583,20 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2758998/nutrients"
         },
         {
-          "fdc_id": "2759272",
+          "fdc_id": "2765421",
           "description": "Pasta, dry, enriched, spaghetti",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.676667,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759272/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2765421/nutrients"
         },
         {
-          "fdc_id": "2759274",
+          "fdc_id": "2765437",
           "description": "Pasta, dry, enriched, spaghetti",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.676667,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759274/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2765437/nutrients"
         }
       ]
     },
@@ -3649,12 +3649,12 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170422/nutrients"
         },
         {
-          "fdc_id": "2644456",
+          "fdc_id": "2645357",
           "description": "peas, green, sweet, canned, sodium added, sugar added",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.715275,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2644456/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2645357/nutrients"
         }
       ]
     },
@@ -3699,20 +3699,20 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/747132/nutrients"
         },
         {
-          "fdc_id": "747133",
+          "fdc_id": "747137",
           "description": "Cheese",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.628947,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/747133/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/747137/nutrients"
         },
         {
-          "fdc_id": "747134",
+          "fdc_id": "747138",
           "description": "Cheese",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.628947,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/747134/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/747138/nutrients"
         }
       ]
     },
@@ -3733,44 +3733,44 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685578/nutrients"
         },
         {
-          "fdc_id": "2685744",
+          "fdc_id": "2686653",
           "description": "tomatoes, whole, canned, solids and liquids, with salt added",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.802857,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685744/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686653/nutrients"
         },
         {
-          "fdc_id": "2685746",
+          "fdc_id": "2686662",
           "description": "tomatoes, whole, canned, solids and liquids, with salt added",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.802857,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685746/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686662/nutrients"
         },
         {
-          "fdc_id": "2685748",
+          "fdc_id": "2686671",
           "description": "tomatoes, whole, canned, solids and liquids, with salt added",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.802857,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685748/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686671/nutrients"
         },
         {
-          "fdc_id": "2685750",
+          "fdc_id": "2686680",
           "description": "tomatoes, whole, canned, solids and liquids, with salt added",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.802857,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685750/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686680/nutrients"
         },
         {
-          "fdc_id": "2685752",
+          "fdc_id": "2686689",
           "description": "tomatoes, whole, canned, solids and liquids, with salt added",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.802857,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685752/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686689/nutrients"
         }
       ]
     },
@@ -3807,28 +3807,28 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2259794/nutrients"
         },
         {
-          "fdc_id": "2259830",
+          "fdc_id": "2260473",
           "description": "Yogurt, whole milk, plain",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.942609,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2259830/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2260473/nutrients"
         },
         {
-          "fdc_id": "2259832",
+          "fdc_id": "2260490",
           "description": "Yogurt, whole milk, plain",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.942609,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2259832/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2260490/nutrients"
         },
         {
-          "fdc_id": "2259834",
+          "fdc_id": "2260493",
           "description": "Yogurt, whole milk, plain",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.942609,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2259834/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2260493/nutrients"
         }
       ]
     },
@@ -3837,56 +3837,56 @@
       "slug": "potato",
       "group": "vegetable",
       "unit": "g",
-      "query": "potato",
+      "query": "potatoes raw flesh skin",
       "review": "required",
       "candidates": [
         {
-          "fdc_id": "168446",
-          "description": "Potato flour",
+          "fdc_id": "170026",
+          "description": "Potatoes, flesh and skin, raw",
           "dataset": "SR Legacy",
           "release": "2018-04",
-          "score": 0.856667,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168446/nutrients"
+          "score": 0.9222,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170026/nutrients"
         },
         {
-          "fdc_id": "2261422",
-          "description": "Flour, potato",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.851667,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2261422/nutrients"
+          "fdc_id": "170029",
+          "description": "Potatoes, red, flesh and skin, raw",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.896111,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170029/nutrients"
         },
         {
-          "fdc_id": "2261456",
-          "description": "Flour, potato",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.851667,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2261456/nutrients"
+          "fdc_id": "170028",
+          "description": "Potatoes, white, flesh and skin, raw",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.89,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170028/nutrients"
         },
         {
-          "fdc_id": "2261458",
-          "description": "Flour, potato",
+          "fdc_id": "2346404",
+          "description": "Sweet potatoes, orange flesh, without skin, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.851667,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2261458/nutrients"
+          "score": 0.874478,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346404/nutrients"
         },
         {
-          "fdc_id": "2261460",
-          "description": "Flour, potato",
+          "fdc_id": "2350524",
+          "description": "Sweet Potatoes, Orange Flesh, without skin, Raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.851667,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2261460/nutrients"
+          "score": 0.874478,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2350524/nutrients"
         },
         {
-          "fdc_id": "2261462",
-          "description": "Flour, potato",
+          "fdc_id": "2350533",
+          "description": "Sweet Potatoes, Orange Flesh, without skin, Raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.851667,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2261462/nutrients"
+          "score": 0.874478,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2350533/nutrients"
         }
       ]
     },
@@ -3907,44 +3907,44 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1750347/nutrients"
         },
         {
-          "fdc_id": "1750492",
+          "fdc_id": "1757141",
           "description": "MUSHROOMS, WHITE BUTTON",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.16,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1750492/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1757141/nutrients"
         },
         {
-          "fdc_id": "1750494",
+          "fdc_id": "1757144",
           "description": "MUSHROOMS, WHITE BUTTON",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.16,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1750494/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1757144/nutrients"
         },
         {
-          "fdc_id": "1750496",
+          "fdc_id": "1757170",
           "description": "MUSHROOMS, WHITE BUTTON",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.16,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1750496/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1757170/nutrients"
         },
         {
-          "fdc_id": "1750498",
+          "fdc_id": "1757172",
           "description": "MUSHROOMS, WHITE BUTTON",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.16,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1750498/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1757172/nutrients"
         },
         {
-          "fdc_id": "1750500",
+          "fdc_id": "1757179",
           "description": "MUSHROOMS, WHITE BUTTON",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.16,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1750500/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1757179/nutrients"
         }
       ]
     },
@@ -3981,28 +3981,28 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169270/nutrients"
         },
         {
-          "fdc_id": "2515416",
+          "fdc_id": "2515560",
           "description": "pumpkin seeds (pepitas), raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.79375,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2515416/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2515560/nutrients"
         },
         {
-          "fdc_id": "2515418",
+          "fdc_id": "2515561",
           "description": "pumpkin seeds (pepitas), raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.79375,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2515418/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2515561/nutrients"
         },
         {
-          "fdc_id": "2515420",
+          "fdc_id": "2515562",
           "description": "pumpkin seeds (pepitas), raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.79375,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2515420/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2515562/nutrients"
         }
       ]
     },
@@ -4031,36 +4031,36 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258590/nutrients"
         },
         {
-          "fdc_id": "2258659",
+          "fdc_id": "2258875",
           "description": "peppers, bell, red, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.779939,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258659/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258875/nutrients"
         },
         {
-          "fdc_id": "2258661",
+          "fdc_id": "2258887",
           "description": "peppers, bell, red, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.779939,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258661/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258887/nutrients"
         },
         {
-          "fdc_id": "2258663",
+          "fdc_id": "2258888",
           "description": "peppers, bell, red, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.779939,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258663/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258888/nutrients"
         },
         {
-          "fdc_id": "2258665",
+          "fdc_id": "2258897",
           "description": "peppers, bell, red, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.779939,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258665/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258897/nutrients"
         }
       ]
     },
@@ -4073,38 +4073,6 @@
       "review": "required",
       "candidates": [
         {
-          "fdc_id": "790509",
-          "description": "ONIONS, RED",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.530789,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790509/nutrients"
-        },
-        {
-          "fdc_id": "790510",
-          "description": "ONIONS, RED",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.530789,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790510/nutrients"
-        },
-        {
-          "fdc_id": "790511",
-          "description": "ONIONS, RED",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.530789,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790511/nutrients"
-        },
-        {
-          "fdc_id": "790512",
-          "description": "ONIONS, RED",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.530789,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790512/nutrients"
-        },
-        {
           "fdc_id": "790513",
           "description": "ONIONS, RED",
           "dataset": "Foundation Foods",
@@ -4113,12 +4081,44 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790513/nutrients"
         },
         {
-          "fdc_id": "790514",
+          "fdc_id": "790516",
           "description": "ONIONS, RED",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.530789,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790514/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790516/nutrients"
+        },
+        {
+          "fdc_id": "790518",
+          "description": "ONIONS, RED",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.530789,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790518/nutrients"
+        },
+        {
+          "fdc_id": "790524",
+          "description": "ONIONS, RED",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.530789,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790524/nutrients"
+        },
+        {
+          "fdc_id": "790527",
+          "description": "ONIONS, RED",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.530789,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790527/nutrients"
+        },
+        {
+          "fdc_id": "790529",
+          "description": "ONIONS, RED",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.530789,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790529/nutrients"
         }
       ]
     },
@@ -4247,52 +4247,52 @@
       "review": "proxy",
       "candidates": [
         {
-          "fdc_id": "323360",
-          "description": "Ricotta cheese, whole milk",
+          "fdc_id": "323444",
+          "description": "Cheese, ricotta, whole milk",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 1.03,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323360/nutrients"
+          "score": 0.9384,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323444/nutrients"
         },
         {
-          "fdc_id": "323443",
-          "description": "Ricotta cheese, whole milk",
+          "fdc_id": "746766",
+          "description": "Cheese, ricotta, whole milk",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 1.03,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323443/nutrients"
+          "score": 0.9384,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/746766/nutrients"
         },
         {
-          "fdc_id": "323321",
-          "description": "Ricotta cheese whole milk - NFY1216UC",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.963333,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323321/nutrients"
+          "fdc_id": "170851",
+          "description": "Cheese, ricotta, whole milk",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.9134,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170851/nutrients"
         },
         {
-          "fdc_id": "323337",
-          "description": "Ricotta cheese whole milk - NFY1216VM",
+          "fdc_id": "323300",
+          "description": "CHEESE, RICOTTA, WHOLE MILK, GALBANI",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.963333,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323337/nutrients"
+          "score": 0.886552,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323300/nutrients"
         },
         {
-          "fdc_id": "323350",
-          "description": "Ricotta cheese, whole milk - NFY1216W7",
+          "fdc_id": "323303",
+          "description": "CHEESE, RICOTTA, WHOLE MILK, GALBANI",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.963333,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323350/nutrients"
+          "score": 0.886552,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323303/nutrients"
         },
         {
-          "fdc_id": "323354",
-          "description": "Ricotta cheese whole milk - NFY1216WD",
+          "fdc_id": "323316",
+          "description": "CHEESE, RICOTTA, WHOLE MILK, GALBANI",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.963333,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323354/nutrients"
+          "score": 0.886552,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323316/nutrients"
         }
       ]
     },
@@ -4345,12 +4345,12 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258586/nutrients"
         },
         {
-          "fdc_id": "2258609",
+          "fdc_id": "2259219",
           "description": "carrots, mature, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.151538,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2258609/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2259219/nutrients"
         }
       ]
     },
@@ -4379,14 +4379,6 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/748976/nutrients"
         },
         {
-          "fdc_id": "748977",
-          "description": "Bacon",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.16,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/748977/nutrients"
-        },
-        {
           "fdc_id": "748978",
           "description": "Bacon",
           "dataset": "Foundation Foods",
@@ -4395,20 +4387,28 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/748978/nutrients"
         },
         {
-          "fdc_id": "748979",
-          "description": "Bacon",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.16,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/748979/nutrients"
-        },
-        {
           "fdc_id": "748980",
           "description": "Bacon",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.16,
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/748980/nutrients"
+        },
+        {
+          "fdc_id": "749011",
+          "description": "Bacon",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.16,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/749011/nutrients"
+        },
+        {
+          "fdc_id": "749013",
+          "description": "Bacon",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.16,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/749013/nutrients"
         }
       ]
     },
@@ -4445,28 +4445,28 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173686/nutrients"
         },
         {
-          "fdc_id": "2684480",
+          "fdc_id": "2684721",
           "description": "salmon, Atlantic, farm raised, raw, skin removed",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.712714,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2684480/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2684721/nutrients"
         },
         {
-          "fdc_id": "2684482",
+          "fdc_id": "2684724",
           "description": "salmon, Atlantic, farm raised, raw, skin removed",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.712714,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2684482/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2684724/nutrients"
         },
         {
-          "fdc_id": "2684484",
+          "fdc_id": "2684727",
           "description": "salmon, Atlantic, farm raised, raw, skin removed",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.712714,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2684484/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2684727/nutrients"
         }
       ]
     },
@@ -4487,22 +4487,6 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171631/nutrients"
         },
         {
-          "fdc_id": "325605",
-          "description": "Italian Pork sausage, cooked",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.718284,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/325605/nutrients"
-        },
-        {
-          "fdc_id": "325623",
-          "description": "Italian Pork sausage, cooked",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.718284,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/325623/nutrients"
-        },
-        {
           "fdc_id": "325658",
           "description": "Sausage, Italian, pork, mild, cooked, pan-fried",
           "dataset": "Foundation Foods",
@@ -4519,12 +4503,28 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/746780/nutrients"
         },
         {
-          "fdc_id": "325549",
+          "fdc_id": "325555",
           "description": "ITALIAN PORK SAUSAGE, KROGER, COOKED",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.681207,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/325549/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/325555/nutrients"
+        },
+        {
+          "fdc_id": "325556",
+          "description": "ITALIAN PORK SAUSAGE, KROGER, COOKED",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.681207,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/325556/nutrients"
+        },
+        {
+          "fdc_id": "325558",
+          "description": "ITALIAN PORK SAUSAGE, KROGER, COOKED",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.681207,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/325558/nutrients"
         }
       ]
     },
@@ -4561,28 +4561,28 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2003589/nutrients"
         },
         {
-          "fdc_id": "2003866",
+          "fdc_id": "2004233",
           "description": "flour, semolina, fine",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.81037,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2003866/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2004233/nutrients"
         },
         {
-          "fdc_id": "2003868",
+          "fdc_id": "2004234",
           "description": "flour, semolina, fine",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.81037,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2003868/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2004234/nutrients"
         },
         {
-          "fdc_id": "2003870",
+          "fdc_id": "2004247",
           "description": "flour, semolina, fine",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.81037,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2003870/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2004247/nutrients"
         }
       ]
     },
@@ -4619,28 +4619,28 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2747659/nutrients"
         },
         {
-          "fdc_id": "2747770",
+          "fdc_id": "2749897",
           "description": "Parsnips, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.165789,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2747770/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2749897/nutrients"
         },
         {
-          "fdc_id": "2747772",
+          "fdc_id": "2749906",
           "description": "Parsnips, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.165789,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2747772/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2749906/nutrients"
         },
         {
-          "fdc_id": "2747774",
+          "fdc_id": "2749912",
           "description": "Parsnips, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.165789,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2747774/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2749912/nutrients"
         }
       ]
     },
@@ -4693,12 +4693,12 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173443/nutrients"
         },
         {
-          "fdc_id": "2346468",
+          "fdc_id": "2347106",
           "description": "sour cream, full fat",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.673772,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2346468/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2347106/nutrients"
         }
       ]
     },
@@ -4809,12 +4809,12 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2710838/nutrients"
         },
         {
-          "fdc_id": "2711071",
+          "fdc_id": "2712714",
           "description": "Rice, red, unenriched, dry, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.617451,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2711071/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2712714/nutrients"
         }
       ]
     },
@@ -4823,56 +4823,56 @@
       "slug": "spinach",
       "group": "vegetable",
       "unit": "g",
-      "query": "spinach",
+      "query": "spinach raw",
       "review": "required",
       "candidates": [
+        {
+          "fdc_id": "168462",
+          "description": "Spinach, raw",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 1.005,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168462/nutrients"
+        },
+        {
+          "fdc_id": "168440",
+          "description": "New Zealand spinach, raw",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.822353,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168440/nutrients"
+        },
+        {
+          "fdc_id": "168438",
+          "description": "Mustard spinach, (tendergreen), raw",
+          "dataset": "SR Legacy",
+          "release": "2018-04",
+          "score": 0.795238,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168438/nutrients"
+        },
         {
           "fdc_id": "1750352",
           "description": "Spinach, baby",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.897105,
+          "score": 0.587174,
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1750352/nutrients"
         },
         {
-          "fdc_id": "1750632",
+          "fdc_id": "1756664",
           "description": "SPINACH, BABY",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.897105,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1750632/nutrients"
+          "score": 0.587174,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1756664/nutrients"
         },
         {
-          "fdc_id": "1750634",
+          "fdc_id": "1756666",
           "description": "SPINACH, BABY",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.897105,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1750634/nutrients"
-        },
-        {
-          "fdc_id": "1750636",
-          "description": "SPINACH, BABY",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.897105,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1750636/nutrients"
-        },
-        {
-          "fdc_id": "1750638",
-          "description": "SPINACH, BABY",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.897105,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1750638/nutrients"
-        },
-        {
-          "fdc_id": "1750640",
-          "description": "SPINACH, BABY",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.897105,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1750640/nutrients"
+          "score": 0.587174,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1756666/nutrients"
         }
       ]
     },
@@ -5041,12 +5041,12 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1750349/nutrients"
         },
         {
-          "fdc_id": "1750568",
+          "fdc_id": "1754612",
           "description": "OIL, SUNFLOWER",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.633,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1750568/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1754612/nutrients"
         }
       ]
     },
@@ -5091,20 +5091,20 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/746789/nutrients"
         },
         {
-          "fdc_id": "746790",
-          "description": "Ham",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.16,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/746790/nutrients"
-        },
-        {
           "fdc_id": "746791",
           "description": "Ham",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.16,
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/746791/nutrients"
+        },
+        {
+          "fdc_id": "746794",
+          "description": "Ham",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.16,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/746794/nutrients"
         }
       ]
     },
@@ -5125,44 +5125,44 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685582/nutrients"
         },
         {
-          "fdc_id": "2685820",
+          "fdc_id": "2686995",
           "description": "tomato, puree, canned, salt added",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.920612,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685820/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686995/nutrients"
         },
         {
-          "fdc_id": "2685819",
+          "fdc_id": "2687126",
           "description": "tomato, puree, canned, salt added",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.920612,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685819/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2687126/nutrients"
         },
         {
-          "fdc_id": "2685926",
+          "fdc_id": "2687758",
           "description": "tomato, puree, canned, salt added",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.920612,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685926/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2687758/nutrients"
         },
         {
-          "fdc_id": "2686990",
-          "description": "tomato, puree, canned, salt added",
+          "fdc_id": "2686941",
+          "description": "tomato, puree, canned, no salt added",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.920612,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686990/nutrients"
+          "score": 0.895769,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686941/nutrients"
         },
         {
-          "fdc_id": "2686991",
-          "description": "tomato, puree, canned, salt added",
+          "fdc_id": "2686950",
+          "description": "tomato, puree, canned, no salt added",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.920612,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686991/nutrients"
+          "score": 0.895769,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686950/nutrients"
         }
       ]
     },
@@ -5215,12 +5215,12 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685580/nutrients"
         },
         {
-          "fdc_id": "2685776",
+          "fdc_id": "2686797",
           "description": "tomato, paste, canned, without salt added",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.708333,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685776/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2686797/nutrients"
         }
       ]
     },
@@ -5241,44 +5241,44 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2758996/nutrients"
         },
         {
-          "fdc_id": "2759248",
+          "fdc_id": "2765229",
           "description": "Tortilla, wheat flour, shelf stable",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.821064,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759248/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2765229/nutrients"
         },
         {
-          "fdc_id": "2759250",
+          "fdc_id": "2765245",
           "description": "Tortilla, wheat flour, shelf stable",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.821064,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759250/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2765245/nutrients"
         },
         {
-          "fdc_id": "2759252",
+          "fdc_id": "2765261",
           "description": "Tortilla, wheat flour, shelf stable",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.821064,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759252/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2765261/nutrients"
         },
         {
-          "fdc_id": "2759254",
+          "fdc_id": "2765277",
           "description": "Tortilla, wheat flour, shelf stable",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.821064,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759254/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2765277/nutrients"
         },
         {
-          "fdc_id": "2759256",
+          "fdc_id": "2765293",
           "description": "Tortilla, wheat flour, shelf stable",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.821064,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2759256/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2765293/nutrients"
         }
       ]
     },
@@ -5299,44 +5299,44 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/172231/nutrients"
         },
         {
-          "fdc_id": "749044",
-          "description": "BURGER KING, BACON",
+          "fdc_id": "2003600",
+          "description": "Mushroom, enoki",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.1556,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/749044/nutrients"
+          "score": 0.15,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2003600/nutrients"
         },
         {
-          "fdc_id": "749045",
-          "description": "BURGER KING, BACON",
+          "fdc_id": "2003603",
+          "description": "Mushroom, beech",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.1556,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/749045/nutrients"
+          "score": 0.15,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2003603/nutrients"
         },
         {
-          "fdc_id": "749050",
-          "description": "BURGER KING, BACON",
+          "fdc_id": "746955",
+          "description": "American Cheese",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.1556,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/749050/nutrients"
+          "score": 0.145652,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/746955/nutrients"
         },
         {
-          "fdc_id": "749051",
-          "description": "BURGER KING, BACON",
+          "fdc_id": "746956",
+          "description": "American Cheese",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.1556,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/749051/nutrients"
+          "score": 0.145652,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/746956/nutrients"
         },
         {
-          "fdc_id": "749057",
-          "description": "BURGER KING, BACON",
+          "fdc_id": "746958",
+          "description": "American Cheese",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.1556,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/749057/nutrients"
+          "score": 0.145652,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/746958/nutrients"
         }
       ]
     },
@@ -5539,36 +5539,36 @@
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170306/nutrients"
         },
         {
-          "fdc_id": "1104914",
-          "description": "ONIONS, WHITE",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.510652,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104914/nutrients"
-        },
-        {
-          "fdc_id": "1104915",
-          "description": "ONIONS, WHITE",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.510652,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104915/nutrients"
-        },
-        {
-          "fdc_id": "1104916",
-          "description": "ONIONS, WHITE",
-          "dataset": "Foundation Foods",
-          "release": "2026-04-30",
-          "score": 0.510652,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104916/nutrients"
-        },
-        {
           "fdc_id": "1104917",
           "description": "ONIONS, WHITE",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.510652,
           "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104917/nutrients"
+        },
+        {
+          "fdc_id": "1104918",
+          "description": "ONIONS, WHITE",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.510652,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104918/nutrients"
+        },
+        {
+          "fdc_id": "1104919",
+          "description": "ONIONS, WHITE",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.510652,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104919/nutrients"
+        },
+        {
+          "fdc_id": "1104925",
+          "description": "ONIONS, WHITE",
+          "dataset": "Foundation Foods",
+          "release": "2026-04-30",
+          "score": 0.510652,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104925/nutrients"
         }
       ]
     },
@@ -5581,52 +5581,52 @@
       "review": "required",
       "candidates": [
         {
-          "fdc_id": "334201",
-          "description": "C&H Granulated White Sugar (OK1) - NFY040Y38",
+          "fdc_id": "334198",
+          "description": "Proximates, Sugar, Granulated, White, store brand (CA2, NC1, OK1) - NFY040XER",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.760857,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334201/nutrients"
+          "score": 0.710769,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334198/nutrients"
         },
         {
-          "fdc_id": "334236",
-          "description": "Best Choice Sugar, Granulated white (MO1) - NFY040Y33",
+          "fdc_id": "334204",
+          "description": "Minerals, Sugar, Granulated, White, Name brand (CA2, NC1, OK1) - NFY040XDM",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.739976,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334236/nutrients"
+          "score": 0.706933,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334204/nutrients"
         },
         {
-          "fdc_id": "334223",
-          "description": "Kroger Sugar, Granulated white (IN1) - NFY040Y3G",
+          "fdc_id": "334211",
+          "description": "Minerals, Sugar, Granulated, White, Name brand (CO2, CT1, IN1) - NFY040XDW",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.737037,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334223/nutrients"
+          "score": 0.706933,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334211/nutrients"
         },
         {
-          "fdc_id": "334242",
-          "description": "Kroger Sugar, Granulated white (MI1) - NFY040Y36",
+          "fdc_id": "334218",
+          "description": "Minerals, Sugar, Granulated, White, Name brand (FL1, MO1, NY1) - NFY040XE6",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.728889,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334242/nutrients"
+          "score": 0.706933,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334218/nutrients"
         },
         {
-          "fdc_id": "334202",
-          "description": "C&H, Sugar, Granulated, White (CA2) - NFY040Y35",
+          "fdc_id": "334197",
+          "description": "Minerals, Sugar, Granulated, White, store brand (CA2, NC1, OK1) - NFY040XEQ",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.728857,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334202/nutrients"
+          "score": 0.706316,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334197/nutrients"
         },
         {
-          "fdc_id": "334229",
-          "description": "C&H, Sugar, Granulated, White (CA1) - NFY040Y3D",
+          "fdc_id": "334224",
+          "description": "Minerals, Sugar, Granulated, White, store brand (CO2, CT1, IN1) - NFY040XF0",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
-          "score": 0.728857,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334229/nutrients"
+          "score": 0.706316,
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334224/nutrients"
         }
       ]
     },
@@ -5813,52 +5813,52 @@
       "review": "required",
       "candidates": [
         {
-          "fdc_id": "2685584",
+          "fdc_id": "2685933",
           "description": "Squash, zucchini, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.81037,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685584/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685933/nutrients"
         },
         {
-          "fdc_id": "2685586",
+          "fdc_id": "2685942",
           "description": "Squash, zucchini, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.81037,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685586/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685942/nutrients"
         },
         {
-          "fdc_id": "2685588",
+          "fdc_id": "2685951",
           "description": "Squash, zucchini, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.81037,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685588/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685951/nutrients"
         },
         {
-          "fdc_id": "2685590",
+          "fdc_id": "2685960",
           "description": "Squash, zucchini, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.81037,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685590/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685960/nutrients"
         },
         {
-          "fdc_id": "2685592",
+          "fdc_id": "2685969",
           "description": "Squash, zucchini, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.81037,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685592/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685969/nutrients"
         },
         {
-          "fdc_id": "2685594",
+          "fdc_id": "2685978",
           "description": "Squash, zucchini, raw",
           "dataset": "Foundation Foods",
           "release": "2026-04-30",
           "score": 0.81037,
-          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685594/nutrients"
+          "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685978/nutrients"
         }
       ]
     }
