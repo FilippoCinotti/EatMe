@@ -125,6 +125,7 @@ Future<String?> askText(
 Future<Food?> chooseFood(BuildContext context, List<Food> foods) =>
     showModalBottomSheet<Food>(
       context: context,
+      useRootNavigator: true,
       useSafeArea: true,
       isScrollControlled: true,
       builder: (context) => SizedBox(
