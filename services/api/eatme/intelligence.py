@@ -266,7 +266,31 @@ class IntelligenceService:
     def jobs(self, user_id):
         with self.db.transaction() as tx:
             self._profile(tx, user_id)
-            return {'items': [{**r, 'result': decode(r['result']) if r['result'] else None} for r in tx.all('SELECT id,kind,status,progress,result,error_code,created_at,completed_at,confirmed_at,version FROM processing_jobs WHERE user_id=? ORDER BY created_at DESC LIMIT 30', (user_id,))]}
+            rows = tx.all('SELECT id,kind,status,progress,result,payload,error_code,created_at,completed_at,confirmed_at,version FROM processing_jobs WHERE user_id=? ORDER BY created_at DESC LIMIT 30', (user_id,))
+            items = []
+            for row in rows:
+                payload = decode(row.pop('payload')) if row.get('payload') else {}
+                items.append({
+                    **row,
+                    'result': decode(row['result']) if row['result'] else None,
+                    'media_id': payload.get('media_id'),
+                })
+            return {'items': items}
+
+    def media_preview(self, user_id, media_id):
+        with self.db.transaction() as tx:
+            self._profile(tx, user_id)
+            media = tx.one(
+                'SELECT * FROM media_objects WHERE id=? AND user_id=?',
+                (valid_uuid(media_id), user_id),
+            )
+            if not media or (media['expires_at'] and media['expires_at'] < now()):
+                raise DomainError('media_expired', 409)
+        raw = PrivateMedia().read(media['storage_key'])
+        return {
+            'base64': base64.b64encode(raw).decode(),
+            'mime_type': media['mime_type'],
+        }
 
     def job_action(self, user_id, data, key):
         if data.get('action') == 'create' and not self.feature_enabled({'recipe': 'ai_recipe', 'receipt': 'receipt_scan'}.get(data.get('kind'), 'ai_scan')):
