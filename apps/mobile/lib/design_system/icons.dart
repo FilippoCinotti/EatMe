@@ -74,12 +74,14 @@ class EatMeIcon extends StatelessWidget {
     this.size = 24,
     this.color,
     this.strokeWidth = 1.9,
+    this.filled = false,
   });
 
   final EatMeGlyph glyph;
   final double size;
   final Color? color;
   final double strokeWidth;
+  final bool filled;
 
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
@@ -91,6 +93,7 @@ class EatMeIcon extends StatelessWidget {
             IconTheme.of(context).color ??
             Theme.of(context).colorScheme.onSurface,
         strokeWidth,
+        filled,
       ),
     ),
   );
@@ -107,6 +110,7 @@ class EatMeIconButton extends StatelessWidget {
     this.iconSize = 22,
     this.backgroundColor,
     this.foregroundColor,
+    this.filled = false,
   });
 
   final EatMeGlyph glyph;
@@ -116,6 +120,7 @@ class EatMeIconButton extends StatelessWidget {
   final double iconSize;
   final Color? backgroundColor;
   final Color? foregroundColor;
+  final bool filled;
 
   @override
   Widget build(BuildContext context) {
@@ -133,17 +138,19 @@ class EatMeIconButton extends StatelessWidget {
         glyph,
         size: iconSize,
         color: foregroundColor ?? scheme.onSurface,
+        filled: filled,
       ),
     );
   }
 }
 
 class _EatMeIconPainter extends CustomPainter {
-  const _EatMeIconPainter(this.glyph, this.color, this.strokeWidth);
+  const _EatMeIconPainter(this.glyph, this.color, this.strokeWidth, this.filled);
 
   final EatMeGlyph glyph;
   final Color color;
   final double strokeWidth;
+  final bool filled;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -181,6 +188,14 @@ class _EatMeIconPainter extends CustomPainter {
           );
       }
     }
+    if (filled && glyph == EatMeGlyph.heart) {
+      canvas.drawPath(
+        path,
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.fill,
+      );
+    }
     canvas.drawPath(
       path,
       Paint()
@@ -197,7 +212,8 @@ class _EatMeIconPainter extends CustomPainter {
   bool shouldRepaint(_EatMeIconPainter oldDelegate) =>
       oldDelegate.glyph != glyph ||
       oldDelegate.color != color ||
-      oldDelegate.strokeWidth != strokeWidth;
+      oldDelegate.strokeWidth != strokeWidth ||
+      oldDelegate.filled != filled;
 
   static const _paths = <EatMeGlyph, List<List<double>>>{
     EatMeGlyph.chefHat: <List<double>>[
