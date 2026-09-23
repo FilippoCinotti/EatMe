@@ -1,0 +1,6 @@
+{
+  "reviewed_at": null,
+  "reviewer": null,
+  "policy": "Only explicitly approved mappings are eligible for production seed generation.",
+  "mappings": []
+}
