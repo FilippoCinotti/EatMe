@@ -109,7 +109,8 @@ class Router:
                    "/leftovers":self.service.leftover_action, "/recipes":self.service.recipe_action,
                    "/jobs":self.service.job_action, "/notifications":self.service.notification_action,
                    "/admin/content":self.service.admin_action, "/reports":self.service.report,
-                   "/inventory/metadata":self.service.inventory_metadata, "/products/stock":self.service.product_stock}
+                   "/inventory/metadata":self.service.inventory_metadata, "/products/stock":self.service.product_stock,
+                   "/profile/avatar":self.service.profile_avatar}
         resource = route.removeprefix("/api/v1")
         if resource=="/media" and method=="POST":
             return self.service.media_upload(user_id,body)
