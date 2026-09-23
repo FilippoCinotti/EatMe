@@ -505,12 +505,13 @@ class ContentService:
         with self.db.transaction() as tx:
             existing = tx.one("SELECT * FROM food_products WHERE barcode=?", (code,))
             if existing and existing["updated_at"] > (datetime.now(timezone.utc) - timedelta(days=7)).isoformat():
-                return {**decode(existing["data"]), "id": existing["id"]}
+                return {**decode(existing["data"]), "id": existing["id"], "mapped_food_id": existing["food_id"]}
         value = (getattr(self, "product_provider", None) or OpenFoodFacts()).lookup(code)
         with self.db.transaction() as tx:
             identifier = existing["id"] if existing else new_id()
             tx.execute("INSERT INTO food_products VALUES (?,?,NULL,?,1,?) ON CONFLICT(barcode) DO UPDATE SET data=excluded.data,updated_at=excluded.updated_at,version=food_products.version+1", (identifier, code, encode(value), now()))
-            return {**value, "id": identifier}
+            mapped = existing["food_id"] if existing else None
+            return {**value, "id": identifier, "mapped_food_id": mapped}
 
     def insights(self, user_id):
         home = self._household(user_id)
@@ -559,18 +560,25 @@ class ContentService:
                 if data.get('package_checked') is not True:
                     raise DomainError('package_confirmation_required', 422)
                 product = decode(row['data'])
+                foods = self._catalog(tx, user_id)[0]
+                selected_food_id = data.get('food_id') or row['food_id']
+                canonical = foods.get(valid_uuid(selected_food_id)) if selected_food_id else None
+                if not canonical or canonical.get('group') == 'packaged':
+                    raise DomainError('product_family_required', 422)
                 amount = amount_milli(data.get('quantity'))
                 if amount % 1000:
                     raise DomainError('whole_units_required', 422)
                 from .catalog import identifier
                 food_id = identifier('product-food', row['barcode'])
-                food = {'id': food_id, 'name': {'en': product['name'], 'it': product['name']}, 'group': 'packaged', 'unit': 'pcs', 'ingredient_status': 'unknown', 'allergens': [], 'may_contain': [], 'intolerances': [], 'nutrition': product.get('nutrition'), 'provenance': 'openfoodfacts-unreviewed', 'is_demo': False}
-                # Packaged foods cannot inherit the safety assessment of a generic ingredient.
-                tx.execute('INSERT INTO foods VALUES (?,?) ON CONFLICT DO NOTHING', (food_id, encode(food)))
+                food = {'id': food_id, 'name': {'en': product['name'], 'it': product['name']}, 'group': canonical['group'], 'unit': 'pcs', 'ingredient_status': 'unknown', 'allergens': [], 'may_contain': [], 'intolerances': [], 'nutrition': product.get('nutrition'), 'provenance': 'openfoodfacts-unreviewed', 'is_demo': False}
+                # The package remains an unknown-ingredient entity for safety. The
+                # user-selected canonical food is stored only as semantic/family
+                # metadata and never transfers allergen or medical guarantees.
+                tx.execute('INSERT INTO foods VALUES (?,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data', (food_id, encode(food)))
                 batch_id, stamp = new_id(), now()
                 tx.execute('INSERT INTO inventory_batches VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', (batch_id, home, food_id, amount, 'fridge', None, 'unknown', None, 'barcode-confirmed', 1, stamp, stamp))
-                tx.execute('INSERT INTO inventory_metadata VALUES (?,?,?)', (batch_id, encode({'barcode': row['barcode'], 'product_id': row['id'], 'lot': text(data.get('lot', ''), maximum=100, empty=True), 'ingredients_unreviewed': True}), stamp))
+                tx.execute('INSERT INTO inventory_metadata VALUES (?,?,?)', (batch_id, encode({'barcode': row['barcode'], 'product_id': row['id'], 'canonical_food_id': canonical['id'], 'food_group': canonical['group'], 'lot': text(data.get('lot', ''), maximum=100, empty=True), 'ingredients_unreviewed': True}), stamp))
                 self._event(tx, user_id, home, batch_id, 'created', amount)
                 duplicates = tx.one('SELECT COUNT(*) AS n FROM inventory_batches WHERE household_id=? AND food_id=? AND quantity_milli>0', (home, food_id))['n'] - 1
-                return {'id': batch_id, 'version': 1, 'existing_batches': duplicates, 'assessment': 'unknown_ingredients'}
+                return {'id': batch_id, 'version': 1, 'existing_batches': duplicates, 'assessment': 'unknown_ingredients', 'food_group': canonical['group'], 'canonical_food_id': canonical['id']}
             return self._once(tx, user_id, key, 'product_stock', data, save)
