@@ -122,11 +122,21 @@ class GovernanceService:
                 raise DomainError('invalid_seasonality', 422)
             if value.get('nutrition'):
                 nutrition = value['nutrition']
-                choice(nutrition.get('basis'), {'100g', '100ml'})
+                choice(nutrition.get('basis'), {'100g', '100ml', '1pcs'})
                 self._https(nutrition.get('source_url'))
                 if not isinstance(nutrition.get('values'), dict):
                     raise DomainError('invalid_nutrition', 422)
                 from .validation import decimal
+                if nutrition.get('density_g_per_ml') is not None:
+                    density = decimal(nutrition.get('density_g_per_ml'), maximum=20)
+                    if density <= 0:
+                        raise DomainError('invalid_nutrition', 422)
+                if nutrition.get('grams_per_piece') is not None:
+                    grams = decimal(nutrition.get('grams_per_piece'), maximum=5000)
+                    if grams <= 0:
+                        raise DomainError('invalid_nutrition', 422)
+                if nutrition.get('basis') == '1pcs' and value.get('unit') != 'pcs':
+                    raise DomainError('invalid_nutrition', 422)
                 units = {'energy': 'kcal', 'energy_kj': 'kJ', 'protein': 'g', 'carbohydrates': 'g', 'fat': 'g', 'saturated_fat': 'g', 'sugars': 'g', 'fiber': 'g', 'salt': 'g', 'sodium': 'mg'}
                 for name, nutrient in nutrition['values'].items():
                     if name not in units or not isinstance(nutrient, dict) or nutrient.get('unit') != units[name]:

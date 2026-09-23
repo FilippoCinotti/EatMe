@@ -1032,5 +1032,6 @@
   "curated_culinary_match": "Reviewed culinary alternative",
   "same_food_family": "Similar ingredient · same food family",
   "browse_all_ingredients": "Browse all ingredients",
-  "in_fridge": "In your Fridge"
+  "in_fridge": "In your Fridge",
+  "nutrition_proxy_method": "Calculated from sourced ingredient data; some ingredients use a reviewed proxy. Cooking losses and retention are not modeled."
 }

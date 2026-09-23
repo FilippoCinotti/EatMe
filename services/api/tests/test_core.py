@@ -484,6 +484,78 @@ class EatMeCase(unittest.TestCase):
         self.assertEqual(config["vision_provider"], {"mode": "live", "live_ready": True})
         self.assertNotIn("secret", str(config))
 
+    def test_recipe_nutrition_uses_source_backed_density_and_piece_weights(self):
+        foods = {
+            "milk": {
+                "id": "milk",
+                "unit": "ml",
+                "nutrition": {
+                    "basis": "100g",
+                    "density_g_per_ml": "1.03",
+                    "source_url": "https://fdc.nal.usda.gov/example/milk",
+                    "values": {"energy": {"value": "61", "unit": "kcal"}},
+                },
+            },
+            "egg": {
+                "id": "egg",
+                "unit": "pcs",
+                "nutrition": {
+                    "basis": "100g",
+                    "grams_per_piece": "50",
+                    "source_url": "https://fdc.nal.usda.gov/example/egg",
+                    "values": {"energy": {"value": "143", "unit": "kcal"}},
+                },
+            },
+        }
+        result = self.service.recipe_nutrition(
+            {
+                "servings": 1,
+                "ingredients": [
+                    {"food_id": "milk", "quantity": "100"},
+                    {"food_id": "egg", "quantity": "2"},
+                ],
+            },
+            foods,
+            1,
+        )
+        self.assertEqual(result["totals"]["energy"]["value"], "205.83")
+        self.assertTrue(result["complete"])
+        self.assertEqual(result["basis_conversions"]["milk"], "density_g_per_ml")
+        self.assertEqual(result["basis_conversions"]["egg"], "grams_per_piece")
+
+    def test_recipe_nutrition_does_not_invent_family_averages(self):
+        foods = {
+            "tomato": {
+                "id": "tomato",
+                "unit": "g",
+                "group": "vegetable",
+                "nutrition": None,
+            },
+            "unsourced": {
+                "id": "unsourced",
+                "unit": "g",
+                "group": "vegetable",
+                "nutrition": {
+                    "basis": "100g",
+                    "values": {"energy": {"value": "18", "unit": "kcal"}},
+                },
+            },
+        }
+        result = self.service.recipe_nutrition(
+            {
+                "servings": 1,
+                "ingredients": [
+                    {"food_id": "tomato", "quantity": "100"},
+                    {"food_id": "unsourced", "quantity": "100"},
+                ],
+            },
+            foods,
+            1,
+        )
+        self.assertEqual(result["totals"], {})
+        self.assertEqual(set(result["missing_food_ids"]), {"tomato", "unsourced"})
+        self.assertFalse(result["estimated"])
+
     def test_unsupported_medical_operator_fails_closed(self):
         foods = {f["id"]:f for f in self.service.catalog()["foods"]}
         rule = dict(type="TARGET_MAX",nutrient="sodium",max_value=200,hard_constraint=True,strictness="flexible",diet_id=new_id())

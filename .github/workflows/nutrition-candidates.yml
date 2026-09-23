@@ -1,0 +1,39 @@
+name: Nutrition candidate refresh
+
+on:
+  push:
+    branches:
+      - feat/canonical-nutrition-data
+    paths:
+      - scripts/build_usda_nutrition_candidates.py
+      - data/nutrition/production_targets.json
+      - .github/workflows/nutrition-candidates.yml
+
+permissions:
+  contents: write
+
+jobs:
+  build-candidates:
+    if: "!contains(github.event.head_commit.message, 'chore(nutrition): refresh USDA candidates')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: feat/canonical-nutrition-data
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Build review candidates from official USDA releases
+        run: python scripts/build_usda_nutrition_candidates.py
+      - name: Commit review artifact
+        run: |
+          if [ -z "$(git status --porcelain -- data/nutrition/usda_candidates.generated.json)" ]; then
+            echo "No candidate changes"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/nutrition/usda_candidates.generated.json
+          git commit -m "chore(nutrition): refresh USDA candidates"
+          git pull --rebase origin feat/canonical-nutrition-data
+          git push origin HEAD:feat/canonical-nutrition-data

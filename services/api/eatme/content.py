@@ -16,51 +16,20 @@ from .substitutions import CURATED_SUBSTITUTIONS, conflict_class
 from .validation import choice, integer, new_id, text, valid_uuid
 
 
-_DEFAULT_NUTRITION_BY_GROUP = {
-    # Conservative display fallbacks used only when a canonical ingredient has
-    # no source-backed nutrition record. Values are approximate per 100 g/ml;
-    # they are labelled as estimates in the API/UI and never used for medical
-    # thresholds or compatibility decisions.
-    "vegetable": {"energy": (35, "kcal"), "protein": (2, "g"), "carbohydrates": (6, "g"), "fat": (0.3, "g"), "fiber": (2.5, "g")},
-    "fruit": {"energy": (60, "kcal"), "protein": (0.8, "g"), "carbohydrates": (15, "g"), "fat": (0.3, "g"), "fiber": (2.4, "g")},
-    "grain": {"energy": (350, "kcal"), "protein": (10, "g"), "carbohydrates": (72, "g"), "fat": (2.5, "g"), "fiber": (4, "g")},
-    "legume": {"energy": (130, "kcal"), "protein": (8, "g"), "carbohydrates": (22, "g"), "fat": (1, "g"), "fiber": (7, "g")},
-    "meat": {"energy": (200, "kcal"), "protein": (25, "g"), "carbohydrates": (0, "g"), "fat": (10, "g"), "fiber": (0, "g")},
-    "fish": {"energy": (140, "kcal"), "protein": (22, "g"), "carbohydrates": (0, "g"), "fat": (6, "g"), "fiber": (0, "g")},
-    "dairy": {"energy": (180, "kcal"), "protein": (9, "g"), "carbohydrates": (6, "g"), "fat": (13, "g"), "fiber": (0, "g")},
-    "nuts": {"energy": (590, "kcal"), "protein": (20, "g"), "carbohydrates": (20, "g"), "fat": (50, "g"), "fiber": (9, "g")},
-    "seed": {"energy": (570, "kcal"), "protein": (20, "g"), "carbohydrates": (18, "g"), "fat": (48, "g"), "fiber": (10, "g")},
-    "oil": {"energy": (884, "kcal"), "protein": (0, "g"), "carbohydrates": (0, "g"), "fat": (100, "g"), "fiber": (0, "g")},
-    "mushroom": {"energy": (30, "kcal"), "protein": (3, "g"), "carbohydrates": (4, "g"), "fat": (0.4, "g"), "fiber": (1.5, "g")},
-    "seaweed": {"energy": (45, "kcal"), "protein": (5, "g"), "carbohydrates": (8, "g"), "fat": (0.6, "g"), "fiber": (1, "g")},
-    "herb": {"energy": (45, "kcal"), "protein": (3, "g"), "carbohydrates": (8, "g"), "fat": (0.8, "g"), "fiber": (5, "g")},
-    "spice": {"energy": (250, "kcal"), "protein": (10, "g"), "carbohydrates": (45, "g"), "fat": (8, "g"), "fiber": (20, "g")},
-    "condiment": {"energy": (80, "kcal"), "protein": (2, "g"), "carbohydrates": (15, "g"), "fat": (2, "g"), "fiber": (1, "g")},
-    "sweetener": {"energy": (310, "kcal"), "protein": (0, "g"), "carbohydrates": (78, "g"), "fat": (0, "g"), "fiber": (0, "g")},
-    "honey": {"energy": (304, "kcal"), "protein": (0.3, "g"), "carbohydrates": (82, "g"), "fat": (0, "g"), "fiber": (0.2, "g")},
-    "beverage": {"energy": (40, "kcal"), "protein": (0.5, "g"), "carbohydrates": (9, "g"), "fat": (0.2, "g"), "fiber": (0, "g")},
-}
-_DEFAULT_NUTRITION_PER_PIECE = {
-    "egg": {"energy": (72, "kcal"), "protein": (6.3, "g"), "carbohydrates": (0.4, "g"), "fat": (4.8, "g"), "fiber": (0, "g")},
-}
+def _nutrition_record(food):
+    """Return only source-backed canonical nutrition.
 
-
-def _nutrition_or_default(food):
+    Family averages are intentionally not used: a vegetable/meat/etc. group is
+    too broad to support ingredient-level nutrition without creating false
+    precision. Missing canonical values remain unavailable until curated source
+    data is published.
+    """
     nutrition = food.get("nutrition")
-    if nutrition and nutrition.get("values"):
-        return nutrition, False
-    group = food.get("group")
-    values = _DEFAULT_NUTRITION_PER_PIECE.get(group) if food.get("unit") == "pcs" else _DEFAULT_NUTRITION_BY_GROUP.get(group)
-    if not values:
-        return None, False
-    basis = "1pcs" if food.get("unit") == "pcs" else "100" + food.get("unit", "g")
-    return {
-        "basis": basis,
-        "values": {name: {"value": value, "unit": unit} for name, (value, unit) in values.items()},
-        "source": "eatme-canonical-default-v1",
-        "estimated": True,
-        "method": "canonical_food_family_default",
-    }, True
+    if not nutrition or not nutrition.get("values"):
+        return None
+    if not nutrition.get("source_url"):
+        return None
+    return nutrition
 
 
 class RecipeParser(HTMLParser):
@@ -628,52 +597,93 @@ class ContentService:
             return {"recorded_quantities": recorded, "inventory_event_counts": dict(counts), "cooked_meals": len(sessions), "different_recipes": len({r["recipe_id"] for r in sessions}), "window": "latest_2000_events_and_100_meals", **savings}
 
     def recipe_nutrition(self, recipe, foods, servings):
-        from decimal import Decimal
-        totals, missing, sources, coverage, units = {}, [], {}, {}, {}
+        from decimal import Decimal, InvalidOperation
+        totals, missing, sources, coverage, units, conversions = {}, [], {}, {}, {}, {}
         estimated_food_ids = []
         needed = requirements(recipe, servings)
+
+        def positive(value):
+            try:
+                parsed = Decimal(str(value))
+            except (InvalidOperation, TypeError, ValueError):
+                return None
+            return parsed if parsed.is_finite() and parsed > 0 else None
+
         for food_id, amount in needed.items():
             food = foods[food_id]
-            nutrients, estimated = _nutrition_or_default(food)
-            if not nutrients or not nutrients.get('values'):
+            nutrients = _nutrition_record(food)
+            if not nutrients:
                 missing.append(food_id)
                 continue
+
             basis = nutrients.get("basis")
-            if food["unit"] == "pcs":
-                if basis != "1pcs":
-                    missing.append(food_id)
-                    continue
-                divisor = Decimal(1000)
-            else:
-                if basis != "100" + food["unit"]:
-                    missing.append(food_id)
-                    continue
-                divisor = Decimal(100000)
-            if estimated:
+            unit = food["unit"]
+            basis_amount = None
+            conversion = "direct"
+
+            if unit == "g" and basis == "100g":
+                basis_amount = Decimal(amount)
+            elif unit == "ml" and basis == "100ml":
+                basis_amount = Decimal(amount)
+            elif unit == "ml" and basis == "100g":
+                density = positive(nutrients.get("density_g_per_ml"))
+                if density is not None:
+                    basis_amount = Decimal(amount) * density
+                    conversion = "density_g_per_ml"
+            elif unit == "g" and basis == "100ml":
+                density = positive(nutrients.get("density_g_per_ml"))
+                if density is not None:
+                    basis_amount = Decimal(amount) / density
+                    conversion = "density_g_per_ml"
+            elif unit == "pcs" and basis == "100g":
+                grams = positive(nutrients.get("grams_per_piece"))
+                if grams is not None:
+                    # Recipe quantities are stored in milli-pieces; multiplying
+                    # by grams/piece produces milli-grams.
+                    basis_amount = Decimal(amount) * grams
+                    conversion = "grams_per_piece"
+            elif unit == "pcs" and basis == "1pcs":
+                basis_amount = Decimal(amount)
+                conversion = "per_piece"
+
+            if basis_amount is None:
+                missing.append(food_id)
+                continue
+
+            sources[food_id] = nutrients["source_url"]
+            conversions[food_id] = conversion
+            if nutrients.get("estimated") is True:
                 estimated_food_ids.append(food_id)
-            sources[food_id] = nutrients.get('source_url') or nutrients.get('source')
-            for name, value in nutrients['values'].items():
-                if name in units and units[name] != value['unit']:
-                    raise DomainError('inconsistent_nutrition_units', 409)
-                units[name] = value['unit']
-                totals[name] = totals.get(name, Decimal(0)) + Decimal(str(value['value'])) * Decimal(amount) / divisor
+            divisor = Decimal(1000) if basis == "1pcs" else Decimal(100000)
+            for name, value in nutrients["values"].items():
+                if name in units and units[name] != value["unit"]:
+                    raise DomainError("inconsistent_nutrition_units", 409)
+                units[name] = value["unit"]
+                totals[name] = (
+                    totals.get(name, Decimal(0))
+                    + Decimal(str(value["value"])) * basis_amount / divisor
+                )
                 coverage[name] = coverage.get(name, 0) + 1
+
         return {
-            'totals': {
+            "totals": {
                 name: {
-                    'value': str(amount.quantize(Decimal('0.01'))),
-                    'unit': units[name],
-                    'complete': coverage[name] == len(needed),
+                    "value": str(total.quantize(Decimal("0.01"))),
+                    "unit": units[name],
+                    "complete": coverage[name] == len(needed),
                 }
-                for name, amount in totals.items()
+                for name, total in totals.items()
             },
-            'servings': servings,
-            'complete': bool(totals) and not missing and all(n == len(needed) for n in coverage.values()),
-            'missing_food_ids': missing,
-            'estimated_food_ids': estimated_food_ids,
-            'estimated': bool(estimated_food_ids),
-            'sources': sources,
-            'method': 'ingredient_amounts_with_canonical_defaults_no_cooking_retention_adjustment',
+            "servings": servings,
+            "complete": bool(totals)
+            and not missing
+            and all(count == len(needed) for count in coverage.values()),
+            "missing_food_ids": missing,
+            "estimated_food_ids": estimated_food_ids,
+            "estimated": bool(estimated_food_ids),
+            "sources": sources,
+            "basis_conversions": conversions,
+            "method": "source_backed_ingredient_amounts_no_cooking_retention_adjustment",
         }
 
     def product_stock(self, user_id, data, key):

@@ -650,8 +650,13 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 text: context.t(
                   nutrients.isEmpty
                       ? 'nutrition_unavailable'
+                      : nutrition?['complete'] != true
+                      ? 'partial_nutrition'
+                      : nutrition?['estimated'] == true
+                      ? 'nutrition_proxy_method'
                       : 'nutrition_method',
                 ),
+                warning: nutrients.isNotEmpty && nutrition?['complete'] != true,
               ),
               if (nutrients.isNotEmpty)
                 Text('${nutrition?['servings']} ${context.t('servings')}'),
