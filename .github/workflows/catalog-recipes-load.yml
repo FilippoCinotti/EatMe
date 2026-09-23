@@ -1,0 +1,27 @@
+name: Load verified recipe catalog
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: Write rows to the database (false = dry run)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  load:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'psycopg[binary]>=3.2'
+      - name: Upsert catalog recipes
+        env:
+          CATALOG_DATABASE_URL: ${{ secrets.CATALOG_DATABASE_URL }}
+        run: python scripts/load_verified_recipes.py ${{ inputs.apply && '--apply' || '' }}
