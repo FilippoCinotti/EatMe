@@ -145,7 +145,12 @@ class EatMeIconButton extends StatelessWidget {
 }
 
 class _EatMeIconPainter extends CustomPainter {
-  const _EatMeIconPainter(this.glyph, this.color, this.strokeWidth, this.filled);
+  const _EatMeIconPainter(
+    this.glyph,
+    this.color,
+    this.strokeWidth,
+    this.filled,
+  );
 
   final EatMeGlyph glyph;
   final Color color;
