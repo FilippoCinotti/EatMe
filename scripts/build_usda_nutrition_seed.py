@@ -242,6 +242,19 @@ def sql_literal(value: dict) -> str:
     return json.dumps(value, separators=(",", ":"), ensure_ascii=False).replace("'", "''")
 
 
+def scaled_values(values: dict, factor: Decimal) -> dict:
+    scaled = {}
+    for name, item in values.items():
+        amount = decimal(item.get("value"))
+        if amount is None:
+            continue
+        value = (amount * factor).quantize(Decimal("0.000001")).normalize()
+        scaled[name] = {**item, "value": str(value)}
+        if factor != 1:
+            scaled[name]["basis_converted"] = True
+    return scaled
+
+
 def main():
     mappings = json.loads(MAPPINGS.read_text(encoding="utf-8"))
     approved = [row for row in mappings["mappings"] if row.get("status") == "approved"]
@@ -288,11 +301,14 @@ def main():
             "source_dataset": row["dataset"],
             "source_release": DATASETS[row["dataset"]]["release"],
             "source_id": fdc_id,
+            "source_basis": "100g",
             "match_quality": row.get("match_quality", "reviewed"),
             "reviewed": True,
             "estimated": False,
         }
 
+        # Normalize published values to EatMe's canonical quantity unit so the
+        # data is backward-compatible with deployed recipe calculators.
         unit = row["unit"]
         if unit == "ml":
             density = decimal(row.get("density_g_per_ml"))
@@ -301,7 +317,10 @@ def main():
             if density is None:
                 skipped.append({**row, "reason": "density_required"})
                 continue
+            nutrition["basis"] = "100ml"
+            nutrition["values"] = scaled_values(values, density)
             nutrition["density_g_per_ml"] = str(density)
+            nutrition["conversion_method"] = "usda_portion_density"
         elif unit == "pcs":
             grams = decimal(row.get("grams_per_piece"))
             if grams is None:
@@ -313,7 +332,10 @@ def main():
             if grams is None:
                 skipped.append({**row, "reason": "piece_weight_required"})
                 continue
+            nutrition["basis"] = "1pcs"
+            nutrition["values"] = scaled_values(values, grams / Decimal("100"))
             nutrition["grams_per_piece"] = str(grams)
+            nutrition["conversion_method"] = "usda_portion_piece_weight"
 
         output.append(
             {
