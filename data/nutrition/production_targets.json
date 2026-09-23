@@ -1,0 +1,613 @@
+{
+  "generated_from": "production recipe ingredients",
+  "generated_at": "2026-09-23",
+  "source_project": "EatMe production Supabase",
+  "foods": [
+    {
+      "id": "1e795fc7-2035-553f-ac68-af831bb8185f",
+      "slug": "barbecue-sauce",
+      "group": "condiment",
+      "unit": "g"
+    },
+    {
+      "id": "935bcad5-baaa-54db-a9e7-1c85e5c3691e",
+      "slug": "basil",
+      "group": "herb",
+      "unit": "g"
+    },
+    {
+      "id": "c5e88b23-ce2a-59e8-a924-e781843a9b19",
+      "slug": "bay-leaf",
+      "group": "herb",
+      "unit": "g"
+    },
+    {
+      "id": "2bbaf749-e78a-5536-aba7-206bd00fb0f9",
+      "slug": "beef-bones",
+      "group": "meat",
+      "unit": "g"
+    },
+    {
+      "id": "f5b5789a-a924-532a-afc0-4d197888ca98",
+      "slug": "beef-marrow",
+      "group": "meat",
+      "unit": "g"
+    },
+    {
+      "id": "8f35305e-21c7-5ffc-a4e6-ff2e6fb600aa",
+      "slug": "black-pepper",
+      "group": "spice",
+      "unit": "g"
+    },
+    {
+      "id": "a04341e7-9d93-5482-a85e-a2069a423dbb",
+      "slug": "borlotti-beans",
+      "group": "legume",
+      "unit": "g"
+    },
+    {
+      "id": "31fa72c5-9958-5314-a4e7-a976b819dca7",
+      "slug": "breadcrumbs",
+      "group": "grain",
+      "unit": "g"
+    },
+    {
+      "id": "5050e411-4e4a-5607-ae38-4e1575b30b14",
+      "slug": "brown-sugar",
+      "group": "sweetener",
+      "unit": "g"
+    },
+    {
+      "id": "0bb1cb99-e021-5027-af0b-193103838992",
+      "slug": "butter",
+      "group": "dairy",
+      "unit": "g"
+    },
+    {
+      "id": "52152e89-30a9-5a62-a6ad-5b669eeb8bcd",
+      "slug": "cabbage",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "16ed199f-9cf4-590c-a2bc-639b4d7a6d5b",
+      "slug": "carrot",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "89a7ee78-a27c-548a-a033-89e29839a23a",
+      "slug": "cauliflower",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "d04ce5eb-eae2-5762-a665-867bef5a5655",
+      "slug": "cayenne-pepper",
+      "group": "spice",
+      "unit": "g"
+    },
+    {
+      "id": "6376f2b9-0b74-56b8-a4b1-2eb4042c9ebd",
+      "slug": "celery",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "aaa1fa15-a3ef-5234-a7fe-31aef7aa610f",
+      "slug": "cheddar",
+      "group": "dairy",
+      "unit": "g"
+    },
+    {
+      "id": "584eb680-54dc-5f48-a031-f32863ee092d",
+      "slug": "cherry-tomato",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "37f6566a-7ec3-5793-af41-cd97d3914177",
+      "slug": "chicken",
+      "group": "meat",
+      "unit": "g"
+    },
+    {
+      "id": "a8cc570f-f8d7-5f5a-aae8-d63b3c53d0b4",
+      "slug": "chicken-thigh",
+      "group": "meat",
+      "unit": "g"
+    },
+    {
+      "id": "a90bedd5-2d29-555c-a6e3-1cfdf39d5ea6",
+      "slug": "chili",
+      "group": "spice",
+      "unit": "g"
+    },
+    {
+      "id": "56299e2f-396c-555d-ae70-3eb2a7c86715",
+      "slug": "cinnamon",
+      "group": "spice",
+      "unit": "g"
+    },
+    {
+      "id": "4600c88f-7bfe-5782-ab08-fa63157abcf0",
+      "slug": "coconut-milk",
+      "group": "other",
+      "unit": "ml"
+    },
+    {
+      "id": "9c12a713-3290-5589-ae29-c3fcb2bebc33",
+      "slug": "coriander-seeds",
+      "group": "seed",
+      "unit": "g"
+    },
+    {
+      "id": "28ec7450-565a-5be0-abd6-2b719ffb14b4",
+      "slug": "cumin",
+      "group": "spice",
+      "unit": "g"
+    },
+    {
+      "id": "104e2653-17c0-57a4-a700-2af66ad75c61",
+      "slug": "curry-powder",
+      "group": "spice",
+      "unit": "g"
+    },
+    {
+      "id": "c49413fb-7f1b-5e3f-a5b0-8a53278f9f37",
+      "slug": "ditaloni-rigati",
+      "group": "grain",
+      "unit": "g"
+    },
+    {
+      "id": "0730d8c6-3dc9-5cb6-a18b-cd3d897123b5",
+      "slug": "egg",
+      "group": "egg",
+      "unit": "pcs"
+    },
+    {
+      "id": "e7a96c32-4883-5155-a498-f55aa1fda385",
+      "slug": "egg-yolk",
+      "group": "egg",
+      "unit": "pcs"
+    },
+    {
+      "id": "bc36feca-1669-533d-a77e-8d25c2ba10c8",
+      "slug": "eggplant",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "2c803131-cd9d-59db-af4d-08136e26d1c9",
+      "slug": "flour-00",
+      "group": "grain",
+      "unit": "g"
+    },
+    {
+      "id": "04a2851f-4225-5525-a35d-75ad5bc3ed1e",
+      "slug": "fresh-chili",
+      "group": "vegetable",
+      "unit": "pcs"
+    },
+    {
+      "id": "0f11b6b3-4a3c-50bc-af0c-8e46d5b1c531",
+      "slug": "fresh-coriander",
+      "group": "herb",
+      "unit": "g"
+    },
+    {
+      "id": "4730cedd-af21-57e2-ae62-0eb408b3f19d",
+      "slug": "fresh-pancetta",
+      "group": "meat",
+      "unit": "g"
+    },
+    {
+      "id": "57013b44-87f7-5c23-a002-eaa2ed258813",
+      "slug": "fresh-tomato",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "632d607b-4a02-51a3-aab2-04a6ca328c95",
+      "slug": "garam-masala",
+      "group": "spice",
+      "unit": "g"
+    },
+    {
+      "id": "16f6f33c-83f1-5c93-a2cd-1c08b928109c",
+      "slug": "garlic",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "e5fce8ff-616a-5876-af69-56e13519cdad",
+      "slug": "ginger",
+      "group": "spice",
+      "unit": "g"
+    },
+    {
+      "id": "32bc35aa-ac4c-51f2-a095-d27a674955c7",
+      "slug": "grana-padano",
+      "group": "dairy",
+      "unit": "g"
+    },
+    {
+      "id": "730d507f-0f02-5868-a0e4-feb0502c48a0",
+      "slug": "greek-yogurt",
+      "group": "dairy",
+      "unit": "g"
+    },
+    {
+      "id": "a3022204-f286-5517-ac3b-247c2536a76f",
+      "slug": "green-beans",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "632d2793-e35e-56c5-a51a-5450f0cf9105",
+      "slug": "green-olives",
+      "group": "condiment",
+      "unit": "g"
+    },
+    {
+      "id": "c71ff90c-c8c5-5205-a9f4-f0f3d785187c",
+      "slug": "ground-beef",
+      "group": "meat",
+      "unit": "g"
+    },
+    {
+      "id": "45c56a24-3723-5988-a40e-25d9907050d0",
+      "slug": "guanciale",
+      "group": "meat",
+      "unit": "g"
+    },
+    {
+      "id": "aba3c4c0-7442-5629-a31f-1545719a951e",
+      "slug": "heavy-cream",
+      "group": "dairy",
+      "unit": "ml"
+    },
+    {
+      "id": "ed248504-174b-56f0-a4db-facc5a045ea6",
+      "slug": "jalapeno-pepper",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "fc0e9f01-79b4-5382-a3e2-90ba9357f3fe",
+      "slug": "jasmine-rice",
+      "group": "grain",
+      "unit": "g"
+    },
+    {
+      "id": "fc82950d-c87a-5723-aeee-6b08dfa4e62c",
+      "slug": "kidney-bean",
+      "group": "legume",
+      "unit": "g"
+    },
+    {
+      "id": "d1da8afc-780f-594a-a0b6-febbc32c321b",
+      "slug": "lamb",
+      "group": "meat",
+      "unit": "g"
+    },
+    {
+      "id": "2f0795d9-0b2d-5a88-a47e-8e492e057c10",
+      "slug": "lard",
+      "group": "meat",
+      "unit": "g"
+    },
+    {
+      "id": "34358b90-d189-5cc5-ac52-2f38eabc4eec",
+      "slug": "leek",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "dca8bc49-90d3-564e-a689-deb6b13af39a",
+      "slug": "lime",
+      "group": "fruit",
+      "unit": "g"
+    },
+    {
+      "id": "637d422b-aa01-5d35-af5d-19bc947ae3d0",
+      "slug": "mayonnaise",
+      "group": "condiment",
+      "unit": "g"
+    },
+    {
+      "id": "b1c7f67c-3001-5f6f-a7a0-590e5204a039",
+      "slug": "milk",
+      "group": "dairy",
+      "unit": "ml"
+    },
+    {
+      "id": "d7e783b5-80ed-52ad-a019-955e4c556710",
+      "slug": "mozzarella",
+      "group": "dairy",
+      "unit": "g"
+    },
+    {
+      "id": "99c1e897-1f2a-50c5-a83d-51b123bdcabf",
+      "slug": "nutmeg",
+      "group": "spice",
+      "unit": "g"
+    },
+    {
+      "id": "9709109c-0eb7-57cc-aae3-36e1b259bb72",
+      "slug": "olive-oil",
+      "group": "oil",
+      "unit": "ml"
+    },
+    {
+      "id": "d159f797-7c4e-5378-a3ba-196b210b46b4",
+      "slug": "onion",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "2e018438-1763-5f06-aea3-2c8a8990a89c",
+      "slug": "oregano",
+      "group": "herb",
+      "unit": "g"
+    },
+    {
+      "id": "9fb9e018-189a-5fb1-a6fa-8008ec0a2b7b",
+      "slug": "paprika",
+      "group": "spice",
+      "unit": "g"
+    },
+    {
+      "id": "7e2f61db-c34d-5a39-ad2f-8a7b9e7e8f3d",
+      "slug": "parmesan",
+      "group": "dairy",
+      "unit": "g"
+    },
+    {
+      "id": "28179306-f609-5f1c-a263-c38a9792f3d8",
+      "slug": "parsley",
+      "group": "herb",
+      "unit": "g"
+    },
+    {
+      "id": "308f35cc-ce0f-5e31-a6cf-f4d0dbd583cd",
+      "slug": "pasta",
+      "group": "grain",
+      "unit": "g"
+    },
+    {
+      "id": "2649714a-ddbf-5783-a6a9-6190ec6dda2a",
+      "slug": "peas",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "600a9f6d-6e8b-5c0f-a190-9cd3974ddb63",
+      "slug": "pecorino-romano",
+      "group": "dairy",
+      "unit": "g"
+    },
+    {
+      "id": "845e4871-6b31-553c-a87f-19c97bfe937e",
+      "slug": "peeled-tomatoes",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "b5494596-5c99-5367-aaf2-b14c7b2417b0",
+      "slug": "plain-yogurt",
+      "group": "dairy",
+      "unit": "g"
+    },
+    {
+      "id": "571ca290-7621-5567-ad90-fd2cefaca1d9",
+      "slug": "potato",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "d1c0eba2-bd49-5a09-a2c9-4bc19cf72b62",
+      "slug": "prosciutto",
+      "group": "meat",
+      "unit": "g"
+    },
+    {
+      "id": "f66701f6-328c-5006-a0ed-e2e817a2727b",
+      "slug": "pumpkin",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "8a0ee796-c15b-55b6-a279-7cf1484dc997",
+      "slug": "red-bell-pepper",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "2163e4ec-4679-5dfb-aff6-9ba1b0cbc331",
+      "slug": "red-onion",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "e5f6ea41-7259-54b8-a918-4172719c6ddf",
+      "slug": "red-wine",
+      "group": "beverage",
+      "unit": "ml"
+    },
+    {
+      "id": "d27698e7-4b9c-5947-aac4-264b47d1c042",
+      "slug": "rice",
+      "group": "grain",
+      "unit": "g"
+    },
+    {
+      "id": "a4d60618-8c0e-5d4c-ad37-1f7633fd5c7c",
+      "slug": "ricotta-salata",
+      "group": "dairy",
+      "unit": "g"
+    },
+    {
+      "id": "4c4b8ff7-43d6-5f70-adda-159b08260c98",
+      "slug": "rosemary",
+      "group": "herb",
+      "unit": "g"
+    },
+    {
+      "id": "577b3849-b47c-5fdc-a538-25fbc942a119",
+      "slug": "saffron",
+      "group": "spice",
+      "unit": "g"
+    },
+    {
+      "id": "2d1ba0ca-ef09-5de9-a1f4-8bc21b76bb26",
+      "slug": "salmon",
+      "group": "fish",
+      "unit": "g"
+    },
+    {
+      "id": "25eb320c-8b39-5ed9-aaaa-f0759e4e332b",
+      "slug": "sausage",
+      "group": "meat",
+      "unit": "g"
+    },
+    {
+      "id": "dd6ffd84-20e0-5dc2-a982-1fcd6135791c",
+      "slug": "semolina",
+      "group": "grain",
+      "unit": "g"
+    },
+    {
+      "id": "c96c080e-a681-50b1-a220-ce326d72e992",
+      "slug": "smoked-paprika",
+      "group": "spice",
+      "unit": "g"
+    },
+    {
+      "id": "0b7633ec-6146-55ef-af7c-17cd54f41bc6",
+      "slug": "sour-cream",
+      "group": "dairy",
+      "unit": "g"
+    },
+    {
+      "id": "b1c548c5-f040-5a40-ab1a-7f95e67bcc1a",
+      "slug": "soy-sauce",
+      "group": "condiment",
+      "unit": "ml"
+    },
+    {
+      "id": "810c7339-83a6-537a-abe9-192c02f6656d",
+      "slug": "spaghetti",
+      "group": "grain",
+      "unit": "g"
+    },
+    {
+      "id": "335b053a-ada0-5fc4-a827-5e0c280d5a52",
+      "slug": "spinach",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "13d9bbd5-21ac-5b87-afda-61d83c16ff99",
+      "slug": "spring-onion",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "268de1e3-7d10-5373-ad15-fd75ec817f63",
+      "slug": "stale-bread",
+      "group": "grain",
+      "unit": "g"
+    },
+    {
+      "id": "0751ebdf-09f9-55c0-ab03-6a1d0f2a9c3b",
+      "slug": "sunflower-oil",
+      "group": "oil",
+      "unit": "ml"
+    },
+    {
+      "id": "29bf5b03-2993-523b-ab73-e04a6266664f",
+      "slug": "thyme",
+      "group": "herb",
+      "unit": "g"
+    },
+    {
+      "id": "06314515-1893-5547-a92b-8d46eacbe042",
+      "slug": "tomato-passata",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "2d347a7a-9324-5faf-aff2-9fde25272e51",
+      "slug": "tomato-paste",
+      "group": "condiment",
+      "unit": "g"
+    },
+    {
+      "id": "eb68fbff-96c2-53f3-a2bb-6d69672c1827",
+      "slug": "tortilla",
+      "group": "grain",
+      "unit": "g"
+    },
+    {
+      "id": "0b6adda5-6182-5326-ad96-95bdd72e798c",
+      "slug": "turmeric",
+      "group": "spice",
+      "unit": "g"
+    },
+    {
+      "id": "67fd6158-66df-536e-a067-6b560b530056",
+      "slug": "vegetable-broth",
+      "group": "other",
+      "unit": "ml"
+    },
+    {
+      "id": "273f8126-5787-5146-a776-b23005ac9ace",
+      "slug": "water",
+      "group": "other",
+      "unit": "ml"
+    },
+    {
+      "id": "90f6534a-2e41-5093-a7b2-98caf634970d",
+      "slug": "wheat-flour",
+      "group": "grain",
+      "unit": "g"
+    },
+    {
+      "id": "9e62e9f9-bef3-5ef7-a7b8-8d504cfbd611",
+      "slug": "white-onion",
+      "group": "vegetable",
+      "unit": "g"
+    },
+    {
+      "id": "e4f7bb4b-157b-5ec9-aa44-c7f0c4bcbb7d",
+      "slug": "white-sugar",
+      "group": "sweetener",
+      "unit": "g"
+    },
+    {
+      "id": "ca62e428-5fd5-5895-a82d-277add65dca9",
+      "slug": "white-wine",
+      "group": "beverage",
+      "unit": "ml"
+    },
+    {
+      "id": "f814bf4c-cad6-5e56-a111-5b241e87b1f3",
+      "slug": "white-wine-vinegar",
+      "group": "condiment",
+      "unit": "ml"
+    },
+    {
+      "id": "e494dee8-f0a7-5fc9-acc9-397cbbcdcc9b",
+      "slug": "worcestershire-sauce",
+      "group": "condiment",
+      "unit": "ml"
+    },
+    {
+      "id": "85c10915-ddb7-5db8-ae2f-32cc47cb7b95",
+      "slug": "zucchini",
+      "group": "vegetable",
+      "unit": "g"
+    }
+  ]
+}
