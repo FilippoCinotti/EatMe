@@ -113,6 +113,12 @@ class Router:
         resource = route.removeprefix("/api/v1")
         if resource=="/media" and method=="POST":
             return self.service.media_upload(user_id,body)
+        match = re.fullmatch(r"/api/v1/media/([a-f0-9-]{36})", route)
+        if match and method=="GET":
+            return self.service.media(user_id, match[1])
+        match = re.fullmatch(r"/api/v1/avatars/([a-f0-9-]{36})", route)
+        if match and method=="GET":
+            return self.service.avatar(user_id, match[1])
         media_match = re.fullmatch(r"/media/([a-f0-9-]{36})", resource)
         if media_match and method=="GET":
             return self.service.media_preview(user_id, media_match[1])
