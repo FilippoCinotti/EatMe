@@ -227,6 +227,7 @@ class DetectionReviewPage extends ConsumerStatefulWidget {
 
 class _DetectionState extends ConsumerState<DetectionReviewPage> {
   late List<Json> items;
+  Future<Json>? preview;
   final mutation = Mutation();
   @override
   void initState() {
@@ -234,6 +235,10 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
     items = records(
       widget.job['result']['items'],
     ).map((i) => {...i, 'confirmed': false}).toList();
+    final mediaId = widget.job['media_id'] as String?;
+    if (mediaId != null) {
+      preview = ref.read(apiProvider).request('GET', '/media/$mediaId');
+    }
   }
 
   @override
@@ -244,6 +249,28 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
       body: PageBody(
         children: [
           StatusNote(text: context.t('scan_review_notice')),
+          if (preview != null) ...[
+            FutureBuilder<Json>(
+              future: preview,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const SizedBox.shrink();
+                final encoded = snapshot.data!['base64'] as String?;
+                if (encoded == null || encoded.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Image.memory(
+                    base64Decode(encoded),
+                    height: 220,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
           for (final item in items)
             Card(
               key: ObjectKey(item),
@@ -331,10 +358,38 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                       title: Text(
                         context.t('confirm_identification_and_family'),
                       ),
+                      subtitle: item['food_id'] == null
+                          ? Text(context.t('choose_food_before_confirming'))
+                          : null,
                       value: item['confirmed'] == true,
-                      onChanged: item['food_id'] == null
-                          ? null
-                          : (v) => setState(() => item['confirmed'] = v),
+                      onChanged: (v) async {
+                        if (v != true) {
+                          if (mounted) {
+                            setState(() => item['confirmed'] = false);
+                          }
+                          return;
+                        }
+                        if (item['food_id'] == null) {
+                          final food = await chooseFood(
+                            context,
+                            foods
+                                .where(
+                                  (food) => food.group != 'packaged',
+                                )
+                                .toList(),
+                          );
+                          if (food == null || !mounted) return;
+                          setState(() {
+                            item['food_id'] = food.id;
+                            item['unit'] = food.unit;
+                            item['confirmed'] = true;
+                          });
+                          return;
+                        }
+                        if (mounted) {
+                          setState(() => item['confirmed'] = true);
+                        }
+                      },
                     ),
                   ],
                 ),
