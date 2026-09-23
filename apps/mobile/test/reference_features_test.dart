@@ -152,14 +152,14 @@ void main() {
         'result': {
           'items': [
             {
-              'food_id': visual.tomato.id,
+              'food_id': 'tomato',
               'name': 'First item',
               'quantity': '100',
               'unit': 'g',
               'confidence': 0.8,
             },
             {
-              'food_id': visual.tomato.id,
+              'food_id': 'tomato',
               'name': 'Second item',
               'quantity': '250',
               'unit': 'g',
