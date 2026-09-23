@@ -373,9 +373,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                           final food = await chooseFood(
                             context,
                             foods
-                                .where(
-                                  (food) => food.group != 'packaged',
-                                )
+                                .where((food) => food.group != 'packaged')
                                 .toList(),
                           );
                           if (food == null || !mounted) return;
