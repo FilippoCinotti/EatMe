@@ -31,5 +31,9 @@
   "turn_off_guilty_pleasure": "Guilty Pleasure deaktivieren",
   "turn_off": "Deaktivieren",
   "make_guilty_pleasure": "Als Guilty Pleasure markieren",
-  "view_guilty_pleasure_context": "Guilty-Pleasure-Kontext anzeigen"
+  "view_guilty_pleasure_context": "Guilty-Pleasure-Kontext anzeigen",
+  "confirm_identification_and_family": "Ich habe Lebensmittel, Menge und Lebensmittelgruppe geprüft",
+  "classify_product": "Produkt zuordnen",
+  "product_family_required": "Wähle das passende Lebensmittel, damit EatMe das Produkt vor dem Hinzufügen einer Lebensmittelgruppe zuordnet.",
+  "map_product_to_food": "Zuordnen und Packung hinzufügen"
 }
