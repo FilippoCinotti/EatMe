@@ -278,14 +278,22 @@ class IntelligenceService:
             return {'items': items}
 
     def media_preview(self, user_id, media_id):
+        media_id = valid_uuid(media_id)
         with self.db.transaction() as tx:
-            self._profile(tx, user_id)
-            media = tx.one(
-                'SELECT * FROM media_objects WHERE id=? AND user_id=?',
-                (valid_uuid(media_id), user_id),
-            )
+            requester = self._profile(tx, user_id)
+            media = tx.one('SELECT * FROM media_objects WHERE id=?', (media_id,))
             if not media or (media['expires_at'] and media['expires_at'] < now()):
                 raise DomainError('media_expired', 409)
+            if media['user_id'] != user_id:
+                owner = tx.one('SELECT household_id,settings FROM profiles WHERE user_id=?', (media['user_id'],))
+                owner_settings = decode(owner['settings']) if owner else {}
+                if (
+                    media['kind'] != 'avatar'
+                    or not owner
+                    or owner['household_id'] != requester['household_id']
+                    or owner_settings.get('avatar_media_id') != media_id
+                ):
+                    raise DomainError('forbidden', 403)
         raw = PrivateMedia().read(media['storage_key'])
         return {
             'base64': base64.b64encode(raw).decode(),
