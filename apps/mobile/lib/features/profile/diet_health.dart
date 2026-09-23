@@ -177,9 +177,8 @@ class DietHealthPage extends ConsumerWidget {
                       ),
                     if ((settings['never_suggest'] as List? ?? const []).isNotEmpty)
                       StatusBadge(
-                        label: context.t('selected_count', {
-                          'count': (settings['never_suggest'] as List).length,
-                        }),
+                        label:
+                            '${context.t('excluded_foods')} · ${(settings['never_suggest'] as List).length}',
                         icon: EatMeGlyph.triangleAlert,
                       ),
                   ],
