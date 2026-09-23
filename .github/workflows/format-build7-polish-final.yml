@@ -1,0 +1,43 @@
+name: One-shot format build 7 polish final
+
+on:
+  push:
+    branches:
+      - fix/build7-diets-avatar
+    paths:
+      - .github/workflows/format-build7-polish-final.yml
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: fix/build7-diets-avatar
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.2'
+          cache: true
+      - name: Format final Dart sources
+        run: |
+          dart format \
+            apps/mobile/lib/design_system/widgets.dart \
+            apps/mobile/lib/design_system/theme.dart \
+            apps/mobile/lib/features/organize/dinners.dart \
+            apps/mobile/lib/features/organize/scanning.dart \
+            apps/mobile/test/reference_features_test.dart
+      - name: Commit formatter output
+        run: |
+          if git diff --quiet -- apps/mobile; then
+            echo "No formatter changes required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/mobile
+          git commit -m "style: apply final Dart formatter"
+          git push origin HEAD:fix/build7-diets-avatar
