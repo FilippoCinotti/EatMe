@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/api.dart';
@@ -236,15 +237,10 @@ Future<List<String>?> chooseDiners(
                           ),
                           child: Row(
                             children: [
-                              CircleAvatar(
-                                radius: 22,
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.surface,
-                                child: Text(
-                                  initials.isEmpty ? '•' : initials,
-                                  style: Theme.of(context).textTheme.labelLarge,
-                                ),
+                              _MemberAvatar(
+                                api: api,
+                                mediaId: member['avatar_media_id'] as String?,
+                                initials: initials,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -321,4 +317,43 @@ Future<List<String>?> chooseDiners(
       ),
     ),
   );
+}
+
+
+class _MemberAvatar extends StatelessWidget {
+  const _MemberAvatar({
+    required this.api,
+    required this.mediaId,
+    required this.initials,
+  });
+  final EatMeApi api;
+  final String? mediaId, initials;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget fallback() => CircleAvatar(
+      radius: 22,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      child: Text(
+        (initials == null || initials!.isEmpty) ? '•' : initials!,
+        style: Theme.of(context).textTheme.labelLarge,
+      ),
+    );
+    if (mediaId == null) return fallback();
+    return FutureBuilder<Json>(
+      future: api.request('GET', '/media/$mediaId'),
+      builder: (context, snapshot) {
+        final encoded = snapshot.data?['base64'] as String?;
+        if (encoded == null) return fallback();
+        return ClipOval(
+          child: Image.memory(
+            base64Decode(encoded),
+            width: 44,
+            height: 44,
+            fit: BoxFit.cover,
+          ),
+        );
+      },
+    );
+  }
 }
