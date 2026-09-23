@@ -142,6 +142,36 @@ class Service(
             row["household_size"] = tx.one("SELECT size FROM households WHERE id=?",(row["household_id"],))["size"]
             return {"onboarded":True,**row}
 
+    def profile_avatar(self, user_id: str, data: dict, key: str):
+        with self.db.transaction() as tx:
+            def save():
+                profile = self._profile(tx, user_id)
+                expected = data.get("expected_version")
+                if expected != profile["version"]:
+                    raise DomainError("stale_profile", 409)
+                media_id = data.get("media_id")
+                if media_id is not None:
+                    media_id = valid_uuid(media_id)
+                    media = tx.one(
+                        "SELECT id FROM media_objects WHERE id=? AND user_id=? AND kind='avatar'",
+                        (media_id, user_id),
+                    )
+                    if not media:
+                        raise DomainError("invalid_avatar", 422)
+                settings = profile["settings"]
+                if media_id is None:
+                    settings.pop("avatar_media_id", None)
+                else:
+                    settings["avatar_media_id"] = media_id
+                changed = tx.execute(
+                    "UPDATE profiles SET settings=?,version=version+1 WHERE user_id=? AND version=?",
+                    (encode(settings), user_id, profile["version"]),
+                )
+                if changed.rowcount != 1:
+                    raise DomainError("stale_profile", 409)
+                return {"avatar_media_id": media_id, "version": profile["version"] + 1}
+            return self._once(tx, user_id, key, "profile_avatar", data, save)
+
     def _once(self, tx, user_id, key, name, body, action):
         key = valid_uuid(key)
         if tx.postgres:
