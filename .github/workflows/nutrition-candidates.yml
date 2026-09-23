@@ -27,7 +27,7 @@ jobs:
         run: python scripts/build_usda_nutrition_candidates.py
       - name: Commit review artifact
         run: |
-          if git diff --quiet -- data/nutrition/usda_candidates.generated.json; then
+          if [ -z "$(git status --porcelain -- data/nutrition/usda_candidates.generated.json)" ]; then
             echo "No candidate changes"
             exit 0
           fi
