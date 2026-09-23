@@ -77,6 +77,22 @@ class EatMeCase(unittest.TestCase):
         self.assertEqual(export["profile"]["settings"]["allergies"],[])
         self.assertTrue(all(c["withdrawn_at"] for c in export["consents"]))
 
+    def test_profile_avatar_persists_media_reference(self):
+        media_id = new_id()
+        with self.db.transaction() as tx:
+            tx.execute(
+                "INSERT INTO media_objects VALUES (?,?,?,?,?,?,?,?)",
+                (media_id, self.user, "avatar", media_id, "image/jpeg", 1, "2026-09-10T00:00:00+00:00", None),
+            )
+        profile = self.service.get_profile(self.user)
+        result = self.service.profile_avatar(
+            self.user,
+            {"media_id": media_id, "expected_version": profile["version"]},
+            new_id(),
+        )
+        self.assertEqual(result["avatar_media_id"], media_id)
+        self.assertEqual(self.service.get_profile(self.user)["settings"]["avatar_media_id"], media_id)
+
     def test_supported_profiles_are_directly_selectable(self):
         diets = {diet["slug"]: diet for diet in self.service.catalog()["diets"]}
         for slug in ["omnivore", "mediterranean", "vegetarian", "vegan", "pescatarian", "flexitarian", "plant-forward", "low-carb", "low-fat", "high-protein", "whole-food", "gluten-free", "celiac", "rad"]:
