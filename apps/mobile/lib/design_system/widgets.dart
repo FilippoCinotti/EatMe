@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../core/api.dart';
 import '../core/localization.dart';
 import '../core/models.dart';
@@ -43,9 +44,8 @@ class _AsyncActionState extends State<AsyncAction> {
             : error is AuthException
             ? 'authentication_failed'
             : 'unknown_error';
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.t(code))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.t(code))));
       }
     } finally {
       if (mounted) setState(() => busy = false);
@@ -68,9 +68,9 @@ class _AsyncActionState extends State<AsyncAction> {
         ? OutlinedButton(
             style: widget.destructive
                 ? OutlinedButton.styleFrom(
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.errorContainer,
+                    backgroundColor: Theme.of(context)
+                        .colorScheme
+                        .errorContainer,
                     foregroundColor: Theme.of(context).colorScheme.error,
                   )
                 : null,
@@ -285,8 +285,7 @@ Future<void> sheet(BuildContext context, Widget child) =>
 
 String expiryLabel(BuildContext context, Batch batch) {
   if (batch.expiryDate == null) return context.t('date_unknown');
-  final date = MaterialLocalizations.of(
-    context,
-  ).formatCompactDate(batch.expiryDate!);
+  final date = MaterialLocalizations.of(context)
+      .formatCompactDate(batch.expiryDate!);
   return context.t(batch.expiryKind, {'date': date});
 }

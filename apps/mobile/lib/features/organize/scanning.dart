@@ -360,7 +360,9 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                           : (value) => setState(
                               () => item['confirmed'] = value == true,
                             ),
-                      title: Text(context.t('confirm_identification_and_family')),
+                      title: Text(
+                        context.t('confirm_identification_and_family'),
+                      ),
                       controlAffinity: ListTileControlAffinity.leading,
                     ),
                     if (item['food_id'] == null)
