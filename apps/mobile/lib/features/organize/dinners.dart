@@ -413,6 +413,7 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
     final selected = List<String>.from(event?['menu'] as List? ?? const []);
     final result = await showModalBottomSheet<List<String>>(
       context: context,
+      useRootNavigator: true,
       useSafeArea: true,
       isScrollControlled: true,
       builder: (context) => StatefulBuilder(
