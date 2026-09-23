@@ -29,13 +29,138 @@ class _RecipePageState extends ConsumerState<RecipePage> {
   Json rawRecipe = {};
   final mutation = Mutation();
   List<String>? participants;
+  List<Json> selectedDiners = [];
   Future<void> toggleFavorite() async {
-    await mutation.send(ref.read(apiProvider), 'POST', '/recipes', {
-      'action': 'favorite',
-      'recipe_id': widget.recipeId,
-      'enabled': !favorite,
-    });
-    if (mounted) setState(() => favorite = !favorite);
+    final next = !favorite;
+    setState(() => favorite = next);
+    try {
+      await mutation.send(ref.read(apiProvider), 'POST', '/recipes', {
+        'action': 'favorite',
+        'recipe_id': widget.recipeId,
+        'enabled': next,
+      });
+    } catch (_) {
+      if (mounted) setState(() => favorite = !next);
+      rethrow;
+    }
+  }
+
+  Future<Food?> chooseReplacement(Recipe recipe, Food original) async {
+    final response = await mutation
+        .send(ref.read(apiProvider), 'POST', '/recipes', {
+          'action': 'substitution_candidates',
+          'recipe_id': recipe.id,
+          'food_id': original.id,
+        });
+    if (!mounted) return null;
+    final candidates = records(response['candidates']);
+    final allFoods = ref
+        .read(appProvider)
+        .foods
+        .where((food) => food.id != original.id && food.group != 'packaged')
+        .toList();
+    return showModalBottomSheet<Food>(
+      context: context,
+      useRootNavigator: true,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => SizedBox(
+        height: MediaQuery.sizeOf(sheetContext).height * .72,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+          children: [
+            Text(
+              context.t('suggested_substitutions'),
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              context.t('suggested_substitutions_body', {
+                'food': localized(original.name, context.language),
+              }),
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            if (candidates.isEmpty)
+              StatusNote(text: context.t('no_suggested_substitutions')),
+            for (final candidate in candidates)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Material(
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(20),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: () => Navigator.pop(
+                      sheetContext,
+                      Food.fromJson(
+                        Map<String, dynamic>.from(candidate['food'] as Map),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          FoodImage(
+                            id: '${candidate['food']['id']}',
+                            imageUrl:
+                                '${candidate['food']['image_url'] ?? candidate['food']['thumbnail_url'] ?? ''}',
+                            width: 50,
+                            height: 50,
+                            radius: 15,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  localized(
+                                    Map<String, dynamic>.from(
+                                      candidate['food']['name'] as Map,
+                                    ),
+                                    context.language,
+                                  ),
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium,
+                                ),
+                                Text(
+                                  context.t(
+                                    candidate['source'] == 'curated'
+                                        ? 'curated_culinary_match'
+                                        : 'same_food_family',
+                                  ),
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (candidate['at_home'] == true)
+                            StatusBadge(
+                              label: context.t('in_fridge'),
+                              icon: EatMeGlyph.refrigerator,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            const SizedBox(height: 8),
+            OutlinedButton(
+              onPressed: () async {
+                final food = await chooseFood(sheetContext, allFoods);
+                if (food != null && sheetContext.mounted) {
+                  Navigator.pop(sheetContext, food);
+                }
+              },
+              child: Text(context.t('browse_all_ingredients')),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<(Recipe, Json)> load() async {
@@ -157,6 +282,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                   right: 14,
                   child: EatMeIconButton(
                     glyph: EatMeGlyph.heart,
+                    filled: favorite,
                     label: context.t(favorite ? 'remove_favorite' : 'favorite'),
                     foregroundColor: favorite
                         ? Theme.of(context).colorScheme.primary
@@ -364,24 +490,39 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             AsyncAction(
               label: context.t('who_is_eating'),
               secondary: true,
               action: () async {
-                final value = await chooseDiners(
-                  context,
-                  ref.read(apiProvider),
-                  participants,
-                );
+                final api = ref.read(apiProvider);
+                final value = await chooseDiners(context, api, participants);
                 if (value != null && mounted) {
+                  final home = await api.request('GET', '/households');
+                  if (!mounted) return;
+                  final members = records(home['members']);
                   setState(() {
                     participants = value;
+                    selectedDiners = members
+                        .where((member) => value.contains(member['user_id']))
+                        .toList();
                     future = load();
                   });
                 }
               },
             ),
+            if (selectedDiners.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  for (final diner in selectedDiners)
+                    _DinerChip(name: diner['name'] as String? ?? ''),
+                ],
+              ),
+            ],
+            const SizedBox(height: 24),
             EatMeTabStrip(
               values: [
                 for (final value in [
@@ -627,11 +768,20 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                           .toList(),
                     );
                     if (original == null || !context.mounted) return;
-                    final replacement = await chooseFood(context, foods);
+                    final replacement = await chooseReplacement(
+                      recipe,
+                      original,
+                    );
                     if (replacement == null || !context.mounted) return;
+                    final originalIngredient = recipe.ingredients
+                        .where((item) => item['food_id'] == original.id)
+                        .firstOrNull;
                     final amount = await askText(
                       context,
                       '${context.t('quantity')} (${replacement.unit})',
+                      initial: replacement.unit == original.unit
+                          ? '${originalIngredient?['quantity'] ?? ''}'
+                          : '',
                       numeric: true,
                     );
                     if (amount == null) return;
@@ -715,4 +865,42 @@ class _RecipePageState extends ConsumerState<RecipePage> {
       },
     ),
   );
+}
+
+class _DinerChip extends StatelessWidget {
+  const _DinerChip({required this.name});
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    final trimmed = name.trim();
+    final initials = trimmed
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .take(2)
+        .map((part) => part.substring(0, 1).toUpperCase())
+        .join();
+    return Container(
+      padding: const EdgeInsets.fromLTRB(8, 6, 12, 6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            radius: 16,
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            child: Text(
+              initials.isEmpty ? '•' : initials,
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(trimmed, style: Theme.of(context).textTheme.labelLarge),
+        ],
+      ),
+    );
+  }
 }

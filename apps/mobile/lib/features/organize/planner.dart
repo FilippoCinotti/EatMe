@@ -114,6 +114,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
 
   Future<Json?> chooseRecipe() => showModalBottomSheet<Json>(
     context: context,
+    useRootNavigator: true,
     useSafeArea: true,
     builder: (context) => ListView(
       children: [

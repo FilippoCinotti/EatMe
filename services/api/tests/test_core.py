@@ -323,6 +323,61 @@ class EatMeCase(unittest.TestCase):
         )
         self.assertTrue(any(item["matched_inventory_count"] >= 1 for item in items))
 
+    def test_unmapped_packaged_product_requires_user_family_classification(self):
+        product_id = new_id()
+        barcode = "9876543210123"
+        with self.db.transaction() as tx:
+            tx.execute(
+                "INSERT INTO food_products VALUES (?,?,?,?,?,?)",
+                (
+                    product_id,
+                    barcode,
+                    None,
+                    encode({"name": "Jarred chickpeas", "nutrition": None}),
+                    1,
+                    "2026-09-10T00:00:00+00:00",
+                ),
+            )
+        self.assertCode(
+            "product_family_required",
+            lambda: self.service.product_stock(
+                self.user,
+                {"product_id": product_id, "quantity": "1", "package_checked": True},
+                new_id(),
+            ),
+        )
+        canonical = identifier("food", "chickpea")
+        result = self.service.product_stock(
+            self.user,
+            {
+                "product_id": product_id,
+                "food_id": canonical,
+                "quantity": "1",
+                "package_checked": True,
+            },
+            new_id(),
+        )
+        self.assertEqual(result["food_group"], "legume")
+        self.assertEqual(result["canonical_food_id"], canonical)
+        with self.db.transaction() as tx:
+            product = tx.one("SELECT food_id FROM food_products WHERE id=?", (product_id,))
+            self.assertIsNone(product["food_id"])
+            metadata = decode(
+                tx.one("SELECT data FROM inventory_metadata WHERE batch_id=?", (result["id"],))["data"]
+            )
+            stored_food = decode(
+                tx.one(
+                    "SELECT f.data FROM foods f JOIN inventory_batches b ON b.food_id=f.id WHERE b.id=?",
+                    (result["id"],),
+                )["data"]
+            )
+        self.assertEqual(metadata["canonical_food_id"], canonical)
+        self.assertEqual(metadata["food_group"], "legume")
+        self.assertEqual(stored_food["group"], "packaged")
+        self.assertEqual(stored_food["ingredient_status"], "unknown")
+        items = self.service.recommendations(self.user, "for_you")["items"]
+        self.assertTrue(any(item["matched_inventory_count"] >= 1 for item in items))
+
     def test_explanations_match_recorded_scores(self):
         self.prepare_bowl()
         result = self.service.recommendations(self.user)

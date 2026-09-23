@@ -109,10 +109,20 @@ class Router:
                    "/leftovers":self.service.leftover_action, "/recipes":self.service.recipe_action,
                    "/jobs":self.service.job_action, "/notifications":self.service.notification_action,
                    "/admin/content":self.service.admin_action, "/reports":self.service.report,
-                   "/inventory/metadata":self.service.inventory_metadata, "/products/stock":self.service.product_stock}
+                   "/inventory/metadata":self.service.inventory_metadata, "/products/stock":self.service.product_stock,
+                   "/profile/avatar":self.service.profile_avatar}
         resource = route.removeprefix("/api/v1")
         if resource=="/media" and method=="POST":
             return self.service.media_upload(user_id,body)
+        match = re.fullmatch(r"/api/v1/media/([a-f0-9-]{36})", route)
+        if match and method=="GET":
+            return self.service.media(user_id, match[1])
+        match = re.fullmatch(r"/api/v1/avatars/([a-f0-9-]{36})", route)
+        if match and method=="GET":
+            return self.service.avatar(user_id, match[1])
+        media_match = re.fullmatch(r"/media/([a-f0-9-]{36})", resource)
+        if media_match and method=="GET":
+            return self.service.media_preview(user_id, media_match[1])
         if resource=="/recipes/import-url" and method=="POST":
             self.limiter.check("recipe-import:"+user_id,12)
             return self.service.import_url(user_id,body)

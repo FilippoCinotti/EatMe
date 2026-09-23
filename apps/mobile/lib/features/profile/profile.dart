@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/localization.dart';
 import '../../core/api.dart';
@@ -52,29 +53,10 @@ class ProfilePage extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    Container(
-                      width: 58,
-                      height: 58,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: initials.isEmpty
-                          ? EatMeIcon(
-                              EatMeGlyph.userRound,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                              size: 26,
-                            )
-                          : Text(
-                              initials,
-                              style: Theme.of(context).textTheme.titleLarge
-                                  ?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onPrimary,
-                                  ),
-                            ),
+                    _ProfileAvatar(
+                      name: name,
+                      initials: initials,
+                      mediaId: settings['avatar_media_id'] as String?,
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -437,4 +419,127 @@ class PrivacyPage extends ConsumerWidget {
       ],
     ),
   );
+}
+
+class _ProfileAvatar extends ConsumerStatefulWidget {
+  const _ProfileAvatar({
+    required this.name,
+    required this.initials,
+    required this.mediaId,
+  });
+  final String name, initials;
+  final String? mediaId;
+
+  @override
+  ConsumerState<_ProfileAvatar> createState() => _ProfileAvatarState();
+}
+
+class _ProfileAvatarState extends ConsumerState<_ProfileAvatar> {
+  bool busy = false;
+
+  Future<void> pick() async {
+    if (busy) return;
+    final file = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 88,
+    );
+    if (file == null || !mounted) return;
+    setState(() => busy = true);
+    try {
+      final bytes = await file.readAsBytes();
+      final api = ref.read(apiProvider);
+      final media = await api.request(
+        'POST',
+        '/media',
+        body: {'kind': 'avatar', 'base64': base64Encode(bytes)},
+      );
+      final profile = ref.read(appProvider).profile;
+      await Mutation().send(api, 'POST', '/profile/avatar', {
+        'media_id': media['id'],
+        'expected_version': profile['version'],
+      });
+      await ref.read(appProvider.notifier).hydrate();
+    } on ApiFailure catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.t(error.code))));
+      }
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final fallback = Container(
+      width: 58,
+      height: 58,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primary,
+        shape: BoxShape.circle,
+      ),
+      child: widget.initials.isEmpty
+          ? EatMeIcon(
+              EatMeGlyph.userRound,
+              color: Theme.of(context).colorScheme.onPrimary,
+              size: 26,
+            )
+          : Text(
+              widget.initials,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+            ),
+    );
+    return Semantics(
+      button: true,
+      label: context.t('change_profile_photo'),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: busy ? null : pick,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            if (widget.mediaId == null)
+              fallback
+            else
+              FutureBuilder<Json>(
+                future: ref
+                    .read(apiProvider)
+                    .request('GET', '/media/${widget.mediaId}'),
+                builder: (context, snapshot) {
+                  final encoded = snapshot.data?['base64'] as String?;
+                  if (encoded == null) return fallback;
+                  return ClipOval(
+                    child: Image.memory(
+                      base64Decode(encoded),
+                      width: 58,
+                      height: 58,
+                      fit: BoxFit.cover,
+                    ),
+                  );
+                },
+              ),
+            Positioned(
+              right: -4,
+              bottom: -4,
+              child: CircleAvatar(
+                radius: 11,
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                child: EatMeIcon(
+                  EatMeGlyph.camera,
+                  size: 13,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

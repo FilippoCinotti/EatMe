@@ -41,6 +41,7 @@ class _RecipeFavoriteState extends ConsumerState<RecipeFavorite> {
         final favorite = value['favorite'] == true;
         return EatMeIconButton(
           glyph: EatMeGlyph.heart,
+          filled: favorite,
           label: context.t(favorite ? 'remove_favorite' : 'add_favorite'),
           foregroundColor: favorite
               ? Theme.of(context).colorScheme.primary

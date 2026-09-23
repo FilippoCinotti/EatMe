@@ -49,6 +49,7 @@ jobs:
       - run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/202609110004_identity.sql
       - run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/202609170005_dinners.sql
       - run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/202609190006_security_hardening.sql
+      - run: psql -v ON_ERROR_STOP=1 -f supabase/migrations/202609230001_builtin_diet_profiles.sql
       - run: psql -v ON_ERROR_STOP=1 -f supabase/tests/rls.sql
       - uses: actions/setup-python@v7
         with: {python-version: '3.12'}

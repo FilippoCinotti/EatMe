@@ -227,6 +227,7 @@ class DetectionReviewPage extends ConsumerStatefulWidget {
 
 class _DetectionState extends ConsumerState<DetectionReviewPage> {
   late List<Json> items;
+  Future<Json>? preview;
   final mutation = Mutation();
   @override
   void initState() {
@@ -234,6 +235,10 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
     items = records(
       widget.job['result']['items'],
     ).map((i) => {...i, 'confirmed': false}).toList();
+    final mediaId = widget.job['media_id'] as String?;
+    if (mediaId != null) {
+      preview = ref.read(apiProvider).request('GET', '/media/$mediaId');
+    }
   }
 
   @override
@@ -244,6 +249,28 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
       body: PageBody(
         children: [
           StatusNote(text: context.t('scan_review_notice')),
+          if (preview != null) ...[
+            FutureBuilder<Json>(
+              future: preview,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const SizedBox.shrink();
+                final encoded = snapshot.data!['base64'] as String?;
+                if (encoded == null || encoded.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Image.memory(
+                    base64Decode(encoded),
+                    height: 220,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
           for (final item in items)
             Card(
               key: ObjectKey(item),
@@ -267,7 +294,12 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                     ),
                     OutlinedButton(
                       onPressed: () async {
-                        final food = await chooseFood(context, foods);
+                        final food = await chooseFood(
+                          context,
+                          foods
+                              .where((food) => food.group != 'packaged')
+                              .toList(),
+                        );
                         if (food != null && mounted) {
                           setState(() {
                             item['food_id'] = food.id;
@@ -279,7 +311,10 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                       child: Text(
                         foods
                                 .where((f) => f.id == item['food_id'])
-                                .map((f) => localized(f.name, context.language))
+                                .map(
+                                  (f) =>
+                                      '${localized(f.name, context.language)} · ${context.t('food_group_${f.group}')}',
+                                )
                                 .firstOrNull ??
                             context.t('choose_food'),
                       ),
@@ -320,11 +355,39 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                       },
                     ),
                     CheckboxListTile(
-                      title: Text(context.t('confirm_identification')),
+                      title: Text(
+                        context.t('confirm_identification_and_family'),
+                      ),
+                      subtitle: item['food_id'] == null
+                          ? Text(context.t('choose_food_before_confirming'))
+                          : null,
                       value: item['confirmed'] == true,
-                      onChanged: item['food_id'] == null
-                          ? null
-                          : (v) => setState(() => item['confirmed'] = v),
+                      onChanged: (v) async {
+                        if (v != true) {
+                          if (mounted) {
+                            setState(() => item['confirmed'] = false);
+                          }
+                          return;
+                        }
+                        if (item['food_id'] == null) {
+                          final food = await chooseFood(
+                            context,
+                            foods
+                                .where((food) => food.group != 'packaged')
+                                .toList(),
+                          );
+                          if (food == null || !mounted) return;
+                          setState(() {
+                            item['food_id'] = food.id;
+                            item['unit'] = food.unit;
+                            item['confirmed'] = true;
+                          });
+                          return;
+                        }
+                        if (mounted) {
+                          setState(() => item['confirmed'] = true);
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -363,6 +426,7 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
   final code = TextEditingController();
   bool busy = false;
   Json? product;
+  Food? classification;
   String? error;
   @override
   void dispose() {
@@ -382,7 +446,18 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
       final result = await ref
           .read(apiProvider)
           .request('GET', '/products/${Uri.encodeComponent(value)}');
-      if (mounted && context.mounted) setState(() => product = result);
+      final mappedId = result['mapped_food_id'] as String?;
+      final mappedFood = ref
+          .read(appProvider)
+          .foods
+          .where((food) => food.id == mappedId && food.group != 'packaged')
+          .firstOrNull;
+      if (mounted && context.mounted) {
+        setState(() {
+          product = result;
+          classification = mappedFood;
+        });
+      }
     } on ApiFailure catch (e) {
       if (mounted && context.mounted) setState(() => error = e.code);
     } finally {
@@ -424,6 +499,7 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
               action: () async {
                 setState(() {
                   product = null;
+                  classification = null;
                   error = null;
                 });
                 await controller.start();
@@ -461,8 +537,34 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
             '${product!['nutrition']['basis']} · ${product!['attribution']}',
           ),
           const SizedBox(height: 16),
+          OutlinedButton(
+            onPressed: () async {
+              final food = await chooseFood(
+                context,
+                ref
+                    .read(appProvider)
+                    .foods
+                    .where((item) => item.group != 'packaged')
+                    .toList(),
+              );
+              if (food != null && mounted) {
+                setState(() => classification = food);
+              }
+            },
+            child: Text(
+              classification == null
+                  ? context.t('classify_product')
+                  : '${localized(classification!.name, context.language)} · ${context.t('food_group_${classification!.group}')}',
+            ),
+          ),
+          if (classification == null)
+            StatusNote(
+              text: context.t('product_family_required'),
+              warning: true,
+            ),
           AsyncAction(
             label: context.t('map_product_to_food'),
+            enabled: classification != null,
             action: () async {
               final amount = await askText(
                 context,
@@ -474,6 +576,7 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
               await Mutation()
                   .send(ref.read(apiProvider), 'POST', '/products/stock', {
                     'product_id': product!['id'],
+                    'food_id': classification!.id,
                     'quantity': amount,
                     'package_checked': true,
                   });

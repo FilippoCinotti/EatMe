@@ -16,6 +16,53 @@ from .substitutions import CURATED_SUBSTITUTIONS, conflict_class
 from .validation import choice, integer, new_id, text, valid_uuid
 
 
+_DEFAULT_NUTRITION_BY_GROUP = {
+    # Conservative display fallbacks used only when a canonical ingredient has
+    # no source-backed nutrition record. Values are approximate per 100 g/ml;
+    # they are labelled as estimates in the API/UI and never used for medical
+    # thresholds or compatibility decisions.
+    "vegetable": {"energy": (35, "kcal"), "protein": (2, "g"), "carbohydrates": (6, "g"), "fat": (0.3, "g"), "fiber": (2.5, "g")},
+    "fruit": {"energy": (60, "kcal"), "protein": (0.8, "g"), "carbohydrates": (15, "g"), "fat": (0.3, "g"), "fiber": (2.4, "g")},
+    "grain": {"energy": (350, "kcal"), "protein": (10, "g"), "carbohydrates": (72, "g"), "fat": (2.5, "g"), "fiber": (4, "g")},
+    "legume": {"energy": (130, "kcal"), "protein": (8, "g"), "carbohydrates": (22, "g"), "fat": (1, "g"), "fiber": (7, "g")},
+    "meat": {"energy": (200, "kcal"), "protein": (25, "g"), "carbohydrates": (0, "g"), "fat": (10, "g"), "fiber": (0, "g")},
+    "fish": {"energy": (140, "kcal"), "protein": (22, "g"), "carbohydrates": (0, "g"), "fat": (6, "g"), "fiber": (0, "g")},
+    "dairy": {"energy": (180, "kcal"), "protein": (9, "g"), "carbohydrates": (6, "g"), "fat": (13, "g"), "fiber": (0, "g")},
+    "nuts": {"energy": (590, "kcal"), "protein": (20, "g"), "carbohydrates": (20, "g"), "fat": (50, "g"), "fiber": (9, "g")},
+    "seed": {"energy": (570, "kcal"), "protein": (20, "g"), "carbohydrates": (18, "g"), "fat": (48, "g"), "fiber": (10, "g")},
+    "oil": {"energy": (884, "kcal"), "protein": (0, "g"), "carbohydrates": (0, "g"), "fat": (100, "g"), "fiber": (0, "g")},
+    "mushroom": {"energy": (30, "kcal"), "protein": (3, "g"), "carbohydrates": (4, "g"), "fat": (0.4, "g"), "fiber": (1.5, "g")},
+    "seaweed": {"energy": (45, "kcal"), "protein": (5, "g"), "carbohydrates": (8, "g"), "fat": (0.6, "g"), "fiber": (1, "g")},
+    "herb": {"energy": (45, "kcal"), "protein": (3, "g"), "carbohydrates": (8, "g"), "fat": (0.8, "g"), "fiber": (5, "g")},
+    "spice": {"energy": (250, "kcal"), "protein": (10, "g"), "carbohydrates": (45, "g"), "fat": (8, "g"), "fiber": (20, "g")},
+    "condiment": {"energy": (80, "kcal"), "protein": (2, "g"), "carbohydrates": (15, "g"), "fat": (2, "g"), "fiber": (1, "g")},
+    "sweetener": {"energy": (310, "kcal"), "protein": (0, "g"), "carbohydrates": (78, "g"), "fat": (0, "g"), "fiber": (0, "g")},
+    "honey": {"energy": (304, "kcal"), "protein": (0.3, "g"), "carbohydrates": (82, "g"), "fat": (0, "g"), "fiber": (0.2, "g")},
+    "beverage": {"energy": (40, "kcal"), "protein": (0.5, "g"), "carbohydrates": (9, "g"), "fat": (0.2, "g"), "fiber": (0, "g")},
+}
+_DEFAULT_NUTRITION_PER_PIECE = {
+    "egg": {"energy": (72, "kcal"), "protein": (6.3, "g"), "carbohydrates": (0.4, "g"), "fat": (4.8, "g"), "fiber": (0, "g")},
+}
+
+
+def _nutrition_or_default(food):
+    nutrition = food.get("nutrition")
+    if nutrition and nutrition.get("values"):
+        return nutrition, False
+    group = food.get("group")
+    values = _DEFAULT_NUTRITION_PER_PIECE.get(group) if food.get("unit") == "pcs" else _DEFAULT_NUTRITION_BY_GROUP.get(group)
+    if not values:
+        return None, False
+    basis = "1pcs" if food.get("unit") == "pcs" else "100" + food.get("unit", "g")
+    return {
+        "basis": basis,
+        "values": {name: {"value": value, "unit": unit} for name, (value, unit) in values.items()},
+        "source": "eatme-canonical-default-v1",
+        "estimated": True,
+        "method": "canonical_food_family_default",
+    }, True
+
+
 class RecipeParser(HTMLParser):
     def __init__(self):
         super().__init__()
@@ -238,7 +285,7 @@ class ContentService:
                 action = data.get("action")
                 recipe_id = data.get("recipe_id")
                 recipe = next((r for r in recipes if r["id"] == recipe_id), None)
-                if action in {"favorite", "feedback", "substitute", "delete"} and not recipe:
+                if action in {"favorite", "feedback", "substitute", "substitution_candidates", "delete"} and not recipe:
                     raise DomainError("recipe_not_found", 404)
                 if action == "favorite":
                     if type(data.get("enabled")) is not bool:
@@ -265,6 +312,56 @@ class ContentService:
                     tx.execute("DELETE FROM content_ownership WHERE kind='recipe' AND content_id=?", (recipe_id,))
                     tx.execute("DELETE FROM recipes WHERE id=?", (recipe_id,))
                     return {"deleted": True}
+                if action == "substitution_candidates":
+                    original_id = valid_uuid(data.get("food_id"))
+                    original = foods.get(original_id)
+                    if not original or original_id not in {i["food_id"] for i in recipe["ingredients"]}:
+                        raise DomainError("invalid_substitution", 422)
+                    home = self._household(user_id)
+                    inventory = self._inventory(tx, home)
+                    available = {}
+                    for batch in inventory:
+                        if batch_usable(batch, self.today(profile["settings"])):
+                            canonical_id = batch.get("canonical_food_id") or batch["food_id"]
+                            available[canonical_id] = available.get(canonical_id, 0) + batch["quantity_milli"]
+                    by_slug = {food.get("slug"): food for food in foods.values() if food.get("slug")}
+                    candidates, seen = [], set()
+
+                    def add_candidate(food, role, source):
+                        if (
+                            not food
+                            or food["id"] == original_id
+                            or food["id"] in seen
+                            or food.get("group") == "packaged"
+                            or food.get("ingredient_status") != "known"
+                            or compatibility([food["id"]], foods, profile["settings"], rules)["reasons"]
+                        ):
+                            return
+                        seen.add(food["id"])
+                        candidates.append({
+                            "food": food,
+                            "role": role,
+                            "source": source,
+                            "at_home": available.get(food["id"], 0) > 0,
+                            "available": quantity(available.get(food["id"], 0)),
+                        })
+
+                    for candidate in CURATED_SUBSTITUTIONS.get(original.get("slug"), []):
+                        add_candidate(by_slug.get(candidate["slug"]), candidate["role"], "curated")
+                    peers = sorted(
+                        (
+                            food
+                            for food in foods.values()
+                            if food.get("group") == original.get("group")
+                            and food.get("unit") == original.get("unit")
+                        ),
+                        key=lambda food: (0 if available.get(food["id"], 0) > 0 else 1, food.get("slug", food["id"])),
+                    )
+                    for food in peers:
+                        add_candidate(food, "same_food_family", "family")
+                        if len(candidates) >= 8:
+                            break
+                    return {"original": original, "candidates": candidates[:8]}
                 if action == "substitute":
                     original, replacement = valid_uuid(data.get("food_id")), valid_uuid(data.get("replacement_id"))
                     if replacement not in foods or original not in {i["food_id"] for i in recipe["ingredients"]}:
@@ -505,12 +602,13 @@ class ContentService:
         with self.db.transaction() as tx:
             existing = tx.one("SELECT * FROM food_products WHERE barcode=?", (code,))
             if existing and existing["updated_at"] > (datetime.now(timezone.utc) - timedelta(days=7)).isoformat():
-                return {**decode(existing["data"]), "id": existing["id"]}
+                return {**decode(existing["data"]), "id": existing["id"], "mapped_food_id": existing["food_id"]}
         value = (getattr(self, "product_provider", None) or OpenFoodFacts()).lookup(code)
         with self.db.transaction() as tx:
             identifier = existing["id"] if existing else new_id()
             tx.execute("INSERT INTO food_products VALUES (?,?,NULL,?,1,?) ON CONFLICT(barcode) DO UPDATE SET data=excluded.data,updated_at=excluded.updated_at,version=food_products.version+1", (identifier, code, encode(value), now()))
-            return {**value, "id": identifier}
+            mapped = existing["food_id"] if existing else None
+            return {**value, "id": identifier, "mapped_food_id": mapped}
 
     def insights(self, user_id):
         home = self._household(user_id)
@@ -532,21 +630,51 @@ class ContentService:
     def recipe_nutrition(self, recipe, foods, servings):
         from decimal import Decimal
         totals, missing, sources, coverage, units = {}, [], {}, {}, {}
+        estimated_food_ids = []
         needed = requirements(recipe, servings)
         for food_id, amount in needed.items():
             food = foods[food_id]
-            nutrients = food.get("nutrition")
-            if not nutrients or not nutrients.get('values') or food["unit"] == "pcs" or nutrients.get("basis") != "100" + food["unit"]:
+            nutrients, estimated = _nutrition_or_default(food)
+            if not nutrients or not nutrients.get('values'):
                 missing.append(food_id)
                 continue
-            sources[food_id] = nutrients.get('source_url')
+            basis = nutrients.get("basis")
+            if food["unit"] == "pcs":
+                if basis != "1pcs":
+                    missing.append(food_id)
+                    continue
+                divisor = Decimal(1000)
+            else:
+                if basis != "100" + food["unit"]:
+                    missing.append(food_id)
+                    continue
+                divisor = Decimal(100000)
+            if estimated:
+                estimated_food_ids.append(food_id)
+            sources[food_id] = nutrients.get('source_url') or nutrients.get('source')
             for name, value in nutrients['values'].items():
                 if name in units and units[name] != value['unit']:
                     raise DomainError('inconsistent_nutrition_units', 409)
                 units[name] = value['unit']
-                totals[name] = totals.get(name, Decimal(0)) + Decimal(str(value['value'])) * amount / 100000
+                totals[name] = totals.get(name, Decimal(0)) + Decimal(str(value['value'])) * Decimal(amount) / divisor
                 coverage[name] = coverage.get(name, 0) + 1
-        return {'totals': {name: {'value': str(amount.quantize(Decimal('0.01'))), 'unit': units[name], 'complete': coverage[name] == len(needed)} for name, amount in totals.items()}, 'servings': servings, 'complete': bool(totals) and not missing and all(n == len(needed) for n in coverage.values()), 'missing_food_ids': missing, 'sources': sources, 'method': 'ingredient_amounts_no_cooking_retention_adjustment'}
+        return {
+            'totals': {
+                name: {
+                    'value': str(amount.quantize(Decimal('0.01'))),
+                    'unit': units[name],
+                    'complete': coverage[name] == len(needed),
+                }
+                for name, amount in totals.items()
+            },
+            'servings': servings,
+            'complete': bool(totals) and not missing and all(n == len(needed) for n in coverage.values()),
+            'missing_food_ids': missing,
+            'estimated_food_ids': estimated_food_ids,
+            'estimated': bool(estimated_food_ids),
+            'sources': sources,
+            'method': 'ingredient_amounts_with_canonical_defaults_no_cooking_retention_adjustment',
+        }
 
     def product_stock(self, user_id, data, key):
         home = self._household(user_id, write=True)
@@ -559,18 +687,26 @@ class ContentService:
                 if data.get('package_checked') is not True:
                     raise DomainError('package_confirmation_required', 422)
                 product = decode(row['data'])
+                foods = self._catalog(tx, user_id)[0]
+                selected_food_id = data.get('food_id') or row['food_id']
+                canonical = foods.get(valid_uuid(selected_food_id)) if selected_food_id else None
+                if not canonical or canonical.get('group') == 'packaged':
+                    raise DomainError('product_family_required', 422)
                 amount = amount_milli(data.get('quantity'))
                 if amount % 1000:
                     raise DomainError('whole_units_required', 422)
                 from .catalog import identifier
                 food_id = identifier('product-food', row['barcode'])
                 food = {'id': food_id, 'name': {'en': product['name'], 'it': product['name']}, 'group': 'packaged', 'unit': 'pcs', 'ingredient_status': 'unknown', 'allergens': [], 'may_contain': [], 'intolerances': [], 'nutrition': product.get('nutrition'), 'provenance': 'openfoodfacts-unreviewed', 'is_demo': False}
-                # Packaged foods cannot inherit the safety assessment of a generic ingredient.
-                tx.execute('INSERT INTO foods VALUES (?,?) ON CONFLICT DO NOTHING', (food_id, encode(food)))
+                # The shared package entity remains deliberately unclassified for
+                # safety. The user-selected canonical food and family are stored
+                # on this inventory batch only, so one household cannot change
+                # another household's semantic classification.
+                tx.execute('INSERT INTO foods VALUES (?,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data', (food_id, encode(food)))
                 batch_id, stamp = new_id(), now()
                 tx.execute('INSERT INTO inventory_batches VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', (batch_id, home, food_id, amount, 'fridge', None, 'unknown', None, 'barcode-confirmed', 1, stamp, stamp))
-                tx.execute('INSERT INTO inventory_metadata VALUES (?,?,?)', (batch_id, encode({'barcode': row['barcode'], 'product_id': row['id'], 'lot': text(data.get('lot', ''), maximum=100, empty=True), 'ingredients_unreviewed': True}), stamp))
+                tx.execute('INSERT INTO inventory_metadata VALUES (?,?,?)', (batch_id, encode({'barcode': row['barcode'], 'product_id': row['id'], 'canonical_food_id': canonical['id'], 'food_group': canonical['group'], 'lot': text(data.get('lot', ''), maximum=100, empty=True), 'ingredients_unreviewed': True}), stamp))
                 self._event(tx, user_id, home, batch_id, 'created', amount)
                 duplicates = tx.one('SELECT COUNT(*) AS n FROM inventory_batches WHERE household_id=? AND food_id=? AND quantity_milli>0', (home, food_id))['n'] - 1
-                return {'id': batch_id, 'version': 1, 'existing_batches': duplicates, 'assessment': 'unknown_ingredients'}
+                return {'id': batch_id, 'version': 1, 'existing_batches': duplicates, 'assessment': 'unknown_ingredients', 'food_group': canonical['group'], 'canonical_food_id': canonical['id']}
             return self._once(tx, user_id, key, 'product_stock', data, save)

@@ -142,6 +142,36 @@ class Service(
             row["household_size"] = tx.one("SELECT size FROM households WHERE id=?",(row["household_id"],))["size"]
             return {"onboarded":True,**row}
 
+    def profile_avatar(self, user_id: str, data: dict, key: str):
+        with self.db.transaction() as tx:
+            def save():
+                profile = self._profile(tx, user_id)
+                expected = data.get("expected_version")
+                if expected != profile["version"]:
+                    raise DomainError("stale_profile", 409)
+                media_id = data.get("media_id")
+                if media_id is not None:
+                    media_id = valid_uuid(media_id)
+                    media = tx.one(
+                        "SELECT id FROM media_objects WHERE id=? AND user_id=? AND kind='avatar'",
+                        (media_id, user_id),
+                    )
+                    if not media:
+                        raise DomainError("invalid_avatar", 422)
+                settings = profile["settings"]
+                if media_id is None:
+                    settings.pop("avatar_media_id", None)
+                else:
+                    settings["avatar_media_id"] = media_id
+                changed = tx.execute(
+                    "UPDATE profiles SET settings=?,version=version+1 WHERE user_id=? AND version=?",
+                    (encode(settings), user_id, profile["version"]),
+                )
+                if changed.rowcount != 1:
+                    raise DomainError("stale_profile", 409)
+                return {"avatar_media_id": media_id, "version": profile["version"] + 1}
+            return self._once(tx, user_id, key, "profile_avatar", data, save)
+
     def _once(self, tx, user_id, key, name, body, action):
         key = valid_uuid(key)
         if tx.postgres:
@@ -259,6 +289,17 @@ class Service(
                 never = data.get("never_suggest",[])
                 if not isinstance(never,list) or any(f not in foods for f in never):
                     raise DomainError("invalid_food",422)
+                existing = tx.one("SELECT * FROM profiles WHERE user_id=?",(user_id,))
+                previous_settings = decode(existing["settings"]) if existing else {}
+                avatar_id = data.get("avatar_id") if "avatar_id" in data else previous_settings.get("avatar_id")
+                if avatar_id is not None:
+                    avatar_id = valid_uuid(avatar_id)
+                    avatar = tx.one(
+                        "SELECT 1 FROM media_objects WHERE id=? AND user_id=? AND kind='avatar'",
+                        (avatar_id, user_id),
+                    )
+                    if not avatar:
+                        raise DomainError("invalid_avatar", 422)
                 settings = {"diets":assignments,"allergies":sorted(set(allergies)),"intolerances":sorted(set(intolerances)),
                             "sensitivities":sorted(set(sensitivities)),"medical_awareness":sorted(set(medical_awareness)),
                             "ethical_preferences":sorted(set(ethical_preferences)),"trace_policy":trace_policy,
@@ -266,7 +307,8 @@ class Service(
                             "never_suggest":never,"timezone":timezone,"adult_confirmed":True,
                             "primary_goal":primary_goal,"primary_diet":primary_diet,
                             "unknown_ingredient_policy":unknown_policy}
-                existing = tx.one("SELECT * FROM profiles WHERE user_id=?",(user_id,))
+                if avatar_id is not None:
+                    settings["avatar_id"] = avatar_id
                 stamp = now()
                 if existing:
                     if data.get("expected_version") != existing["version"]:
@@ -397,8 +439,9 @@ class Service(
                 for row in tx.all("SELECT id,food_id FROM food_products WHERE food_id IS NOT NULL")
             }
             for batch in inventory:
-                product_id = batch.get("metadata", {}).get("product_id")
-                canonical_food_id = product_mappings.get(product_id)
+                metadata = batch.get("metadata", {})
+                product_id = metadata.get("product_id")
+                canonical_food_id = metadata.get("canonical_food_id") or product_mappings.get(product_id)
                 if canonical_food_id in foods:
                     batch["canonical_food_id"] = canonical_food_id
             if food_id:

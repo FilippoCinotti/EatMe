@@ -25,7 +25,10 @@ class HouseholdService:
         with self.db.transaction() as tx:
             profile = self._profile(tx, user_id)
             homes = tx.all("SELECT h.*,m.role,s.name FROM households h JOIN household_members m ON m.household_id=h.id LEFT JOIN household_settings s ON s.household_id=h.id WHERE m.user_id=?", (user_id,))
-            members = tx.all("SELECT m.user_id,m.role,p.name,COALESCE(c.share_constraints,0) AS share_constraints FROM household_members m JOIN profiles p ON p.user_id=m.user_id LEFT JOIN member_permissions c ON c.user_id=m.user_id AND c.household_id=m.household_id WHERE m.household_id=?", (profile["household_id"],))
+            members = tx.all("SELECT m.user_id,m.role,p.name,p.settings,COALESCE(c.share_constraints,0) AS share_constraints FROM household_members m JOIN profiles p ON p.user_id=m.user_id LEFT JOIN member_permissions c ON c.user_id=m.user_id AND c.household_id=m.household_id WHERE m.household_id=?", (profile["household_id"],))
+            for member in members:
+                settings = decode(member.pop("settings"))
+                member["avatar_media_id"] = settings.get("avatar_media_id")
             owner = any(h['id'] == profile['household_id'] and h['role'] == 'owner' for h in homes)
             invitations = tx.all("SELECT id,role,expires_at FROM household_invitations WHERE household_id=? AND accepted_at IS NULL AND revoked_at IS NULL AND expires_at>? ORDER BY created_at DESC LIMIT 100", (profile['household_id'], now())) if owner else []
             return {"items": homes, "current_id": profile["household_id"], "members": members, "invitations": invitations, "consent_version": SHARING_CONSENT}

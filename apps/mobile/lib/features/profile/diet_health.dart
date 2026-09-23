@@ -301,6 +301,7 @@ class _DietHealthPageState extends ConsumerState<_DietHealthEditorPage> {
   Future<void> chooseStrictness(Diet diet) async {
     final selected = await showModalBottomSheet<String>(
       context: context,
+      useRootNavigator: true,
       useSafeArea: true,
       builder: (context) => Padding(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),

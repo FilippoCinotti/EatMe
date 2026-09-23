@@ -260,6 +260,7 @@ class StatusNote extends StatelessWidget {
 Future<void> sheet(BuildContext context, Widget child) =>
     showModalBottomSheet<void>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       useSafeArea: true,
       builder: (context) => Padding(

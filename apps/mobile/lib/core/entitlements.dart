@@ -72,6 +72,7 @@ Future<void> showContextualPlusPrompt(
 }) async {
   await showModalBottomSheet<void>(
     context: context,
+    useRootNavigator: true,
     useSafeArea: true,
     builder: (sheetContext) => RepaintBoundary(
       key: const ValueKey('contextual-plus-boundary'),

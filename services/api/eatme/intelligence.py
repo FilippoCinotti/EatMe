@@ -173,7 +173,7 @@ class OpenAIProvider:
         if not key or not model:
             raise DomainError('ai_provider_not_configured', 503)
         schema = RECIPE_SCHEMA if kind == 'recipe' else SCAN_SCHEMA
-        content = [{'type': 'text', 'text': encode({'task': kind, 'user_text': payload.get('text', ''), 'catalog': [{'id': f['id'], 'name': f['name'], 'unit': f['unit']} for f in foods.values()]})}]
+        content = [{'type': 'text', 'text': encode({'task': kind, 'user_text': payload.get('text', ''), 'catalog': [{'id': f['id'], 'name': f['name'], 'unit': f['unit'], 'group': f['group']} for f in foods.values() if f.get('group') != 'packaged']})}]
         if image:
             content.append({'type': 'image_url', 'image_url': {'url': 'data:image/jpeg;base64,' + base64.b64encode(image).decode()}})
         request = {'model': model, 'store': False, 'max_completion_tokens': 6000, 'messages': [{'role': 'system', 'content': PROMPT}, {'role': 'user', 'content': content}], 'response_format': {'type': 'json_schema', 'json_schema': {'name': 'eatme_' + kind, 'strict': True, 'schema': schema}}}
@@ -221,10 +221,84 @@ class IntelligenceService:
             raise
         return {'id': identifier, 'mime_type': 'image/jpeg'}
 
+    def media(self, user_id, media_id):
+        self._household(user_id)
+        identifier = valid_uuid(media_id)
+        with self.db.transaction() as tx:
+            media = tx.one(
+                'SELECT * FROM media_objects WHERE id=? AND user_id=?',
+                (identifier, user_id),
+            )
+            if not media:
+                raise DomainError('media_not_found', 404)
+            if media['expires_at'] and media['expires_at'] < now():
+                raise DomainError('media_expired', 409)
+        return {
+            'base64': base64.b64encode(PrivateMedia().read(media['storage_key'])).decode(),
+            'mime_type': media['mime_type'],
+        }
+
+    def avatar(self, user_id, target_user_id):
+        home = self._household(user_id)
+        target = valid_uuid(target_user_id)
+        with self.db.transaction() as tx:
+            linked = tx.one(
+                'SELECT p.settings FROM household_members m JOIN profiles p ON p.user_id=m.user_id '
+                'WHERE m.household_id=? AND m.user_id=?',
+                (home, target),
+            )
+            if not linked:
+                raise DomainError('forbidden', 403)
+            avatar_id = decode(linked['settings']).get('avatar_id')
+            if not avatar_id:
+                return {'base64': None, 'mime_type': None}
+            media = tx.one(
+                "SELECT * FROM media_objects WHERE id=? AND user_id=? AND kind='avatar'",
+                (avatar_id, target),
+            )
+            if not media:
+                return {'base64': None, 'mime_type': None}
+        return {
+            'base64': base64.b64encode(PrivateMedia().read(media['storage_key'])).decode(),
+            'mime_type': media['mime_type'],
+        }
+
     def jobs(self, user_id):
         with self.db.transaction() as tx:
             self._profile(tx, user_id)
-            return {'items': [{**r, 'result': decode(r['result']) if r['result'] else None} for r in tx.all('SELECT id,kind,status,progress,result,error_code,created_at,completed_at,confirmed_at,version FROM processing_jobs WHERE user_id=? ORDER BY created_at DESC LIMIT 30', (user_id,))]}
+            rows = tx.all('SELECT id,kind,status,progress,result,payload,error_code,created_at,completed_at,confirmed_at,version FROM processing_jobs WHERE user_id=? ORDER BY created_at DESC LIMIT 30', (user_id,))
+            items = []
+            for row in rows:
+                payload = decode(row.pop('payload')) if row.get('payload') else {}
+                items.append({
+                    **row,
+                    'result': decode(row['result']) if row['result'] else None,
+                    'media_id': payload.get('media_id'),
+                })
+            return {'items': items}
+
+    def media_preview(self, user_id, media_id):
+        media_id = valid_uuid(media_id)
+        with self.db.transaction() as tx:
+            requester = self._profile(tx, user_id)
+            media = tx.one('SELECT * FROM media_objects WHERE id=?', (media_id,))
+            if not media or (media['expires_at'] and media['expires_at'] < now()):
+                raise DomainError('media_expired', 409)
+            if media['user_id'] != user_id:
+                owner = tx.one('SELECT household_id,settings FROM profiles WHERE user_id=?', (media['user_id'],))
+                owner_settings = decode(owner['settings']) if owner else {}
+                if (
+                    media['kind'] != 'avatar'
+                    or not owner
+                    or owner['household_id'] != requester['household_id']
+                    or owner_settings.get('avatar_media_id') != media_id
+                ):
+                    raise DomainError('forbidden', 403)
+        raw = PrivateMedia().read(media['storage_key'])
+        return {
+            'base64': base64.b64encode(raw).decode(),
+            'mime_type': media['mime_type'],
+        }
 
     def job_action(self, user_id, data, key):
         if data.get('action') == 'create' and not self.feature_enabled({'recipe': 'ai_recipe', 'receipt': 'receipt_scan'}.get(data.get('kind'), 'ai_scan')):
@@ -273,6 +347,8 @@ class IntelligenceService:
                     if not isinstance(item, dict) or item.get('confirmed') is not True or item.get('food_id') not in foods:
                         raise DomainError('detection_confirmation_required', 422)
                     food = foods[item['food_id']]
+                    if food.get('group') == 'packaged':
+                        raise DomainError('detection_family_required', 422)
                     amount = amount_milli(item.get('quantity'))
                     if food['unit'] == 'pcs' and amount % 1000:
                         raise DomainError('whole_units_required', 422)
@@ -321,7 +397,7 @@ class IntelligenceService:
                         raise DomainError('invalid_ai_response', 502)
                     item['name'] = text(item['name'], maximum=240)
                     item['confidence'] = float(decimal(item['confidence'], maximum=1))
-                    if item['food_id'] not in foods:
+                    if item['food_id'] not in foods or foods[item['food_id']].get('group') == 'packaged':
                         item['food_id'] = None
                     if item['quantity'] is not None:
                         item['quantity'] = quantity(amount_milli(item['quantity']))
