@@ -279,7 +279,10 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                       child: Text(
                         foods
                                 .where((f) => f.id == item['food_id'])
-                                .map((f) => localized(f.name, context.language))
+                                .map(
+                                  (f) =>
+                                      '${localized(f.name, context.language)} · ${context.t('food_group_${f.group}')}',
+                                )
                                 .firstOrNull ??
                             context.t('choose_food'),
                       ),
@@ -320,7 +323,9 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                       },
                     ),
                     CheckboxListTile(
-                      title: Text(context.t('confirm_identification')),
+                      title: Text(
+                        context.t('confirm_identification_and_family'),
+                      ),
                       value: item['confirmed'] == true,
                       onChanged: item['food_id'] == null
                           ? null
@@ -363,6 +368,7 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
   final code = TextEditingController();
   bool busy = false;
   Json? product;
+  Food? classification;
   String? error;
   @override
   void dispose() {
@@ -382,7 +388,18 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
       final result = await ref
           .read(apiProvider)
           .request('GET', '/products/${Uri.encodeComponent(value)}');
-      if (mounted && context.mounted) setState(() => product = result);
+      final mappedId = result['mapped_food_id'] as String?;
+      final mappedFood = ref
+          .read(appProvider)
+          .foods
+          .where((food) => food.id == mappedId && food.group != 'packaged')
+          .firstOrNull;
+      if (mounted && context.mounted) {
+        setState(() {
+          product = result;
+          classification = mappedFood;
+        });
+      }
     } on ApiFailure catch (e) {
       if (mounted && context.mounted) setState(() => error = e.code);
     } finally {
@@ -424,6 +441,7 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
               action: () async {
                 setState(() {
                   product = null;
+                  classification = null;
                   error = null;
                 });
                 await controller.start();
@@ -461,8 +479,34 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
             '${product!['nutrition']['basis']} · ${product!['attribution']}',
           ),
           const SizedBox(height: 16),
+          OutlinedButton(
+            onPressed: () async {
+              final food = await chooseFood(
+                context,
+                ref
+                    .read(appProvider)
+                    .foods
+                    .where((item) => item.group != 'packaged')
+                    .toList(),
+              );
+              if (food != null && mounted) {
+                setState(() => classification = food);
+              }
+            },
+            child: Text(
+              classification == null
+                  ? context.t('classify_product')
+                  : '${localized(classification!.name, context.language)} · ${context.t('food_group_${classification!.group}')}',
+            ),
+          ),
+          if (classification == null)
+            StatusNote(
+              text: context.t('product_family_required'),
+              warning: true,
+            ),
           AsyncAction(
             label: context.t('map_product_to_food'),
+            enabled: classification != null,
             action: () async {
               final amount = await askText(
                 context,
@@ -474,6 +518,7 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
               await Mutation()
                   .send(ref.read(apiProvider), 'POST', '/products/stock', {
                     'product_id': product!['id'],
+                    'food_id': classification!.id,
                     'quantity': amount,
                     'package_checked': true,
                   });
