@@ -32,6 +32,28 @@ class FastAPITests(unittest.TestCase):
         self.assertTrue(response.json()['onboarded'])
         self.assertEqual(self.client.get('/api/v1/inventory').status_code,401)
 
+    def test_wellbeing_routes_are_exposed_and_mutable(self):
+        result=self.client.post('/api/v1/auth/register',json={'email':'wellbeing@example.invalid','password':'boundary-test-long'})
+        self.assertEqual(result.status_code,200)
+        token=result.json()['access_token']
+        headers={'Authorization':'Bearer '+token,'Idempotency-Key':new_id()}
+        profile=self.client.put('/api/v1/profile',headers=headers,json={'name':'Alex','adult_confirmed':True})
+        self.assertEqual(profile.status_code,200,profile.text)
+        auth={'Authorization':'Bearer '+token}
+        initial=self.client.get('/api/v1/wellbeing',headers=auth)
+        self.assertEqual(initial.status_code,200,initial.text)
+        self.assertEqual(initial.json()['goals'],[])
+        updated=self.client.post(
+            '/api/v1/wellbeing',
+            headers={**auth,'Idempotency-Key':new_id()},
+            json={'action':'target','goal':'waste_less','target':5,'expected_version':0},
+        )
+        self.assertEqual(updated.status_code,200,updated.text)
+        current=self.client.get('/api/v1/wellbeing',headers=auth)
+        self.assertEqual(current.status_code,200,current.text)
+        self.assertEqual(current.json()['goals'][0]['id'],'waste_less')
+        self.assertEqual(current.json()['goals'][0]['target'],5)
+
     def test_profile_boundary_accepts_the_complete_mobile_onboarding_payload(self):
         result=self.client.post('/api/v1/auth/register',json={'email':'complete@example.invalid','password':'boundary-test-long'})
         token=result.json()['access_token']
