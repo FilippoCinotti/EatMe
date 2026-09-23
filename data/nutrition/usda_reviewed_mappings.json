@@ -5,10 +5,10 @@
   "policy": "Only explicitly approved source mappings are eligible for production seed generation. Pending rows remain unavailable rather than using family averages.",
   "summary": {
     "targets": 101,
-    "approved": 81,
-    "exact": 63,
-    "proxy": 18,
-    "pending": 20
+    "approved": 96,
+    "exact": 72,
+    "proxy": 24,
+    "pending": 5
   },
   "mappings": [
     {
@@ -107,15 +107,27 @@
       "id": "5050e411-4e4a-5607-ae38-4e1575b30b14",
       "slug": "brown-sugar",
       "unit": "g",
-      "status": "pending",
-      "review_note": "No sufficiently specific source mapping approved yet."
+      "status": "approved",
+      "review_note": "Canonical ingredient and preparation form match the USDA source closely.",
+      "fdc_id": "168833",
+      "dataset": "SR Legacy",
+      "source_release": "2018-04",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168833/nutrients",
+      "description": "Sugars, brown",
+      "match_quality": "exact"
     },
     {
       "id": "0bb1cb99-e021-5027-af0b-193103838992",
       "slug": "butter",
       "unit": "g",
-      "status": "pending",
-      "review_note": "No sufficiently specific source mapping approved yet."
+      "status": "approved",
+      "review_note": "Reviewed source-backed proxy; composition may vary because the canonical ingredient is less specific.",
+      "fdc_id": "173410",
+      "dataset": "SR Legacy",
+      "source_release": "2018-04",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/173410/nutrients",
+      "description": "Butter, salted",
+      "match_quality": "proxy"
     },
     {
       "id": "52152e89-30a9-5a62-a6ad-5b669eeb8bcd",
@@ -134,8 +146,14 @@
       "id": "16ed199f-9cf4-590c-a2bc-639b4d7a6d5b",
       "slug": "carrot",
       "unit": "g",
-      "status": "pending",
-      "review_note": "No sufficiently specific source mapping approved yet."
+      "status": "approved",
+      "review_note": "Canonical ingredient and preparation form match the USDA source closely.",
+      "fdc_id": "170393",
+      "dataset": "SR Legacy",
+      "source_release": "2018-04",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170393/nutrients",
+      "description": "Carrots, raw",
+      "match_quality": "exact"
     },
     {
       "id": "89a7ee78-a27c-548a-a033-89e29839a23a",
@@ -206,8 +224,14 @@
       "id": "37f6566a-7ec3-5793-af41-cd97d3914177",
       "slug": "chicken",
       "unit": "g",
-      "status": "pending",
-      "review_note": "No sufficiently specific source mapping approved yet."
+      "status": "approved",
+      "review_note": "Canonical ingredient and preparation form match the USDA source closely.",
+      "fdc_id": "171052",
+      "dataset": "SR Legacy",
+      "source_release": "2018-04",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171052/nutrients",
+      "description": "Chicken, broilers or fryers, meat only, raw",
+      "match_quality": "exact"
     },
     {
       "id": "a8cc570f-f8d7-5f5a-aae8-d63b3c53d0b4",
@@ -429,10 +453,10 @@
       "slug": "garlic",
       "unit": "g",
       "status": "approved",
-      "fdc_id": "1104593",
+      "fdc_id": "1104595",
       "dataset": "Foundation Foods",
       "source_release": "2026-04-30",
-      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104593/nutrients",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104595/nutrients",
       "description": "GARLIC",
       "match_quality": "exact",
       "review_note": "Canonical ingredient and preparation form match the USDA source closely."
@@ -467,8 +491,14 @@
       "id": "730d507f-0f02-5868-a0e4-feb0502c48a0",
       "slug": "greek-yogurt",
       "unit": "g",
-      "status": "pending",
-      "review_note": "No sufficiently specific source mapping approved yet."
+      "status": "approved",
+      "review_note": "Reviewed source-backed proxy; composition may vary because the canonical ingredient is less specific.",
+      "fdc_id": "2259794",
+      "dataset": "Foundation Foods",
+      "source_release": "2026-04-30",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2259794/nutrients",
+      "description": "Yogurt, Greek, plain, whole milk",
+      "match_quality": "proxy"
     },
     {
       "id": "a3022204-f286-5517-ac3b-247c2536a76f",
@@ -500,8 +530,14 @@
       "id": "c71ff90c-c8c5-5205-a9f4-f0f3d785187c",
       "slug": "ground-beef",
       "unit": "g",
-      "status": "pending",
-      "review_note": "No sufficiently specific source mapping approved yet."
+      "status": "approved",
+      "review_note": "Reviewed source-backed proxy; composition may vary because the canonical ingredient is less specific.",
+      "fdc_id": "2514880",
+      "dataset": "Foundation Foods",
+      "source_release": "2026-04-30",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2514880/nutrients",
+      "description": "Beef, ground, 90% lean, 10% fat, raw",
+      "match_quality": "proxy"
     },
     {
       "id": "45c56a24-3723-5988-a40e-25d9907050d0",
@@ -566,8 +602,14 @@
       "id": "d1da8afc-780f-594a-a0b6-febbc32c321b",
       "slug": "lamb",
       "unit": "g",
-      "status": "pending",
-      "review_note": "No sufficiently specific source mapping approved yet."
+      "status": "approved",
+      "review_note": "Reviewed source-backed proxy; composition may vary because the canonical ingredient is less specific.",
+      "fdc_id": "2727570",
+      "dataset": "Foundation Foods",
+      "source_release": "2026-04-30",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2727570/nutrients",
+      "description": "Lamb, ground, raw",
+      "match_quality": "proxy"
     },
     {
       "id": "2f0795d9-0b2d-5a88-a47e-8e492e057c10",
@@ -586,15 +628,27 @@
       "id": "34358b90-d189-5cc5-ac52-2f38eabc4eec",
       "slug": "leek",
       "unit": "g",
-      "status": "pending",
-      "review_note": "No sufficiently specific source mapping approved yet."
+      "status": "approved",
+      "review_note": "Canonical ingredient and preparation form match the USDA source closely.",
+      "fdc_id": "2727584",
+      "dataset": "Foundation Foods",
+      "source_release": "2026-04-30",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2727584/nutrients",
+      "description": "Leeks, bulb and greens, root removed, raw",
+      "match_quality": "exact"
     },
     {
       "id": "dca8bc49-90d3-564e-a689-deb6b13af39a",
       "slug": "lime",
       "unit": "g",
-      "status": "pending",
-      "review_note": "No sufficiently specific source mapping approved yet."
+      "status": "approved",
+      "review_note": "Canonical ingredient and preparation form match the USDA source closely.",
+      "fdc_id": "168155",
+      "dataset": "SR Legacy",
+      "source_release": "2018-04",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168155/nutrients",
+      "description": "Limes, raw",
+      "match_quality": "exact"
     },
     {
       "id": "637d422b-aa01-5d35-af5d-19bc947ae3d0",
@@ -613,8 +667,14 @@
       "id": "b1c7f67c-3001-5f6f-a7a0-590e5204a039",
       "slug": "milk",
       "unit": "ml",
-      "status": "pending",
-      "review_note": "No sufficiently specific source mapping approved yet."
+      "status": "approved",
+      "review_note": "Reviewed source-backed proxy; composition may vary because the canonical ingredient is less specific.",
+      "fdc_id": "320027",
+      "dataset": "Foundation Foods",
+      "source_release": "2026-04-30",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320027/nutrients",
+      "description": "MILK, 2% ",
+      "match_quality": "proxy"
     },
     {
       "id": "d7e783b5-80ed-52ad-a019-955e4c556710",
@@ -659,8 +719,14 @@
       "id": "d159f797-7c4e-5378-a3ba-196b210b46b4",
       "slug": "onion",
       "unit": "g",
-      "status": "pending",
-      "review_note": "No sufficiently specific source mapping approved yet."
+      "status": "approved",
+      "review_note": "Canonical ingredient and preparation form match the USDA source closely.",
+      "fdc_id": "170000",
+      "dataset": "SR Legacy",
+      "source_release": "2018-04",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170000/nutrients",
+      "description": "Onions, raw",
+      "match_quality": "exact"
     },
     {
       "id": "2e018438-1763-5f06-aea3-2c8a8990a89c",
@@ -783,8 +849,14 @@
       "id": "571ca290-7621-5567-ad90-fd2cefaca1d9",
       "slug": "potato",
       "unit": "g",
-      "status": "pending",
-      "review_note": "No sufficiently specific source mapping approved yet."
+      "status": "approved",
+      "review_note": "Canonical ingredient and preparation form match the USDA source closely.",
+      "fdc_id": "170026",
+      "dataset": "SR Legacy",
+      "source_release": "2018-04",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/170026/nutrients",
+      "description": "Potatoes, flesh and skin, raw",
+      "match_quality": "exact"
     },
     {
       "id": "d1c0eba2-bd49-5a09-a2c9-4bc19cf72b62",
@@ -824,10 +896,10 @@
       "slug": "red-onion",
       "unit": "g",
       "status": "approved",
-      "fdc_id": "790509",
+      "fdc_id": "790513",
       "dataset": "Foundation Foods",
       "source_release": "2026-04-30",
-      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790509/nutrients",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/790513/nutrients",
       "description": "ONIONS, RED",
       "match_quality": "exact",
       "review_note": "Canonical ingredient and preparation form match the USDA source closely."
@@ -849,21 +921,27 @@
       "id": "d27698e7-4b9c-5947-aac4-264b47d1c042",
       "slug": "rice",
       "unit": "g",
-      "status": "pending",
-      "review_note": "No sufficiently specific source mapping approved yet."
+      "status": "approved",
+      "review_note": "Reviewed source-backed proxy; composition may vary because the canonical ingredient is less specific.",
+      "fdc_id": "169760",
+      "dataset": "SR Legacy",
+      "source_release": "2018-04",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169760/nutrients",
+      "description": "Rice, white, medium-grain, raw, unenriched",
+      "match_quality": "proxy"
     },
     {
       "id": "a4d60618-8c0e-5d4c-ad37-1f7633fd5c7c",
       "slug": "ricotta-salata",
       "unit": "g",
       "status": "approved",
-      "fdc_id": "323360",
+      "fdc_id": "323444",
       "dataset": "Foundation Foods",
       "source_release": "2026-04-30",
-      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323360/nutrients",
-      "description": "Ricotta cheese, whole milk",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/323444/nutrients",
+      "description": "Cheese, ricotta, whole milk",
       "match_quality": "proxy",
-      "review_note": "Reviewed culinary/nutritional proxy; canonical ingredient is more specific or preparation details are unspecified."
+      "review_note": "Reviewed source-backed proxy; composition may vary because the canonical ingredient is less specific."
     },
     {
       "id": "4c4b8ff7-43d6-5f70-adda-159b08260c98",
@@ -908,8 +986,14 @@
       "id": "25eb320c-8b39-5ed9-aaaa-f0759e4e332b",
       "slug": "sausage",
       "unit": "g",
-      "status": "pending",
-      "review_note": "No sufficiently specific source mapping approved yet."
+      "status": "approved",
+      "review_note": "Reviewed source-backed proxy; composition may vary because the canonical ingredient is less specific.",
+      "fdc_id": "171631",
+      "dataset": "SR Legacy",
+      "source_release": "2018-04",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171631/nutrients",
+      "description": "Sausage, Italian, pork, mild, raw",
+      "match_quality": "proxy"
     },
     {
       "id": "dd6ffd84-20e0-5dc2-a982-1fcd6135791c",
@@ -980,8 +1064,14 @@
       "id": "335b053a-ada0-5fc4-a827-5e0c280d5a52",
       "slug": "spinach",
       "unit": "g",
-      "status": "pending",
-      "review_note": "No sufficiently specific source mapping approved yet."
+      "status": "approved",
+      "review_note": "Canonical ingredient and preparation form match the USDA source closely.",
+      "fdc_id": "168462",
+      "dataset": "SR Legacy",
+      "source_release": "2018-04",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/168462/nutrients",
+      "description": "Spinach, raw",
+      "match_quality": "exact"
     },
     {
       "id": "13d9bbd5-21ac-5b87-afda-61d83c16ff99",
@@ -1131,10 +1221,10 @@
       "slug": "white-onion",
       "unit": "g",
       "status": "approved",
-      "fdc_id": "1104914",
+      "fdc_id": "1104917",
       "dataset": "Foundation Foods",
       "source_release": "2026-04-30",
-      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104914/nutrients",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/1104917/nutrients",
       "description": "ONIONS, WHITE",
       "match_quality": "exact",
       "review_note": "Canonical ingredient and preparation form match the USDA source closely."
@@ -1144,13 +1234,13 @@
       "slug": "white-sugar",
       "unit": "g",
       "status": "approved",
-      "fdc_id": "334201",
-      "dataset": "Foundation Foods",
-      "source_release": "2026-04-30",
-      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/334201/nutrients",
-      "description": "C&H Granulated White Sugar (OK1) - NFY040Y38",
-      "match_quality": "proxy",
-      "review_note": "Reviewed culinary/nutritional proxy; canonical ingredient is more specific or preparation details are unspecified."
+      "fdc_id": "169655",
+      "dataset": "SR Legacy",
+      "source_release": "2018-04",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/169655/nutrients",
+      "description": "Sugars, granulated",
+      "match_quality": "exact",
+      "review_note": "Generic granulated sugar is a closer canonical match than brand-specific Foundation sample records."
     },
     {
       "id": "ca62e428-5fd5-5895-a82d-277add65dca9",
@@ -1196,10 +1286,10 @@
       "slug": "zucchini",
       "unit": "g",
       "status": "approved",
-      "fdc_id": "2685584",
+      "fdc_id": "2685933",
       "dataset": "Foundation Foods",
       "source_release": "2026-04-30",
-      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685584/nutrients",
+      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/2685933/nutrients",
       "description": "Squash, zucchini, raw",
       "match_quality": "exact",
       "review_note": "Canonical ingredient and preparation form match the USDA source closely."
