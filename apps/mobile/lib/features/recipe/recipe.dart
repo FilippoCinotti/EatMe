@@ -46,21 +46,18 @@ class _RecipePageState extends ConsumerState<RecipePage> {
   }
 
   Future<Food?> chooseReplacement(Recipe recipe, Food original) async {
-    final response = await mutation.send(ref.read(apiProvider), 'POST', '/recipes', {
-      'action': 'substitution_candidates',
-      'recipe_id': recipe.id,
-      'food_id': original.id,
-    });
+    final response = await mutation
+        .send(ref.read(apiProvider), 'POST', '/recipes', {
+          'action': 'substitution_candidates',
+          'recipe_id': recipe.id,
+          'food_id': original.id,
+        });
     if (!mounted) return null;
     final candidates = records(response['candidates']);
     final allFoods = ref
         .read(appProvider)
         .foods
-        .where(
-          (food) =>
-              food.id != original.id &&
-              food.group != 'packaged',
-        )
+        .where((food) => food.id != original.id && food.group != 'packaged')
         .toList();
     return showModalBottomSheet<Food>(
       context: context,
@@ -124,7 +121,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                     ),
                                     context.language,
                                   ),
-                                  style: Theme.of(context).textTheme.titleMedium,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium,
                                 ),
                                 Text(
                                   context.t(
@@ -497,11 +496,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               secondary: true,
               action: () async {
                 final api = ref.read(apiProvider);
-                final value = await chooseDiners(
-                  context,
-                  api,
-                  participants,
-                );
+                final value = await chooseDiners(context, api, participants);
                 if (value != null && mounted) {
                   final home = await api.request('GET', '/households');
                   if (!mounted) return;
@@ -871,7 +866,6 @@ class _RecipePageState extends ConsumerState<RecipePage> {
     ),
   );
 }
-
 
 class _DinerChip extends StatelessWidget {
   const _DinerChip({required this.name});
