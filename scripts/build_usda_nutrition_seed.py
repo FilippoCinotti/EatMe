@@ -245,18 +245,29 @@ def sql_literal(value: dict) -> str:
 def main():
     mappings = json.loads(MAPPINGS.read_text(encoding="utf-8"))
     approved = [row for row in mappings["mappings"] if row.get("status") == "approved"]
-    archives = {dataset: download(dataset) for dataset in {row["dataset"] for row in approved}}
+    requested = {row["dataset"] for row in approved}
+    # April 2026 Foundation contains the current supporting nutrient and measure
+    # tables. Older SR Legacy archives can omit those supporting files.
+    requested.add("Foundation Foods")
+    archives = {dataset: download(dataset) for dataset in requested}
+    support_nutrients = nutrient_catalog(archives["Foundation Foods"])
+    support_measure_units = {
+        row["id"]: row.get("name", "")
+        for row in csv_rows(archives["Foundation Foods"], "measure_unit.csv")
+    }
 
     parsed = {}
     for dataset, archive in archives.items():
+        local_nutrients = nutrient_catalog(archive)
+        local_measure_units = {
+            row["id"]: row.get("name", "")
+            for row in csv_rows(archive, "measure_unit.csv")
+        }
         parsed[dataset] = {
-            "nutrients": nutrient_catalog(archive),
+            "nutrients": local_nutrients or support_nutrients,
             "food_nutrients": csv_rows(archive, "food_nutrient.csv"),
             "portions": csv_rows(archive, "food_portion.csv"),
-            "measure_units": {
-                row["id"]: row.get("name", "")
-                for row in csv_rows(archive, "measure_unit.csv")
-            },
+            "measure_units": local_measure_units or support_measure_units,
         }
 
     output, skipped = [], []
