@@ -2397,6 +2397,68 @@
       }
     },
     {
+      "id": "b1c7f67c-3001-5f6f-a7a0-590e5204a039",
+      "slug": "milk",
+      "nutrition": {
+        "basis": "100ml",
+        "values": {
+          "energy": {
+            "value": "62.9093",
+            "unit": "kcal",
+            "basis_converted": true
+          },
+          "protein": {
+            "value": "3.248595",
+            "unit": "g",
+            "basis_converted": true
+          },
+          "carbohydrates": {
+            "value": "4.95024",
+            "unit": "g",
+            "basis_converted": true
+          },
+          "fat": {
+            "value": "3.351725",
+            "unit": "g",
+            "basis_converted": true
+          },
+          "saturated_fat": {
+            "value": "1.923374",
+            "unit": "g",
+            "basis_converted": true
+          },
+          "fiber": {
+            "value": "0",
+            "unit": "g",
+            "basis_converted": true
+          },
+          "sodium": {
+            "value": "44.3459",
+            "unit": "mg",
+            "basis_converted": true
+          },
+          "salt": {
+            "value": "0.110865",
+            "unit": "g",
+            "derived": true,
+            "derived_from": "sodium",
+            "basis_converted": true
+          }
+        },
+        "source": "USDA FoodData Central",
+        "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/171265/nutrients",
+        "source_dataset": "SR Legacy",
+        "source_release": "2018-04",
+        "source_id": "171265",
+        "source_basis": "100g",
+        "match_quality": "proxy",
+        "reviewed": true,
+        "estimated": true,
+        "density_g_per_ml": "1.0313",
+        "conversion_method": "usda_portion_density"
+      }
+    },
+    {
       "id": "d7e783b5-80ed-52ad-a019-955e4c556710",
       "slug": "mozzarella",
       "nutrition": {
@@ -4799,20 +4861,5 @@
       }
     }
   ],
-  "skipped": [
-    {
-      "id": "b1c7f67c-3001-5f6f-a7a0-590e5204a039",
-      "slug": "milk",
-      "unit": "ml",
-      "status": "approved",
-      "review_note": "Reviewed source-backed proxy; composition may vary because the canonical ingredient is less specific.",
-      "fdc_id": "320027",
-      "dataset": "Foundation Foods",
-      "source_release": "2026-04-30",
-      "source_url": "https://fdc.nal.usda.gov/fdc-app.html#/food-details/320027/nutrients",
-      "description": "MILK, 2% ",
-      "match_quality": "proxy",
-      "reason": "density_required"
-    }
-  ]
+  "skipped": []
 }
