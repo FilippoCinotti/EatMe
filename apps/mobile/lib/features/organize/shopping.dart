@@ -44,6 +44,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
     final selected = candidates.map((item) => item['id'] as String).toSet();
     final confirmed = await showModalBottomSheet<bool>(
       context: context,
+      useRootNavigator: true,
       useSafeArea: true,
       isScrollControlled: true,
       builder: (sheetContext) => StatefulBuilder(
