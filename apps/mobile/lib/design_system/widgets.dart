@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../core/api.dart';
 import '../core/localization.dart';
 import '../core/models.dart';
@@ -32,6 +36,7 @@ class _AsyncActionState extends State<AsyncAction> {
     setState(() => busy = true);
     try {
       await widget.action();
+      unawaited(HapticFeedback.lightImpact());
     } catch (error) {
       if (mounted) {
         final code = error is ApiFailure
@@ -94,6 +99,7 @@ class PageBody extends StatelessWidget {
         28 + MediaQuery.paddingOf(context).bottom,
       ),
       physics: const AlwaysScrollableScrollPhysics(),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       children: children,
     );
     return SafeArea(
@@ -263,6 +269,8 @@ Future<void> sheet(BuildContext context, Widget child) =>
       useRootNavigator: true,
       isScrollControlled: true,
       useSafeArea: true,
+      enableDrag: true,
+      showDragHandle: true,
       builder: (context) => Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.viewInsetsOf(context).bottom,

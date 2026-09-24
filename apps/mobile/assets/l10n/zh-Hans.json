@@ -32,8 +32,8 @@
   "turn_off": "关闭",
   "make_guilty_pleasure": "设为轻松享用",
   "view_guilty_pleasure_context": "查看轻松享用设置",
-  "confirm_identification_and_family": "我已确认食材、数量和食物类别",
-  "classify_product": "分类产品",
-  "product_family_required": "请选择对应食材，EatMe 会先将该产品归入食物类别，再添加到库存。",
-  "map_product_to_food": "分类并添加包装食品"
+  "confirm_identification_and_family": "我已确认食材和数量",
+  "classify_product": "选择对应食材",
+  "product_family_required": "将产品加入冰箱前，请先选择与它对应的食材。",
+  "map_product_to_food": "确认并加入冰箱"
 }

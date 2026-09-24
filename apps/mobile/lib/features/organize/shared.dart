@@ -237,7 +237,7 @@ Future<List<String>?> chooseDiners(
                           ),
                           child: Row(
                             children: [
-                              _MemberAvatar(
+                              MemberAvatar(
                                 api: api,
                                 mediaId: member['avatar_media_id'] as String?,
                                 initials: initials,
@@ -319,8 +319,9 @@ Future<List<String>?> chooseDiners(
   );
 }
 
-class _MemberAvatar extends StatelessWidget {
-  const _MemberAvatar({
+class MemberAvatar extends StatelessWidget {
+  const MemberAvatar({
+    super.key,
     required this.api,
     required this.mediaId,
     required this.initials,

@@ -3,6 +3,7 @@ import 'features/profile/diet_health.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -252,7 +253,11 @@ class _EatMeAppState extends ConsumerState<EatMeApp> {
     return MaterialApp.router(
       title: 'EatMe+',
       debugShowCheckedModeBanner: false,
-      builder: (context, child) => AdaptiveAppFrame(child: child!),
+      builder: (context, child) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: AdaptiveAppFrame(child: child!),
+      ),
       theme: Tokens.theme(Brightness.light),
       darkTheme: Tokens.theme(Brightness.dark),
       themeMode: state.theme,
@@ -354,7 +359,10 @@ class AppShell extends StatelessWidget {
           child: GlassSurface(
             child: EatMeNavigationBar(
               selectedIndex: selectedIndex(),
-              onDestinationSelected: (index) => context.go(paths[index]),
+              onDestinationSelected: (index) {
+                HapticFeedback.selectionClick();
+                context.go(paths[index]);
+              },
               destinations: [
                 EatMeNavigationItem(
                   icon: EatMeGlyph.chefHat,

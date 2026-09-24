@@ -98,12 +98,6 @@ class Service(
                 foods[row['subject_id']].update(ingredient_status='unknown', retired=True)
             if row['kind'] == 'recipe':
                 recipes = [r for r in recipes if r['id'] != row['subject_id']]
-        today = self.today({'timezone': 'UTC'}).isoformat()
-        current_evidence = {r['subject_id'] for r in tx.all("SELECT subject_id,data FROM governed_content WHERE kind='evidence' AND status='PUBLISHED'") if decode(r['data']).get('review_due', '') >= today}
-        unavailable = {d['id'] for d in diets if not d.get('is_demo', False) and (not d.get('evidence_references') or not set(d['evidence_references']) <= current_evidence)}
-        for version in versions:
-            if version['diet_id'] in unavailable:
-                version['status'] = 'REVIEW_REQUIRED'
         return foods,recipes,diets,versions
 
     def catalog(self, user_id=None) -> dict:
@@ -159,6 +153,7 @@ class Service(
                     if not media:
                         raise DomainError("invalid_avatar", 422)
                 settings = profile["settings"]
+                settings.pop("avatar_id", None)
                 if media_id is None:
                     settings.pop("avatar_media_id", None)
                 else:
@@ -291,12 +286,16 @@ class Service(
                     raise DomainError("invalid_food",422)
                 existing = tx.one("SELECT * FROM profiles WHERE user_id=?",(user_id,))
                 previous_settings = decode(existing["settings"]) if existing else {}
-                avatar_id = data.get("avatar_id") if "avatar_id" in data else previous_settings.get("avatar_id")
-                if avatar_id is not None:
-                    avatar_id = valid_uuid(avatar_id)
+                avatar_media_id = (
+                    data.get("avatar_media_id")
+                    if "avatar_media_id" in data
+                    else previous_settings.get("avatar_media_id", previous_settings.get("avatar_id"))
+                )
+                if avatar_media_id is not None:
+                    avatar_media_id = valid_uuid(avatar_media_id)
                     avatar = tx.one(
                         "SELECT 1 FROM media_objects WHERE id=? AND user_id=? AND kind='avatar'",
-                        (avatar_id, user_id),
+                        (avatar_media_id, user_id),
                     )
                     if not avatar:
                         raise DomainError("invalid_avatar", 422)
@@ -307,8 +306,8 @@ class Service(
                             "never_suggest":never,"timezone":timezone,"adult_confirmed":True,
                             "primary_goal":primary_goal,"primary_diet":primary_diet,
                             "unknown_ingredient_policy":unknown_policy}
-                if avatar_id is not None:
-                    settings["avatar_id"] = avatar_id
+                if avatar_media_id is not None:
+                    settings["avatar_media_id"] = avatar_media_id
                 stamp = now()
                 if existing:
                     if data.get("expected_version") != existing["version"]:

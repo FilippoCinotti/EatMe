@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+
 import '../../core/api.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
@@ -311,10 +313,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                       child: Text(
                         foods
                                 .where((f) => f.id == item['food_id'])
-                                .map(
-                                  (f) =>
-                                      '${localized(f.name, context.language)} · ${context.t('food_group_${f.group}')}',
-                                )
+                                .map((f) => localized(f.name, context.language))
                                 .firstOrNull ??
                             context.t('choose_food'),
                       ),
@@ -355,40 +354,23 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                       },
                     ),
                     CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      value: item['confirmed'] == true,
+                      onChanged: item['food_id'] == null
+                          ? null
+                          : (value) => setState(
+                              () => item['confirmed'] = value == true,
+                            ),
                       title: Text(
                         context.t('confirm_identification_and_family'),
                       ),
-                      subtitle: item['food_id'] == null
-                          ? Text(context.t('choose_food_before_confirming'))
-                          : null,
-                      value: item['confirmed'] == true,
-                      onChanged: (v) async {
-                        if (v != true) {
-                          if (mounted) {
-                            setState(() => item['confirmed'] = false);
-                          }
-                          return;
-                        }
-                        if (item['food_id'] == null) {
-                          final food = await chooseFood(
-                            context,
-                            foods
-                                .where((food) => food.group != 'packaged')
-                                .toList(),
-                          );
-                          if (food == null || !mounted) return;
-                          setState(() {
-                            item['food_id'] = food.id;
-                            item['unit'] = food.unit;
-                            item['confirmed'] = true;
-                          });
-                          return;
-                        }
-                        if (mounted) {
-                          setState(() => item['confirmed'] = true);
-                        }
-                      },
+                      controlAffinity: ListTileControlAffinity.leading,
                     ),
+                    if (item['food_id'] == null)
+                      StatusNote(
+                        text: context.t('choose_food_before_confirming'),
+                        warning: true,
+                      ),
                   ],
                 ),
               ),
@@ -554,7 +536,7 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
             child: Text(
               classification == null
                   ? context.t('classify_product')
-                  : '${localized(classification!.name, context.language)} · ${context.t('food_group_${classification!.group}')}',
+                  : localized(classification!.name, context.language),
             ),
           ),
           if (classification == null)

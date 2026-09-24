@@ -1,13 +1,17 @@
 import 'dart:io';
 import 'dart:ui' as ui;
+
 import 'package:flutter/rendering.dart';
+
 import 'visual_reference_test.dart' as visual;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:eatme/core/models.dart';
 import 'package:eatme/features/organize/wellbeing.dart';
 import 'package:eatme/features/organize/scanning.dart';
 import 'package:eatme/features/fridge/custom_food.dart';
+
 import 'application_test.dart' as support;
 
 class FeatureApi extends support.TestApi {
@@ -178,7 +182,7 @@ void main() {
             .value,
         isFalse,
       );
-      expect(find.text('Tomatoes · Vegetables'), findsNWidgets(2));
+      expect(find.text('Tomatoes'), findsNWidgets(2));
       await tester.tap(find.byTooltip('Delete').first);
       await tester.pumpAndSettle();
       expect(find.text('First item'), findsNothing);

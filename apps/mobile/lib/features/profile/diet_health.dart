@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../core/api.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
@@ -159,6 +160,33 @@ class DietHealthPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(context.t('diet_health_hub_body')),
+                const SizedBox(height: 14),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    if (dietSummary(medical: false) !=
+                        context.t('not_configured'))
+                      StatusBadge(
+                        label: dietSummary(medical: false),
+                        icon: EatMeGlyph.leaf,
+                        emphasis: true,
+                      ),
+                    if (dietSummary(medical: true) !=
+                        context.t('not_configured'))
+                      StatusBadge(
+                        label: dietSummary(medical: true),
+                        icon: EatMeGlyph.shield,
+                      ),
+                    if ((settings['never_suggest'] as List? ?? const [])
+                        .isNotEmpty)
+                      StatusBadge(
+                        label:
+                            '${context.t('excluded_foods')} · ${(settings['never_suggest'] as List).length}',
+                        icon: EatMeGlyph.triangleAlert,
+                      ),
+                  ],
+                ),
               ],
             ),
           ),

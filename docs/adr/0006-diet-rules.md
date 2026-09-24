@@ -4,7 +4,7 @@ Status: accepted for the application implementation.
 
 ## Decision
 
-Store dietary definitions and effective rule versions in the database. Publish only reviewed rules. Reject unsupported operators and unknown ingredients. Clinical profiles require explicit consent and approved evidence; no hardcoded invented RAD rule is permitted.
+Store dietary definitions and effective rule versions in the database. Publication status and effective dates govern whether a profile is selectable; evidence references remain provenance metadata and do not gate selectability. Reject unsupported operators and unknown ingredients. Clinical profiles require explicit consent and clear non-medical-advice language; hard-safety constraints remain fail-closed.
 
 ## Consequences
 

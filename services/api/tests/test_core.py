@@ -77,10 +77,66 @@ class EatMeCase(unittest.TestCase):
         self.assertEqual(export["profile"]["settings"]["allergies"],[])
         self.assertTrue(all(c["withdrawn_at"] for c in export["consents"]))
 
+    def test_profile_avatar_persists_media_reference(self):
+        media_id = new_id()
+        with self.db.transaction() as tx:
+            tx.execute(
+                "INSERT INTO media_objects VALUES (?,?,?,?,?,?,?,?)",
+                (media_id, self.user, "avatar", media_id, "image/jpeg", 1, "2026-09-10T00:00:00+00:00", None),
+            )
+        profile = self.service.get_profile(self.user)
+        result = self.service.profile_avatar(
+            self.user,
+            {"media_id": media_id, "expected_version": profile["version"]},
+            new_id(),
+        )
+        self.assertEqual(result["avatar_media_id"], media_id)
+        self.assertEqual(self.service.get_profile(self.user)["settings"]["avatar_media_id"], media_id)
+
+    def test_normal_profile_save_preserves_avatar_media_reference(self):
+        media_id = new_id()
+        with self.db.transaction() as tx:
+            tx.execute(
+                "INSERT INTO media_objects VALUES (?,?,?,?,?,?,?,?)",
+                (media_id, self.user, "avatar", media_id, "image/jpeg", 1, "2026-09-10T00:00:00+00:00", None),
+            )
+        profile = self.service.get_profile(self.user)
+        self.service.profile_avatar(
+            self.user,
+            {"media_id": media_id, "expected_version": profile["version"]},
+            new_id(),
+        )
+        self.update_profile(primary_goal="eat_better")
+        settings = self.service.get_profile(self.user)["settings"]
+        self.assertEqual(settings["avatar_media_id"], media_id)
+        self.assertNotIn("avatar_id", settings)
+
     def test_supported_profiles_are_directly_selectable(self):
         diets = {diet["slug"]: diet for diet in self.service.catalog()["diets"]}
         for slug in ["omnivore", "mediterranean", "vegetarian", "vegan", "pescatarian", "flexitarian", "plant-forward", "low-carb", "low-fat", "high-protein", "whole-food", "gluten-free", "celiac", "rad"]:
             self.assertTrue(diets[slug]["selectable"], slug)
+
+    def test_self_declared_non_medical_profile_does_not_require_governed_evidence(self):
+        diet_id = identifier("diet", "mediterranean")
+        with self.db.transaction() as tx:
+            row = tx.one("SELECT data FROM diet_definitions WHERE id=?", (diet_id,))
+            data = decode(row["data"])
+            data.update(status="PUBLISHED", is_demo=False, self_declared=True, medical=False)
+            data.pop("evidence_references", None)
+            tx.execute("UPDATE diet_definitions SET data=? WHERE id=?", (encode(data), diet_id))
+        diet = next(item for item in self.service.catalog()["diets"] if item["id"] == diet_id)
+        self.assertTrue(diet["selectable"])
+
+    def test_published_medical_profile_is_selectable_without_evidence_gate(self):
+        diet_id = identifier("diet", "mediterranean")
+        with self.db.transaction() as tx:
+            row = tx.one("SELECT data FROM diet_definitions WHERE id=?", (diet_id,))
+            data = decode(row["data"])
+            data.update(status="PUBLISHED", is_demo=False, self_declared=True, medical=True)
+            data.pop("evidence_references", None)
+            tx.execute("UPDATE diet_definitions SET data=? WHERE id=?", (encode(data), diet_id))
+        diet = next(item for item in self.service.catalog()["diets"] if item["id"] == diet_id)
+        self.assertTrue(diet["selectable"])
 
     def test_celiac_gluten_rule_is_hard_even_when_profile_is_flexible(self):
         from eatme.service import MEDICAL_CONSENT

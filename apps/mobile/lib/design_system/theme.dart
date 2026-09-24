@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 abstract final class Tokens {
   static const cream = Color(0xfff8f9f5);
@@ -52,7 +53,7 @@ abstract final class Tokens {
           letterSpacing: -0.9,
         ),
         headlineMedium: base.textTheme.headlineMedium?.copyWith(
-          fontFamily: 'EatMeSans',
+          fontFamily: 'EatMeDisplay',
           height: 1.08,
           fontSize: 25,
           fontWeight: FontWeight.w700,
@@ -64,8 +65,14 @@ abstract final class Tokens {
           fontWeight: FontWeight.w700,
         ),
         titleMedium: base.textTheme.titleMedium?.copyWith(
+          fontFamily: 'EatMeSans',
           fontSize: 15,
           fontWeight: FontWeight.w600,
+        ),
+        labelLarge: base.textTheme.labelLarge?.copyWith(
+          fontFamily: 'EatMeDisplay',
+          fontWeight: FontWeight.w700,
+          letterSpacing: -0.1,
         ),
         bodyLarge: base.textTheme.bodyLarge?.copyWith(
           fontSize: 15,
@@ -75,6 +82,11 @@ abstract final class Tokens {
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: scheme.surface,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: dark ? Brightness.light : Brightness.dark,
+          statusBarBrightness: dark ? Brightness.dark : Brightness.light,
+        ),
         scrolledUnderElevation: 0,
         centerTitle: false,
         titleTextStyle: base.textTheme.titleLarge?.copyWith(
@@ -166,10 +178,27 @@ abstract final class Tokens {
       ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: scheme.surfaceContainer,
+        surfaceTintColor: Colors.transparent,
         showDragHandle: true,
+        clipBehavior: Clip.antiAlias,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: scheme.surfaceContainer,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Tokens.radius),
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: scheme.inverseSurface,
+        contentTextStyle: base.textTheme.bodyMedium?.copyWith(
+          color: scheme.onInverseSurface,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: scheme.surface,

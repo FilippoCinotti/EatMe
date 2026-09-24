@@ -249,7 +249,7 @@ class IntelligenceService:
             )
             if not linked:
                 raise DomainError('forbidden', 403)
-            avatar_id = decode(linked['settings']).get('avatar_id')
+            avatar_id = decode(linked['settings']).get('avatar_media_id')
             if not avatar_id:
                 return {'base64': None, 'mime_type': None}
             media = tx.one(
