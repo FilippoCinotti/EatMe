@@ -90,6 +90,8 @@ void main() {
     await tester.ensureVisible(find.text('Dinner').first);
     await tester.tap(find.text('Dinner').first);
     await waitFor(tester, find.text(recipeTitle));
+    await tester.ensureVisible(find.text(recipeTitle));
+    await tester.pumpAndSettle();
     await tester.tap(find.text(recipeTitle));
     await waitFor(tester, find.text('Servings'));
     await tester.tap(find.text('Save'));
