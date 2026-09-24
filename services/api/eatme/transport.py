@@ -49,7 +49,8 @@ class Router:
         query = parse_qs(split.query)
         self.limiter.check(client,180)
         if route=="/api/v1/health" and method=="GET":
-            return {"status":"ok","version":"1.0.0"}
+            commit = os.getenv("RENDER_GIT_COMMIT", "")
+            return {"status":"ok","version":"1.0.0","git_commit":commit[:12] or None}
         if route=="/api/v1/config" and method=="GET":
             provider = os.getenv("AI_PROVIDER", "")
             live_ready = provider == "openai" and bool(os.getenv("AI_API_KEY")) and bool(os.getenv("AI_MODEL"))
