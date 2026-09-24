@@ -17,18 +17,18 @@ jobs:
     steps:
       - name: Wait for production API commit
         env:
-          EXPECTED_COMMIT: 0fc25079f178
+          EXPECTED_MARKER: build8-20260924
         run: |
           set -euo pipefail
           for attempt in $(seq 1 60); do
             body=$(curl --fail --silent --show-error --max-time 20 https://api.eatmeapplication.com/api/v1/health || true)
             echo "health: $body"
-            commit=$(printf '%s' "$body" | jq -r '.git_commit // empty' 2>/dev/null || true)
-            if [ "$commit" = "$EXPECTED_COMMIT" ]; then
-              echo "Render production API is live on $EXPECTED_COMMIT"
+            marker=$(printf '%s' "$body" | jq -r '.deploy_marker // empty' 2>/dev/null || true)
+            if [ "$marker" = "$EXPECTED_MARKER" ]; then
+              echo "Render production API is live with marker $EXPECTED_MARKER"
               exit 0
             fi
             sleep 10
           done
-          echo "Render production API did not reach expected commit $EXPECTED_COMMIT"
+          echo "Render production API did not reach expected marker $EXPECTED_MARKER"
           exit 1
