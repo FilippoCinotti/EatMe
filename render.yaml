@@ -5,7 +5,7 @@ services:
     region: frankfurt
     plan: starter
     branch: main
-    autoDeployTrigger: checksPass
+    autoDeployTrigger: commit
     rootDir: services/api
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/v1/health
@@ -71,7 +71,7 @@ services:
     region: frankfurt
     plan: starter
     branch: main
-    autoDeployTrigger: checksPass
+    autoDeployTrigger: commit
     rootDir: services/api
     dockerfilePath: ./Dockerfile
     dockerCommand: python -m eatme.worker
