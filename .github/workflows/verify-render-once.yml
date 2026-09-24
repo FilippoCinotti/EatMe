@@ -1,4 +1,4 @@
-name: Verify Render deployment once #2
+name: Verify Render deployment once #3
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Wait for production API commit
         env:
-          EXPECTED_MARKER: build8-20260924
+          EXPECTED_MARKER: build8-20260924-r2
         run: |
           set -euo pipefail
           for attempt in $(seq 1 60); do
