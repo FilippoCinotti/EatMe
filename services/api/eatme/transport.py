@@ -50,7 +50,8 @@ class Router:
         self.limiter.check(client,180)
         if route=="/api/v1/health" and method=="GET":
             commit = os.getenv("RENDER_GIT_COMMIT", "")
-            return {"status":"ok","version":"1.0.0","git_commit":commit[:12] or None}
+            return {"status":"ok","version":"1.0.0","git_commit":commit[:12] or None,
+                    "deploy_marker":os.getenv("EATME_DEPLOY_MARKER") or None}
         if route=="/api/v1/config" and method=="GET":
             provider = os.getenv("AI_PROVIDER", "")
             live_ready = provider == "openai" and bool(os.getenv("AI_API_KEY")) and bool(os.getenv("AI_MODEL"))
