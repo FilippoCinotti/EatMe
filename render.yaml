@@ -15,7 +15,7 @@ services:
       - key: EATME_ENV
         value: production
       - key: EATME_DEPLOY_MARKER
-        value: build8-20260924
+        value: build8-20260924-r2
       - key: AUTH_MODE
         value: supabase
       - key: DATABASE_URL
@@ -79,7 +79,7 @@ services:
       - key: EATME_ENV
         value: production
       - key: EATME_DEPLOY_MARKER
-        value: build8-20260924
+        value: build8-20260924-r2
       - key: AUTH_MODE
         value: supabase
       - key: DATABASE_URL
