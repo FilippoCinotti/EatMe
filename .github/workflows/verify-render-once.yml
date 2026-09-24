@@ -1,0 +1,34 @@
+name: Verify Render deployment once
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/verify-render-once.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Wait for production API commit
+        env:
+          EXPECTED_COMMIT: 0fc25079f178
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 60); do
+            body=$(curl --fail --silent --show-error --max-time 20 https://api.eatmeapplication.com/api/v1/health || true)
+            echo "health: $body"
+            commit=$(printf '%s' "$body" | jq -r '.git_commit // empty' 2>/dev/null || true)
+            if [ "$commit" = "$EXPECTED_COMMIT" ]; then
+              echo "Render production API is live on $EXPECTED_COMMIT"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Render production API did not reach expected commit $EXPECTED_COMMIT"
+          exit 1
