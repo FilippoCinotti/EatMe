@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -628,7 +629,20 @@ class _AvatarCropDialog extends StatefulWidget {
 class _AvatarCropDialogState extends State<_AvatarCropDialog> {
   final cropKey = GlobalKey();
   final transform = TransformationController();
+  late final Future<Size> imageSize = _readImageSize();
   bool saving = false;
+
+  Future<Size> _readImageSize() async {
+    final codec = await ui.instantiateImageCodec(widget.bytes);
+    final frame = await codec.getNextFrame();
+    final size = Size(
+      frame.image.width.toDouble(),
+      frame.image.height.toDouble(),
+    );
+    frame.image.dispose();
+    codec.dispose();
+    return size;
+  }
 
   Future<void> save() async {
     if (saving) return;
@@ -641,7 +655,10 @@ class _AvatarCropDialogState extends State<_AvatarCropDialog> {
       final data = await image.toByteData(format: ui.ImageByteFormat.png);
       image.dispose();
       if (!mounted || data == null) return;
-      Navigator.pop(context, data.buffer.asUint8List());
+      Navigator.pop(
+        context,
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+      );
     } finally {
       if (mounted) setState(() => saving = false);
     }
@@ -674,20 +691,43 @@ class _AvatarCropDialogState extends State<_AvatarCropDialog> {
                 child: ClipRect(
                   child: SizedBox.square(
                     dimension: 280,
-                    child: InteractiveViewer(
-                      transformationController: transform,
-                      minScale: 1,
-                      maxScale: 4,
-                      panEnabled: true,
-                      scaleEnabled: true,
-                      clipBehavior: Clip.hardEdge,
-                      child: SizedBox.square(
-                        dimension: 280,
-                        child: Image.memory(
-                          widget.bytes,
-                          fit: BoxFit.cover,
-                          gaplessPlayback: true,
-                        ),
+                    child: ColoredBox(
+                      color: Theme.of(context).colorScheme.surfaceContainer,
+                      child: FutureBuilder<Size>(
+                        future: imageSize,
+                        builder: (context, snapshot) {
+                          final size = snapshot.data;
+                          if (size == null) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          final coverScale = math.max(
+                            280 / size.width,
+                            280 / size.height,
+                          );
+                          final width = size.width * coverScale;
+                          final height = size.height * coverScale;
+                          return InteractiveViewer(
+                            transformationController: transform,
+                            constrained: false,
+                            alignment: Alignment.center,
+                            minScale: 1,
+                            maxScale: 4,
+                            panEnabled: true,
+                            scaleEnabled: true,
+                            clipBehavior: Clip.none,
+                            child: SizedBox(
+                              width: width,
+                              height: height,
+                              child: Image.memory(
+                                widget.bytes,
+                                fit: BoxFit.fill,
+                                gaplessPlayback: true,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),
