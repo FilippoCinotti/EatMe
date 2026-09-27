@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'recipe_favorite.dart';
 
 import 'package:flutter/material.dart';
@@ -23,10 +25,16 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(appProvider);
-    final name = (state.profile['name'] as String? ?? '')
-        .trim()
-        .split(' ')
-        .first;
+    final fullName = (state.profile['name'] as String? ?? '').trim();
+    final name = fullName.isEmpty
+        ? ''
+        : fullName.split(RegExp(r'\s+')).first;
+    final initials = fullName
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .take(2)
+        .map((part) => part.substring(0, 1).toUpperCase())
+        .join();
     final hour = DateTime.now().hour;
     final greetingKey = hour < 12
         ? 'good_morning'
@@ -36,6 +44,7 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
     final settings = Map<String, dynamic>.from(
       state.profile['settings'] as Map? ?? {},
     );
+    final avatarMediaId = settings['avatar_media_id'] as String?;
     final assignments = (settings['diets'] as List? ?? const [])
         .map((value) => Map<String, dynamic>.from(value as Map))
         .toList();
@@ -61,26 +70,37 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
             )
             .toList()
           ..sort((a, b) => a.expiryDate!.compareTo(b.expiryDate!));
-    final recommendations = state.recommendations
-        .where(
-          (r) =>
-              localized(
-                r.recipe.title,
-                context.language,
-              ).toLowerCase().contains(query.toLowerCase()) ||
-              r.recipe.ingredients.any(
-                (i) => state.foods.any(
-                  (f) =>
-                      f.id == i['food_id'] &&
-                      localized(
-                        f.name,
-                        context.language,
-                      ).toLowerCase().contains(query.toLowerCase()),
-                ),
-              ),
-        )
-        .toList();
-    final pick = recommendations.firstOrNull;
+    final normalizedQuery = query.trim().toLowerCase();
+    final matchingRecommendations = normalizedQuery.isEmpty
+        ? state.recommendations
+        : state.recommendations
+              .where(
+                (r) =>
+                    localized(
+                      r.recipe.title,
+                      context.language,
+                    ).toLowerCase().contains(normalizedQuery) ||
+                    r.recipe.ingredients.any(
+                      (i) => state.foods.any(
+                        (f) =>
+                            f.id == i['food_id'] &&
+                            localized(
+                              f.name,
+                              context.language,
+                            ).toLowerCase().contains(normalizedQuery),
+                      ),
+                    ),
+              )
+              .toList();
+    final basePick = state.recommendations.firstOrNull;
+    final pick = normalizedQuery.isEmpty
+        ? basePick
+        : matchingRecommendations.firstOrNull ?? basePick;
+    final hasNoSearchMatch =
+        normalizedQuery.isNotEmpty && matchingRecommendations.isEmpty;
+    final visibleRecommendations = normalizedQuery.isEmpty
+        ? state.recommendations
+        : matchingRecommendations;
     final pickSoon = pick == null
         ? null
         : soon
@@ -102,8 +122,9 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                 label: context.t('notifications'),
                 onPressed: () => context.push('/notifications'),
               ),
-              RoundAction(
-                icon: EatMeGlyph.userRound,
+              _ChefAvatarAction(
+                mediaId: avatarMediaId,
+                initials: initials,
                 label: context.t('profile'),
                 onPressed: () => context.go('/profile'),
               ),
@@ -190,6 +211,10 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
             onChanged: (value) => setState(() => query = value),
             onFilter: () => sheet(context, const ChefFilters()),
           ),
+          if (hasNoSearchMatch) ...[
+            const SizedBox(height: 10),
+            StatusNote(text: context.t('try_another_search')),
+          ],
           const SizedBox(height: 22),
           if (state.error != null)
             StatusNote(
@@ -215,63 +240,17 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
               body: context.t('no_recipes_body'),
             )
           else ...[
-            RecipeCard(recommendation: pick, featured: true),
-            const SizedBox(height: 16),
-            InformationPanel(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context.t('why_picked'),
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 12),
-                  _Reason(
-                    icon: EatMeGlyph.house,
-                    text: context.t('ingredients_at_home', {
-                      'available': pick.available,
-                      'total': pick.total,
-                    }),
-                  ),
-                  if (pick.useSoon.isNotEmpty)
-                    _Reason(
-                      icon: EatMeGlyph.clockAlert,
-                      text: pickSoon == null
-                          ? context.t('uses_expiring', {
-                              'count': pick.useSoon.length,
-                            })
-                          : context.t('use_soon_named', {
-                              'food': localized(
-                                pickSoon.food.name,
-                                context.language,
-                              ),
-                              'date': expiryLabel(context, pickSoon),
-                            }),
-                    ),
-                  if (pick.useSoon.isEmpty)
-                    _Reason(
-                      icon: EatMeGlyph.timer,
-                      text: context.t('minutes_value', {
-                        'minutes': pick.recipe.minutes,
-                      }),
-                    ),
-                  if (pick.warnings.isNotEmpty)
-                    StatusNote(
-                      text: context.t('preference_warning'),
-                      warning: true,
-                    ),
-                ],
+            RecipeCard(
+              recommendation: pick,
+              featured: true,
+              profileContext: _ProfileContext(
+                diets: activeDiets,
+                primaryDiet: settings['primary_diet'] as String?,
+                hardRestrictionCount: hardRestrictionCount,
+                unknownPolicy:
+                    settings['unknown_ingredient_policy'] as String? ?? 'strict',
+                onManage: () => context.push('/diet-health'),
               ),
-            ),
-            const SizedBox(height: 16),
-            _ProfileContext(
-              diets: activeDiets,
-              primaryDiet: settings['primary_diet'] as String?,
-              hardRestrictionCount: hardRestrictionCount,
-              unknownPolicy:
-                  settings['unknown_ingredient_policy'] as String? ?? 'strict',
-              onManage: () => context.push('/diet-health'),
             ),
           ],
           if (soon.isNotEmpty) ...[
@@ -350,9 +329,9 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
               },
             ),
           ],
-          if (recommendations.length > 1) ...[
+          if (visibleRecommendations.length > 1) ...[
             SectionHeading(title: context.t('also_for_you')),
-            for (final recommendation in recommendations.skip(1))
+            for (final recommendation in visibleRecommendations.skip(1))
               RecipeCard(recommendation: recommendation),
           ],
           SectionHeading(
@@ -384,6 +363,105 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ChefAvatarAction extends ConsumerStatefulWidget {
+  const _ChefAvatarAction({
+    required this.mediaId,
+    required this.initials,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final String? mediaId;
+  final String initials, label;
+  final VoidCallback onPressed;
+
+  @override
+  ConsumerState<_ChefAvatarAction> createState() => _ChefAvatarActionState();
+}
+
+class _ChefAvatarActionState extends ConsumerState<_ChefAvatarAction> {
+  late Future<Json?> avatar;
+
+  @override
+  void initState() {
+    super.initState();
+    avatar = _load();
+  }
+
+  @override
+  void didUpdateWidget(covariant _ChefAvatarAction oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.mediaId != widget.mediaId) avatar = _load();
+  }
+
+  Future<Json?> _load() async {
+    final mediaId = widget.mediaId;
+    if (mediaId == null || mediaId.isEmpty) return null;
+    try {
+      return await ref.read(apiProvider).request('GET', '/media/$mediaId');
+    } on ApiFailure {
+      return null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final fallback = Center(
+      key: const ValueKey('chef-profile-avatar-fallback'),
+      child: widget.initials.isEmpty
+          ? EatMeIcon(
+              EatMeGlyph.userRound,
+              size: 22,
+              color: scheme.onSurface,
+            )
+          : Text(
+              widget.initials,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: scheme.onSurface,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+    );
+    return Semantics(
+      button: true,
+      label: widget.label,
+      child: Material(
+        color: scheme.surfaceContainer,
+        shape: const CircleBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: widget.onPressed,
+          child: SizedBox(
+            width: 48,
+            height: 48,
+            child: FutureBuilder<Json?>(
+              future: avatar,
+              builder: (context, snapshot) {
+                final encoded = snapshot.data?['base64'] as String?;
+                if (encoded == null || encoded.isEmpty) return fallback;
+                try {
+                  return Image.memory(
+                    base64Decode(encoded),
+                    key: const ValueKey('chef-profile-avatar-image'),
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.cover,
+                    gaplessPlayback: true,
+                  );
+                } on FormatException {
+                  return fallback;
+                }
+              },
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -457,96 +535,78 @@ class _ProfileContext extends StatelessWidget {
           context.language,
         ).compareTo(localized(b.name, context.language));
       });
-    return InformationPanel(
-      tinted: false,
-      padding: const EdgeInsets.fromLTRB(18, 14, 14, 14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: EatMeIcon(
-              EatMeGlyph.shieldCheck,
-              size: 22,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-          const SizedBox(width: 13),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.t('cooking_with_profile'),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  sorted.isEmpty
-                      ? context.t('no_diet_profiles_active')
-                      : sorted
-                            .map(
-                              (diet) => localized(diet.name, context.language),
-                            )
-                            .join(' · '),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    StatusBadge(
-                      label: context.t('active_safety_rules', {
-                        'count': hardRestrictionCount,
-                      }),
-                      icon: EatMeGlyph.lock,
-                    ),
-                    StatusBadge(
-                      label: context.t('unknown_policy_short_$unknownPolicy'),
-                      icon: EatMeGlyph.search,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          TextButton(onPressed: onManage, child: Text(context.t('manage'))),
-        ],
-      ),
-    );
-  }
-}
-
-class _Reason extends StatelessWidget {
-  const _Reason({required this.icon, required this.text});
-  final EatMeGlyph icon;
-  final String text;
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 4),
-    child: Row(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        EatMeIcon(
-          icon,
-          size: 19,
-          color: Theme.of(context).colorScheme.primary,
-          strokeWidth: 2,
+        const Divider(height: 26),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: EatMeIcon(
+                EatMeGlyph.shieldCheck,
+                size: 20,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.t('cooking_with_profile'),
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    sorted.isEmpty
+                        ? context.t('no_diet_profiles_active')
+                        : sorted
+                              .map(
+                                (diet) => localized(diet.name, context.language),
+                              )
+                              .join(' · '),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            TextButton(
+              onPressed: onManage,
+              child: Text(context.t('manage')),
+            ),
+          ],
         ),
-        const SizedBox(width: 10),
-        Expanded(child: Text(text)),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            StatusBadge(
+              label: context.t('active_safety_rules', {
+                'count': hardRestrictionCount,
+              }),
+              icon: EatMeGlyph.lock,
+            ),
+            StatusBadge(
+              label: context.t('unknown_policy_short_$unknownPolicy'),
+              icon: EatMeGlyph.search,
+            ),
+          ],
+        ),
       ],
-    ),
-  );
+    );
+  }
 }
 
 class ChefFilters extends ConsumerStatefulWidget {
@@ -641,9 +701,11 @@ class RecipeCard extends StatelessWidget {
     super.key,
     required this.recommendation,
     this.featured = false,
+    this.profileContext,
   });
   final Recommendation recommendation;
   final bool featured;
+  final Widget? profileContext;
   @override
   Widget build(BuildContext context) {
     final r = recommendation;
@@ -740,29 +802,26 @@ class RecipeCard extends StatelessWidget {
       footer: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              EatMeIcon(
-                r.useSoon.isNotEmpty ? EatMeGlyph.clockAlert : EatMeGlyph.house,
-                size: 18,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  r.useSoon.isNotEmpty
-                      ? context.t('uses_expiring', {'count': r.useSoon.length})
-                      : context.t('ingredients_at_home', {
-                          'available': r.available,
-                          'total': r.total,
-                        }),
-                  style: Theme.of(context).textTheme.bodyMedium,
+          if (r.useSoon.isNotEmpty)
+            Row(
+              children: [
+                EatMeIcon(
+                  EatMeGlyph.clockAlert,
+                  size: 18,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    context.t('uses_expiring', {'count': r.useSoon.length}),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              ],
+            ),
           if (r.warnings.isNotEmpty)
             StatusNote(text: context.t('preference_warning'), warning: true),
+          if (profileContext != null) profileContext!,
         ],
       ),
     );
