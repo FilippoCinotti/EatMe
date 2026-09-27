@@ -46,7 +46,7 @@ void main() {
         (widget) => widget is Text && widget.textSpan != null,
       ),
     );
-    final root = text.textSpan!;
+    final root = text.textSpan! as TextSpan;
     final plus = root.children!.single as TextSpan;
     expect(root.text, 'EatMe');
     expect(plus.text, '+');
