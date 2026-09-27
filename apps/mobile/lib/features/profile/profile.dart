@@ -1,5 +1,9 @@
 import 'dart:convert';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -22,14 +26,21 @@ class ProfilePage extends ConsumerWidget {
     final ids = (settings['diets'] as List? ?? [])
         .map((d) => d['diet_id'])
         .toSet();
-    final primaryName = state.diets
-        .where((d) => d.id == settings['primary_diet'])
+    final eatingNames = state.diets
+        .where((d) => ids.contains(d.id) && !d.medical)
         .map((d) => localized(d.name, context.language))
-        .firstOrNull;
-    final dietNames = state.diets
-        .where((d) => ids.contains(d.id))
-        .map((d) => localized(d.name, context.language))
-        .join(' · ');
+        .toList();
+    final medicalNames = <String>[
+      ...state.diets
+          .where((d) => ids.contains(d.id) && d.medical)
+          .map((d) => localized(d.name, context.language)),
+      ...List<String>.from(
+        settings['medical_awareness'] as List? ?? const [],
+      ).map((value) => context.t('medical_$value')),
+    ];
+    final allergyNames = List<String>.from(
+      settings['allergies'] as List? ?? const [],
+    ).map((value) => context.t('allergen_$value')).toList();
     final name = state.profile['name'] as String? ?? '';
     final initials = name
         .trim()
@@ -38,7 +49,11 @@ class ProfilePage extends ConsumerWidget {
         .take(2)
         .map((part) => part.substring(0, 1).toUpperCase())
         .join();
-    final themeLabel = context.t(state.theme.name);
+    String preview(List<String> values) => values.isEmpty
+        ? context.t('not_configured')
+        : values.length <= 2
+        ? values.join(' · ')
+        : '${values.take(2).join(' · ')} · +${values.length - 2}';
     return Scaffold(
       body: PageBody(
         children: [
@@ -72,11 +87,21 @@ class ProfilePage extends ConsumerWidget {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    if (primaryName != null || dietNames.isNotEmpty)
-                      _ProfilePill(
-                        icon: EatMeGlyph.leaf,
-                        label: primaryName ?? dietNames,
-                      ),
+                    _ProfilePill(
+                      icon: EatMeGlyph.leaf,
+                      label:
+                          '${context.t('eating_style')}: ${preview(eatingNames)}',
+                    ),
+                    _ProfilePill(
+                      icon: EatMeGlyph.shield,
+                      label:
+                          '${context.t('allergies')}: ${preview(allergyNames)}',
+                    ),
+                    _ProfilePill(
+                      icon: EatMeGlyph.shieldCheck,
+                      label:
+                          '${context.t('medical_restrictions')}: ${preview(medicalNames)}',
+                    ),
                     if (state.profile['household_size'] is int)
                       _ProfilePill(
                         icon: EatMeGlyph.usersRound,
@@ -84,18 +109,6 @@ class ProfilePage extends ConsumerWidget {
                           'count': state.profile['household_size'] as int,
                         }),
                       ),
-                    _ProfilePill(
-                      icon: state.theme == ThemeMode.dark
-                          ? EatMeGlyph.moon
-                          : state.theme == ThemeMode.light
-                          ? EatMeGlyph.sun
-                          : EatMeGlyph.monitor,
-                      label: themeLabel,
-                    ),
-                    _ProfilePill(
-                      icon: EatMeGlyph.languages,
-                      label: context.language.toUpperCase(),
-                    ),
                   ],
                 ),
               ],
@@ -437,40 +450,89 @@ class _ProfileAvatar extends ConsumerStatefulWidget {
 class _ProfileAvatarState extends ConsumerState<_ProfileAvatar> {
   bool busy = false;
 
-  Future<void> pick() async {
-    if (busy) return;
-    final file = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1024,
-      maxHeight: 1024,
-      imageQuality: 88,
+  Future<Uint8List?> currentAvatarBytes() async {
+    final mediaId = widget.mediaId;
+    if (mediaId == null || mediaId.isEmpty) return null;
+    final media = await ref.read(apiProvider).request('GET', '/media/$mediaId');
+    final encoded = media['base64'] as String?;
+    return encoded == null ? null : base64Decode(encoded);
+  }
+
+  Future<void> saveAvatarBytes(Uint8List bytes) async {
+    final api = ref.read(apiProvider);
+    final media = await api.request(
+      'POST',
+      '/media',
+      body: {'kind': 'avatar', 'base64': base64Encode(bytes)},
     );
-    if (file == null || !mounted) return;
+    Future<void> saveAvatar() async {
+      final profile = ref.read(appProvider).profile;
+      await Mutation().send(api, 'POST', '/profile/avatar', {
+        'media_id': media['id'],
+        'expected_version': profile['version'],
+      });
+    }
+
+    try {
+      await saveAvatar();
+    } on ApiFailure catch (error) {
+      if (error.code != 'stale_profile') rethrow;
+      await ref.read(appProvider.notifier).hydrate();
+      await saveAvatar();
+    }
+    await ref.read(appProvider.notifier).hydrate();
+  }
+
+  Future<void> editAvatar() async {
+    if (busy) return;
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      useSafeArea: true,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 14, 20, 28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SettingRow(
+              title: context.t('choose_new_profile_photo'),
+              icon: EatMeGlyph.image,
+              onTap: () => Navigator.pop(context, 'new'),
+            ),
+            if (widget.mediaId != null)
+              SettingRow(
+                title: context.t('reframe_profile_photo'),
+                subtitle: context.t('reframe_profile_photo_body'),
+                icon: EatMeGlyph.scanLine,
+                onTap: () => Navigator.pop(context, 'current'),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (action == null || !mounted) return;
+
     setState(() => busy = true);
     try {
-      final bytes = await file.readAsBytes();
-      final api = ref.read(apiProvider);
-      final media = await api.request(
-        'POST',
-        '/media',
-        body: {'kind': 'avatar', 'base64': base64Encode(bytes)},
+      Uint8List? bytes;
+      if (action == 'current') {
+        bytes = await currentAvatarBytes();
+      } else {
+        final file = await ImagePicker().pickImage(
+          source: ImageSource.gallery,
+          maxWidth: 1600,
+          maxHeight: 1600,
+          imageQuality: 94,
+        );
+        bytes = await file?.readAsBytes();
+      }
+      if (bytes == null || !mounted) return;
+      final cropped = await showDialog<Uint8List>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => _AvatarCropDialog(bytes: bytes!),
       );
-      Future<void> saveAvatar() async {
-        final profile = ref.read(appProvider).profile;
-        await Mutation().send(api, 'POST', '/profile/avatar', {
-          'media_id': media['id'],
-          'expected_version': profile['version'],
-        });
-      }
-
-      try {
-        await saveAvatar();
-      } on ApiFailure catch (error) {
-        if (error.code != 'stale_profile') rethrow;
-        await ref.read(appProvider.notifier).hydrate();
-        await saveAvatar();
-      }
-      await ref.read(appProvider.notifier).hydrate();
+      if (cropped == null || !mounted) return;
+      await saveAvatarBytes(cropped);
     } on ApiFailure catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -510,7 +572,7 @@ class _ProfileAvatarState extends ConsumerState<_ProfileAvatar> {
       label: context.t('change_profile_photo'),
       child: InkWell(
         customBorder: const CircleBorder(),
-        onTap: busy ? null : pick,
+        onTap: busy ? null : editAvatar,
         child: Stack(
           clipBehavior: Clip.none,
           children: [
@@ -552,4 +614,113 @@ class _ProfileAvatarState extends ConsumerState<_ProfileAvatar> {
       ),
     );
   }
+}
+
+
+class _AvatarCropDialog extends StatefulWidget {
+  const _AvatarCropDialog({required this.bytes});
+  final Uint8List bytes;
+
+  @override
+  State<_AvatarCropDialog> createState() => _AvatarCropDialogState();
+}
+
+class _AvatarCropDialogState extends State<_AvatarCropDialog> {
+  final cropKey = GlobalKey();
+  final transform = TransformationController();
+  bool saving = false;
+
+  Future<void> save() async {
+    if (saving) return;
+    setState(() => saving = true);
+    try {
+      await WidgetsBinding.instance.endOfFrame;
+      final boundary =
+          cropKey.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+      final image = await boundary.toImage(pixelRatio: 2);
+      final data = await image.toByteData(format: ui.ImageByteFormat.png);
+      image.dispose();
+      if (!mounted || data == null) return;
+      Navigator.pop(context, data.buffer.asUint8List());
+    } finally {
+      if (mounted) setState(() => saving = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    transform.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: Text(context.t('reframe_profile_photo')),
+    content: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 320),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            context.t('avatar_crop_help'),
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 16),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              RepaintBoundary(
+                key: cropKey,
+                child: ClipRect(
+                  child: SizedBox.square(
+                    dimension: 280,
+                    child: InteractiveViewer(
+                      transformationController: transform,
+                      minScale: 1,
+                      maxScale: 4,
+                      panEnabled: true,
+                      scaleEnabled: true,
+                      clipBehavior: Clip.hardEdge,
+                      child: SizedBox.square(
+                        dimension: 280,
+                        child: Image.memory(
+                          widget.bytes,
+                          fit: BoxFit.cover,
+                          gaplessPlayback: true,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              IgnorePointer(
+                child: Container(
+                  width: 280,
+                  height: 280,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+    actions: [
+      TextButton(
+        onPressed: saving ? null : () => Navigator.pop(context),
+        child: Text(context.t('cancel')),
+      ),
+      FilledButton(
+        key: const ValueKey('save-avatar-crop'),
+        onPressed: saving ? null : save,
+        child: Text(context.t('use_photo')),
+      ),
+    ],
+  );
 }
