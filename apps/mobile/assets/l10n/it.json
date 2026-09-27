@@ -1058,5 +1058,18 @@
   "read_more": "Leggi di più",
   "show_less": "Mostra meno",
   "recipe_steps_unavailable": "I passaggi di preparazione non sono disponibili per questa ricetta.",
-  "ingredient_quantity_unknown": "Alcune quantità non sono note. Controlla gli ingredienti prima di cucinare."
+  "ingredient_quantity_unknown": "Alcune quantità non sono note. Controlla gli ingredienti prima di cucinare.",
+  "pantry_staples": "Dispensa di base",
+  "pantry_row_subtitle": "Le basi che hai sempre in casa",
+  "pantry_intro": "Cosa hai sempre in casa?",
+  "pantry_body": "EatMe+ li considera sempre disponibili per le ricette, così nel Frigo tieni traccia solo dei freschi. Da soli non bastano mai a proporre una ricetta.",
+  "pantry_add_other": "Aggiungi un altro alimento",
+  "pantry_saved": "Dispensa di base salvata",
+  "did_the_shopping": "Ho fatto la spesa",
+  "purchase_estimate_note": "Le scadenze vengono stimate in base all’alimento: puoi modificarle dal Frigo.",
+  "purchased_summary": "{count} articoli aggiunti al Frigo",
+  "estimated_expiry_hint": "Nessuna data? EatMe+ stimerà il {date} in base alla durata tipica.",
+  "stale_pantry": "La dispensa è stata modificata altrove. Ricarica e riprova.",
+  "invalid_pantry": "Questa lista della dispensa non è valida.",
+  "invalid_items": "Seleziona almeno un articolo."
 }

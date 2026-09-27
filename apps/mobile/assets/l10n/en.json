@@ -1058,5 +1058,18 @@
   "read_more": "Read more",
   "show_less": "Show less",
   "recipe_steps_unavailable": "Preparation steps are not available for this recipe.",
-  "ingredient_quantity_unknown": "Some quantities are unknown. Check the ingredients before cooking."
+  "ingredient_quantity_unknown": "Some quantities are unknown. Check the ingredients before cooking.",
+  "pantry_staples": "Pantry staples",
+  "pantry_row_subtitle": "Basics you always have at home",
+  "pantry_intro": "What do you always have at home?",
+  "pantry_body": "EatMe+ treats these as available for every recipe, so you only track fresh food in Fridge. They never count as a fridge match on their own.",
+  "pantry_add_other": "Add another staple",
+  "pantry_saved": "Pantry staples saved",
+  "did_the_shopping": "I did the shopping",
+  "purchase_estimate_note": "Dates are estimated from typical shelf life; you can change them in Fridge.",
+  "purchased_summary": "{count} items added to Fridge",
+  "estimated_expiry_hint": "No date? EatMe+ will estimate {date} from typical shelf life.",
+  "stale_pantry": "Pantry staples changed elsewhere. Reload and try again.",
+  "invalid_pantry": "That pantry list is not valid.",
+  "invalid_items": "Select at least one item."
 }

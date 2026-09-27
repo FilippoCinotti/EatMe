@@ -11,10 +11,14 @@ class Food {
     required this.group,
     this.photoId,
     this.imageUrl,
+    this.shelfLifeDays = const {},
   });
   final String id, unit, group;
   final String? photoId, imageUrl;
   final Json name;
+
+  /// Typical shelf life per storage location, used only to estimate a date.
+  final Map<String, int> shelfLifeDays;
   factory Food.fromJson(Json j) => Food(
     id: j['id'] as String,
     name: Map<String, dynamic>.from(j['name'] as Map),
@@ -22,7 +26,19 @@ class Food {
     group: j['group'] as String,
     photoId: j['photo_id'] as String?,
     imageUrl: (j['image_url'] ?? j['thumbnail_url']) as String?,
+    shelfLifeDays: {
+      for (final entry in ((j['shelf_life_days'] as Map?) ?? const {}).entries)
+        if (entry.value is num) '${entry.key}': (entry.value as num).toInt(),
+    },
   );
+
+  /// Estimated date for [location] from [today], or null when not applicable.
+  DateTime? estimatedExpiry(String location, DateTime today) {
+    final days = shelfLifeDays[location];
+    return days == null
+        ? null
+        : DateTime(today.year, today.month, today.day + days);
+  }
 }
 
 class Diet {

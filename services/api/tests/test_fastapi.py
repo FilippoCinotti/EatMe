@@ -70,6 +70,21 @@ class FastAPITests(unittest.TestCase):
         self.assertEqual(response.status_code,200,response.text)
         self.assertTrue(response.json()['onboarded'])
 
+    def test_pantry_and_estimated_inventory_routes(self):
+        token=self.client.post('/api/v1/auth/register',json={'email':'pantry@example.invalid','password':'boundary-test-long'}).json()['access_token']
+        auth={'Authorization':'Bearer '+token}
+        self.client.put('/api/v1/profile',headers={**auth,'Idempotency-Key':new_id()},json={'name':'Alex','adult_confirmed':True})
+        pantry=self.client.get('/api/v1/pantry',headers=auth)
+        self.assertEqual(pantry.status_code,200,pantry.text)
+        oil=next(f['id'] for f in pantry.json()['suggestions'] if f['slug']=='olive-oil')
+        saved=self.client.post('/api/v1/pantry',headers={**auth,'Idempotency-Key':new_id()},json={'action':'set','food_ids':[oil],'expected_version':0})
+        self.assertEqual(saved.json()['version'],1,saved.text)
+        tomato=next(f['id'] for f in self.client.get('/api/v1/catalog',headers=auth).json()['foods'] if f['slug']=='tomato')
+        added=self.client.post('/api/v1/inventory',headers={**auth,'Idempotency-Key':new_id()},json={'food_id':tomato,'quantity':'100','estimate_expiry':True})
+        self.assertEqual(added.status_code,200,added.text)
+        batch=self.client.get('/api/v1/inventory',headers=auth).json()['items'][0]
+        self.assertEqual(batch['expiry_kind'],'estimated')
+
     def test_body_limit_and_unknown_input(self):
         self.assertEqual(self.client.post('/api/v1/auth/login',content=b'x'*262145).status_code,413)
         self.assertEqual(self.client.post('/api/v1/auth/login',json={'email':'a','password':'b','user_id':'spoof'}).status_code,422)

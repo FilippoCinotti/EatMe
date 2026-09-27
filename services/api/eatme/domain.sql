@@ -201,3 +201,8 @@ CREATE INDEX IF NOT EXISTS dinner_invitations_dinner ON dinner_invitations(dinne
 CREATE INDEX IF NOT EXISTS dinner_guest_responses_saved_guest ON dinner_guest_responses(remembered_guest_id);
 CREATE INDEX IF NOT EXISTS dinner_memories_household ON dinner_memories(household_id);
 INSERT INTO schema_versions(version) VALUES ('0006') ON CONFLICT DO NOTHING;
+CREATE TABLE IF NOT EXISTS household_pantry (
+ household_id TEXT PRIMARY KEY REFERENCES households(id) ON DELETE CASCADE,
+ data TEXT NOT NULL, version INTEGER NOT NULL, updated_at TEXT NOT NULL
+);
+INSERT INTO schema_versions(version) VALUES ('0007') ON CONFLICT DO NOTHING;

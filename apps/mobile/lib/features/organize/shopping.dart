@@ -66,6 +66,11 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
               ),
               const SizedBox(height: 8),
               Text(context.t('purchase_reconciliation_body')),
+              const SizedBox(height: 8),
+              Text(
+                context.t('purchase_estimate_note'),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
               const SizedBox(height: 16),
               Flexible(
                 child: SingleChildScrollView(
@@ -108,11 +113,25 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
       ),
     );
     if (confirmed != true || !mounted) return;
-    for (final item in candidates.where(
-      (item) => selected.contains(item['id']),
-    )) {
-      await purchase(item);
-    }
+    // One atomic request: every line gets an estimated date from typical
+    // shelf life, which the user can still edit from Fridge.
+    final result = await command({
+      'action': 'purchase_many',
+      'location': 'fridge',
+      'estimate_expiry': true,
+      'items': [
+        for (final item in candidates.where(
+          (item) => selected.contains(item['id']),
+        ))
+          {'id': item['id'], 'expected_version': item['version']},
+      ],
+    });
+    await ref.read(appProvider.notifier).refresh();
+    if (!mounted) return;
+    final count = (result['purchased'] as List? ?? const []).length;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.t('purchased_summary', {'count': count}))),
+    );
   }
 
   @override
@@ -187,8 +206,8 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
         )) ...[
           const SizedBox(height: 10),
           AsyncAction(
-            label: context.t('add_purchased_to_fridge'),
-            secondary: true,
+            key: const ValueKey('did-the-shopping'),
+            label: context.t('did_the_shopping'),
             action: () => reconcilePurchased(
               items
                   .where(

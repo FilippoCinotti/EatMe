@@ -403,6 +403,16 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
               if (chosen != null && mounted) setState(() => date = chosen);
             },
           ),
+          if (date == null &&
+              food!.estimatedExpiry(location, DateTime.now()) != null)
+            StatusNote(
+              key: const ValueKey('estimated-expiry-hint'),
+              text: context.t('estimated_expiry_hint', {
+                'date': MaterialLocalizations.of(context).formatCompactDate(
+                  food!.estimatedExpiry(location, DateTime.now())!,
+                ),
+              }),
+            ),
           if (date != null) ...[
             DropdownButtonFormField<String>(
               isExpanded: true,
@@ -434,6 +444,9 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
                 'expiry_kind': date == null ? 'unknown' : expiryKind,
                 if (date != null)
                   'expiry_date': date!.toIso8601String().substring(0, 10),
+                // Without a package date the API estimates one from typical
+                // shelf life; it is stored as an estimate, never a safety date.
+                if (date == null) 'estimate_expiry': true,
               };
               await mutation.send(
                 ref.read(apiProvider),

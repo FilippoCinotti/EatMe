@@ -266,6 +266,8 @@ class LifecycleService:
             result['custom_foods'] = [decode(r['data']) for r in tx.all("SELECT f.data FROM foods f JOIN content_ownership o ON o.content_id=f.id AND o.kind='food' WHERE o.user_id=?", (user_id,))]
             result['media'] = tx.all('SELECT id,kind,mime_type,size_bytes,created_at,expires_at FROM media_objects WHERE user_id=?', (user_id,))
             result['shopping'] = self.shopping(user_id)['items'] if tx.postgres else tx.all('SELECT * FROM shopping_items WHERE household_id=?', (result['profile']['household_id'],))
+            pantry = tx.one('SELECT data,version,updated_at FROM household_pantry WHERE household_id=?', (result['profile']['household_id'],))
+            result['pantry'] = {**pantry, 'data': decode(pantry['data'])} if pantry else None
             result['dinners'] = [
                 {**row, 'data': decode(row['data'])}
                 for row in tx.all('SELECT * FROM dinners WHERE host_user_id=? ORDER BY starts_at', (user_id,))
