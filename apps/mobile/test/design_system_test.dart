@@ -22,17 +22,18 @@ Widget harness(Widget child, {Brightness brightness = Brightness.light}) =>
     );
 
 void main() {
-  testWidgets('previous sans typography is used across the interface', (
+  testWidgets('display typography is reserved for titles and wordmark', (
     tester,
   ) async {
     final theme = Tokens.theme(Brightness.light);
-    expect(theme.textTheme.displaySmall?.fontFamily, 'EatMeSans');
-    expect(theme.textTheme.headlineMedium?.fontFamily, 'EatMeSans');
-    expect(theme.textTheme.labelLarge?.fontFamily, 'EatMeSans');
+    expect(theme.textTheme.displaySmall?.fontFamily, 'EatMeDisplay');
+    expect(theme.textTheme.headlineMedium?.fontFamily, 'EatMeDisplay');
+    expect(theme.textTheme.labelLarge?.fontFamily, 'EatMeDisplay');
     expect(theme.textTheme.titleLarge?.fontFamily, 'EatMeSans');
     expect(theme.textTheme.bodyLarge?.fontFamily, 'EatMeSans');
 
-    expect(EatMeWordmark.fontFamily, 'EatMeSans');
+    expect(EatMeWordmark.fontFamily, 'EatMeDisplay');
+    expect(EatMeWordmark.plusScale, lessThan(1));
   });
 
   testWidgets('busy action prevents duplicate consumption submissions', (
