@@ -35,5 +35,6 @@
   "confirm_identification_and_family": "J’ai vérifié l’aliment et la quantité",
   "classify_product": "Choisir l’aliment correspondant",
   "product_family_required": "Choisissez l’aliment correspondant à ce produit avant de l’ajouter au frigo.",
-  "map_product_to_food": "Confirmer et ajouter au frigo"
+  "map_product_to_food": "Confirmer et ajouter au frigo",
+  "best_match": "Suggéré par EatMe+"
 }
