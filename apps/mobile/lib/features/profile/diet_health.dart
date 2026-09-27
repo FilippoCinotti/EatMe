@@ -57,6 +57,9 @@ class DietHealthPage extends ConsumerWidget {
       ),
     );
 
+    String description(String section) =>
+        context.t('diet_section_${section}_description');
+
     final sections = <(String, String, String, EatMeGlyph)>[
       (
         'eating',
@@ -197,7 +200,7 @@ class DietHealthPage extends ConsumerWidget {
                 SettingRow(
                   key: ValueKey('diet-section-${section.$1}'),
                   title: section.$2,
-                  subtitle: section.$3,
+                  subtitle: '${description(section.$1)}\n${section.$3}',
                   icon: section.$4,
                   onTap: () => edit(section.$1),
                 ),
@@ -400,28 +403,15 @@ class _DietHealthPageState extends ConsumerState<_DietHealthEditorPage> {
       appBar: EatMeAppBar(title: Text(context.t('diet_health'))),
       body: PageBody(
         children: [
-          InformationPanel(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                EatMeIcon(
-                  EatMeGlyph.shieldCheck,
-                  size: 30,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  context.t('diet_health_control_title'),
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  context.t('diet_health_control_body'),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
+          Text(
+            context.t('diet_section_${widget.section}_title'),
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            context.t('diet_section_${widget.section}_description'),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           if ({
@@ -429,16 +419,7 @@ class _DietHealthPageState extends ConsumerState<_DietHealthEditorPage> {
             'medical',
             'therapeutic',
           }.contains(widget.section)) ...[
-            const SizedBox(height: 26),
-            SectionHeading(
-              title: context.t(
-                widget.section == 'eating'
-                    ? 'eating_style'
-                    : widget.section == 'medical'
-                    ? 'medical_restrictions'
-                    : 'therapeutic_protocols',
-              ),
-            ),
+            const SizedBox(height: 22),
             Text(
               context.t('diet_profiles_help'),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(

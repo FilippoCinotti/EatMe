@@ -143,6 +143,22 @@ class GuiltyVisualController extends VisualController {
   );
 }
 
+class AvatarVisualController extends VisualController {
+  @override
+  AppState build() {
+    final state = super.build();
+    final settings = Map<String, dynamic>.from(
+      state.profile['settings'] as Map? ?? {},
+    );
+    return state.copy(
+      profile: {
+        ...state.profile,
+        'settings': {...settings, 'avatar_media_id': 'avatar-1'},
+      },
+    );
+  }
+}
+
 class VisualApi extends support.TestApi {
   @override
   Future<Json> request(
@@ -162,6 +178,12 @@ class VisualApi extends support.TestApi {
             'status': 'planned',
           },
         ],
+      };
+    }
+    if (method == 'GET' && path == '/media/avatar-1') {
+      return {
+        'base64':
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9ZlYQAAAAASUVORK5CYII=',
       };
     }
     if (method == 'GET' && path.startsWith('/recipes/')) {
@@ -314,6 +336,122 @@ void main() {
       });
     }
   }
+  testWidgets(
+    'ChefTable renders avatar and keeps the suggestion visible for an unmatched search',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        support.harness(
+          const AppShell(path: '/chef', child: ChefTablePage()),
+          VisualApi(),
+          controller: AvatarVisualController.new,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const ValueKey('chef-profile-avatar-image')),
+        findsOneWidget,
+      );
+      expect(find.text('Suggested by EatMe+'), findsOneWidget);
+      expect(find.text('4/4 ingredients at home'), findsOneWidget);
+      expect(find.text('Why EatMe+ picked this'), findsNothing);
+      expect(find.text('Checking against your profile'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextField).first, 'not-a-recipe');
+      await tester.pumpAndSettle();
+
+      expect(find.text('Try another name or category.'), findsOneWidget);
+      expect(find.text('Zucchini & spinach pasta'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('Profile preview prioritizes dietary and medical context', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      support.harness(
+        const ProfilePage(),
+        VisualApi(),
+        controller: VisualController.new,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Eating style:'), findsOneWidget);
+    expect(find.textContaining('Allergies:'), findsOneWidget);
+    expect(find.textContaining('Medical dietary settings:'), findsOneWidget);
+    expect(find.text('System'), findsNothing);
+    expect(find.text('EN'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Existing profile photo can be reframed', (tester) async {
+    await tester.pumpWidget(
+      support.harness(
+        const ProfilePage(),
+        VisualApi(),
+        controller: AvatarVisualController.new,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final avatar = find.byType(Image).first;
+    await tester.tap(avatar);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Choose a new photo'), findsOneWidget);
+    expect(find.text('Reframe profile photo'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'Planner actions stay horizontal and diners action disappears after selection',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        support.harness(
+          const PlannerPage(),
+          VisualApi(),
+          controller: VisualController.new,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final date = find.byKey(const ValueKey('planner-date-action'));
+      final diners = find.byKey(const ValueKey('planner-diners-action'));
+      final smart = find.byKey(const ValueKey('planner-smart-action'));
+      expect(date, findsOneWidget);
+      expect(diners, findsOneWidget);
+      expect(smart, findsOneWidget);
+
+      final dateTop = tester.getTopLeft(date).dy;
+      expect(tester.getTopLeft(diners).dy, dateTop);
+      expect(tester.getTopLeft(smart).dy, dateTop);
+
+      await tester.tap(diners);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const ValueKey('planner-diners-action')), findsNothing);
+      expect(find.byKey(const ValueKey('planner-date-action')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('planner-smart-action')),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('unknown content does not borrow a demo photograph', (
     tester,
   ) async {

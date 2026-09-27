@@ -96,7 +96,30 @@ jobs:
           retention-days: 7
       - run: flutter analyze
         working-directory: apps/mobile
-      - run: flutter test
+      - name: Run Flutter tests
+        shell: bash
+        run: |
+          set +e
+          flutter test --reporter expanded > "$RUNNER_TEMP/flutter-test.log" 2>&1
+          test_status=$?
+          if [ "$test_status" -ne 0 ]; then
+            failure_summary="$(
+              { grep -aE '\[E\]|FAILED|Some tests failed' "$RUNNER_TEMP/flutter-test.log" | head -n 40; grep -a -A 60 -m 5 'EXCEPTION CAUGHT' "$RUNNER_TEMP/flutter-test.log"; } | cut -c1-1000 | head -n 400
+            )"
+            if [ -z "$failure_summary" ]; then
+              failure_summary="$(tail -n 200 "$RUNNER_TEMP/flutter-test.log" | cut -c1-1000)"
+            fi
+            {
+              echo "### Flutter test failures"
+              echo
+              echo '~~~text'
+              echo "$failure_summary"
+              echo '~~~'
+            } >> "$GITHUB_STEP_SUMMARY"
+            failure_annotation="$(printf '%s' "$failure_summary" | tr '\n\r' '  ' | cut -c1-50000)"
+            echo "::error title=Flutter test failures::$failure_annotation"
+          fi
+          exit "$test_status"
         working-directory: apps/mobile
       - name: Validate localization and screenshot route policy
         if: runner.os == 'Linux'
