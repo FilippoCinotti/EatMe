@@ -35,5 +35,6 @@
   "confirm_identification_and_family": "我已确认食材和数量",
   "classify_product": "选择对应食材",
   "product_family_required": "将产品加入冰箱前，请先选择与它对应的食材。",
-  "map_product_to_food": "确认并加入冰箱"
+  "map_product_to_food": "确认并加入冰箱",
+  "best_match": "EatMe+ 推荐"
 }
