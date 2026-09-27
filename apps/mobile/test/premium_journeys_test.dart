@@ -605,11 +605,6 @@ void main() {
           'diet-health-eating-style',
         ),
         (
-          const ValueKey('diet-section-medical'),
-          const ValueKey('diet-rad'),
-          'diet-health-medical',
-        ),
-        (
           const ValueKey('diet-section-allergies'),
           const ValueKey('allergen-milk'),
           'diet-health-allergies',
@@ -618,6 +613,11 @@ void main() {
           const ValueKey('diet-section-sensitivities'),
           const ValueKey('intolerance-lactose'),
           'diet-health-sensitivities',
+        ),
+        (
+          const ValueKey('diet-section-medical'),
+          const ValueKey('diet-rad'),
+          'diet-health-medical',
         ),
         (
           const ValueKey('diet-section-therapeutic'),
