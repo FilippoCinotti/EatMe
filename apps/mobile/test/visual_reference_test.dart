@@ -409,6 +409,46 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets(
+    'Planner actions stay horizontal and diners action disappears after selection',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        support.harness(
+          const PlannerPage(),
+          VisualApi(),
+          controller: VisualController.new,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final date = find.byKey(const ValueKey('planner-date-action'));
+      final diners = find.byKey(const ValueKey('planner-diners-action'));
+      final smart = find.byKey(const ValueKey('planner-smart-action'));
+      expect(date, findsOneWidget);
+      expect(diners, findsOneWidget);
+      expect(smart, findsOneWidget);
+
+      final dateTop = tester.getTopLeft(date).dy;
+      expect(tester.getTopLeft(diners).dy, dateTop);
+      expect(tester.getTopLeft(smart).dy, dateTop);
+
+      await tester.tap(diners);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const ValueKey('planner-diners-action')), findsNothing);
+      expect(find.byKey(const ValueKey('planner-date-action')), findsOneWidget);
+      expect(find.byKey(const ValueKey('planner-smart-action')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('unknown content does not borrow a demo photograph', (
     tester,
   ) async {
