@@ -1,5 +1,5 @@
 {
-  "catalog_version": 4,
+  "catalog_version": 5,
   "policy": {
     "source_facts": "Titles, ingredient facts, portions and timings are grounded in the cited editorial source.",
     "instructions": "EatMe stores concise original wording derived from the verified cooking method; source prose is not copied.",
@@ -10346,6 +10346,3116 @@
       "cook_minutes": 30,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "agrodolce-brussels-sprouts",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/agrodolce-brussels-sprouts",
+      "prep_minutes": 10,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "air-fryer-buffalo-cauliflower-wings",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/air-fryer-buffalo-cauliflower-wings",
+      "prep_minutes": 10,
+      "cook_minutes": 49,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "air-fryer-fish-chips",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/air-fryer-fish-chips",
+      "prep_minutes": 10,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "air-fryer-hunter-s-chicken",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/air-fryer-hunters-chicken",
+      "prep_minutes": 5,
+      "cook_minutes": 35,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "air-fryer-loaded-frittata-with-bacon-cheddar",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/air-fryer-loaded-frittata-with-bacon-cheddar",
+      "prep_minutes": 5,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "air-fryer-sponge-cake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/air-fryer-sponge-cake",
+      "prep_minutes": 15,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "air-fryer-steak",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/air-fryer-steak",
+      "prep_minutes": 2,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "anytime-pesto-prawn-pasta-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/anytime-pesto-prawn-pasta-salad",
+      "prep_minutes": 15,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "apple-pancakes-with-cinnamon-butter-syrup",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/apple-cranberry-pancakes-cinnamon-butter-syrup",
+      "prep_minutes": 20,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 15,
+      "status": "verified"
+    },
+    {
+      "slug": "apple-pear-walnut-crumble",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/apple-pear-walnut-crumble",
+      "prep_minutes": 35,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "asparagus-chilli-feta-farfalle",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/asparagus-chilli-feta-farfalle",
+      "prep_minutes": 5,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "authentic-carbonara",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/authentic-carbonara",
+      "prep_minutes": 20,
+      "cook_minutes": 14,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "bacon-avocado-warm-pasta-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/bacon-avocado-warm-pasta-salad",
+      "prep_minutes": 10,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "baked-aubergines-stuffed-with-minced-lamb",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/baked-aubergines-stuffed-minced-lamb",
+      "prep_minutes": 20,
+      "cook_minutes": 50,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "baked-chicken-drumsticks",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/baked-chicken-drumsticks",
+      "prep_minutes": 5,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "baked-lemon-vanilla-rice-pudding",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/baked-lemon-vanilla-rice-pudding",
+      "prep_minutes": 5,
+      "cook_minutes": 95,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "baked-potato-with-mince",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/baked-potato-cheesy-mince",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "banana-cupcakes",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/banana-fairy-cakes",
+      "prep_minutes": 10,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "beef-boston-baked-beans",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/beef-boston-baked-beans",
+      "prep_minutes": 20,
+      "cook_minutes": 270,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "beef-goulash-soup",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/beef-goulash-soup",
+      "prep_minutes": 15,
+      "cook_minutes": 60,
+      "rest_minutes": 0,
+      "servings": 3,
+      "status": "verified"
+    },
+    {
+      "slug": "beef-pie-with-crisp-potato-crust",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/beef-pie-crisp-potato-crust",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "beetroot-red-cabbage-sauerkraut",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/beetroot-red-cabbage-sauerkraut",
+      "prep_minutes": 30,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "big-batch-bolognese",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/big-batch-bolognese",
+      "prep_minutes": 25,
+      "cook_minutes": 90,
+      "rest_minutes": 0,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "blackberry-cheesecake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/blackberry-cheesecake",
+      "prep_minutes": 15,
+      "cook_minutes": 80,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "blackberry-queen-of-puddings",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/blackberry-queen-of-puddings",
+      "prep_minutes": 20,
+      "cook_minutes": 60,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "boston-baked-beans",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/boston-baked-beans",
+      "prep_minutes": 20,
+      "cook_minutes": 150,
+      "rest_minutes": 250,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "boxty-with-bacon-eggs-tomatoes",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/boxty-bacon-eggs-tomatoes",
+      "prep_minutes": 20,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "braised-bacon-with-colcannon-cakes",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/braised-bacon-colcannon-cakes",
+      "prep_minutes": 15,
+      "cook_minutes": 70,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "broad-bean-dill-pilaf",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/broad-bean-dill-pilaf",
+      "prep_minutes": 5,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "bucatini-with-mushrooms-sausage",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/bucatini-with-mushrooms-sausage",
+      "prep_minutes": 5,
+      "cook_minutes": 22,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "butter-basted-bbq-cabbage",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/butter-basted-bbq-cabbage",
+      "prep_minutes": 5,
+      "cook_minutes": 75,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "cacio-e-pepe",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/cacio-e-pepe",
+      "prep_minutes": 5,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "caramelised-red-onion-anchovy-pasta-with-gremolata",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/caramelised-red-onion-anchovy-pasta-with-gremolata",
+      "prep_minutes": 20,
+      "cook_minutes": 50,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "cauliflower-chestnut-sage-cake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/cauliflower-chestnut-sage-cake",
+      "prep_minutes": 15,
+      "cook_minutes": 50,
+      "rest_minutes": 0,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "cauliflower-leek-cheddar-pie-with-mustard-thyme-pastry",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/cauliflower-leek-cheddar-pie-with-mustard-thyme-pastry",
+      "prep_minutes": 40,
+      "cook_minutes": 60,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "charred-squash-spiced-lamb",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/charred-squash-spiced-lamb",
+      "prep_minutes": 15,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "cheese-bacon-turnovers",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/cheese-bacon-turnovers",
+      "prep_minutes": 10,
+      "cook_minutes": 24,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "cheese-flan",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/cheese-flan",
+      "prep_minutes": 10,
+      "cook_minutes": 45,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "cheese-stuffed-garlic-dough-balls-with-a-tomato-sauce-dip",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/doughball-tree",
+      "prep_minutes": 40,
+      "cook_minutes": 35,
+      "rest_minutes": 0,
+      "servings": 20,
+      "status": "verified"
+    },
+    {
+      "slug": "cheesy-leek-bacon-puff-pastry",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/cheesy-leek-bacon-puff",
+      "prep_minutes": 20,
+      "cook_minutes": 50,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "cheesy-sprout-fondue",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/cheesy-sprout-fondue",
+      "prep_minutes": 15,
+      "cook_minutes": 35,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "cheesy-stuffed-baked-potatoes",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/bonfire-night-baked-potatoes",
+      "prep_minutes": 15,
+      "cook_minutes": 90,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "chicken-and-strozzapreti-pasta",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chicken-strozzapreti-pasta",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "chicken-bean-enchiladas",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chicken-bean-enchiladas",
+      "prep_minutes": 10,
+      "cook_minutes": 55,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "chicken-casserole-with-red-wine-ham-peppers",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chicken-casserole-red-wine-ham-peppers",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "chicken-dopiaza",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chicken-dopiaza",
+      "prep_minutes": 10,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "chicken-in-white-wine-sauce",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chicken-in-white-wine-sauce",
+      "prep_minutes": 20,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "chicken-roasted-with-winter-root-vegetables",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chicken-roasted-winter-root-vegetables",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "chicken-saag",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chicken-saag",
+      "prep_minutes": 10,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "chicken-shawarma-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chicken-shawarma-salad",
+      "prep_minutes": 30,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "chicken-skewers-with-tzatziki",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chicken-skewers-tzatziki",
+      "prep_minutes": 10,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "chicken-soy-ginger-and-garlic",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chicken-soy-ginger-garlic",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "chicken-stroganoff",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chicken-stroganoff",
+      "prep_minutes": 15,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "chicken-tinga-style-enchiladas",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chicken-tinga-style-enchiladas",
+      "prep_minutes": 15,
+      "cook_minutes": 45,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "chicken-tzatziki-wraps",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chicken-tzatziki-wraps",
+      "prep_minutes": 10,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "chickpea-fritters-with-courgette-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chickpea-fritters-courgette-salad",
+      "prep_minutes": 10,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "chilli-ginger-lamb-chops",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chilli-ginger-lamb-chops",
+      "prep_minutes": 10,
+      "cook_minutes": 8,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "chilli-lime-squid-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chilli-lime-squid-salad",
+      "prep_minutes": 15,
+      "cook_minutes": 3,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "chipotle-chicken-wraps",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chipotle-chicken-wraps",
+      "prep_minutes": 15,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "chipotle-honey-cornbread-with-black-bean-salsa",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chipotle-honey-cornbread-with-black-bean-salsa",
+      "prep_minutes": 30,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "chipotle-lime-dressing",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chipotle-lime-dressing",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "chipotle-sweet-potato-black-bean-stew-with-cheddar-dumplings",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chipotle-sweet-potato-black-bean-stew-cheddar-dumplings",
+      "prep_minutes": 10,
+      "cook_minutes": 50,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "chocolate-birthday-cake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chocolate-birthday-cake",
+      "prep_minutes": 0,
+      "cook_minutes": 25,
+      "rest_minutes": 20,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "chocolate-chip-cake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chocolate-chip-cake",
+      "prep_minutes": 30,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 1,
+      "status": "verified"
+    },
+    {
+      "slug": "chocolate-cremeux",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chocolate-cremeux",
+      "prep_minutes": 30,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "chocolate-hazelnut-biscotti",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chocolate-hazelnut-biscotti",
+      "prep_minutes": 20,
+      "cook_minutes": 45,
+      "rest_minutes": 0,
+      "servings": 20,
+      "status": "verified"
+    },
+    {
+      "slug": "chocolate-pie-with-toffee-sauce-coffee-cream",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chocolate-pie-toffee-sauce-coffee-cream",
+      "prep_minutes": 25,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "chocolate-salted-hazelnut-praline-slice",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chocolate-salted-hazelnut-praline-slice",
+      "prep_minutes": 20,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "chorizo-scotch-quails-eggs",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/chorizo-scotch-quails-eggs",
+      "prep_minutes": 90,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "christmas-crumble",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/christmas-crumble",
+      "prep_minutes": 25,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "christmas-morning-spiced-bread",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/christmas-morning-spiced-bread",
+      "prep_minutes": 30,
+      "cook_minutes": 40,
+      "rest_minutes": 120,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "cinnamon-blueberry-tart",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/cinnamon-blueberry-tart",
+      "prep_minutes": 15,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "coconut-chocolate-bananas",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/coconut-chocolate-bananas",
+      "prep_minutes": 5,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "coconut-flour-cookies",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/coconut-flour-cookies",
+      "prep_minutes": 5,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "cod-with-butter-bean-colcannon",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/cod-butter-bean-colcannon",
+      "prep_minutes": 5,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "coriander-roast-chicken-thighs-with-puy-lentil-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/coriander-roast-chicken-thighs-with-puy-lentil-salad",
+      "prep_minutes": 20,
+      "cook_minutes": 45,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "cornbread",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/cornbread",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "courgette-fries",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/courgette-fries",
+      "prep_minutes": 5,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "courgette-potato-feta-slices",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/courgette-potato-feta-slices",
+      "prep_minutes": 25,
+      "cook_minutes": 60,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "crab-cakes-with-dill-mayonnaise",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/crab-cakes-dill-mayonnaise",
+      "prep_minutes": 15,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "crab-lemon-spaghetti",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/crab-lemon-spaghetti",
+      "prep_minutes": 0,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "crab-spring-onion-pancetta-slice",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/crab-spring-onion-pancetta-slice",
+      "prep_minutes": 15,
+      "cook_minutes": 35,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "creamed-corn-bacon",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/creamed-corn-bacon",
+      "prep_minutes": 10,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 5,
+      "status": "verified"
+    },
+    {
+      "slug": "creamed-leek-tart",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/creamed-leek-tart",
+      "prep_minutes": 30,
+      "cook_minutes": 90,
+      "rest_minutes": 60,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "creamed-leeks-with-bacon-thyme",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/creamed-leeks-bacon-thyme",
+      "prep_minutes": 5,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "creamy-broccoli-cheese-soup",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/creamy-broccoli-cheese-soup",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "creamy-chicken-bean-leek-traybake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/creamy-chicken-bean-leek-traybake",
+      "prep_minutes": 5,
+      "cook_minutes": 50,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "creamy-saffron-yogurt",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/creamy-saffron-yogurt",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "crisp-skin-fish-with-asparagus",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/crisp-skin-fish-asparagus",
+      "prep_minutes": 40,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "crispy-baked-tofu",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/easy-crispy-tofu",
+      "prep_minutes": 10,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "crispy-chinese-duck-with-peaches",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/crispy-chinese-duck-peaches",
+      "prep_minutes": 35,
+      "cook_minutes": 185,
+      "rest_minutes": 25,
+      "servings": 5,
+      "status": "verified"
+    },
+    {
+      "slug": "crispy-layered-thyme-potatoes",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/parmesan-crusted-layered-potatoes",
+      "prep_minutes": 30,
+      "cook_minutes": 50,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "crispy-sweet-and-sour-chicken",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/crispy-sweet-sour-chicken",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "cumin-crusted-lamb-with-shallots-crushed-new-potatoes",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/cumin-crusted-lamb-shallots-crushed-new-potatoes",
+      "prep_minutes": 10,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "curry-in-a-hurry",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/curry-hurry",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "date-buckwheat-granola-with-pecans-seeds",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/date-buckwheat-granola-pecans-seeds",
+      "prep_minutes": 10,
+      "cook_minutes": 35,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "dauphinoise-potatoes",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/dauphinoise-potatoes",
+      "prep_minutes": 20,
+      "cook_minutes": 45,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "devilled-tofu-kebabs",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/devilled-tofu-kebabs",
+      "prep_minutes": 25,
+      "cook_minutes": 35,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "doggie-ice-cream",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/doggie-ice-cream",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 16,
+      "status": "verified"
+    },
+    {
+      "slug": "domino-potato-cod-prawn-chorizo-pie",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/domino-potato-cod-prawn-chorizo-pie",
+      "prep_minutes": 45,
+      "cook_minutes": 70,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "double-choc-hot-cross-buns",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/double-choc-hot-cross-buns",
+      "prep_minutes": 45,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "double-chocolate-easter-danish",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/double-chocolate-easter-danish",
+      "prep_minutes": 0,
+      "cook_minutes": 45,
+      "rest_minutes": 40,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "double-chocolate-passion-fruit-tart",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/double-chocolate-passion-fruit-tart",
+      "prep_minutes": 45,
+      "cook_minutes": 35,
+      "rest_minutes": 0,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "double-dipped-shortbread-cookies",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/double-dipped-shortbread-cookies",
+      "prep_minutes": 20,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 15,
+      "status": "verified"
+    },
+    {
+      "slug": "dressed-spring-cabbage",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/dressed-spring-cabbage",
+      "prep_minutes": 0,
+      "cook_minutes": 10,
+      "rest_minutes": 5,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "duchess-potatoes",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/duchess-potatoes",
+      "prep_minutes": 25,
+      "cook_minutes": 35,
+      "rest_minutes": 0,
+      "servings": 20,
+      "status": "verified"
+    },
+    {
+      "slug": "duck-breasts-with-redcurrant-onion-relish",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/duck-breasts-redcurrant-onion-relish",
+      "prep_minutes": 15,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "easter-chocolate-truffle-cake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/easter-chocolate-truffle-cake",
+      "prep_minutes": 45,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "easy-chocolate-fudge-cake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/naughty-chocolate-fudge-cake",
+      "prep_minutes": 25,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "easy-onion-gravy",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/onion-gravy",
+      "prep_minutes": 10,
+      "cook_minutes": 65,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "easy-soda-bread",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/simple-soda-bread",
+      "prep_minutes": 5,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "egg-fried-noodles-with-beansprouts",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/egg-fried-noodles-with-beansprouts",
+      "prep_minutes": 10,
+      "cook_minutes": 12,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "feta-crusted-lamb-with-rich-tomato-sauce",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/feta-crusted-lamb-rich-tomato-sauce",
+      "prep_minutes": 20,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "flattened-chicken-with-tomatoes-olives-capers",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/flattened-chicken-tomatoes-olives-capers",
+      "prep_minutes": 10,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 1,
+      "status": "verified"
+    },
+    {
+      "slug": "floating-islands",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/floating-islands",
+      "prep_minutes": 15,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "flourless-brownies",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/flourless-brownies",
+      "prep_minutes": 20,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 16,
+      "status": "verified"
+    },
+    {
+      "slug": "flourless-chocolate-almond-cake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/flourless-chocolate-almond-cake",
+      "prep_minutes": 30,
+      "cook_minutes": 50,
+      "rest_minutes": 0,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "fluffy-pittas",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/fluffy-pittas",
+      "prep_minutes": 20,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "french-onion-soup",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/french-onion-soup",
+      "prep_minutes": 15,
+      "cook_minutes": 55,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "french-style-chicken-with-peas-bacon",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/french-style-chicken-peas-bacon",
+      "prep_minutes": 10,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "fresh-savoy-red-onion-egg-pie",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/fresh-savoy-red-onion-egg-pie",
+      "prep_minutes": 0,
+      "cook_minutes": 60,
+      "rest_minutes": 30,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "frying-pan-pizza-with-aubergine-ricotta-mint",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/frying-pan-pizza-aubergine-ricotta-mint",
+      "prep_minutes": 25,
+      "cook_minutes": 35,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "fudgy-brownies",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/fudgy-brownies",
+      "prep_minutes": 20,
+      "cook_minutes": 35,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "fudgy-dark-chocolate-cake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/fudgy-dark-chocolate-cake",
+      "prep_minutes": 0,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "garlic-mashed-potatoes",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/garlic-mashed-potatoes",
+      "prep_minutes": 10,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "garlic-parmesan-breaded-chicken-with-quick-giardiniera",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/garlic-parmesan-breaded-chicken-with-quick-giardiniera",
+      "prep_minutes": 40,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "ginger-chicken-peach-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/ginger-chicken-peach-salad",
+      "prep_minutes": 0,
+      "cook_minutes": 35,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "glazed-sesame-salmon",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/glazed-sesame-salmon",
+      "prep_minutes": 10,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "gnocchi-traybake-with-lemony-ricotta",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/gnocchi-traybake-with-lemony-ricotta",
+      "prep_minutes": 10,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "gooseberry-crumble",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/gooseberry-crumble",
+      "prep_minutes": 15,
+      "cook_minutes": 50,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "grapefruit-poppy-seed-cake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/grapefruit-poppy-seed-cake",
+      "prep_minutes": 20,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "gratin-of-summer-berries",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/gratin-summer-berries",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "green-goddess-bowl-with-crispy-sesame-tofu",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/green-goddess-bowl-with-crispy-sesame-tofu",
+      "prep_minutes": 20,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "griddled-chicken-corn-on-the-cob-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/griddled-chicken-corn-cob-salad",
+      "prep_minutes": 15,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "grilled-corn-with-garlic-mayo-grated-cheese",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/grilled-corn-garlic-mayo-grated-cheese",
+      "prep_minutes": 5,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "grilled-salmon-teriyaki-with-cucumber-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/grilled-salmon-teriyaki-cucumber-salad",
+      "prep_minutes": 10,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "harissa-chicken-squash-traybake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/harissa-chicken-traybake-0",
+      "prep_minutes": 15,
+      "cook_minutes": 35,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "healthy-burgers",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/ultimate-makeover-burgers",
+      "prep_minutes": 25,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "herby-mushroom-pasta",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/herby-mushroom-pasta",
+      "prep_minutes": 5,
+      "cook_minutes": 12,
+      "rest_minutes": 3,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "herby-toad-in-the-hole",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/herby-toad-hole",
+      "prep_minutes": 10,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "hoisin-duck-stir-fry",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/hoisin-duck-stir-fry",
+      "prep_minutes": 3,
+      "cook_minutes": 12,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "honey-chicken",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/honey-chicken",
+      "prep_minutes": 15,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "honey-roast-beetroot",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/honey-roast-beetroot",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "hot-smoked-salmon-with-fennel-salad-lemon-mayo",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/hot-smoked-salmon-fennel-salad-lemon-mayo",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "iced-latte",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/iced-latte",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 1,
+      "status": "verified"
+    },
+    {
+      "slug": "italian-chicken-with-ham-basil-beans",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/italian-chicken-ham-basil-beans",
+      "prep_minutes": 10,
+      "cook_minutes": 75,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "jewelled-pork-pistachio-pie",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/jewelled-pork-pistachio-pie",
+      "prep_minutes": 45,
+      "cook_minutes": 125,
+      "rest_minutes": 0,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "korean-style-prawn-spring-onion-pancake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/korean-style-prawn-spring-onion-pancake",
+      "prep_minutes": 10,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 1,
+      "status": "verified"
+    },
+    {
+      "slug": "lamb-chops-with-chilli-ligurian-broad-bean-pesto",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/lamb-chops-chilli-ligurian-broad-bean-pesto",
+      "prep_minutes": 40,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "lime-chilli-feta-butter",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/lime-chilli-feta-butter",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "lime-curd-tarts-with-summer-berries",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/lime-curd-tarts-summer-berries",
+      "prep_minutes": 30,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "lincolnshire-sausage-lentil-simmer",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/lincolnshire-sausage-lentil-simmer",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "loaded-black-bean-dip-with-quick-tortilla-chips",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/loaded-black-bean-dip-with-quick-tortilla-chips",
+      "prep_minutes": 20,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "luscious-lemon-baked-cheesecake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/luscious-lemon-baked-cheesecake",
+      "prep_minutes": 10,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "mango-pear-ginger-crumble",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/mango-pear-ginger-crumble",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "marbled-chocolate-brownies",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/marbled-chocolate-brownies",
+      "prep_minutes": 0,
+      "cook_minutes": 30,
+      "rest_minutes": 10,
+      "servings": 16,
+      "status": "verified"
+    },
+    {
+      "slug": "marinated-lamb-steaks-with-barley-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/marinated-lamb-steaks-barley-salad",
+      "prep_minutes": 15,
+      "cook_minutes": 30,
+      "rest_minutes": 15,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "marry-me-chicken",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/marry-me-chicken",
+      "prep_minutes": 20,
+      "cook_minutes": 45,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "mary-s-maple-orange-glazed-chicken",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/marys-maple-orange-glazed-chicken",
+      "prep_minutes": 0,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "microwave-cheat-s-paella",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/microwave-cheats-paella",
+      "prep_minutes": 15,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "mini-gingerbread-house-mug-toppers",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/mini-gingerbread-house-mug-toppers",
+      "prep_minutes": 20,
+      "cook_minutes": 12,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "mini-maple-mustard-pigs-in-blankets",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/mini-maple-mustard-pigs-in-blankets",
+      "prep_minutes": 15,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "mini-pumpkin-feta-pies",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/mini-pumpkin-feta-pies",
+      "prep_minutes": 40,
+      "cook_minutes": 70,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "mint-yogurt-sauce",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/mint-yogurt-sauce",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "minty-lamb-with-warm-veg-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/minty-lamb-warm-veg-salad",
+      "prep_minutes": 10,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "miso-salmon",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/grilled-miso-salmon-rice-noodles",
+      "prep_minutes": 10,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "mixed-seed-bread",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/mixed-seed-bread",
+      "prep_minutes": 25,
+      "cook_minutes": 30,
+      "rest_minutes": 180,
+      "servings": 1,
+      "status": "verified"
+    },
+    {
+      "slug": "movie-night-nachos-with-chorizo-creamy-guacamole",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/movie-night-nachos-chorizo-creamy-guacamole",
+      "prep_minutes": 20,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "mozzarella-mango-serrano-ham-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/mozzarella-mango-serrano-ham-salad",
+      "prep_minutes": 0,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "mozzarella-meatball-subs",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/mozzarella-meatball-subs",
+      "prep_minutes": 25,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "muddled-potato-mozzarella-tortilla",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/muddled-potato-mozzarella-tortilla",
+      "prep_minutes": 30,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "mushroom-soup",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/mushroom-soup",
+      "prep_minutes": 10,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "mustard-sausage-apple-tart",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/mustard-sausage-apple-tart",
+      "prep_minutes": 10,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "nectarine-raspberry-gratin",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/nectarine-raspberry-gratin",
+      "prep_minutes": 5,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "new-england-clam-chowder",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/new-england-clam-chowder",
+      "prep_minutes": 15,
+      "cook_minutes": 50,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "new-potatoes-lyonnaise",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/new-potatoes-lyonnaise",
+      "prep_minutes": 15,
+      "cook_minutes": 80,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "next-level-margherita-pizza",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/next-level-margherita-pizza",
+      "prep_minutes": 60,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "noodles-with-crispy-tofu",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/noodles-with-crispy-tofu",
+      "prep_minutes": 15,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "noodles-with-turkey-green-beans-hoisin",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/noodles-turkey-green-beans-hoisin",
+      "prep_minutes": 10,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "nutty-chicken-curry",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/nutty-chicken-curry",
+      "prep_minutes": 6,
+      "cook_minutes": 12,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "oat-cranberry-bars",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/oat-cranberry-bars",
+      "prep_minutes": 15,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "oaty-energy-cookies",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/oaty-energy-cookies",
+      "prep_minutes": 10,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "one-pan-coriander-crusted-duck-roasted-plums-greens",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/one-pan-coriander-crusted-duck-roasted-plums-greens",
+      "prep_minutes": 5,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "oven-poached-salmon-with-sweet-pepper-basil-sauce",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/oven-poached-salmon-sweet-pepper-basil-sauce",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "pan-fried-mackerel-with-orange-salsa",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/pan-fried-mackerel-orange-salsa",
+      "prep_minutes": 15,
+      "cook_minutes": 6,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "pan-fried-scallops-with-cauliflower-vanilla-puree",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/pan-fried-scallops-cauliflower-vanilla-puree",
+      "prep_minutes": 15,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "parkin",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/parkin",
+      "prep_minutes": 15,
+      "cook_minutes": 60,
+      "rest_minutes": 0,
+      "servings": 16,
+      "status": "verified"
+    },
+    {
+      "slug": "pasta-with-parsley-hazelnut-pesto",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/pasta-parsley-hazelnut-pesto",
+      "prep_minutes": 0,
+      "cook_minutes": 10,
+      "rest_minutes": 10,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "peach-streusel-cheesecake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/peach-streusel-cheesecake",
+      "prep_minutes": 35,
+      "cook_minutes": 100,
+      "rest_minutes": 0,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "pear-blackberry-crostata",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/pear-blackberry-crostata",
+      "prep_minutes": 10,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "pear-chocolate-pudding",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/pear-chocolate-pudding",
+      "prep_minutes": 15,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "pecan-pie",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/new-england-pecan-pie",
+      "prep_minutes": 20,
+      "cook_minutes": 75,
+      "rest_minutes": 0,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "penne-with-cabbage-walnuts",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/penne-with-cabbage-walnuts",
+      "prep_minutes": 10,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "pesto-chicken-kebabs-with-roasted-veg-pasta",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/pesto-chicken-kebabs-roasted-veg-pasta",
+      "prep_minutes": 20,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "pesto-focaccia-sandwich",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/pesto-focaccia-sandwich",
+      "prep_minutes": 40,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "pesto-pasta-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/pasta-pesto-salad",
+      "prep_minutes": 10,
+      "cook_minutes": 12,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "pineapple-hot-sauce",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/pineapple-hot-sauce",
+      "prep_minutes": 10,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "pineapple-pork-skewers",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/pineapple-pork-skewers",
+      "prep_minutes": 20,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "pistachio-courgette-lemon-cake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/pistachio-courgette-lemon-cake",
+      "prep_minutes": 35,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 15,
+      "status": "verified"
+    },
+    {
+      "slug": "pork-meatballs",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/pork-meatballs",
+      "prep_minutes": 10,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "pork-meatballs-in-tomato-sauce",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/pork-meatballs-red-pepper-sauce",
+      "prep_minutes": 15,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "prawn-butternut-mango-curry",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/prawn-butternut-mango-curry",
+      "prep_minutes": 10,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "prawn-chowder-with-mashed-potato",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/prawn-chowder-mashed-potato",
+      "prep_minutes": 15,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "prawn-mango-noodles",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/prawn-mango-noodles",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "pressure-cooker-short-ribs-with-herb-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/asian-short-ribs-herb-salad",
+      "prep_minutes": 20,
+      "cook_minutes": 60,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "pull-apart-pork-with-honey-chipotle",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/pull-apart-pork-honey-chipotle",
+      "prep_minutes": 10,
+      "cook_minutes": 270,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "pumpkin-cake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/halloween-pumpkin-cake",
+      "prep_minutes": 20,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 15,
+      "status": "verified"
+    },
+    {
+      "slug": "pumpkin-cornbread-with-whipped-jalapeno-butter",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/pumpkin-cornbread-with-whipped-jalapeno-butter",
+      "prep_minutes": 10,
+      "cook_minutes": 60,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "quattro-formaggi-grilled-cheese-sandwich",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/quattro-formaggi-grilled-cheese-sandwich",
+      "prep_minutes": 10,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "queen-of-puddings",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/queen-of-puddings",
+      "prep_minutes": 20,
+      "cook_minutes": 50,
+      "rest_minutes": 0,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "raggmunk",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/raggmunk",
+      "prep_minutes": 10,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "raspberry-brulee",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/caramelised-strawberry-custard-pots",
+      "prep_minutes": 15,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "raspberry-coffee-time-muffin",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/raspberry-coffee-time-muffin",
+      "prep_minutes": 20,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "real-vanilla-ice-cream",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/real-vanilla-ice-cream",
+      "prep_minutes": 10,
+      "cook_minutes": 20,
+      "rest_minutes": 150,
+      "servings": 1,
+      "status": "verified"
+    },
+    {
+      "slug": "red-wine-sauce",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/red-wine-sauce",
+      "prep_minutes": 5,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "rhubarb-meringue-tart",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/rhubarb-custard-meringue-tart",
+      "prep_minutes": 90,
+      "cook_minutes": 75,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "rhubarb-puffs-with-oaty-streusel-topping",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/rhubarb-puffs-oaty-streusel-topping",
+      "prep_minutes": 10,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "rice-noodles-with-sundried-tomatoes-parmesan-basil",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/rice-noodles-sundried-tomatoes-parmesan-basil",
+      "prep_minutes": 10,
+      "cook_minutes": 5,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "rice-pudding",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/a-nice-rice-pudding",
+      "prep_minutes": 5,
+      "cook_minutes": 120,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "roast-pork-with-sage-double-onion-stuffing-baked-apples-roasties",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/roast-pork-sage-double-onion-stuffing-baked-apples-roasties",
+      "prep_minutes": 50,
+      "cook_minutes": 150,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "roast-red-wine-lamb-with-italian-beans",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/roast-red-wine-lamb-italian-beans",
+      "prep_minutes": 0,
+      "cook_minutes": 90,
+      "rest_minutes": 15,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "roast-sausage-squash-with-mustard-sage",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/roast-sausage-squash-mustard-sage",
+      "prep_minutes": 15,
+      "cook_minutes": 60,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "roast-spiced-duck-with-plums",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/roast-spiced-duck-plums",
+      "prep_minutes": 35,
+      "cook_minutes": 145,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "roast-tomatoes-with-pesto",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/roast-tomatoes-pesto",
+      "prep_minutes": 10,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "roasted-broccoli-puy-lentils-tahini-yogurt",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/roasted-broccoli-puy-lentils-tahini-yogurt",
+      "prep_minutes": 15,
+      "cook_minutes": 35,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "rosemary-roast-chicken-thighs-new-potatoes-asparagus-garlic",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/rosemary-roast-chicken-thighs-new-potatoes-asparagus-garlic",
+      "prep_minutes": 10,
+      "cook_minutes": 45,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "roti",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/roti",
+      "prep_minutes": 10,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "saffron-chicken-korma",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/saffron-chicken-korma",
+      "prep_minutes": 10,
+      "cook_minutes": 60,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "salad-of-smoked-haddock-with-chorizo-and-poached-egg",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/salad-smoked-haddock-chorizo-and-poached-egg",
+      "prep_minutes": 40,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "salmon-rillettes",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/salmon-rillettes",
+      "prep_minutes": 20,
+      "cook_minutes": 5,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "salmon-with-celeriac-mash",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/salmon-mustardy-celeriac-mash",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "salmon-with-salsa-verde-new-potatoes",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/salmon-salsa-verde-new-potatoes",
+      "prep_minutes": 10,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "salsa-soup",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/salsa-soup",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "salt-and-pepper-chicken",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/salt-pepper-chicken",
+      "prep_minutes": 10,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 3,
+      "status": "verified"
+    },
+    {
+      "slug": "salted-caramel-banana-tatins-with-creme-fraiche-ice-cream",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/salted-caramel-banana-tatins-creme-fraiche-ice-cream",
+      "prep_minutes": 30,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "salted-chocolate-chip-tahini-cookies",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/salted-chocolate-chip-tahini-cookies",
+      "prep_minutes": 20,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "sardines-peperonata-on-wholemeal-toast",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/sardines-peperonata-wholemeal-toast",
+      "prep_minutes": 10,
+      "cook_minutes": 2,
+      "rest_minutes": 0,
+      "servings": 1,
+      "status": "verified"
+    },
+    {
+      "slug": "satay-grilled-aubergine",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/satay-grilled-aubergine",
+      "prep_minutes": 10,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "sausage-cassoulet",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/sausage-cassoulet",
+      "prep_minutes": 15,
+      "cook_minutes": 385,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "sausage-courgette-kebabs",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/sausage-courgette-kebabs",
+      "prep_minutes": 25,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "sausage-mash-pies",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/sausage-mash-pies",
+      "prep_minutes": 35,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "sausage-nut-stuffing-cake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/sausage-nut-stuffing-cake",
+      "prep_minutes": 20,
+      "cook_minutes": 50,
+      "rest_minutes": 0,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "sausage-sweet-potato-traybake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/sausage-sweet-potato-traybake",
+      "prep_minutes": 15,
+      "cook_minutes": 45,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "seafood-tagliatelle-spanish-style",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/seafood-tagliatelle-spanish-style",
+      "prep_minutes": 0,
+      "cook_minutes": 60,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "seared-steak-with-chimichurri-dressing",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/seared-steak-chimichurri-dressing",
+      "prep_minutes": 15,
+      "cook_minutes": 8,
+      "rest_minutes": 37,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "shells-with-balsamic-tomatoes-mozzarella",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/shells-balsamic-tomatoes-mozzarella",
+      "prep_minutes": 10,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "shredded-chicken-green-bean-barley-salad-with-paprika-lemon",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/shredded-chicken-green-bean-barley-salad-paprika-lemon",
+      "prep_minutes": 25,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "sloppy-joes-with-brussels-sprout-slaw",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/sloppy-joes-with-brussels-sprout-slaw",
+      "prep_minutes": 10,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "slow-cooker-gochujang-short-ribs-with-apple-slaw",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/slow-cooker-gochujang-short-ribs-with-apple-slaw",
+      "prep_minutes": 30,
+      "cook_minutes": 300,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "slow-cooker-hot-chocolate",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/slow-cooker-hot-chocolate",
+      "prep_minutes": 5,
+      "cook_minutes": 200,
+      "rest_minutes": 0,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "slow-roast-persian-lamb-with-pomegranate-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/slow-roast-persian-lamb-pomegranate-salad",
+      "prep_minutes": 20,
+      "cook_minutes": 210,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "slow-roast-tomato-ricotta-prosciutto-bruschetta",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/slow-roast-tomato-ricotta-prosciutto-bruschetta",
+      "prep_minutes": 20,
+      "cook_minutes": 120,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "slow-roasted-shoulder-of-lamb",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/slow-roasted-shoulder-lamb",
+      "prep_minutes": 15,
+      "cook_minutes": 300,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "smoked-haddock-with-celeriac-spinach-gratin",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/smoked-haddock-celeriac-spinach-gratin",
+      "prep_minutes": 15,
+      "cook_minutes": 80,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "smoky-chickpea-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/smoky-chickpea-salad",
+      "prep_minutes": 10,
+      "cook_minutes": 6,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "smoky-slow-cooker-pork-with-boston-baked-beans",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/smoky-slow-cooker-pork-with-boston-baked-beans",
+      "prep_minutes": 30,
+      "cook_minutes": 720,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "souffle-mac-n-cheese",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/souffle-mac-n-cheese",
+      "prep_minutes": 30,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "spanish-sausage-spud-skewers",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/spanish-sausage-spud-skewers",
+      "prep_minutes": 15,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "speedy-spaghetti-with-clams",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/speedy-spaghetti-clams",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "spiced-trout-with-sweet-potato-chips",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/spiced-trout-sweet-potato-chips",
+      "prep_minutes": 5,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "spicy-asparagus-chorizo-baked-egg",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/spicy-asparagus-chorizo-baked-egg",
+      "prep_minutes": 5,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 1,
+      "status": "verified"
+    },
+    {
+      "slug": "spicy-fennel-linguine-with-sardines-capers",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/spicy-fennel-linguine-sardines-capers",
+      "prep_minutes": 10,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "spicy-fry-up-rice",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/spicy-fry-rice",
+      "prep_minutes": 15,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "spicy-tuna-chickpea-patties",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/spicy-tuna-chickpea-patties",
+      "prep_minutes": 35,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "spring-leaf-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/spring-leaf-salad",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "spring-veggie-casserole-with-little-herb-dumplings",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/spring-veggie-casserole-little-herb-dumplings",
+      "prep_minutes": 120,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "sprout-chorizo-carbonara",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/sprout-chorizo-carbonara",
+      "prep_minutes": 10,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "squid-prawn-chickpea-nduja-stew",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/squid-prawn-chickpea-nduja-stew",
+      "prep_minutes": 30,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "steamed-bao-buns",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/steamed-bao-buns",
+      "prep_minutes": 40,
+      "cook_minutes": 24,
+      "rest_minutes": 0,
+      "servings": 18,
+      "status": "verified"
+    },
+    {
+      "slug": "steamed-fish-pak-choi-parcels",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/steamed-fish-pak-choi-parcels",
+      "prep_minutes": 10,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "sticky-pork-belly-with-green-papaya-salad-chilli-lime-dressing",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/sticky-pork-belly-green-papaya-salad-chilli-lime-dressing",
+      "prep_minutes": 30,
+      "cook_minutes": 90,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "sticky-pork-pineapple-hotpot",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/sticky-pork-pineapple-hotpot",
+      "prep_minutes": 20,
+      "cook_minutes": 150,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "sticky-soy-sea-bass-greens-traybake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/sticky-soy-sea-bass-greens-traybake",
+      "prep_minutes": 5,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "sticky-toffee-chickpeas-muffins",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/sticky-toffee-chickpeas-muffins",
+      "prep_minutes": 20,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "stir-fried-broccoli-with-cashews-oyster-sauce",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/stir-fried-broccoli-cashews-oyster-sauce",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "strawberry-frozen-yogurt",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/frozen-strawberry-yogurt",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 5,
+      "status": "verified"
+    },
+    {
+      "slug": "stuffed-courgette-flowers-with-olive-dressing",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/stuffed-courgette-flowers-olive-dressing",
+      "prep_minutes": 15,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "stuffed-red-peppers",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/stuffed-red-peppers",
+      "prep_minutes": 10,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "summer-chicken-one-pot",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/summer-chicken-one-pot",
+      "prep_minutes": 10,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "summer-salad-bowl",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/summer-salad-bowl",
+      "prep_minutes": 10,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "summery-mushroom-truffled-herb-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/summery-mushroom-truffled-herb-salad",
+      "prep_minutes": 0,
+      "cook_minutes": 20,
+      "rest_minutes": 20,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "sweet-german-dumplings-dampfnudel",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/sweet-german-dumplings",
+      "prep_minutes": 30,
+      "cook_minutes": 50,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "sweet-hot-prawn-pineapple-curry",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/sweet-hot-prawn-pineapple-curry",
+      "prep_minutes": 15,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "swiss-cheese-schnitzel",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/swiss-cheese-schnitzel",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "tagliatelle-with-a-lemon-pork-ragu",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/tagliatelle-lemon-pork-ragu",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "teriyaki-salmon-bowl",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/teriyaki-salmon-bowl",
+      "prep_minutes": 10,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "thai-beef-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/thai-beef-salad",
+      "prep_minutes": 30,
+      "cook_minutes": 5,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "thai-chicken-cakes-with-sweet-chilli-sauce",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/thai-chicken-cakes-sweet-chilli-sauce",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 3,
+      "status": "verified"
+    },
+    {
+      "slug": "the-big-brunch-mushroom-yorkshire-pudding",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/the-big-brunch-mushroom-yorkshire-pudding",
+      "prep_minutes": 15,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "tofu-stir-fry",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/tofu-stir-fry",
+      "prep_minutes": 15,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "tomato-courgette-stew",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/tomato-courgette-stew",
+      "prep_minutes": 10,
+      "cook_minutes": 60,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "trout-with-creamy-potato-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/trout-creamy-potato-salad",
+      "prep_minutes": 10,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "tuna-pie",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/tuna-pie",
+      "prep_minutes": 15,
+      "cook_minutes": 50,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "turkey-bolognese-pasta-bake",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/turkey-bolognese-pasta-bake",
+      "prep_minutes": 20,
+      "cook_minutes": 70,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "turkey-mushroom-pot-pies",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/turkey-mushroom-pot-pies",
+      "prep_minutes": 25,
+      "cook_minutes": 45,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "turkey-steaks-with-citrus-ginger-sauce",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/turkey-steaks-citrus-ginger-sauce",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "ultimate-chicken-kyiv",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/ultimate-chicken-kievs",
+      "prep_minutes": 30,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "ultimate-sticky-toffee-pudding",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/ultimate-sticky-toffee-pudding",
+      "prep_minutes": 0,
+      "cook_minutes": 25,
+      "rest_minutes": 60,
+      "servings": 7,
+      "status": "verified"
+    },
+    {
+      "slug": "vanilla-lemongrass-creme-brulee",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/vanilla-lemongrass-creme-brulee",
+      "prep_minutes": 25,
+      "cook_minutes": 80,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "veggie-burritos",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/veggie-burrito",
+      "prep_minutes": 35,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "veggie-olive-wraps-with-mustard-vinaigrette",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/veggie-olive-wraps-mustard-vinaigrette",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 1,
+      "status": "verified"
+    },
+    {
+      "slug": "venison-cottage-pie",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/venison-cottage-pie",
+      "prep_minutes": 20,
+      "cook_minutes": 110,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "vietnamese-egg-coffee",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/vietnamese-egg-coffee",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "warm-salad-of-beansprouts-with-pork-crackling",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/warm-salad-beansprouts-pork-crackling",
+      "prep_minutes": 10,
+      "cook_minutes": 70,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "whole-roasted-cauliflower",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/whole-roasted-cauliflower",
+      "prep_minutes": 5,
+      "cook_minutes": 55,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "wild-rice-feta-salad",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/wild-rice-feta-salad",
+      "prep_minutes": 0,
+      "cook_minutes": 25,
+      "rest_minutes": 5,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "winter-apple-squash-panzanella",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/winter-apple-squash-panzanella",
+      "prep_minutes": 20,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "yaki-udon-stir-fried-udon-noodles",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/yaki-udon",
+      "prep_minutes": 10,
+      "cook_minutes": 5,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "yogurt-panna-cotta",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/yogurt-panna-cotta-hunza-apricots-popcorn",
+      "prep_minutes": 15,
+      "cook_minutes": 25,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "yogurt-parfaits-with-crushed-strawberries-amaretti",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/yogurt-parfaits-crushed-strawberries-amaretti",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "yorkshire-puddings-for-two",
+      "source_name": "BBC Good Food",
+      "source_url": "https://www.bbcgoodfood.com/recipes/yorkshire-puddings-for-two",
+      "prep_minutes": 5,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 2,
       "status": "verified"
     }
   ]
