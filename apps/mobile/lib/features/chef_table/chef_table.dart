@@ -101,11 +101,6 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
     final visibleRecommendations = normalizedQuery.isEmpty
         ? state.recommendations
         : matchingRecommendations;
-    final pickSoon = pick == null
-        ? null
-        : soon
-              .where((batch) => pick.useSoon.contains(batch.food.id))
-              .firstOrNull;
     return Scaffold(
       body: PageBody(
         onRefresh: () => ref.read(appProvider.notifier).refresh(),
@@ -404,7 +399,7 @@ class _ChefAvatarActionState extends ConsumerState<_ChefAvatarAction> {
     if (mediaId == null || mediaId.isEmpty) return null;
     try {
       return await ref.read(apiProvider).request('GET', '/media/$mediaId');
-    } on ApiFailure {
+    } catch (_) {
       return null;
     }
   }
