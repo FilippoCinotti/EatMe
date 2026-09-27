@@ -96,7 +96,7 @@ class EditorialHeader extends StatelessWidget {
 
 class EatMeWordmark extends StatelessWidget {
   const EatMeWordmark({super.key, this.large = false});
-  static const fontFamily = 'EatMeDisplay';
+  static const fontFamily = 'EatMeSans';
   final bool large;
   @override
   Widget build(BuildContext context) => Semantics(
