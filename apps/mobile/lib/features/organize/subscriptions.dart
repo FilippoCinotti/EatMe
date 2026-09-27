@@ -127,8 +127,9 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
       const SizedBox(height: 10),
       Text(
         context.t('eatme_plus_body'),
-        style: Theme.of(context).textTheme.bodyLarge
-            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
       ),
       const SizedBox(height: 24),
       InformationPanel(

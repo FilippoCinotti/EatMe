@@ -19,9 +19,9 @@ class _LeftoversState extends ResourceState<LeftoversPage> {
   String tab = 'available';
   @override
   Widget build(BuildContext context) {
-    final items = records(data?['items'])
-        .where((i) => (i['remaining'] as int) > 0)
-        .toList();
+    final items = records(
+      data?['items'],
+    ).where((i) => (i['remaining'] as int) > 0).toList();
     return Scaffold(
       appBar: EatMeAppBar(
         title: Text(context.t('leftovers')),
@@ -277,8 +277,9 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
       if (recipeId != null) ...[
         SectionHeading(title: context.t('ingredients')),
         for (final ingredient in records(
-          records(data?['items'])
-              .firstWhere((r) => r['id'] == recipeId)['ingredients'],
+          records(
+            data?['items'],
+          ).firstWhere((r) => r['id'] == recipeId)['ingredients'],
         ))
           Text(
             labelOf(

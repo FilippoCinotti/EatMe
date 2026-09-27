@@ -35,9 +35,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
       if (mounted && context.mounted) {
         setState(() {
           recipes = records(result['items']);
-          selected = records(data?['items'])
-              .where((p) => p['start_date'] == isoDay(start))
-              .firstOrNull;
+          selected = records(
+            data?['items'],
+          ).where((p) => p['start_date'] == isoDay(start)).firstOrNull;
         });
       }
     } on ApiFailure catch (e) {
@@ -149,9 +149,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
       numeric: true,
     );
     if (servings == null) return;
-    final meals = records(selected?['data']?['meals'])
-        .where((m) => !(m['date'] == isoDay(day) && m['slot'] == slot))
-        .toList();
+    final meals = records(
+      selected?['data']?['meals'],
+    ).where((m) => !(m['date'] == isoDay(day) && m['slot'] == slot)).toList();
     meals.add({
       'date': isoDay(day),
       'slot': slot,
@@ -213,8 +213,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
         const SizedBox(height: 6),
         Text(
           context.t('plan_editorial'),
-          style: Theme.of(context).textTheme.bodyLarge
-              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         if (mealTiming['mode'] != 'standard') ...[
           const SizedBox(height: 14),
@@ -258,8 +259,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
               child: _PlannerActionTile(
                 key: const ValueKey('planner-date-action'),
                 icon: EatMeGlyph.calendar,
-                label: MaterialLocalizations.of(context)
-                    .formatMediumDate(start),
+                label: MaterialLocalizations.of(
+                  context,
+                ).formatMediumDate(start),
                 onTap: () async {
                   final date = await showDatePicker(
                     context: context,
@@ -386,8 +388,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
         const SizedBox(height: 24),
         for (var i = 0; i < 7; i++) ...[
           Text(
-            MaterialLocalizations.of(context)
-                .formatFullDate(start.add(Duration(days: i))),
+            MaterialLocalizations.of(
+              context,
+            ).formatFullDate(start.add(Duration(days: i))),
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
@@ -438,9 +441,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
                                         .textTheme
                                         .labelSmall
                                         ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.primary,
                                           fontWeight: FontWeight.w700,
                                         ),
                                   ),
