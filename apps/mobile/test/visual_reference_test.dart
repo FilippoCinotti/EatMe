@@ -182,8 +182,7 @@ class VisualApi extends support.TestApi {
     }
     if (method == 'GET' && path == '/media/avatar-1') {
       return {
-        'base64':
-            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9ZlYQAAAAASUVORK5CYII=',
+        'base64': 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9ZlYQAAAAASUVORK5CYII=',
       };
     }
     if (method == 'GET' && path.startsWith('/recipes/')) {
@@ -444,7 +443,10 @@ void main() {
 
       expect(find.byKey(const ValueKey('planner-diners-action')), findsNothing);
       expect(find.byKey(const ValueKey('planner-date-action')), findsOneWidget);
-      expect(find.byKey(const ValueKey('planner-smart-action')), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('planner-smart-action')),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
     },
   );

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../core/api.dart';
 import '../../core/entitlements.dart';
 import '../../core/localization.dart';
@@ -126,9 +127,8 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
       const SizedBox(height: 10),
       Text(
         context.t('eatme_plus_body'),
-        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
+        style: Theme.of(context).textTheme.bodyLarge
+            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
       const SizedBox(height: 24),
       InformationPanel(

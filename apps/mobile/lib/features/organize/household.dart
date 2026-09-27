@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/localization.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
@@ -230,9 +231,8 @@ class _HouseholdMemberRow extends StatelessWidget {
             ),
             child: Text(
               initials,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-              ),
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(color: Theme.of(context).colorScheme.primary),
             ),
           ),
           const SizedBox(width: 14),

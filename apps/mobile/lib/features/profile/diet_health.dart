@@ -200,8 +200,7 @@ class DietHealthPage extends ConsumerWidget {
                 SettingRow(
                   key: ValueKey('diet-section-${section.$1}'),
                   title: section.$2,
-                  subtitle:
-                      '${description(section.$1)}\n${section.$3}',
+                  subtitle: '${description(section.$1)}\n${section.$3}',
                   icon: section.$4,
                   onTap: () => edit(section.$1),
                 ),

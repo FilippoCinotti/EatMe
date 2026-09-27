@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../../core/api.dart';
 import '../../core/localization.dart';
 import '../../core/state.dart';
@@ -226,9 +227,9 @@ class _PhotoAcquisitionPageState extends ConsumerState<PhotoAcquisitionPage> {
                                             ? 'processing_photo'
                                             : 'opening_camera',
                                       ),
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
                                     ),
                                   ],
                                 ),
@@ -265,9 +266,8 @@ class _PhotoAcquisitionPageState extends ConsumerState<PhotoAcquisitionPage> {
                     bytes == null ? 'photo_capture_support' : 'review_photo',
                   ),
                   textAlign: TextAlign.center,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: muted),
+                  style: Theme.of(context).textTheme.bodyMedium
+                      ?.copyWith(color: muted),
                 ),
                 const SizedBox(height: 14),
                 if (bytes == null)

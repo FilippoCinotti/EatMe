@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/api.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
@@ -46,20 +47,23 @@ class _RecipeFavoriteState extends ConsumerState<RecipeFavorite> {
           foregroundColor: favorite
               ? Theme.of(context).colorScheme.primary
               : Theme.of(context).colorScheme.onSurface,
-          backgroundColor: Theme.of(
-            context,
-          ).colorScheme.surfaceContainer.withValues(alpha: .94),
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainer
+              .withValues(alpha: .94),
           onPressed: busy || ref.watch(appProvider).offline
               ? null
               : () async {
                   setState(() => busy = true);
                   try {
-                    await mutation
-                        .send(ref.read(apiProvider), 'POST', '/recipes', {
-                          'action': 'favorite',
-                          'recipe_id': widget.recipeId,
-                          'enabled': !favorite,
-                        });
+                    await mutation.send(
+                      ref.read(apiProvider),
+                      'POST',
+                      '/recipes',
+                      {
+                        'action': 'favorite',
+                        'recipe_id': widget.recipeId,
+                        'enabled': !favorite,
+                      },
+                    );
                     ref.invalidate(_favoriteRecipe(widget.recipeId));
                   } on ApiFailure catch (error) {
                     if (context.mounted) {

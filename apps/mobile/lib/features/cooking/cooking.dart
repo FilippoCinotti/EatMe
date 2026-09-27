@@ -90,9 +90,8 @@ class _CookingPageState extends ConsumerState<CookingPage> {
       );
       if (remaining == 0) {
         t.cancel();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.t('timer_done'))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.t('timer_done'))));
       }
     });
   }
@@ -163,9 +162,9 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                           child: CircularProgressIndicator(
                             value: remaining / (durationMinutes * 60),
                             strokeWidth: 7,
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primaryContainer,
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .primaryContainer,
                           ),
                         ),
                         const EatMeIcon(EatMeGlyph.timer, size: 32),
@@ -367,9 +366,9 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
                                     ),
                                     context.language,
                                   ),
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
                                 ),
                                 Text(
                                   '${raw['quantity']} ${raw['food']['unit']}',

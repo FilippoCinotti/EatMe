@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/localization.dart';
 import '../../design_system/widgets.dart';
 import 'shared.dart';

@@ -26,9 +26,7 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
   Widget build(BuildContext context) {
     final state = ref.watch(appProvider);
     final fullName = (state.profile['name'] as String? ?? '').trim();
-    final name = fullName.isEmpty
-        ? ''
-        : fullName.split(RegExp(r'\s+')).first;
+    final name = fullName.isEmpty ? '' : fullName.split(RegExp(r'\s+')).first;
     final initials = fullName
         .split(RegExp(r'\s+'))
         .where((part) => part.isNotEmpty)
@@ -243,7 +241,8 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                 primaryDiet: settings['primary_diet'] as String?,
                 hardRestrictionCount: hardRestrictionCount,
                 unknownPolicy:
-                    settings['unknown_ingredient_policy'] as String? ?? 'strict',
+                    settings['unknown_ingredient_policy'] as String? ??
+                    'strict',
                 onManage: () => context.push('/diet-health'),
               ),
             ),
@@ -410,11 +409,7 @@ class _ChefAvatarActionState extends ConsumerState<_ChefAvatarAction> {
     final fallback = Center(
       key: const ValueKey('chef-profile-avatar-fallback'),
       child: widget.initials.isEmpty
-          ? EatMeIcon(
-              EatMeGlyph.userRound,
-              size: 22,
-              color: scheme.onSurface,
-            )
+          ? EatMeIcon(EatMeGlyph.userRound, size: 22, color: scheme.onSurface)
           : Text(
               widget.initials,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -566,7 +561,8 @@ class _ProfileContext extends StatelessWidget {
                         ? context.t('no_diet_profiles_active')
                         : sorted
                               .map(
-                                (diet) => localized(diet.name, context.language),
+                                (diet) =>
+                                    localized(diet.name, context.language),
                               )
                               .join(' · '),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -576,10 +572,7 @@ class _ProfileContext extends StatelessWidget {
                 ],
               ),
             ),
-            TextButton(
-              onPressed: onManage,
-              child: Text(context.t('manage')),
-            ),
+            TextButton(onPressed: onManage, child: Text(context.t('manage'))),
           ],
         ),
         const SizedBox(height: 8),
@@ -624,9 +617,8 @@ class _ChefFiltersState extends ConsumerState<ChefFilters> {
       const SizedBox(height: 6),
       Text(
         context.t('cooking_your_way'),
-        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
+        style: Theme.of(context).textTheme.bodyLarge
+            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
       const SizedBox(height: 20),
       for (final value in [
@@ -744,9 +736,9 @@ class RecipeCard extends StatelessWidget {
                           meta,
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                               ),
                         ),
                         if (r.warnings.isNotEmpty) ...[
