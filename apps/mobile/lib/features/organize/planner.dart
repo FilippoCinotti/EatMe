@@ -252,58 +252,86 @@ class _PlannerState extends ResourceState<PlannerPage> {
           ),
         ],
         const SizedBox(height: 12),
-        OutlinedButton.icon(
-          icon: const EatMeIcon(EatMeGlyph.calendar, size: 19),
-          label: Text(
-            MaterialLocalizations.of(context).formatMediumDate(start),
-          ),
-          onPressed: () async {
-            final date = await showDatePicker(
-              context: context,
-              initialDate: start,
-              firstDate: DateTime.now().subtract(const Duration(days: 365)),
-              lastDate: DateTime.now().add(const Duration(days: 730)),
-            );
-            if (date != null) {
-              setState(() => start = date);
-              await load();
-            }
-          },
-        ),
-        AsyncAction(
-          label: context.t('who_is_eating'),
-          secondary: true,
-          action: () async {
-            final value = await chooseDiners(
-              context,
-              ref.read(apiProvider),
-              participants,
-            );
-            if (value != null && mounted) setState(() => participants = value);
-          },
-        ),
-        AsyncAction(
-          label: context.t(
-            canSmartPlan ? 'generate_week' : 'smart_plan_with_plus',
-          ),
-          action: () async {
-            if (!canSmartPlan) {
-              await showContextualPlusPrompt(
-                context,
-                benefit: 'smart_planning_plus_body',
-              );
-              return;
-            }
-            final result = await command({
-              'action': 'preview_generate',
-              if (participants != null) 'participants': participants,
-              'start_date': isoDay(start),
-              'servings': 1,
-            });
-            if (mounted && result['preview'] == true) {
-              setState(() => draftMeals = records(result['data']?['meals']));
-            }
-          },
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: _PlannerActionTile(
+                key: const ValueKey('planner-date-action'),
+                icon: EatMeGlyph.calendar,
+                label: MaterialLocalizations.of(
+                  context,
+                ).formatMediumDate(start),
+                onTap: () async {
+                  final date = await showDatePicker(
+                    context: context,
+                    initialDate: start,
+                    firstDate: DateTime.now().subtract(
+                      const Duration(days: 365),
+                    ),
+                    lastDate: DateTime.now().add(const Duration(days: 730)),
+                  );
+                  if (date != null) {
+                    setState(() => start = date);
+                    await load();
+                  }
+                },
+              ),
+            ),
+            if (participants == null || participants!.isEmpty) ...[
+              const SizedBox(width: 10),
+              Expanded(
+                child: _PlannerActionTile(
+                  key: const ValueKey('planner-diners-action'),
+                  icon: EatMeGlyph.usersRound,
+                  label: context.t('who_is_eating'),
+                  onTap: () async {
+                    final value = await chooseDiners(
+                      context,
+                      ref.read(apiProvider),
+                      participants,
+                    );
+                    if (value != null && mounted) {
+                      setState(() => participants = value);
+                    }
+                  },
+                ),
+              ),
+            ],
+            const SizedBox(width: 10),
+            Expanded(
+              child: _PlannerActionTile(
+                key: const ValueKey('planner-smart-action'),
+                icon: canSmartPlan
+                    ? EatMeGlyph.sparkles
+                    : EatMeGlyph.badgeCheck,
+                label: context.t(
+                  canSmartPlan ? 'generate_week' : 'eatme_plus',
+                ),
+                emphasized: true,
+                onTap: () async {
+                  if (!canSmartPlan) {
+                    await showContextualPlusPrompt(
+                      context,
+                      benefit: 'smart_planning_plus_body',
+                    );
+                    return;
+                  }
+                  final result = await command({
+                    'action': 'preview_generate',
+                    if (participants != null) 'participants': participants,
+                    'start_date': isoDay(start),
+                    'servings': 1,
+                  });
+                  if (mounted && result['preview'] == true) {
+                    setState(
+                      () => draftMeals = records(result['data']?['meals']),
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
         ),
         if (draftMeals != null) ...[
           const SizedBox(height: 12),
@@ -473,6 +501,70 @@ class _PlannerState extends ResourceState<PlannerPage> {
           const SizedBox(height: 24),
         ],
       ]),
+    );
+  }
+}
+
+
+class _PlannerActionTile extends StatelessWidget {
+  const _PlannerActionTile({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.emphasized = false,
+  });
+
+  final EatMeGlyph icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool emphasized;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final background = emphasized
+        ? scheme.primaryContainer
+        : scheme.surfaceContainer;
+    final foreground = emphasized ? scheme.primary : scheme.onSurface;
+
+    return Semantics(
+      button: true,
+      label: label,
+      child: Material(
+        color: background,
+        borderRadius: BorderRadius.circular(22),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 82),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 12,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  EatMeIcon(icon, size: 24, color: foreground),
+                  const SizedBox(height: 7),
+                  Text(
+                    label,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: foreground,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
