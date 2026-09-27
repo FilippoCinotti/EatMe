@@ -7,6 +7,9 @@ Without --apply the script only validates the catalog against the live food
 table and prints what would change. Rows are keyed by deterministic ids, so
 re-running is idempotent. Quantities are stored in each food's own catalog unit
 (g, ml or pcs) using the per-ingredient conversion hints shipped in the file.
+
+Catalog foods shipped in the file ("foods") are inserted when the database has
+no food with the same slug; when it does, recipes are pointed at that food.
 """
 import argparse
 import json
@@ -32,11 +35,27 @@ def quantity_for(unit, item):
 KEEP_FROM_DATABASE = ('image_url', 'image_source')
 
 
-def build_rows(catalog, foods, existing=None):
+def plan_foods(catalog, foods):
+    """Return (foods_to_insert, id_remap, merged_foods) for catalog-shipped foods."""
+    by_slug = {food.get('slug'): food_id for food_id, food in foods.items() if food.get('slug')}
+    inserts, remap, merged = [], {}, dict(foods)
+    for food in catalog.get('foods', []):
+        current = by_slug.get(food['slug'])
+        if current and current != food['id']:
+            remap[food['id']] = current
+        elif food['id'] not in foods:
+            inserts.append(food)
+            merged[food['id']] = food
+    return inserts, remap, merged
+
+
+def build_rows(catalog, foods, existing=None, remap=None):
     """existing maps recipe id -> stored data; generated images already attached there are kept."""
-    existing = existing or {}
+    existing, remap = existing or {}, remap or {}
     rows, skipped = [], []
     for recipe in catalog['recipes']:
+        recipe = recipe | {'ingredients': [item | {'food_id': remap.get(item['food_id'], item['food_id'])}
+                                           for item in recipe['ingredients']]}
         missing = [item['food_id'] for item in recipe['ingredients'] if item['food_id'] not in foods]
         if missing:
             skipped.append((recipe['slug'], missing))
@@ -68,8 +87,10 @@ def main():
     with psycopg.connect(url) as connection:
         foods = {row[0]: json.loads(row[1]) for row in connection.execute('SELECT id, data FROM foods')}
         existing = {row[0]: json.loads(row[1]) for row in connection.execute('SELECT id, data FROM recipes')}
-        rows, skipped = build_rows(catalog, foods, existing)
+        inserts, remap, foods = plan_foods(catalog, foods)
+        rows, skipped = build_rows(catalog, foods, existing, remap)
         new = sum(row['id'] not in existing for row in rows)
+        print(f'foods: {len(inserts)} to insert, {len(remap)} matched to existing foods by slug')
         print(f'catalog v{catalog["catalog_version"]}: {len(catalog["recipes"])} recipes; '
               f'{len(rows)} loadable ({new} new, {len(rows) - new} updates); {len(skipped)} skipped for unknown foods')
         for slug, missing in skipped[:20]:
@@ -78,13 +99,18 @@ def main():
             print('Dry run: pass --apply to write.')
             return
         with connection.transaction():
+            for food in inserts:
+                connection.execute(
+                    'INSERT INTO foods(id, data) VALUES (%s, %s) ON CONFLICT(id) DO NOTHING',
+                    (food['id'], json.dumps(food, sort_keys=True, ensure_ascii=False, separators=(',', ':'))),
+                )
             for row in rows:
                 connection.execute(
                     'INSERT INTO recipes(id, data) VALUES (%s, %s) '
                     'ON CONFLICT(id) DO UPDATE SET data = excluded.data',
                     (row['id'], json.dumps(row, sort_keys=True, ensure_ascii=False, separators=(',', ':'))),
                 )
-        print(f'Upserted {len(rows)} recipes.')
+        print(f'Inserted {len(inserts)} foods; upserted {len(rows)} recipes.')
 
 
 if __name__ == '__main__':

@@ -25,6 +25,7 @@ class VerifiedCatalogCase(unittest.TestCase):
     def setUpClass(cls):
         cls.catalog = json.loads(CATALOG.read_text())
         cls.food_ids = {item["id"] for item in json.loads((ROOT / "scripts" / "catalog_image_targets.json").read_text())}
+        cls.food_ids |= {food["id"] for food in cls.catalog.get("foods", [])}
 
     def test_records_are_unique_bilingual_and_source_backed(self):
         recipes = self.catalog["recipes"]
@@ -68,6 +69,25 @@ class VerifiedCatalogCase(unittest.TestCase):
 
     def test_every_recipe_has_an_image_prompt(self):
         self.assertTrue(all(r["image_prompt"] for r in self.catalog["recipes"]))
+
+    def test_catalog_foods_are_inserted_or_matched_by_slug(self):
+        module = loader()
+        catalog = {"foods": [{"id": "new-a", "slug": "a"}, {"id": "new-b", "slug": "b"}],
+                   "recipes": [{"id": "r", "slug": "r", "ingredients": [
+                       {"food_id": "new-a", "grams": 10, "unit": "g"}, {"food_id": "new-b", "grams": 5, "unit": "g"}]}]}
+        foods = {"old-b": {"slug": "b", "unit": "g"}}
+        inserts, remap, merged = module.plan_foods(catalog, foods)
+        self.assertEqual([food["id"] for food in inserts], ["new-a"])
+        self.assertEqual(remap, {"new-b": "old-b"})
+        rows, skipped = module.build_rows(catalog, merged, {}, remap)
+        self.assertEqual(skipped, [])
+        self.assertEqual([i["food_id"] for i in rows[0]["ingredients"]], ["new-a", "old-b"])
+
+    def test_catalog_foods_declare_allergen_fields(self):
+        for food in self.catalog.get("foods", []):
+            with self.subTest(food["slug"]):
+                self.assertTrue({"allergens", "may_contain", "intolerances", "unit", "group", "name"} <= set(food))
+                self.assertIn(food["unit"], {"g", "ml", "pcs"})
 
     def test_loader_skips_recipes_with_unknown_foods(self):
         module = loader()
