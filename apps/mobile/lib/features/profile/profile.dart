@@ -246,7 +246,14 @@ class _ProfilePill extends StatelessWidget {
       children: [
         EatMeIcon(icon, size: 16, color: Theme.of(context).colorScheme.primary),
         const SizedBox(width: 6),
-        Text(label, style: Theme.of(context).textTheme.labelMedium),
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.labelMedium,
+          ),
+        ),
       ],
     ),
   );
