@@ -253,7 +253,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
         ],
         const SizedBox(height: 12),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: _PlannerActionTile(
