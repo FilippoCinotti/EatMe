@@ -370,6 +370,45 @@ void main() {
     },
   );
 
+  testWidgets('Profile preview prioritizes dietary and medical context', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      support.harness(
+        const ProfilePage(),
+        VisualApi(),
+        controller: VisualController.new,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Eating style:'), findsOneWidget);
+    expect(find.textContaining('Allergies:'), findsOneWidget);
+    expect(find.textContaining('Medical dietary settings:'), findsOneWidget);
+    expect(find.text('System'), findsNothing);
+    expect(find.text('EN'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Existing profile photo can be reframed', (tester) async {
+    await tester.pumpWidget(
+      support.harness(
+        const ProfilePage(),
+        VisualApi(),
+        controller: AvatarVisualController.new,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final avatar = find.byType(Image).first;
+    await tester.tap(avatar);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Choose a new photo'), findsOneWidget);
+    expect(find.text('Reframe profile photo'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('unknown content does not borrow a demo photograph', (
     tester,
   ) async {
