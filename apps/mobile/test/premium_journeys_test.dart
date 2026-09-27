@@ -653,6 +653,7 @@ void main() {
         );
         await tester.tap(section);
         await tester.pumpAndSettle();
+        expect(find.text('Your food rules, in one place'), findsNothing);
         final finder = find.byKey(target.$2);
         await tester.scrollUntilVisible(
           finder,
