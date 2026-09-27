@@ -200,9 +200,9 @@ class DietHealthPage extends ConsumerWidget {
                 SettingRow(
                   key: ValueKey('diet-section-${section.$1}'),
                   title: section.$2,
-                  subtitle: description(section.$1),
+                  subtitle:
+                      '${description(section.$1)}\n${section.$3}',
                   icon: section.$4,
-                  trailing: StatusBadge(label: section.$3),
                   onTap: () => edit(section.$1),
                 ),
             ],
@@ -420,16 +420,7 @@ class _DietHealthPageState extends ConsumerState<_DietHealthEditorPage> {
             'medical',
             'therapeutic',
           }.contains(widget.section)) ...[
-            const SizedBox(height: 26),
-            SectionHeading(
-              title: context.t(
-                widget.section == 'eating'
-                    ? 'eating_style'
-                    : widget.section == 'medical'
-                    ? 'medical_restrictions'
-                    : 'therapeutic_protocols',
-              ),
-            ),
+            const SizedBox(height: 22),
             Text(
               context.t('diet_profiles_help'),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
