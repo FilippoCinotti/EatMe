@@ -22,17 +22,31 @@ Widget harness(Widget child, {Brightness brightness = Brightness.light}) =>
     );
 
 void main() {
-  testWidgets('previous sans typography is used across the interface', (
+  testWidgets('display typography is reserved for titles and wordmark', (
     tester,
   ) async {
     final theme = Tokens.theme(Brightness.light);
-    expect(theme.textTheme.displaySmall?.fontFamily, 'EatMeSans');
-    expect(theme.textTheme.headlineMedium?.fontFamily, 'EatMeSans');
-    expect(theme.textTheme.labelLarge?.fontFamily, 'EatMeSans');
+    expect(theme.textTheme.displaySmall?.fontFamily, 'EatMeDisplay');
+    expect(theme.textTheme.headlineMedium?.fontFamily, 'EatMeDisplay');
+    expect(theme.textTheme.labelLarge?.fontFamily, 'EatMeDisplay');
     expect(theme.textTheme.titleLarge?.fontFamily, 'EatMeSans');
     expect(theme.textTheme.bodyLarge?.fontFamily, 'EatMeSans');
 
-    expect(EatMeWordmark.fontFamily, 'EatMeSans');
+    expect(EatMeWordmark.fontFamily, 'EatMeDisplay');
+    expect(EatMeWordmark.plusScale, lessThan(1));
+  });
+
+  testWidgets('EatMe wordmark renders the plus as a secondary detail', (
+    tester,
+  ) async {
+    await tester.pumpWidget(harness(const EatMeWordmark()));
+
+    final richText = tester.widget<RichText>(find.byType(RichText).first);
+    final root = richText.text as TextSpan;
+    final plus = root.children!.single as TextSpan;
+    expect(root.text, 'EatMe');
+    expect(plus.text, '+');
+    expect(plus.style!.fontSize, root.style!.fontSize! * 0.58);
   });
 
   testWidgets('busy action prevents duplicate consumption submissions', (

@@ -393,7 +393,7 @@ void main() {
   testWidgets('Existing profile photo can be reframed', (tester) async {
     await tester.pumpWidget(
       support.harness(
-        const ProfilePage(),
+        const AppShell(path: '/profile', child: ProfilePage()),
         VisualApi(),
         controller: AvatarVisualController.new,
       ),
@@ -406,6 +406,10 @@ void main() {
 
     expect(find.text('Choose a new photo'), findsOneWidget);
     expect(find.text('Reframe profile photo'), findsOneWidget);
+    await tester.tap(find.text('Reframe profile photo'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const ValueKey('save-avatar-crop')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

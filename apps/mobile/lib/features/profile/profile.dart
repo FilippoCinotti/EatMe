@@ -495,6 +495,7 @@ class _ProfileAvatarState extends ConsumerState<_ProfileAvatar> {
     if (busy) return;
     final action = await showModalBottomSheet<String>(
       context: context,
+      useRootNavigator: true,
       useSafeArea: true,
       builder: (context) => Padding(
         padding: const EdgeInsets.fromLTRB(20, 14, 20, 28),

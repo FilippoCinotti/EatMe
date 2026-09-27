@@ -96,33 +96,51 @@ class EditorialHeader extends StatelessWidget {
 
 class EatMeWordmark extends StatelessWidget {
   const EatMeWordmark({super.key, this.large = false});
-  static const fontFamily = 'EatMeSans';
+  static const fontFamily = 'EatMeDisplay';
+  static const plusScale = 0.58;
   final bool large;
+
   @override
-  Widget build(BuildContext context) => Semantics(
-    label: context.t('eatme'),
-    child: ExcludeSemantics(
-      child: Flex(
-        direction: large ? Axis.vertical : Axis.horizontal,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          EatMeBrandMark(size: large ? 52 : 22),
-          SizedBox(width: large ? 0 : 6, height: large ? 8 : 0),
-          Text(
-            context.t('eatme'),
-            style: TextStyle(
-              fontFamily: fontFamily,
-              fontWeight: FontWeight.w700,
-              fontSize: large ? 52 : 30,
-              height: 1,
-              letterSpacing: -1,
-              color: Theme.of(context).colorScheme.primary,
+  Widget build(BuildContext context) {
+    final label = context.t('eatme');
+    final hasPlus = label.endsWith('+');
+    final fontSize = large ? 52.0 : 30.0;
+    final style = TextStyle(
+      fontFamily: fontFamily,
+      fontWeight: FontWeight.w700,
+      fontSize: fontSize,
+      height: 1,
+      letterSpacing: -1,
+      color: Theme.of(context).colorScheme.primary,
+    );
+    return Semantics(
+      label: label,
+      child: ExcludeSemantics(
+        child: Flex(
+          direction: large ? Axis.vertical : Axis.horizontal,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            EatMeBrandMark(size: large ? 52 : 22),
+            SizedBox(width: large ? 0 : 6, height: large ? 8 : 0),
+            Text.rich(
+              TextSpan(
+                text: hasPlus ? label.substring(0, label.length - 1) : label,
+                children: hasPlus
+                    ? [
+                        TextSpan(
+                          text: '+',
+                          style: TextStyle(fontSize: fontSize * plusScale),
+                        ),
+                      ]
+                    : const [],
+              ),
+              style: style,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class RoundAction extends StatelessWidget {

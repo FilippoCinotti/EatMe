@@ -46,14 +46,14 @@ abstract final class Tokens {
     return base.copyWith(
       textTheme: base.textTheme.copyWith(
         displaySmall: base.textTheme.displaySmall?.copyWith(
-          fontFamily: 'EatMeSans',
+          fontFamily: 'EatMeDisplay',
           height: 1.02,
           fontSize: 35,
           fontWeight: FontWeight.w700,
           letterSpacing: -0.9,
         ),
         headlineMedium: base.textTheme.headlineMedium?.copyWith(
-          fontFamily: 'EatMeSans',
+          fontFamily: 'EatMeDisplay',
           height: 1.08,
           fontSize: 25,
           fontWeight: FontWeight.w700,
@@ -70,7 +70,7 @@ abstract final class Tokens {
           fontWeight: FontWeight.w600,
         ),
         labelLarge: base.textTheme.labelLarge?.copyWith(
-          fontFamily: 'EatMeSans',
+          fontFamily: 'EatMeDisplay',
           fontWeight: FontWeight.w700,
           letterSpacing: -0.1,
         ),
