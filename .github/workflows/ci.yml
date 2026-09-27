@@ -96,7 +96,8 @@ jobs:
           retention-days: 7
       - run: flutter analyze
         working-directory: apps/mobile
-      - run: flutter test
+      - name: Run Flutter tests
+        run: flutter test --reporter expanded
         working-directory: apps/mobile
       - name: Validate localization and screenshot route policy
         if: runner.os == 'Linux'
