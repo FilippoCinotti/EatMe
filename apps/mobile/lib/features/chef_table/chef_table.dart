@@ -816,7 +816,7 @@ class RecipeCard extends StatelessWidget {
             ),
           if (r.warnings.isNotEmpty)
             StatusNote(text: context.t('preference_warning'), warning: true),
-          if (profileContext != null) profileContext!,
+          ?profileContext,
         ],
       ),
     );
