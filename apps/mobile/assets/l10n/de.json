@@ -35,5 +35,6 @@
   "confirm_identification_and_family": "Ich habe Lebensmittel und Menge geprüft",
   "classify_product": "Passendes Lebensmittel wählen",
   "product_family_required": "Wähle das passende Lebensmittel für dieses Produkt, bevor du es zum Kühlschrank hinzufügst.",
-  "map_product_to_food": "Bestätigen und zum Kühlschrank hinzufügen"
+  "map_product_to_food": "Bestätigen und zum Kühlschrank hinzufügen",
+  "best_match": "Von EatMe+ empfohlen"
 }
