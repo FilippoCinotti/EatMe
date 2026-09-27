@@ -104,8 +104,8 @@ jobs:
           test_status=$?
           if [ "$test_status" -ne 0 ]; then
             failure_summary="$(
-              grep -aE '\\[E\\]|══╡ EXCEPTION|Expected:|Actual:|Which:|TestFailure|Some tests failed' "$RUNNER_TEMP/flutter-test.log" \\
-                | cut -c1-1000 \\
+              grep -aE '\[E\]|══╡ EXCEPTION|Expected:|Actual:|Which:|TestFailure|Some tests failed' "$RUNNER_TEMP/flutter-test.log" \
+                | cut -c1-1000 \
                 | tail -n 200
             )"
             if [ -z "$failure_summary" ]; then
@@ -118,7 +118,7 @@ jobs:
               echo "$failure_summary"
               echo '~~~'
             } >> "$GITHUB_STEP_SUMMARY"
-            failure_annotation="$(printf '%s' "$failure_summary" | tr '\\n\\r' '  ' | cut -c1-50000)"
+            failure_annotation="$(printf '%s' "$failure_summary" | tr '\n\r' '  ' | cut -c1-50000)"
             echo "::error title=Flutter test failures::$failure_annotation"
           fi
           exit "$test_status"
