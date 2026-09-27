@@ -29,7 +29,12 @@ def quantity_for(unit, item):
     return f'{max(value, 0.1):.1f}'.rstrip('0').rstrip('.')
 
 
-def build_rows(catalog, foods):
+KEEP_FROM_DATABASE = ('image_url', 'image_source')
+
+
+def build_rows(catalog, foods, existing=None):
+    """existing maps recipe id -> stored data; generated images already attached there are kept."""
+    existing = existing or {}
     rows, skipped = [], []
     for recipe in catalog['recipes']:
         missing = [item['food_id'] for item in recipe['ingredients'] if item['food_id'] not in foods]
@@ -41,6 +46,9 @@ def build_rows(catalog, foods):
             {'food_id': item['food_id'], 'quantity': quantity_for(foods[item['food_id']].get('unit', 'g'), item)}
             for item in recipe['ingredients']
         ]
+        for key in KEEP_FROM_DATABASE:
+            if not data.get(key) and existing.get(recipe['id'], {}).get(key):
+                data[key] = existing[recipe['id']][key]
         rows.append(data)
     return rows, skipped
 
@@ -59,8 +67,8 @@ def main():
 
     with psycopg.connect(url) as connection:
         foods = {row[0]: json.loads(row[1]) for row in connection.execute('SELECT id, data FROM foods')}
-        existing = {row[0] for row in connection.execute('SELECT id FROM recipes')}
-        rows, skipped = build_rows(catalog, foods)
+        existing = {row[0]: json.loads(row[1]) for row in connection.execute('SELECT id, data FROM recipes')}
+        rows, skipped = build_rows(catalog, foods, existing)
         new = sum(row['id'] not in existing for row in rows)
         print(f'catalog v{catalog["catalog_version"]}: {len(catalog["recipes"])} recipes; '
               f'{len(rows)} loadable ({new} new, {len(rows) - new} updates); {len(skipped)} skipped for unknown foods')

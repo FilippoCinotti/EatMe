@@ -1,0 +1,53 @@
+name: Generate recipe catalog images
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: Max images this run (0 = all recipes still without an image)
+        type: number
+        default: 20
+      quality:
+        description: OpenAI image quality
+        type: choice
+        options: [low, medium, high]
+        default: medium
+      model:
+        description: OpenAI image model
+        type: string
+        default: gpt-image-1
+      dry_run:
+        description: Only count what would be generated
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: catalog-recipe-images
+  cancel-in-progress: false
+
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'psycopg[binary]>=3.2'
+      - name: Generate, upload and attach images
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CATALOG_DATABASE_URL: ${{ secrets.CATALOG_DATABASE_URL }}
+        run: >-
+          python scripts/generate_recipe_images.py
+          --limit ${{ inputs.limit }}
+          --quality ${{ inputs.quality }}
+          --model ${{ inputs.model }}
+          ${{ inputs.dry_run && '--dry-run' || '' }}

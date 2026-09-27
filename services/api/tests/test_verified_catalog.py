@@ -57,6 +57,18 @@ class VerifiedCatalogCase(unittest.TestCase):
                 with self.subTest(row["slug"]):
                     service._validate_recipe(row, foods)
 
+    def test_loader_keeps_generated_images_already_in_database(self):
+        module = loader()
+        recipe = self.catalog["recipes"][0]
+        foods = {item["food_id"]: {"unit": item["unit"]} for item in recipe["ingredients"]}
+        stored = {recipe["id"]: {"image_url": "https://example.test/r.webp", "image_source": {"kind": "ai-generated"}}}
+        rows, _ = module.build_rows({"recipes": [recipe]}, foods, stored)
+        self.assertEqual(rows[0]["image_url"], "https://example.test/r.webp")
+        self.assertEqual(rows[0]["image_source"], {"kind": "ai-generated"})
+
+    def test_every_recipe_has_an_image_prompt(self):
+        self.assertTrue(all(r["image_prompt"] for r in self.catalog["recipes"]))
+
     def test_loader_skips_recipes_with_unknown_foods(self):
         module = loader()
         rows, skipped = module.build_rows(self.catalog, {})
