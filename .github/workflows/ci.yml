@@ -104,9 +104,7 @@ jobs:
           test_status=$?
           if [ "$test_status" -ne 0 ]; then
             failure_summary="$(
-              grep -aE '\[E\]|══╡ EXCEPTION|Expected:|Actual:|Which:|TestFailure|Some tests failed' "$RUNNER_TEMP/flutter-test.log" \
-                | cut -c1-1000 \
-                | tail -n 200
+              { grep -aE '\[E\]|FAILED|Some tests failed' "$RUNNER_TEMP/flutter-test.log" | head -n 40; grep -a -A 60 -m 5 'EXCEPTION CAUGHT' "$RUNNER_TEMP/flutter-test.log"; } | cut -c1-1000 | head -n 400
             )"
             if [ -z "$failure_summary" ]; then
               failure_summary="$(tail -n 200 "$RUNNER_TEMP/flutter-test.log" | cut -c1-1000)"
