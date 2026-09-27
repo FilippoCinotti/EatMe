@@ -41,8 +41,12 @@ void main() {
   ) async {
     await tester.pumpWidget(harness(const EatMeWordmark()));
 
-    final richText = tester.widget<RichText>(find.byType(RichText).first);
-    final root = richText.text as TextSpan;
+    final text = tester.widget<Text>(
+      find.byWidgetPredicate(
+        (widget) => widget is Text && widget.textSpan != null,
+      ),
+    );
+    final root = text.textSpan!;
     final plus = root.children!.single as TextSpan;
     expect(root.text, 'EatMe');
     expect(plus.text, '+');

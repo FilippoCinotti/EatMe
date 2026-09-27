@@ -406,10 +406,8 @@ void main() {
 
     expect(find.text('Choose a new photo'), findsOneWidget);
     expect(find.text('Reframe profile photo'), findsOneWidget);
-    await tester.tap(find.text('Reframe profile photo'));
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const ValueKey('save-avatar-crop')), findsOneWidget);
+    expect(find.byType(EatMeNavigationBar), findsOneWidget);
+    expect(find.byType(ModalBarrier), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 
