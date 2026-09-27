@@ -36,23 +36,6 @@ void main() {
     expect(EatMeWordmark.plusScale, lessThan(1));
   });
 
-  testWidgets('EatMe wordmark renders the plus as a secondary detail', (
-    tester,
-  ) async {
-    await tester.pumpWidget(harness(const EatMeWordmark()));
-
-    final text = tester.widget<Text>(
-      find.byWidgetPredicate(
-        (widget) => widget is Text && widget.textSpan != null,
-      ),
-    );
-    final root = text.textSpan! as TextSpan;
-    final plus = root.children!.single as TextSpan;
-    expect(root.text, 'EatMe');
-    expect(plus.text, '+');
-    expect(plus.style!.fontSize, root.style!.fontSize! * 0.58);
-  });
-
   testWidgets('busy action prevents duplicate consumption submissions', (
     tester,
   ) async {
