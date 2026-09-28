@@ -17,7 +17,7 @@ final _privatePhoto = FutureProvider.autoDispose.family<String?, String>((
   return value['base64'] as String?;
 });
 
-/// Illustrative photography is mapped only to the bundled demo catalog IDs.
+/// Illustrative photography is mapped to exact recipe/catalog IDs only.
 /// Unknown or private content keeps an honest icon fallback, never a wrong dish.
 class FoodImage extends ConsumerWidget {
   const FoodImage({
@@ -37,6 +37,10 @@ class FoodImage extends ConsumerWidget {
   final double height, radius;
   final double? width;
   final IconData fallback;
+  static const recipeAssets = <String, String>{
+    'b6e34b78-ba48-558f-bcc8-43cf54c9131c':
+        'assets/images/uova-marshmallow.png',
+  };
   static const asset = 'assets/images/food-atlas.webp';
   static const cells = <String, int>{
     '913a438b-0805-543d-8719-c0253f8f103a': 0,
@@ -104,60 +108,19 @@ class FoodImage extends ConsumerWidget {
         ),
       );
     }
-    if (ingredientIds.isNotEmpty) {
-      final foodsById = {
-        for (final food in ref.watch(appProvider).foods) food.id: food,
-      };
-      final urls = ingredientIds
-          .map((foodId) => foodsById[foodId]?.imageUrl)
-          .whereType<String>()
-          .where((url) => url.trim().isNotEmpty)
-          .take(4)
-          .toList();
-      if (urls.isNotEmpty) {
-        Widget tile(String url) => Expanded(
-          child: Image.network(
-            url,
+    final bundledRecipe = recipeAssets[id];
+    if (bundledRecipe != null) {
+      return ExcludeSemantics(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(radius),
+          child: Image.asset(
+            bundledRecipe,
+            width: width,
+            height: height,
             fit: BoxFit.cover,
-            filterQuality: FilterQuality.medium,
-            errorBuilder: (_, _, _) => ColoredBox(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              child: Icon(
-                fallback,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
           ),
-        );
-        final top = urls.take(2).toList();
-        final bottom = urls.skip(2).take(2).toList();
-        return ExcludeSemantics(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(radius),
-            child: SizedBox(
-              width: width,
-              height: height,
-              child: urls.length == 1
-                  ? Row(children: [tile(urls.first)])
-                  : Column(
-                      children: [
-                        Expanded(
-                          child: Row(
-                            children: [for (final url in top) tile(url)],
-                          ),
-                        ),
-                        if (bottom.isNotEmpty)
-                          Expanded(
-                            child: Row(
-                              children: [for (final url in bottom) tile(url)],
-                            ),
-                          ),
-                      ],
-                    ),
-            ),
-          ),
-        );
-      }
+        ),
+      );
     }
     final cell = cells[id];
     final scheme = Theme.of(context).colorScheme;

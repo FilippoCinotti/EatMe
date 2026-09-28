@@ -58,5 +58,10 @@
   "diet_section_exclusions_title": "Excluir siempre",
   "diet_section_exclusions_description": "Bloquea alimentos concretos en recomendaciones y controles de compatibilidad. Usa Preferencias para alimentos que simplemente no te gustan.",
   "diet_section_unknown_title": "Ingredientes desconocidos",
-  "diet_section_unknown_description": "Elige qué debe hacer EatMe+ cuando no pueda identificar un ingrediente con suficiente certeza: bloquearlo o pedir tu revisión explícita."
+  "diet_section_unknown_description": "Elige qué debe hacer EatMe+ cuando no pueda identificar un ingrediente con suficiente certeza: bloquearlo o pedir tu revisión explícita.",
+  "view_ingredients": "Ver ingredientes",
+  "read_more": "Leer más",
+  "show_less": "Ver menos",
+  "recipe_steps_unavailable": "Los pasos de preparación no están disponibles para esta receta.",
+  "ingredient_quantity_unknown": "Se desconocen algunas cantidades. Revisa los ingredientes antes de cocinar."
 }

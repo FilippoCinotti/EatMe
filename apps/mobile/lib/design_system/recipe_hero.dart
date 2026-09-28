@@ -33,9 +33,8 @@ class HeroRecipeCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(
-            width: double.infinity,
-            height: 242,
+          AspectRatio(
+            aspectRatio: 1.6,
             child: Stack(
               fit: StackFit.expand,
               children: [

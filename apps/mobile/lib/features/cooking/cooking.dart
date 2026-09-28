@@ -32,6 +32,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
   DateTime? timerEnd;
   int step = 0, remaining = 0, durationMinutes = 5;
   bool confirmation = false;
+  final Map<int, int> customTimers = {};
   Future<Recipe> load() async {
     final api = ref.read(apiProvider);
     await api.request(
@@ -98,7 +99,9 @@ class _CookingPageState extends ConsumerState<CookingPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => RecipeEditorial(builder: _build);
+
+  Widget _build(BuildContext context) {
     if (confirmation) {
       return ConfirmCookingPage(
         recipeId: widget.recipeId,
@@ -106,13 +109,13 @@ class _CookingPageState extends ConsumerState<CookingPage> {
         participants: widget.participants,
       );
     }
-    return Scaffold(
-      appBar: EatMeAppBar(title: Text(context.t('cooking_mode'))),
-      body: FutureBuilder<Recipe>(
-        future: future,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return PageBody(
+    return FutureBuilder<Recipe>(
+      future: future,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Scaffold(
+            appBar: EatMeAppBar(title: Text(context.t('cooking_mode'))),
+            body: PageBody(
               children: [
                 StatusNote(text: context.t('network_error'), warning: true),
                 FilledButton(
@@ -120,15 +123,56 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                   child: Text(context.t('retry')),
                 ),
               ],
-            );
-          }
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final recipe = snapshot.data!;
-          final steps = recipe.instructions(context.language);
-          final suggestedTimer = recipe.timerMinutes(context.language, step);
-          return PageBody(
+            ),
+          );
+        }
+        if (!snapshot.hasData) {
+          return Scaffold(
+            appBar: EatMeAppBar(title: Text(context.t('cooking_mode'))),
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
+        final recipe = snapshot.data!;
+        final steps = recipe.instructions(context.language);
+        if (steps.isEmpty) {
+          return Scaffold(
+            appBar: EatMeAppBar(title: Text(context.t('cooking_mode'))),
+            body: PageBody(
+              children: [
+                StatusNote(text: context.t('recipe_steps_unavailable')),
+              ],
+            ),
+          );
+        }
+        final suggestedTimer =
+            customTimers[step] ?? recipe.timerMinutes(context.language, step);
+        return Scaffold(
+          appBar: EatMeAppBar(title: Text(context.t('cooking_mode'))),
+          bottomNavigationBar: RecipeActionBar(
+            child: RecipeActionRow(
+              primary: FilledButton(
+                onPressed: () => setState(() {
+                  if (step == steps.length - 1) {
+                    timer?.cancel();
+                    remaining = 0;
+                    confirmation = true;
+                  } else {
+                    step++;
+                  }
+                }),
+                child: Text(
+                  context.t(
+                    step == steps.length - 1 ? 'finished_cooking' : 'next_step',
+                  ),
+                ),
+              ),
+              secondary: OutlinedButton(
+                onPressed: step > 0 ? () => setState(() => step--) : null,
+                child: Text(context.t('previous_step')),
+              ),
+            ),
+          ),
+          body: PageBody(
             children: [
               Text(
                 context.t('step_count', {
@@ -137,18 +181,23 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                 }),
                 style: Theme.of(context).textTheme.labelLarge,
               ),
-              const SizedBox(height: 16),
-              FoodImage(
-                id: widget.recipeId,
-                imageUrl: snapshot.data!.imageUrl,
-                ingredientIds: snapshot.data!.ingredientIds,
-                height: 190,
-                radius: 22,
+              const SizedBox(height: 10),
+              LinearProgressIndicator(
+                value: (step + 1) / steps.length,
+                minHeight: 4,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                localized(recipe.title, context.language),
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 20),
               Text(
                 steps[step],
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontSize: 17, height: 1.6),
               ),
               const SizedBox(height: 24),
               if (remaining > 0) ...[
@@ -183,7 +232,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                     final value = await askText(
                       context,
                       context.t('timer_minutes'),
-                      initial: '$durationMinutes',
+                      initial: '${suggestedTimer ?? durationMinutes}',
                       numeric: true,
                     );
                     if (value == null) return;
@@ -191,7 +240,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                     if (minutes == null || minutes < 1 || minutes > 180) {
                       throw const ApiFailure('invalid_timer');
                     }
-                    if (mounted) setState(() => durationMinutes = minutes);
+                    if (mounted) setState(() => customTimers[step] = minutes);
                   },
                 ),
               OutlinedButton.icon(
@@ -202,35 +251,14 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                       ? context.t('start_timer_minutes', {
                           'count': suggestedTimer ?? durationMinutes,
                         })
-                      : '${(remaining ~/ 60).toString().padLeft(2, '0')}:${(remaining % 60).toString().padLeft(2, '0')}',
+                      : '${context.t('cancel')} · ${(remaining ~/ 60).toString().padLeft(2, '0')}:${(remaining % 60).toString().padLeft(2, '0')}',
                 ),
               ),
               const SizedBox(height: 24),
-              FilledButton(
-                onPressed: () => setState(() {
-                  if (step == steps.length - 1) {
-                    timer?.cancel();
-                    remaining = 0;
-                    confirmation = true;
-                  } else {
-                    step++;
-                  }
-                }),
-                child: Text(
-                  context.t(
-                    step == steps.length - 1 ? 'finished_cooking' : 'next_step',
-                  ),
-                ),
-              ),
-              if (step > 0)
-                TextButton(
-                  onPressed: () => setState(() => step--),
-                  child: Text(context.t('previous_step')),
-                ),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -304,7 +332,9 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => RecipeEditorial(builder: _build);
+
+  Widget _build(BuildContext context) => Scaffold(
     appBar: EatMeAppBar(title: Text(context.t('confirm_cooking'))),
     body: FutureBuilder<Json>(
       future: future,
@@ -473,7 +503,9 @@ class CookingCompletePage extends StatelessWidget {
   final String recipeId;
   final int leftovers;
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => RecipeEditorial(builder: _build);
+
+  Widget _build(BuildContext context) => Scaffold(
     appBar: const EatMeAppBar(),
     body: PageBody(
       children: [
@@ -486,7 +518,7 @@ class CookingCompletePage extends StatelessWidget {
         Text(
           context.t('cooking_complete'),
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headlineLarge,
+          style: Theme.of(context).textTheme.headlineMedium,
         ),
         Text(context.t('cooking_saved'), textAlign: TextAlign.center),
         const SizedBox(height: 24),

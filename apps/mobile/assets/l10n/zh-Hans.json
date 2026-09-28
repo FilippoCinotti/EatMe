@@ -58,5 +58,10 @@
   "diet_section_exclusions_title": "始终排除",
   "diet_section_exclusions_description": "无论食谱匹配度如何，都从推荐和兼容性检查中排除指定食物。单纯不喜欢的食物请在偏好中设置。",
   "diet_section_unknown_title": "未知食材",
-  "diet_section_unknown_description": "当某种食材无法被足够可靠地识别时，选择 EatMe+ 应如何处理：直接阻止或要求你明确审核。"
+  "diet_section_unknown_description": "当某种食材无法被足够可靠地识别时，选择 EatMe+ 应如何处理：直接阻止或要求你明确审核。",
+  "view_ingredients": "查看食材",
+  "read_more": "展开阅读",
+  "show_less": "收起",
+  "recipe_steps_unavailable": "此食谱暂无烹饪步骤。",
+  "ingredient_quantity_unknown": "部分用量未知，请在烹饪前检查食材。"
 }
