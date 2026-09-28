@@ -85,6 +85,16 @@ class FastAPITests(unittest.TestCase):
         batch=self.client.get('/api/v1/inventory',headers=auth).json()['items'][0]
         self.assertEqual(batch['expiry_kind'],'estimated')
 
+    def test_custom_food_and_household_activity_routes(self):
+        token=self.client.post('/api/v1/auth/register',json={'email':'routes@example.invalid','password':'boundary-test-long'}).json()['access_token']
+        auth={'Authorization':'Bearer '+token}
+        self.client.put('/api/v1/profile',headers={**auth,'Idempotency-Key':new_id()},json={'name':'Alex','adult_confirmed':True})
+        food=self.client.post('/api/v1/foods',headers={**auth,'Idempotency-Key':new_id()},json={'action':'create','name':'Homemade stock','group':'other','unit':'ml','quantity':'500'})
+        self.assertEqual(food.status_code,200,food.text)
+        activity=self.client.get('/api/v1/households/activity',headers=auth)
+        self.assertEqual(activity.status_code,200,activity.text)
+        self.assertIn('items',activity.json())
+
     def test_body_limit_and_unknown_input(self):
         self.assertEqual(self.client.post('/api/v1/auth/login',content=b'x'*262145).status_code,413)
         self.assertEqual(self.client.post('/api/v1/auth/login',json={'email':'a','password':'b','user_id':'spoof'}).status_code,422)
