@@ -207,7 +207,9 @@ void main() {
       await tester.pumpAndSettle();
       await journey.capture(tester, boundary, 'editorial-cooking-step');
       await tester.tap(find.text('Set timer duration'));
-      await tester.pumpAndSettle();
+      // AsyncAction remains busy behind the open dialog until it is answered.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
       await tester.enterText(find.byType(TextFormField), '2');
       await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();

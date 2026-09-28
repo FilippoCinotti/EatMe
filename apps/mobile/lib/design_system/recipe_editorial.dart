@@ -102,6 +102,7 @@ class RecipeActionRow extends StatelessWidget {
       if (constraints.maxWidth < 330 ||
           MediaQuery.textScalerOf(context).scale(15) > 20) {
         return Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [primary, const SizedBox(height: 8), secondary],
         );
