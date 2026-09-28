@@ -150,8 +150,9 @@ void main() {
           });
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull);
-          if (scale == 1)
+          if (scale == 1) {
             await journey.capture(tester, boundary, 'editorial-$name-top-it');
+          }
           if (name == 'recipe') {
             final cook = find.widgetWithText(FilledButton, 'Cucina ora');
             expect(cook.hitTestable(), findsOneWidget);
@@ -177,8 +178,9 @@ void main() {
             await tester.pumpAndSettle();
           }
           expect(tester.takeException(), isNull);
-          if (scale == 1)
+          if (scale == 1) {
             await journey.capture(tester, boundary, 'editorial-$name-lower-it');
+          }
         }
       },
     );
