@@ -130,6 +130,13 @@ class ProfilePage extends ConsumerWidget {
                 onTap: () => context.push('/household'),
               ),
               SettingRow(
+                key: const ValueKey('profile-pantry'),
+                title: context.t('pantry_staples'),
+                subtitle: context.t('pantry_row_subtitle'),
+                icon: EatMeGlyph.packageOpen,
+                onTap: () => context.push('/pantry'),
+              ),
+              SettingRow(
                 title: context.t('preferences'),
                 icon: EatMeGlyph.slidersHorizontal,
                 onTap: () => context.push('/preferences'),

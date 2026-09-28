@@ -103,7 +103,7 @@ class Router:
                  "/recipes":self.service.recipes, "/jobs":self.service.jobs,
                  "/notifications":self.service.notifications, "/insights":self.service.insights,
                  "/entitlements":self.service.entitlements, "/recalls":self.service.recalls,
-                 "/admin/content":self.service.admin_content}
+                 "/admin/content":self.service.admin_content, "/pantry":self.service.pantry}
         actions = {"/shopping":self.service.shopping_action, "/plans":self.service.plan_action,
                    "/dinners":self.service.dinner_action,
                    "/foods":self.service.food_action, "/wellbeing":self.service.wellbeing_action,
@@ -112,7 +112,8 @@ class Router:
                    "/jobs":self.service.job_action, "/notifications":self.service.notification_action,
                    "/admin/content":self.service.admin_action, "/reports":self.service.report,
                    "/inventory/metadata":self.service.inventory_metadata, "/products/stock":self.service.product_stock,
-                   "/profile/avatar":self.service.profile_avatar}
+                   "/profile/avatar":self.service.profile_avatar,
+                   "/pantry":self.service.pantry_action}
         resource = route.removeprefix("/api/v1")
         if resource=="/media" and method=="POST":
             return self.service.media_upload(user_id,body)

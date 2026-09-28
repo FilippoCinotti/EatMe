@@ -138,7 +138,9 @@ DEFAULT_WEIGHTS = {
 
 
 def rank(recipes: list[dict], foods: dict, inventory: list[dict], profile: dict, rules: list[dict],
-         today: date, mode: str, servings: int, weights: dict | None = None) -> tuple[list[dict],list[dict]]:
+         today: date, mode: str, servings: int, weights: dict | None = None,
+         staples: frozenset | set = frozenset()) -> tuple[list[dict],list[dict]]:
+    """Rank recipes; staples are household pantry basics assumed available in any quantity."""
     profiles = {**DEFAULT_WEIGHTS, **(weights or {})}
     weight_mode = "for_you" if mode == "plant_based" else mode
     if weight_mode not in profiles:
@@ -167,17 +169,19 @@ def rank(recipes: list[dict], foods: dict, inventory: list[dict], profile: dict,
             })
             continue
         needed = requirements(recipe,servings)
+        pantry = {f for f in needed if f in staples}
         validation = compatibility(list(needed),foods,profile,rules)
         if validation["status"] == "not_compatible":
             rejected.append({"recipe_id":recipe["id"],"filters_failed":validation["reasons"]})
             continue
         if mode == 'plant_based' and any(foods[f].get('group') not in {'vegetable', 'fruit', 'legume', 'grain', 'oil', 'nuts', 'seed', 'herb'} for f in needed):
             continue
-        exact_coverage = sum(min(available.get(f,0)/q,1) for f,q in needed.items()) / max(len(needed),1)
-        fully_available = sum(available.get(f,0) >= q for f,q in needed.items())
-        matched = {f for f in needed if f in semantic_available}
+        exact_coverage = sum(1 if f in pantry else min(available.get(f,0)/q,1) for f,q in needed.items()) / max(len(needed),1)
+        fully_available = sum(f in pantry or available.get(f,0) >= q for f,q in needed.items())
+        matched = {f for f in needed if f in semantic_available or f in pantry}
+        # Pantry staples make a recipe cookable but never make it fridge-relevant.
         meaningful_matched = {
-            f for f in matched
+            f for f in matched - pantry
             if foods[f].get("group") not in {"oil", "herb", "spice", "condiment", "sweetener", "other"}
         }
         # A recipe presented as a fridge-driven recommendation must actually
@@ -204,6 +208,7 @@ def rank(recipes: list[dict], foods: dict, inventory: list[dict], profile: dict,
                        "available_count":fully_available,"matched_inventory_count":len(matched),
                        "meaningful_match_count":len(meaningful_matched),
                        "ingredient_count":len(needed),"use_soon_food_ids":expiring,
+                       "pantry_food_ids":sorted(pantry),
                        "filters_passed":["canonical_ingredients","allergens","intolerances","explicit_exclusions","published_diet_rules","inventory_relevance"],
                        "warnings":validation["warnings"],"minutes":recipe["minutes"],
                        "explanations":{"available":fully_available,"matched":len(matched),

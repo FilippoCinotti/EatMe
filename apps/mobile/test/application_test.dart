@@ -23,6 +23,7 @@ import 'package:eatme/design_system/widgets.dart';
 import 'package:eatme/main.dart';
 import 'package:eatme/features/chef_table/chef_table.dart';
 import 'package:eatme/features/organize/shopping.dart';
+import 'package:eatme/features/organize/pantry.dart';
 import 'package:eatme/features/organize/household.dart';
 import 'package:eatme/features/organize/recipe_library.dart';
 import 'package:eatme/features/organize/guilty_pleasure.dart';
@@ -62,6 +63,7 @@ class TestApi extends EatMeApi {
   }
   final calls = <Json>[];
   bool connected = true;
+  List<String> pantry = [];
   Json item = {
     'id': 'line',
     'label': 'Tomatoes',
@@ -98,6 +100,36 @@ class TestApi extends EatMeApi {
     if (path == '/shopping' && body?['action'] == 'purchase') {
       item = {};
       return {'purchased': true};
+    }
+    if (path == '/shopping' && body?['action'] == 'purchase_many') {
+      item = {};
+      return {
+        'purchased': [
+          {'id': 'line', 'batch_id': 'batch', 'expiry_kind': 'estimated'},
+        ],
+        'skipped': [],
+      };
+    }
+    if (path == '/pantry' && method == 'GET') {
+      return {
+        'food_ids': pantry,
+        'items': [],
+        'version': pantry.isEmpty ? 0 : 1,
+        'configured': pantry.isNotEmpty,
+        'suggestions': [
+          {
+            'id': 'oil',
+            'slug': 'olive-oil',
+            'name': {'en': 'Olive oil', 'it': 'Olio di oliva'},
+            'unit': 'ml',
+            'group': 'oil',
+          },
+        ],
+      };
+    }
+    if (path == '/pantry' && body?['action'] == 'set') {
+      pantry = List<String>.from(body!['food_ids'] as List);
+      return {'food_ids': pantry, 'version': 1};
     }
     if (path == '/households') {
       return {
@@ -332,6 +364,48 @@ void main() {
       api.calls.where((c) => c['body']?['action'] == 'purchase').length,
       1,
     );
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('I did the shopping moves checked lines in one request', (
+    tester,
+  ) async {
+    final api = TestApi()..item = {...TestApi().item, 'food_id': 'tomato'};
+    await tester.pumpWidget(harness(const ShoppingPage(), api));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(Checkbox));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('did-the-shopping')));
+    await tester.tap(find.byKey(const ValueKey('did-the-shopping')));
+    // The action button keeps a progress indicator while the sheet is open.
+    await tester.pump(const Duration(milliseconds: 600));
+    await tester.ensureVisible(find.text('Add 1 selected'));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.text('Add 1 selected'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    final bulk = api.calls.where(
+      (c) => c['body']?['action'] == 'purchase_many',
+    );
+    expect(bulk.length, 1);
+    expect(bulk.single['body']['items'], [
+      {'id': 'line', 'expected_version': 2},
+    ]);
+    expect(bulk.single['body']['estimate_expiry'], true);
+    expect(find.text('1 items added to Fridge'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('pantry staples are selected and saved', (tester) async {
+    final api = TestApi();
+    await tester.pumpWidget(harness(const PantryPage(), api));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('pantry-oil')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('save-pantry')));
+    await tester.tap(find.byKey(const ValueKey('save-pantry')));
+    await tester.pumpAndSettle();
+    final saved = api.calls.singleWhere((c) => c['body']?['action'] == 'set');
+    expect(saved['body']['food_ids'], ['oil']);
+    expect(saved['body']['expected_version'], 0);
+    expect(api.pantry, ['oil']);
     expect(tester.takeException(), isNull);
   });
   testWidgets(

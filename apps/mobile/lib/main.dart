@@ -19,6 +19,7 @@ import 'features/organize/shopping.dart';
 import 'features/organize/planner.dart';
 import 'features/organize/dinners.dart';
 import 'features/organize/household.dart';
+import 'features/organize/pantry.dart';
 import 'features/organize/leftovers.dart';
 import 'features/organize/recipe_library.dart';
 import 'features/organize/social_recipe_import.dart';
@@ -154,6 +155,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/shopping', redirect: (_, _) => '/plan/shopping'),
       GoRoute(path: '/planner', redirect: (_, _) => '/plan'),
       GoRoute(path: '/household', builder: (_, _) => const HouseholdPage()),
+      GoRoute(path: '/pantry', builder: (_, _) => const PantryPage()),
       GoRoute(path: '/leftovers', builder: (_, _) => const LeftoversPage()),
       GoRoute(
         path: '/recipe-library',

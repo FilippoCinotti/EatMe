@@ -13,10 +13,12 @@ from .households import HouseholdService
 from .planning import PlanningService
 from .dinners import DinnerService
 from .reference_features import ReferenceFeaturesService, GOALS
+from .pantry import PantryService
 from .auth import now
 from .catalog import ALLERGENS, ETHICAL_PREFERENCES, INTOLERANCES, MEDICAL_AWARENESS, SENSITIVITIES
 from .engine import active_rules, amount_milli, batch_usable, compatibility, quantity, rank, requirements
 from .errors import DomainError
+from .shelf_life import estimate_expiry, shelf_life_days
 from .storage import Database, Transaction, decode, encode
 
 HEALTH_CONSENT = "nutrition-profile-1"
@@ -47,6 +49,7 @@ def valid_date(value) -> str | None:
 
 
 class Service(
+    PantryService,
     ReferenceFeaturesService,
     HouseholdService,
     PlanningService,
@@ -108,7 +111,7 @@ class Service(
                 diet["selectable"] = any(v["diet_id"]==diet["id"] and v["status"]=="PUBLISHED" and
                     v["effective_from"]<=current.isoformat() and (not v["effective_until"] or current.isoformat()<v["effective_until"])
                     for v in versions)
-            return {"foods":list(foods.values()),"diets":diets,"allergens":ALLERGENS,
+            return {"foods":[{**food,"shelf_life_days":shelf_life_days(food)} for food in foods.values()],"diets":diets,"allergens":ALLERGENS,
                     "intolerances":INTOLERANCES,"sensitivities":SENSITIVITIES,
                     "medical_awareness":MEDICAL_AWARENESS,"ethical_preferences":ETHICAL_PREFERENCES,
                     "meal_timing":{"modes":["standard","custom","time_restricted"],
@@ -350,6 +353,13 @@ class Service(
             return {"items":[{**b,"quantity":quantity(b["quantity_milli"]),"food":foods[b["food_id"]],
                               "usable":batch_usable(b,self.today(settings))} for b in self._inventory(tx,household_id)]}
 
+    def _estimated_expiry(self,tx,user_id,food,location,expiry,kind):
+        """Fill an unknown date from typical shelf life; explicit dates always win."""
+        if kind != "unknown" or expiry:
+            return expiry,kind
+        estimated = estimate_expiry(food,location,self.today(self._profile(tx,user_id)["settings"]))
+        return (estimated,"estimated") if estimated else (None,"unknown")
+
     def _event(self,tx,user_id,household_id,batch_id,kind,delta,metadata=None):
         tx.execute("INSERT INTO inventory_events VALUES (?,?,?,?,?,?,?,?)",
                    (new_id(),household_id,batch_id,user_id,kind,delta,now(),encode(metadata or {})))
@@ -364,14 +374,20 @@ class Service(
             raise DomainError("invalid_inventory",422)
         if bool(expiry) != (kind != "unknown"):
             raise DomainError("expiry_type_required",422)
+        estimate = data.get("estimate_expiry", False)
+        if type(estimate) is not bool:
+            raise DomainError("invalid_inventory",422)
         with self.db.transaction(household_id) as tx:
             def add():
+                nonlocal expiry, kind
                 self._member(tx,user_id,household_id,write=True)
                 food = self._catalog(tx, user_id)[0].get(valid_uuid(data.get("food_id")))
                 if not food:
                     raise DomainError("food_not_found",404)
                 if food["unit"]=="pcs" and amount%1000:
                     raise DomainError("whole_units_required",422)
+                if estimate:
+                    expiry, kind = self._estimated_expiry(tx,user_id,food,location,expiry,kind)
                 batch_id, stamp = new_id(),now()
                 tx.execute("INSERT INTO inventory_batches VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
                            (batch_id,household_id,data["food_id"],amount,location,expiry,kind,None,"manual",1,stamp,stamp))
@@ -453,7 +469,8 @@ class Service(
             skill = {'beginner': 0, 'confident': 1, 'advanced': 2}
             if preferences.get('skill'):
                 recipes = [r for r in recipes if skill.get(r.get('difficulty', 'beginner'), 0) <= skill[preferences['skill']]]
-            ranked,rejected = rank(recipes,foods,inventory,profile["settings"],rules,today,mode,size,self.weights)
+            ranked,rejected = rank(recipes,foods,inventory,profile["settings"],rules,today,mode,size,self.weights,
+                                   staples=self._staples(tx,household_id))
             feedback = {r["recipe_id"]:r["rating"] for r in tx.all("SELECT recipe_id,rating FROM recipe_feedback WHERE user_id=?",(user_id,))} if preferences.get("learning") else {}
             cuisines = {c.casefold() for c in preferences.get("cuisines",[])}
             for item in ranked:
@@ -528,6 +545,7 @@ class Service(
         for f,value in custom.items():
             needed[f] = amount_milli(value,zero=True)
         inventory = self._inventory(tx,profile["household_id"])
+        staples = self._staples(tx,profile["household_id"])
         allocations, shortages, ingredients = [],[],[]
         for f,total in needed.items():
             remaining = total
@@ -538,9 +556,11 @@ class Service(
                 if used:
                     allocations.append({"batch_id":batch["id"],"version":batch["version"],"food_id":f,"quantity_milli":used,"quantity":quantity(used)})
                     remaining -= used
-            if remaining:
+            # Untracked pantry staples are assumed to be on hand: never a shortage.
+            if remaining and f not in staples:
                 shortages.append({"food_id":f,"quantity":quantity(remaining)})
-            ingredients.append({"food_id":f,"food":foods[f],"quantity":quantity(total),"available":quantity(total-remaining)})
+            ingredients.append({"food_id":f,"food":foods[f],"quantity":quantity(total),"available":quantity(total-remaining),
+                                "pantry":f in staples})
         return {"recipe_id":recipe["id"],"servings":data.get("servings",recipe["servings"]),"ingredients":ingredients,"nutrition":self.recipe_nutrition(recipe,foods,data.get("servings",recipe["servings"])),
                 "allocations":allocations,"shortages":shortages,"profile_version":profile["version"],"diet_rules_version":versions,"participant_versions":participants}
 

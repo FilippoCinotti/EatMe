@@ -93,6 +93,8 @@ class PlanningService:
                     for batch in self._inventory(tx, home):
                         if batch_usable(batch, today) and batch["food_id"] in totals:
                             totals[batch["food_id"]] = max(0, totals[batch["food_id"]] - batch["quantity_milli"])
+                    for food_id in self._staples(tx, home) & set(totals):
+                        totals[food_id] = 0
                     # Replace only this plan's generated lines; manual lines remain explicit purchases.
                     tx.execute("DELETE FROM shopping_items WHERE household_id=? AND source_key=?", (home, source))
                     identifiers = []
@@ -101,6 +103,8 @@ class PlanningService:
                             food = foods[food_id]
                             identifiers.append(self._shopping_insert(tx, user_id, home, food_id, food["name"]["en"], amount, food["unit"], food.get("group", "other"), source))
                     return {"ids": identifiers}
+                if action == "purchase_many":
+                    return self._purchase_many(tx, user_id, home, data)
                 identifier = valid_uuid(data.get("id"))
                 item = tx.one("SELECT * FROM shopping_items WHERE id=? AND household_id=?", (identifier, home))
                 if not item:
@@ -118,11 +122,11 @@ class PlanningService:
                     kind = choice(data.get("expiry_kind", "unknown"), {"unknown", "use_by", "best_before", "estimated"})
                     if bool(expiry) != (kind != "unknown"):
                         raise DomainError("expiry_type_required", 422)
-                    batch_id, stamp = new_id(), now()
-                    tx.execute("INSERT INTO inventory_batches VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", (batch_id, home, item["food_id"], item["quantity_milli"], location, expiry, kind, None, "shopping", 1, stamp, stamp))
-                    self._event(tx, user_id, home, batch_id, "purchased", item["quantity_milli"])
-                    tx.execute("DELETE FROM shopping_items WHERE id=?", (identifier,))
-                    return {"batch_id": batch_id, "purchased": True}
+                    estimate = data.get("estimate_expiry", False)
+                    if type(estimate) is not bool:
+                        raise DomainError("invalid_purchase", 422)
+                    batch_id, expiry, kind = self._purchase_line(tx, user_id, home, item, location, expiry, kind, estimate)
+                    return {"batch_id": batch_id, "purchased": True, "expiry_date": expiry, "expiry_kind": kind}
                 if action == "check":
                     if type(data.get("checked")) is not bool:
                         raise DomainError("invalid_checked", 422)
@@ -136,6 +140,52 @@ class PlanningService:
                     raise DomainError("invalid_action", 422)
                 return {"id": identifier, "version": item["version"] + 1}
             return self._once(tx, user_id, key, "shopping", data, change)
+
+    def _purchase_line(self, tx, user_id, home, item, location, expiry, kind, estimate):
+        """Move one shopping line into the fridge as a batch; returns (batch_id, expiry, kind)."""
+        if estimate:
+            food = self._catalog(tx, user_id)[0].get(item["food_id"])
+            if food:
+                expiry, kind = self._estimated_expiry(tx, user_id, food, location, expiry, kind)
+        batch_id, stamp = new_id(), now()
+        tx.execute("INSERT INTO inventory_batches VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", (batch_id, home, item["food_id"], item["quantity_milli"], location, expiry, kind, None, "shopping", 1, stamp, stamp))
+        self._event(tx, user_id, home, batch_id, "purchased", item["quantity_milli"])
+        tx.execute("DELETE FROM shopping_items WHERE id=?", (item["id"],))
+        return batch_id, expiry, kind
+
+    def _purchase_many(self, tx, user_id, home, data):
+        """"I did the shopping": atomically move the selected lines into the fridge.
+
+        Each line gets an estimated date from typical shelf life unless
+        estimate_expiry is false. Lines without a catalog food are reported, not moved.
+        """
+        lines = data.get("items")
+        if not isinstance(lines, list) or not 1 <= len(lines) <= 200:
+            raise DomainError("invalid_items", 422)
+        location = choice(data.get("location", "fridge"), {"fridge", "pantry", "freezer"})
+        estimate = data.get("estimate_expiry", True)
+        if type(estimate) is not bool:
+            raise DomainError("invalid_purchase", 422)
+        purchased, skipped, seen = [], [], set()
+        for line in lines:
+            if not isinstance(line, dict):
+                raise DomainError("invalid_items", 422)
+            identifier = valid_uuid(line.get("id"))
+            if identifier in seen:
+                raise DomainError("invalid_items", 422)
+            seen.add(identifier)
+            item = tx.one("SELECT * FROM shopping_items WHERE id=? AND household_id=?", (identifier, home))
+            if not item:
+                raise DomainError("shopping_item_not_found", 404, {"id": identifier})
+            if item["version"] != line.get("expected_version"):
+                raise DomainError("stale_shopping_item", 409, {"id": identifier})
+            if not item["food_id"]:
+                skipped.append({"id": identifier, "label": item["label"], "reason": "canonical_food_required"})
+                continue
+            batch_id, expiry, kind = self._purchase_line(tx, user_id, home, item, location, None, "unknown", estimate)
+            purchased.append({"id": identifier, "batch_id": batch_id, "food_id": item["food_id"],
+                              "expiry_date": expiry, "expiry_kind": kind})
+        return {"purchased": purchased, "skipped": skipped}
 
     def _shopping_insert(self, tx, user_id, home, food_id, label, amount, unit, category, source):
         identifier, stamp = new_id(), now()
@@ -189,7 +239,8 @@ class PlanningService:
                     participants = data.get("participants", [user_id])
                     settings, rules, _, _ = self._diners(tx, user_id, participants, profile, self._catalog(tx, user_id)[3], today)
                     servings = integer(data.get("servings", len(participants)), minimum=1, maximum=20)
-                    ranked, _ = rank(recipes, foods, self._inventory(tx, home), settings, rules, today, data.get("mode", "for_you"), servings, self.weights)
+                    ranked, _ = rank(recipes, foods, self._inventory(tx, home), settings, rules, today, data.get("mode", "for_you"), servings, self.weights,
+                                     staples=self._staples(tx, home))
                     if not ranked:
                         raise DomainError("no_compatible_recipes", 409)
                     meals = [{"date": (date.fromisoformat(start) + timedelta(days=i)).isoformat(), "slot": "dinner", "recipe_id": ranked[i % len(ranked)]["recipe"]["id"], "servings": servings, "participants": participants} for i in range(7)]
@@ -239,6 +290,7 @@ class PlanningService:
             raise DomainError('recipe_not_compatible', 409)
         allocations, shortages = [], []
         stock = self._inventory(tx, item['household_id'])
+        staples = self._staples(tx, item['household_id'])
         for food_id, amount in needed.items():
             remaining = amount
             for batch in stock:
@@ -248,7 +300,7 @@ class PlanningService:
                 if used:
                     allocations.append({'batch_id': batch['id'], 'quantity_milli': used, 'version': batch['version']})
                     remaining -= used
-            if remaining:
+            if remaining and food_id not in staples:
                 shortages.append({'food_id': food_id, 'quantity': quantity(remaining)})
         original_recipe = {'servings': original['servings'], 'ingredients': [{'food_id': i['food_id'], 'quantity': i['quantity']} for i in original['ingredients'] if amount_milli(i['quantity'], zero=True)]}
         combined = requirements(original_recipe, servings)

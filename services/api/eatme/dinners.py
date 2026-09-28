@@ -800,6 +800,8 @@ class DinnerService:
         for batch in self._inventory(tx, dinner["household_id"]):
             if batch_usable(batch, today) and batch["food_id"] in totals:
                 totals[batch["food_id"]] = max(0, totals[batch["food_id"]] - batch["quantity_milli"])
+        for food_id in self._staples(tx, dinner["household_id"]) & set(totals):
+            totals[food_id] = 0
         source = "dinner:" + dinner["id"]
         tx.execute(
             "DELETE FROM shopping_items WHERE household_id=? AND source_key=?",
