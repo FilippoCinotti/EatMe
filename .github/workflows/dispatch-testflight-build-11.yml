@@ -1,4 +1,4 @@
-name: Dispatch TestFlight build 11
+name: Cancel duplicate TestFlight build 11
 
 on:
   push:
@@ -12,19 +12,17 @@ permissions:
   actions: write
 
 jobs:
-  dispatch:
+  cleanup:
     runs-on: ubuntu-latest
     steps:
-      - name: Dispatch reviewed main commit to TestFlight
+      - name: Cancel only the duplicate queued upload
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_SHA: 000620fa79d3a6818c9cff15eb07e161c81c2235
+          DUPLICATE_RUN: '36482093648'
         run: |
-          test -n "$RELEASE_SHA"
-          test "$RELEASE_SHA" != "0000000000000000000000000000000000000000"
-          gh workflow run testflight.yml \
-            --repo "$GITHUB_REPOSITORY" \
-            --ref main \
-            -f release_sha="$RELEASE_SHA" \
-            -f build_number=11 \
-            -f upload_to_testflight=true
+          run_status=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$DUPLICATE_RUN" --jq .status)
+          if [ "$run_status" != "completed" ]; then
+            if ! gh api --method POST "repos/$GITHUB_REPOSITORY/actions/runs/$DUPLICATE_RUN/cancel"; then
+              test "$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$DUPLICATE_RUN" --jq .status)" = "completed"
+            fi
+          fi
