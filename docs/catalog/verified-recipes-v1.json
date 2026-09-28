@@ -10399,6 +10399,16 @@
       "status": "verified"
     },
     {
+      "slug": "agnello-alla-lucana",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-agnello-lucana/",
+      "prep_minutes": 40,
+      "cook_minutes": 60,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "agretti-allorientale-con-salsa-di-soia",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/agretti-all-orientale/",
@@ -10549,6 +10559,16 @@
       "status": "verified"
     },
     {
+      "slug": "analcolico-al-melone",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/analcolico-al-melone/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
       "slug": "angel-cake",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/angel-cake-la-ricetta/",
@@ -10626,6 +10646,26 @@
       "cook_minutes": 50,
       "rest_minutes": 0,
       "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "aranciata-fatta-in-casa",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/aranciata-fatta-in-casa-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "arrosto-di-maiale-alla-senape",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-arrosto-maiale-senape/",
+      "prep_minutes": 20,
+      "cook_minutes": 90,
+      "rest_minutes": 0,
+      "servings": 6,
       "status": "verified"
     },
     {
@@ -10749,6 +10789,16 @@
       "status": "verified"
     },
     {
+      "slug": "avocado-con-uova-e-pancetta",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/avocado-con-uova-e-pancetta/",
+      "prep_minutes": 15,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "avocado-toast-con-uovo-nuvola",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/avocado-toast-con-uovo-nuvola/",
@@ -10856,6 +10906,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "baguette-alla-ratatouille",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-baguette-ratatouille/",
+      "prep_minutes": 50,
+      "cook_minutes": 80,
+      "rest_minutes": 0,
+      "servings": 16,
       "status": "verified"
     },
     {
@@ -11259,6 +11319,16 @@
       "status": "verified"
     },
     {
+      "slug": "bicchierini-di-ricotta-fichi-caramellati-e-mandorle-pralinate",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/bicchierini-di-ricotta-fichi-caramellati-e-mandorle-pralinate/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "bicerin-torinese",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/bicerin-la-ricetta/",
@@ -11286,6 +11356,16 @@
       "cook_minutes": 20,
       "rest_minutes": 0,
       "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "biscotti-all-olio-d-oliva-cioccolato-e-nocciole",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/biscotti-all-olio-d-oliva-cioccolato-e-nocciole/",
+      "prep_minutes": 15,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 8,
       "status": "verified"
     },
     {
@@ -11529,6 +11609,16 @@
       "status": "verified"
     },
     {
+      "slug": "brioche-soffice-in-friggitrice-ad-aria-la-ricetta-facile-e-veloce",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/brioche-soffice-in-friggitrice-ad-aria-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "broad-bean-bruschetta",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/broad-bean-bruschetta",
@@ -11579,6 +11669,16 @@
       "status": "verified"
     },
     {
+      "slug": "broccoli-di-natale",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/broccoli-di-natale-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "broccoli-sage-pasta",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/broccoli-sage-pasta",
@@ -11599,6 +11699,26 @@
       "status": "verified"
     },
     {
+      "slug": "brodo-di-carne",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/brodo-di-carne-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "brodo-di-polpo",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/brodo-di-polpo/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "brooklyn-blackout-cake",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/brooklyn-blackout-cake",
@@ -11606,6 +11726,16 @@
       "cook_minutes": 40,
       "rest_minutes": 0,
       "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "brownies-cheesecake",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/brownies-cheesecake-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 8,
       "status": "verified"
     },
     {
@@ -11679,6 +11809,26 @@
       "status": "verified"
     },
     {
+      "slug": "budino-alle-mele",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/budino-alle-mele/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "budino-di-pane",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/budino-di-pane-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "buffalo-chicken-blue-cheese-slaw",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/buffalo-chicken-blue-cheese-slaw",
@@ -11686,6 +11836,16 @@
       "cook_minutes": 60,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "burrito-di-carne",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/burrito-di-carne/",
+      "prep_minutes": 30,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 6,
       "status": "verified"
     },
     {
@@ -11806,6 +11966,16 @@
       "cook_minutes": 10,
       "rest_minutes": 0,
       "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "caesar-salad-al-pollo",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-caesar-salad-pollo/",
+      "prep_minutes": 15,
+      "cook_minutes": 10,
+      "rest_minutes": 10,
+      "servings": 3,
       "status": "verified"
     },
     {
@@ -11942,6 +12112,16 @@
       "slug": "carciofi-e-patate-al-forno",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/carciofi-e-patate-al-forno-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "carciofi-e-piselli",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/carciofi-e-piselli-la-ricetta/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -12189,6 +12369,16 @@
       "status": "verified"
     },
     {
+      "slug": "cestini-di-cioccolato-variegati",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/cestini-di-cioccolato-variegati/",
+      "prep_minutes": 30,
+      "cook_minutes": 5,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "cestini-di-pasta-sfoglia-alla-caprese-e-salmone",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/cestini-di-pasta-sfoglia-alla-caprese-ricetta/",
@@ -12196,6 +12386,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "chaffle",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/chaffle/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -12229,9 +12429,29 @@
       "status": "verified"
     },
     {
+      "slug": "charlotte-al-cioccolato-fondente-e-gelee-allarancia",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/charlotte-al-cioccolato-fondente-e-gelee-all-arancia/",
+      "prep_minutes": 60,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
       "slug": "charlotte-al-limone",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/charlotte-al-limone-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "charlotte-alle-mele",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/charlotte-alle-mele-la-ricetta/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -12409,9 +12629,29 @@
       "status": "verified"
     },
     {
+      "slug": "cheesecake-al-mango",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/cheesecake-al-mango-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "cheesecake-al-melone-la-ricetta-estiva-facilissima-e-senza-cottura",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/ricetta-cheesecake-al-melone/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "cheesecake-alla-banana",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/cheesecake-alla-banana-la-ricetta/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -12886,6 +13126,16 @@
       "cook_minutes": 20,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "chiffon-cake",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/la-ricetta-chiffon-cake/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
       "status": "verified"
     },
     {
@@ -13439,6 +13689,26 @@
       "status": "verified"
     },
     {
+      "slug": "coniglio-in-salsa-d-uovo",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-coniglio-salsa-duovo/",
+      "prep_minutes": 20,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "coppola-di-garibaldi",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/coppola-di-garibaldi/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "coriander-roast-chicken-thighs-with-puy-lentil-salad",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/coriander-roast-chicken-thighs-with-puy-lentil-salad",
@@ -13452,6 +13722,16 @@
       "slug": "cornbread",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/cornbread",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "cornetti-sfogliati-la-ricetta-veloce-con-pasta-sfoglia-pronta",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/cornetti-sfogliati-la-ricetta/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -13486,6 +13766,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "coulis",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/coulis-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 3,
       "status": "verified"
     },
     {
@@ -13839,6 +14129,26 @@
       "status": "verified"
     },
     {
+      "slug": "crema-di-limone-in-bottiglia",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/crema-di-limone-in-bottiglia-la-ricetta-del-dessert-fresco-pronto-in-2-minuti/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "crema-di-melanzane",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/crema-di-melanzane-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "crema-di-pecorino-la-ricetta-del-condimento-saporito-e-versatile",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/crema-di-pecorino/",
@@ -13852,6 +14162,16 @@
       "slug": "crema-paradiso",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/crema-paradiso-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "creme-brulee-alla-mela",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/creme-brulee-alla-mela-la-ricetta-del-dessert-goloso-e-profumato-perfetto-per-lautunno/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -13936,6 +14256,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "crescentine",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/crescentine/",
+      "prep_minutes": 20,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -14039,6 +14369,16 @@
       "status": "verified"
     },
     {
+      "slug": "croccante-allamarena",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/croccante-allamarena/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "croque-monsieur-e-croque-madame",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/croque-monsieur-e-croque-madame/",
@@ -14046,6 +14386,26 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "crostata-al-formaggio-dello-yorkshire",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-crostata-formaggio-yorkshire/",
+      "prep_minutes": 30,
+      "cook_minutes": 50,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "crostata-alla-doppia-crema",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/crostata-alla-doppia-crema/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 8,
       "status": "verified"
     },
     {
@@ -14159,9 +14519,29 @@
       "status": "verified"
     },
     {
+      "slug": "cubetti-di-ghiaccio-con-frutti-di-bosco-lidea-sfiziosa-per-rinfrescare",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/cubetti-di-ghiaccio-con-frutti-di-bosco-lidea-sfiziosa-per-rinfrescare-il-tuo-spumante/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "cubetti-di-ghiaccio-con-la-frutta-la-ricetta-sfiziosa-per-i-tuoi-cockt",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/cubetti-di-ghiaccio-con-la-frutta-la-ricetta-sfiziosa-per-i-tuoi-cocktail/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "cubotti-di-crema-la-ricetta-dei-dolcetti-semplici-e-golosi",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/cubotti-di-crema/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -14729,6 +15109,16 @@
       "status": "verified"
     },
     {
+      "slug": "fagiolini-lessi",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/fagiolini-lessi-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "fagiolini-sottolio",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/fagiolini-sottolio-ricetta/",
@@ -14879,6 +15269,16 @@
       "status": "verified"
     },
     {
+      "slug": "finta-pizza-di-albumi-con-prosciutto-cotto-e-scamorza",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/finta-pizza-di-albumi-con-prosciutto-cotto-e-scamorza/",
+      "prep_minutes": 20,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "fiori-di-zucca-croccanti-fritti-in-pastella",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/fiori-di-zucca-fritti-la-ricetta/",
@@ -15016,6 +15416,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "fregola-con-verdure",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/fregola-con-verdure-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -15159,6 +15569,16 @@
       "status": "verified"
     },
     {
+      "slug": "frittelle-di-tonno",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/frittelle-di-tonno-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "frozen-smoothie-bowl-la-merenda-estiva-veloce-realizzata-con-frutta-co",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/frozen-smoothie-bowl-la-merenda-estiva-veloce-realizzata-con-frutta-congelata/",
@@ -15229,6 +15649,16 @@
       "status": "verified"
     },
     {
+      "slug": "fudge-cremoso-al-cioccolato-la-ricetta-del-dessert-goloso-con-3-ingred",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/fudge-cremoso-al-cioccolato-la-ricetta-del-dessert-goloso-con-3-ingredienti/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "fudgy-brownies",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/fudgy-brownies",
@@ -15289,6 +15719,16 @@
       "status": "verified"
     },
     {
+      "slug": "fusilli-al-radicchio-speck-e-taleggio",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/fusilli-al-radicchio-speck-e-taleggio/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "futomaki",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/futomaki-la-ricetta/",
@@ -15296,6 +15736,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "galette-des-rois",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/galette-des-rois/",
+      "prep_minutes": 25,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 8,
       "status": "verified"
     },
     {
@@ -15559,6 +16009,16 @@
       "status": "verified"
     },
     {
+      "slug": "girelle-bicolori-al-vapore",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/girelle-bicolori-al-vapore/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 15,
+      "status": "verified"
+    },
+    {
       "slug": "girelle-soffici-alla-zucca-ripiene-di-cioccolato-la-ricetta-dei-lievit",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/girella-soffici-alla-zucca-ripiene-di-cioccolato/",
@@ -15756,6 +16216,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "granita-al-limone",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/granita-al-limone-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -16439,6 +16909,16 @@
       "status": "verified"
     },
     {
+      "slug": "insalata-di-calamari-verdure-e-briciole-croccanti",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/insalata-di-calamari-verdure-e-briciole-croccanti/",
+      "prep_minutes": 20,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "insalata-di-ceci-feta-e-pomodorini",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/insalata-di-ceci-feta-e-pomodorini/",
@@ -16499,9 +16979,39 @@
       "status": "verified"
     },
     {
+      "slug": "insalata-di-patate-la-ricetta-base-semplice-e-saporita",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/ricetta-insalata-di-patate/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "insalata-di-puntarelle-alla-romana",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/insalata-di-puntarelle/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "insalata-di-zucchine",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/ricetta-insalata-di-zucchine/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "insalata-thai-di-cetrioli",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/insalata-thai-di-cetrioli/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -16709,6 +17219,16 @@
       "status": "verified"
     },
     {
+      "slug": "lasagna-con-cavolfiore-la-ricetta-con-pancetta-provola-e-besciamella",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/lasagna-con-cavolfiore-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "lasagne-ai-carciofi-di-barbieri",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/lasagne-ai-carciofi-di-barbieri/",
@@ -16736,6 +17256,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "lasagne-fatte-in-casa-ricetta-base",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/lasagne-ricetta-base/",
+      "prep_minutes": 45,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
       "status": "verified"
     },
     {
@@ -16989,11 +17519,51 @@
       "status": "verified"
     },
     {
+      "slug": "macadamia-cheesecake",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/macadamia-cheesecake/",
+      "prep_minutes": 45,
+      "cook_minutes": 50,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
       "slug": "maccheroni-alla-molisana",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/maccheroni-alla-molisana/",
       "prep_minutes": 0,
       "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "mafalde-siciliane",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/mafalde-siciliane-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "maionese-curry-e-panna",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-maionese-curry-panna/",
+      "prep_minutes": 25,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "maltagliati-al-sugo-di-peperoni-e-tonno",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-maltagliati-sugo-peperoni-tonno/",
+      "prep_minutes": 20,
+      "cook_minutes": 10,
       "rest_minutes": 0,
       "servings": 4,
       "status": "verified"
@@ -17359,6 +17929,16 @@
       "status": "verified"
     },
     {
+      "slug": "mini-cheesecake-ai-semi-di-chia",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/mini-cheesecake-ai-semi-di-chia-la-ricetta-del-dolcetto-light-e-veloce/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 1,
+      "status": "verified"
+    },
+    {
       "slug": "mini-cheesecake-alla-frutta",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/mini-cheesecake-ricetta/",
@@ -17569,6 +18149,16 @@
       "status": "verified"
     },
     {
+      "slug": "mousse-al-cioccolato-di-iginio-massari",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/mousse-al-cioccolato-di-iginio-massari/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "mousse-al-frutto-della-passione",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/mousse-al-frutto-della-passione/",
@@ -17599,9 +18189,29 @@
       "status": "verified"
     },
     {
+      "slug": "mousse-alle-mandorle",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/mousse-di-mandorle/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "mousse-di-albicocche",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/mousse-di-albicocche-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "mousse-di-fragole-3-ingredienti-la-ricetta-del-dessert-fresco-pronto-i",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/mousse-di-fragole-3-ingredienti-la-ricetta-del-dessert-fresco-pronto-in-10-minuti/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -17616,6 +18226,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "mousse-di-mortadella-e-pistacchi",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/mousse-di-mortadella-e-pistacchi/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -17663,6 +18283,16 @@
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/mozzarella-tomato-black-olive-tarts",
       "prep_minutes": 25,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "mozzarelline-marinate",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/mozzarelline-marinate/",
+      "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
@@ -17989,6 +18619,16 @@
       "status": "verified"
     },
     {
+      "slug": "omelette-con-peperoni-e-scamorza",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/omelette-con-peperoni-e-scamorza/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
       "slug": "omelette-di-spinaci-e-ricotta",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/omelette-di-spinaci-e-ricotta/",
@@ -18099,6 +18739,26 @@
       "status": "verified"
     },
     {
+      "slug": "palline-di-biscotti-e-mele-ricoperte-di-cioccolato-la-ricetta-degli-sn",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/palline-di-biscotti-e-mele-ricoperte-di-cioccolato/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "pan-di-spagna",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/ricetta-pan-di-spagna/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 20,
+      "status": "verified"
+    },
+    {
       "slug": "pan-di-spagna-senza-uova",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/pan-di-spagna-senza-uova-la-ricetta/",
@@ -18169,6 +18829,36 @@
       "status": "verified"
     },
     {
+      "slug": "pane-frattau",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/pane-frattau-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "pane-injera-la-ricetta-originale-del-pane-africano",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/pane-injera/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "pane-nuvola",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/pane-nuvola-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "pane-senza-impasto-in-pentola-la-ricetta-del-lievitato-con-crosta-croc",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/pane-senza-impasto-in-pentola/",
@@ -18199,6 +18889,16 @@
       "status": "verified"
     },
     {
+      "slug": "panini-al-burro-la-ricetta-dei-lievitati-morbidissimi-perfetti-per-far",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/panini-al-burro-la-ricetta-dei-lievitati-morbidissimi-perfetti-per-farciture-dolci-o-salate/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "panini-di-semola-la-ricetta-dei-lievitati-salati-dorati-fuori-e-soffic",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/panini-di-semola-la-ricetta-dei-lievitati-salati-dorati-fuori-e-soffici-dentro/",
@@ -18216,6 +18916,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "panna-cotta",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/la-ricetta-panna-cotta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -18246,6 +18956,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 3,
+      "status": "verified"
+    },
+    {
+      "slug": "panna-cotta-con-composta-di-rabarbaro",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-panna-cotta-vanigliata-composta-rabarbaro/",
+      "prep_minutes": 40,
+      "cook_minutes": 25,
+      "rest_minutes": 360,
+      "servings": 8,
       "status": "verified"
     },
     {
@@ -18369,6 +19089,16 @@
       "status": "verified"
     },
     {
+      "slug": "pasta-al-forno-porri-e-gorgonzola",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/pasta-al-forno-porri-e-gorgonzola/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "pasta-al-profumo-di-mare",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/pasta-al-profumo-di-mare/",
@@ -18409,6 +19139,16 @@
       "status": "verified"
     },
     {
+      "slug": "pasta-alla-mugnaia",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/pasta-alla-mugnaia-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "pasta-alla-sciaguratella",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/pasta-alla-sciaguratella/",
@@ -18426,6 +19166,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "pasta-brisee",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-pasta-brisee/",
+      "prep_minutes": 20,
+      "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 6,
       "status": "verified"
     },
     {
@@ -18519,6 +19269,16 @@
       "status": "verified"
     },
     {
+      "slug": "pasta-con-i-peperoni",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/ricetta-pasta-con-i-peperoni/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "pasta-con-la-verza",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/pasta-con-verza/",
@@ -18526,6 +19286,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "pasta-con-le-melanzane-la-ricetta-del-primo-piatto-facile-e-scenografi",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/pasta-con-melanzane/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
       "status": "verified"
     },
     {
@@ -18554,6 +19324,16 @@
       "source_url": "https://www.cookist.it/pasta-con-salsiccia-ricetta/",
       "prep_minutes": 0,
       "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "pasta-con-tonno-in-bianco",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/pasta-con-tonno-in-bianco/",
+      "prep_minutes": 10,
+      "cook_minutes": 15,
       "rest_minutes": 0,
       "servings": 4,
       "status": "verified"
@@ -18612,6 +19392,36 @@
       "slug": "pasta-e-fagioli-di-cannavacciuolo",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/pasta-e-fagioli-di-cannavacciuolo/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "pasta-e-piselli-alla-napoletana",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/pasta-e-piselli-alla-napoletana/",
+      "prep_minutes": 25,
+      "cook_minutes": 30,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "pasta-fave-e-salsiccia",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/pasta-fave-e-salsiccia-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "pasta-fredda-con-i-ceci",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/pasta-fredda-con-i-ceci/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -18679,6 +19489,16 @@
       "status": "verified"
     },
     {
+      "slug": "pasta-frolla-integrale",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/pasta-frolla-integrale-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "pasta-frolla-senza-burro",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/pasta-frolla-senza-burro-ricetta/",
@@ -18719,6 +19539,16 @@
       "status": "verified"
     },
     {
+      "slug": "pasta-matta",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/pasta-matta-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 1,
+      "status": "verified"
+    },
+    {
       "slug": "pasta-melanzane-e-salsiccia",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/pasta-melanzane-e-salsiccia-la-ricetta/",
@@ -18726,6 +19556,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "pasta-melanzane-e-tonno",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/pasta-melanzane-e-tonno-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 3,
       "status": "verified"
     },
     {
@@ -18799,6 +19639,16 @@
       "status": "verified"
     },
     {
+      "slug": "pasta-spinaci-ricotta-e-gorgonzola",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/pasta-spinaci-ricotta-e-gorgonzola/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "pasta-spinaci-stracciatella-e-pomodori-secchi",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/pasta-spinaci-stracciatella-e-pomodori-secchi/",
@@ -18849,6 +19699,16 @@
       "status": "verified"
     },
     {
+      "slug": "pasticcini-al-limone",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/pasticcini-al-limone/",
+      "prep_minutes": 45,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
       "slug": "patate-al-cartoccio-bavaresi",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/patate-al-cartoccio-bavaresi/",
@@ -18872,6 +19732,16 @@
       "slug": "patate-alla-contadina",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/patate-alla-contadina-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "patate-alla-savoiarda",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/patate-alla-savoiarda-la-ricetta/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -19102,6 +19972,16 @@
       "slug": "peperoni-al-forno",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/peperoni-al-forno-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "peperoni-in-agrodolce",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/peperoni-in-agrodolce-la-ricetta/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -19599,6 +20479,16 @@
       "status": "verified"
     },
     {
+      "slug": "polenta-e-fagioli",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/polenta-e-fagioli-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "polenta-e-salsiccia",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/polenta-e-salsiccia-la-ricetta/",
@@ -19609,9 +20499,39 @@
       "status": "verified"
     },
     {
+      "slug": "polpette-al-sugo",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/ricetta-delle-polpette-al-sugo/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 20,
+      "status": "verified"
+    },
+    {
+      "slug": "polpette-al-sugo-alla-romana",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/polpette-al-sugo-alla-romana/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "polpette-di-carne-di-cannavacciuolo",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/polpette-di-carne-di-cannavacciuolo/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "polpettone-di-lenticchie",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/polpettone-di-lenticchie/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -19699,6 +20619,26 @@
       "status": "verified"
     },
     {
+      "slug": "pomodori-gratinati-la-ricetta-facile-e-perfetta-per-lestate",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/ricetta-pomodori-gratinati/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "pomodori-piccadilly-ripieni-di-cous-cous",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/pomodori-piccadilly-ripieni-di-cous-cous/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "pomodori-ripieni-alla-siciliana",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/pomodori-ripieni-alla-siciliana/",
@@ -19774,6 +20714,26 @@
       "source_url": "https://www.bbcgoodfood.com/recipes/pork-parsnip-traybake",
       "prep_minutes": 10,
       "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "porri-al-forno",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/porri-al-forno/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "porri-grigliati",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/porri-grigliati-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
       "status": "verified"
@@ -20109,6 +21069,26 @@
       "status": "verified"
     },
     {
+      "slug": "pure-di-patate-classico",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/ricetta-pure-di-patate/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "pure-di-zucca",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/ricetta-pure-di-zucca/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "quadrotti-cioccolato-e-panna-la-ricetta-dei-dolcetti-freschi-e-cremosi",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/quadrotti-cioccolato-e-panna-ricetta/",
@@ -20116,6 +21096,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "quadrotti-cocco-e-cioccolato",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/quadrotti-cocco-e-cioccolato-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -20469,6 +21459,16 @@
       "status": "verified"
     },
     {
+      "slug": "risoni-con-fiori-di-zucca-e-stracciatella",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/risoni-con-fiori-di-zucca-e-stracciatella/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "risotto-agli-agretti",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/risotto-agli-agretti-ricetta/",
@@ -20529,6 +21529,26 @@
       "status": "verified"
     },
     {
+      "slug": "risotto-al-taleggio-zucchine-e-champignon",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-risotto-taleggio-zucchine-champignon/",
+      "prep_minutes": 30,
+      "cook_minutes": 60,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "risotto-alla-provola-e-melanzane",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-risotto-provola-melanzane/",
+      "prep_minutes": 10,
+      "cook_minutes": 35,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "risotto-alla-sbirraglia",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/risotto-alla-sbirraglia-la-ricetta/",
@@ -20544,6 +21564,16 @@
       "source_url": "https://www.cookist.it/risotto-allarancia-ricetta/",
       "prep_minutes": 0,
       "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "risotto-alle-mele-e-aceto-balsamico",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/risotto-alle-mele-e-aceto-balsamico/",
+      "prep_minutes": 10,
+      "cook_minutes": 25,
       "rest_minutes": 0,
       "servings": 4,
       "status": "verified"
@@ -21349,6 +22379,16 @@
       "status": "verified"
     },
     {
+      "slug": "scarola-in-padella-napoletana",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/scarola-in-padella-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "sciroppo-alla-menta",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/sciroppo-alla-menta/",
@@ -21459,9 +22499,39 @@
       "status": "verified"
     },
     {
+      "slug": "semifreddo-allananas",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/semifreddo-allananas-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "semifreddo-alle-fragole",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/semifreddo-alle-fragole-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "semifreddo-allo-yogurt",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/semifreddo-allo-yogurt-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "seppie-in-friggitrice-ad-aria",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/seppie-in-friggitrice-ad-aria/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -21506,6 +22576,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 5,
+      "status": "verified"
+    },
+    {
+      "slug": "sformato-di-piselli",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/sformato-di-piselli-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
       "status": "verified"
     },
     {
@@ -21556,6 +22636,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "shish-kebab",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/shish-kebab-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -21909,6 +22999,16 @@
       "status": "verified"
     },
     {
+      "slug": "smoothie",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/smoothie-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 3,
+      "status": "verified"
+    },
+    {
       "slug": "smoothie-ai-fichi",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/smoothie-ai-fichi-ricetta/",
@@ -21946,6 +23046,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "sorbetto-ai-fichi",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/sorbetto-ai-fichi-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -22009,9 +23119,39 @@
       "status": "verified"
     },
     {
+      "slug": "spaghetti-alla-pantesca",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/spaghetti-alla-pantesca/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "spaghetti-alla-vongole-fujute",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/spaghetti-alla-vongole-fujute/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "spaghetti-alle-vongole",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/la-ricetta-spaghetti-alle-vongole/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "spaghetti-col-rancetto",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/spaghetti-col-rancetto-la-ricetta/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -22026,6 +23166,26 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "spaghetti-di-magro",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/spaghetti-di-magro-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 3,
+      "status": "verified"
+    },
+    {
+      "slug": "spaghetti-di-zucchine",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/ricetta-spaghetti-di-zucchine/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
       "status": "verified"
     },
     {
@@ -22649,6 +23809,16 @@
       "status": "verified"
     },
     {
+      "slug": "stinco-di-maiale-al-forno-con-patate",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/stinco-di-maiale-al-forno-con-patate/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "stir-fried-broccoli-with-cashews-oyster-sauce",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/stir-fried-broccoli-cashews-oyster-sauce",
@@ -22664,6 +23834,16 @@
       "source_url": "https://www.bbcgoodfood.com/recipes/stir-fried-greens-fish-sauce",
       "prep_minutes": 10,
       "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "stoemp-belga",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/stoemp-belga-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
       "status": "verified"
@@ -23029,6 +24209,16 @@
       "status": "verified"
     },
     {
+      "slug": "tarte-tatin-alle-fragole",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/tarte-tatin-alle-fragole/",
+      "prep_minutes": 20,
+      "cook_minutes": 50,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "tarte-tatin-di-cipolle",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/tarte-tatin-di-cipolle-ricetta/",
@@ -23199,6 +24389,16 @@
       "status": "verified"
     },
     {
+      "slug": "tiramisu-al-mango",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/tiramisu-al-mango-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "tiramisu-alla-ricotta",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/tiramisu-alla-ricotta-ricetta/",
@@ -23212,6 +24412,16 @@
       "slug": "tiramisu-allananas",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/tiramisu-allananas/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "tiramisu-alle-ciliegie",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/ricetta-tiramisu-alle-ciliegie/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -23399,10 +24609,60 @@
       "status": "verified"
     },
     {
+      "slug": "torta-al-cioccolato-allinglese",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/torta-al-cioccolato-allinglese/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "torta-al-cioccolato-fondente",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-torta-meravigliosa/",
+      "prep_minutes": 40,
+      "cook_minutes": 90,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "torta-al-cioccolato-in-5-minuti-la-ricetta-del-dolce-super-goloso",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/torta-al-cioccolato-in-5-minuti-la-ricetta-del-dolce-super-goloso/",
       "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "torta-al-cioccolato-semplice",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/torta-al-cioccolato-semplice/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "torta-al-cioccolato-senza-farina",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-torta-scrittrice/",
+      "prep_minutes": 20,
+      "cook_minutes": 35,
+      "rest_minutes": 20,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "torta-al-cioccolato-senza-zucchero",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/torta-al-cioccolato-senza-zucchero/",
+      "prep_minutes": 20,
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 6,
@@ -23459,6 +24719,26 @@
       "status": "verified"
     },
     {
+      "slug": "torta-allo-yogurt-senza-zucchero",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/torta-allo-yogurt-senza-zucchero/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "torta-banane-e-cioccolato",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/torta-banane-e-cioccolato/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
       "slug": "torta-biscotto-gelato-la-ricetta-del-dolce-facile-e-goloso",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/torta-biscotto-gelato/",
@@ -23472,6 +24752,16 @@
       "slug": "torta-brigadeiro-la-ricetta-del-dolce-tipico-brasiliano",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/torta-brigadeiro/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "torta-carote-e-yogurt",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/torta-carote-e-yogurt-ricetta/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -23536,6 +24826,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "torta-di-mele-2-ingredienti",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/torta-di-mele-2-ingredienti-la-ricetta-del-dolce-senza-cottura-veloce-e-goloso/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -23629,6 +24929,16 @@
       "status": "verified"
     },
     {
+      "slug": "torta-sacher",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/torta-sacher-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
       "slug": "torta-salame-al-cioccolato-la-ricetta-del-dessert-facile-e-goloso",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/torta-salame-al-cioccolato/",
@@ -23689,6 +24999,16 @@
       "status": "verified"
     },
     {
+      "slug": "torta-salata-con-radicchio",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/torta-salata-con-radicchio-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "torta-salata-con-verza",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/torta-salata-con-verza-ricetta/",
@@ -23719,9 +25039,29 @@
       "status": "verified"
     },
     {
+      "slug": "torta-salata-di-pasqua-con-uova",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/torta-salata-di-pasqua-con-uova/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
       "slug": "torta-salata-fave-e-ricotta",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/torta-salata-fave-e-ricotta-la-ricetta-del-rustico-primaverile/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "torta-salata-melanzane-e-scamorza",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/torta-salata-melanzane-e-scamorza-la-ricetta/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -23766,6 +25106,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "torta-salata-salmone-e-ricotta",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/torta-salata-salmone-e-ricotta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
       "status": "verified"
     },
     {
@@ -23849,6 +25199,16 @@
       "status": "verified"
     },
     {
+      "slug": "tortino-al-cioccolato-la-ricetta-per-prepararlo-alla-perfezione-senza-",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/tortino-al-cioccolato-la-ricetta-per-prepararlo-alla-perfezione-senza-impasto-crudo/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "tortino-al-pistacchio",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/tortino-al-pistacchio-ricetta/",
@@ -23876,6 +25236,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "treccia-di-sfoglia-salata-con-prosciutto-e-formaggio",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/treccia-di-sfoglia-salata-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 6,
       "status": "verified"
     },
     {
@@ -24056,6 +25426,16 @@
       "cook_minutes": 30,
       "rest_minutes": 0,
       "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "uova-alla-greca",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/uova-alla-greca-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 10,
       "status": "verified"
     },
     {
@@ -24299,6 +25679,16 @@
       "status": "verified"
     },
     {
+      "slug": "verze-sofegae",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/verze-sofegae-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "victoria-sponge-cake",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/victoria-sponge-cake-la-ricetta/",
@@ -24316,6 +25706,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "virgin-margarita",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/virgin-margarita-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
       "status": "verified"
     },
     {
@@ -24659,9 +26059,39 @@
       "status": "verified"
     },
     {
+      "slug": "zucchine-e-patate-gratinate",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/zucchine-e-patate-gratinate/",
+      "prep_minutes": 20,
+      "cook_minutes": 45,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "zucchine-gratinate",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/zucchine-gratinate-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "zucchine-grigliate",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/zucchine-grigliate-la-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "zucchine-trifolate",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/ricetta-zucchine-trifolate/",
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
@@ -24689,6 +26119,16 @@
       "status": "verified"
     },
     {
+      "slug": "zuppa-ceci-e-zucca",
+      "source_name": "Cookist",
+      "source_url": "https://www.cookist.it/zuppa-ceci-e-zucca-ricetta/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
       "slug": "zuppa-di-farro",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/zuppa-di-farro-la-ricetta/",
@@ -24704,6 +26144,26 @@
       "source_url": "https://www.cookist.it/zuppa-di-verza-la-ricetta/",
       "prep_minutes": 0,
       "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "zuppa-di-vino-della-valle-isarco",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/ricetta-zuppa-vino-valle-isarco/",
+      "prep_minutes": 20,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "zuppa-di-zucca-ai-funghi-porcini-castagne-e-pancetta-croccante",
+      "source_name": "Il Cucchiaio d'Argento",
+      "source_url": "https://www.cucchiaio.it/ricetta/zuppa-di-zucca-ai-funghi-porcini--castagne-e-pancetta-croccante/",
+      "prep_minutes": 90,
+      "cook_minutes": 30,
       "rest_minutes": 0,
       "servings": 4,
       "status": "verified"
