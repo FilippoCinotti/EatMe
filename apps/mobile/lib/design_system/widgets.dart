@@ -13,6 +13,7 @@ export 'brand.dart';
 export 'icons.dart';
 export 'premium.dart';
 export 'recipe_hero.dart';
+export 'recipe_editorial.dart';
 
 class AsyncAction extends StatefulWidget {
   const AsyncAction({

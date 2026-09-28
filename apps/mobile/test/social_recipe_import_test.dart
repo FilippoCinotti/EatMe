@@ -655,7 +655,7 @@ void main() {
         }
         if (state.$1 == 'imported-final-cook-now') {
           await tester.scrollUntilVisible(
-            find.text('Start cooking'),
+            find.text('Cook now'),
             500,
             scrollable: find.byType(Scrollable).first,
           );

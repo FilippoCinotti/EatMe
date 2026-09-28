@@ -56,15 +56,17 @@ class EditorialHeader extends StatelessWidget {
           },
         ),
         const SizedBox(height: 22),
-        Text(
-          eyebrow.toUpperCase(),
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            letterSpacing: 2.35,
-            fontWeight: FontWeight.w700,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+        if (eyebrow.isNotEmpty) ...[
+          Text(
+            eyebrow.toUpperCase(),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              letterSpacing: 2.35,
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
+          const SizedBox(height: 8),
+        ],
         if (!showArt)
           Text(title, style: Theme.of(context).textTheme.displaySmall)
         else
@@ -863,9 +865,11 @@ class CompactShortcut extends StatelessWidget {
     required this.title,
     required this.icon,
     required this.onTap,
+    this.width = 132,
   });
 
   final String title;
+  final double width;
   final EatMeGlyph icon;
   final VoidCallback onTap;
 
@@ -880,7 +884,7 @@ class CompactShortcut extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: SizedBox(
-          width: 132,
+          width: width,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -1044,66 +1048,111 @@ class EatMeTabStrip extends StatelessWidget {
     required this.values,
     required this.selected,
     required this.onSelected,
+    this.editorial = false,
   });
 
   final List<(String, String)> values;
   final String selected;
+  final bool editorial;
   final ValueChanged<String> onSelected;
 
   @override
-  Widget build(BuildContext context) => Material(
-    color: Theme.of(context).colorScheme.surfaceContainerHighest,
-    borderRadius: BorderRadius.circular(20),
-    child: Padding(
-      padding: const EdgeInsets.all(4),
-      child: LayoutBuilder(
-        builder: (context, constraints) => Row(
-          children: [
-            for (final value in values)
-              Expanded(
-                child: Semantics(
-                  button: true,
-                  selected: selected == value.$1,
-                  child: InkWell(
-                    onTap: () => onSelected(value.$1),
-                    borderRadius: BorderRadius.circular(16),
-                    child: AnimatedContainer(
-                      duration: MediaQuery.disableAnimationsOf(context)
-                          ? Duration.zero
-                          : const Duration(milliseconds: 180),
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: selected == value.$1
-                            ? Theme.of(context).colorScheme.surfaceContainer
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        value.$2,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.labelMedium
-                            ?.copyWith(
-                              color: selected == value.$1
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                              fontWeight: selected == value.$1
-                                  ? FontWeight.w700
-                                  : FontWeight.w500,
+  Widget build(BuildContext context) => editorial
+      ? _editorial(context)
+      : Material(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: LayoutBuilder(
+              builder: (context, constraints) => Row(
+                children: [
+                  for (final value in values)
+                    Expanded(
+                      child: Semantics(
+                        button: true,
+                        selected: selected == value.$1,
+                        child: InkWell(
+                          onTap: () => onSelected(value.$1),
+                          borderRadius: BorderRadius.circular(16),
+                          child: AnimatedContainer(
+                            duration: MediaQuery.disableAnimationsOf(context)
+                                ? Duration.zero
+                                : const Duration(milliseconds: 180),
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 10,
                             ),
+                            decoration: BoxDecoration(
+                              color: selected == value.$1
+                                  ? Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainer
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              value.$2,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.labelMedium
+                                  ?.copyWith(
+                                    color: selected == value.$1
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                    fontWeight: selected == value.$1
+                                        ? FontWeight.w700
+                                        : FontWeight.w500,
+                                  ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
+                ],
+              ),
+            ),
+          ),
+        );
+  Widget _editorial(BuildContext context) => SingleChildScrollView(
+    scrollDirection: Axis.horizontal,
+    child: Row(
+      children: [
+        for (final value in values)
+          Semantics(
+            selected: selected == value.$1,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    width: 2,
+                    color: selected == value.$1
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.transparent,
                   ),
                 ),
               ),
-          ],
-        ),
-      ),
+              child: TextButton(
+                onPressed: () => onSelected(value.$1),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 14,
+                  ),
+                  textStyle: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                  foregroundColor: selected == value.$1
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                child: Text(value.$2, maxLines: 1, softWrap: false),
+              ),
+            ),
+          ),
+      ],
     ),
   );
 }

@@ -46,6 +46,15 @@ class _RecipePageState extends ConsumerState<RecipePage> {
     }
   }
 
+  Future<void> shareRecipe(Recipe recipe) => shareText(
+    context,
+    localized(recipe.title, context.language),
+    '${localized(recipe.title, context.language)}\n${context.t('portions', {'count': recipe.servings})}\n${recipe.ingredients.map((i) {
+      final food = ref.read(appProvider).foods.where((f) => f.id == i['food_id']).firstOrNull;
+      return '${food == null ? context.t('food_unavailable') : localized(food.name, context.language)}: ${i['quantity']} ${food?.unit ?? ''}';
+    }).join('\n')}\n\n${recipe.instructions(context.language).asMap().entries.map((s) => '${s.key + 1}. ${s.value}').join('\n')}',
+  );
+
   Future<Food?> chooseReplacement(Recipe recipe, Food original) async {
     final response = await mutation
         .send(ref.read(apiProvider), 'POST', '/recipes', {
@@ -251,13 +260,15 @@ class _RecipePageState extends ConsumerState<RecipePage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: const EatMeAppBar(),
-    body: FutureBuilder<(Recipe, Json)>(
-      future: future,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return PageBody(
+  Widget build(BuildContext context) => RecipeEditorial(builder: _build);
+
+  Widget _build(BuildContext context) => FutureBuilder<(Recipe, Json)>(
+    future: future,
+    builder: (context, snapshot) {
+      if (snapshot.hasError) {
+        return Scaffold(
+          appBar: const EatMeAppBar(),
+          body: PageBody(
             children: [
               StatusNote(
                 text: context.t(
@@ -272,57 +283,100 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 child: Text(context.t('retry')),
               ),
             ],
-          );
-        }
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final (recipe, plan) = snapshot.data!;
-        final nutrition = plan['nutrition'] as Map?;
-        final nutrients = nutrition?['totals'] as Map? ?? {};
-        final ingredientRows = plan['ingredients'] as List? ?? const [];
-        final availableCount = ingredientRows.where((value) {
-          final item = Map<String, dynamic>.from(value as Map);
-          final required = double.tryParse('${item['quantity']}');
-          final available = double.tryParse('${item['available']}');
-          return required != null && available != null && available >= required;
-        }).length;
-        final hasConflict =
-            rawRecipe['compatibility']?['status'] == 'not_compatible';
-        final needsReview = compatibilityWarnings.isNotEmpty;
-        return PageBody(
+          ),
+        );
+      }
+      if (!snapshot.hasData) {
+        return const Scaffold(
+          appBar: EatMeAppBar(),
+          body: Center(child: CircularProgressIndicator()),
+        );
+      }
+      final (recipe, plan) = snapshot.data!;
+      final nutrition = plan['nutrition'] as Map?;
+      final nutrients = nutrition?['totals'] as Map? ?? {};
+      final ingredientRows = plan['ingredients'] as List? ?? const [];
+      final availableCount = ingredientRows.where((value) {
+        final item = Map<String, dynamic>.from(value as Map);
+        final required = double.tryParse('${item['quantity']}');
+        final available = double.tryParse('${item['available']}');
+        return required != null && available != null && available >= required;
+      }).length;
+      final hasConflict =
+          rawRecipe['compatibility']?['status'] == 'not_compatible';
+      final needsReview =
+          compatibilityWarnings.isNotEmpty ||
+          rawRecipe['compatibility']?['status'] == null ||
+          plan['preview_unavailable'] != null;
+      return Scaffold(
+        appBar: EatMeAppBar(
+          actions: [
+            IconButton(
+              tooltip: context.t('share_recipe'),
+              onPressed: () => shareRecipe(recipe),
+              icon: const Icon(Icons.ios_share_outlined, size: 20),
+            ),
+          ],
+        ),
+        bottomNavigationBar: RecipeActionBar(
+          child: RecipeActionRow(
+            primary: FilledButton(
+              onPressed:
+                  ref.watch(appProvider).offline ||
+                      plan['preview_unavailable'] != null
+                  ? null
+                  : () => context.push(
+                      '/cook/${recipe.id}?servings=$servings',
+                      extra: participants,
+                    ),
+              child: Text(context.t('cook_now')),
+            ),
+            secondary: OutlinedButton.icon(
+              onPressed: () => context.push('/plan?recipe=${recipe.id}'),
+              icon: const EatMeIcon(EatMeGlyph.calendarDays, size: 20),
+              label: Text(context.t('plan_this')),
+            ),
+          ),
+        ),
+        body: PageBody(
           children: [
             if (plan['preview_unavailable'] != null)
               StatusNote(
                 text: context.t(plan['preview_unavailable'] as String),
                 warning: true,
               ),
-            Stack(
-              children: [
-                FoodImage(
-                  id: recipe.id,
-                  imageUrl: recipe.imageUrl,
-                  ingredientIds: recipe.ingredientIds,
-                  height: 320,
-                  radius: 28,
-                ),
-                Positioned(
-                  top: 14,
-                  right: 14,
-                  child: EatMeIconButton(
-                    glyph: EatMeGlyph.heart,
-                    filled: favorite,
-                    label: context.t(favorite ? 'remove_favorite' : 'favorite'),
-                    foregroundColor: favorite
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.onSurface,
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.surface.withValues(alpha: .92),
-                    onPressed: toggleFavorite,
+            AspectRatio(
+              aspectRatio: 1.6,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  FoodImage(
+                    id: recipe.id,
+                    imageUrl: recipe.imageUrl,
+                    ingredientIds: recipe.ingredientIds,
+                    height: 320,
+                    radius: 28,
                   ),
-                ),
-              ],
+                  Positioned(
+                    top: 14,
+                    right: 14,
+                    child: EatMeIconButton(
+                      glyph: EatMeGlyph.heart,
+                      filled: favorite,
+                      label: context.t(
+                        favorite ? 'remove_favorite' : 'favorite',
+                      ),
+                      foregroundColor: favorite
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurface,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surface.withValues(alpha: .92),
+                      onPressed: toggleFavorite,
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 20),
             Text(
@@ -331,12 +385,11 @@ class _RecipePageState extends ConsumerState<RecipePage> {
             ),
             if (rawRecipe['description'] is Map) ...[
               const SizedBox(height: 10),
-              Text(
-                localized(
+              RecipeDescription(
+                text: localized(
                   Map<String, dynamic>.from(rawRecipe['description'] as Map),
                   context.language,
                 ),
-                style: Theme.of(context).textTheme.bodyLarge,
               ),
             ],
             const SizedBox(height: 12),
@@ -344,153 +397,76 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                StatusBadge(
-                  label: context.t('minutes', {'minutes': recipe.minutes}),
+                RecipeMeta(
+                  text: context.t('minutes', {'minutes': recipe.minutes}),
                   icon: EatMeGlyph.clock,
                 ),
-                StatusBadge(
-                  label: context.t('portions', {'count': servings}),
+                RecipeMeta(
+                  text: context.t('portions', {'count': servings}),
                   icon: EatMeGlyph.utensils,
                 ),
               ],
             ),
             const SizedBox(height: 18),
-            InformationPanel(
-              tinted: !hasConflict,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+            RecipeDisclosure(
+              icon: hasConflict
+                  ? EatMeGlyph.triangleAlert
+                  : needsReview
+                  ? EatMeGlyph.circleAlert
+                  : EatMeGlyph.shieldCheck,
+              warning: hasConflict || needsReview,
+              title: context.t(
+                hasConflict
+                    ? 'diet_fit_conflict_title'
+                    : needsReview
+                    ? 'diet_fit_review_title'
+                    : 'diet_fit_match_title',
+              ),
+              subtitle: context.t(
+                hasConflict
+                    ? 'diet_fit_conflict_body'
+                    : needsReview
+                    ? 'diet_fit_review_body'
+                    : 'diet_fit_match_body',
+              ),
+              onTap: () => sheet(
+                context,
+                SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      EatMeIcon(
-                        hasConflict
-                            ? EatMeGlyph.triangleAlert
-                            : needsReview
-                            ? EatMeGlyph.circleAlert
-                            : EatMeGlyph.shieldCheck,
-                        color: hasConflict
-                            ? Theme.of(context).colorScheme.error
-                            : Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          context.t(
-                            hasConflict
-                                ? 'diet_fit_conflict_title'
-                                : needsReview
-                                ? 'diet_fit_review_title'
-                                : 'diet_fit_match_title',
-                          ),
-                          style: Theme.of(context).textTheme.titleLarge,
+                      Text(context.t('validation_explanation')),
+                      for (final warning in compatibilityWarnings)
+                        StatusNote(
+                          text: context.t(warning['code'] as String),
+                          warning: true,
                         ),
-                      ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    context.t(
-                      hasConflict
-                          ? 'diet_fit_conflict_body'
-                          : needsReview
-                          ? 'diet_fit_review_body'
-                          : 'diet_fit_match_body',
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
             if ('${rawRecipe['source_url'] ?? ''}'.isNotEmpty) ...[
               const SizedBox(height: 18),
-              InformationPanel(
-                tinted: false,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 46,
-                      height: 46,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: const EatMeIcon(EatMeGlyph.sparkles),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            context.t('imported_from_source', {
-                              'source':
-                                  const {
-                                    'youtube',
-                                    'instagram',
-                                  }.contains('${rawRecipe['source_platform']}')
-                                  ? context.t('${rawRecipe['source_platform']}')
-                                  : context.t('original_source'),
-                            }),
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          if ('${rawRecipe['source_creator'] ?? ''}'.isNotEmpty)
-                            Text(
-                              context.t('source_by', {
-                                'creator': '${rawRecipe['source_creator']}',
-                              }),
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          if ((rawRecipe['adaptations'] as List? ?? [])
-                              .isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 6),
-                              child: Text(
-                                context.t('adaptation_count', {
-                                  'count':
-                                      (rawRecipe['adaptations'] as List).length,
-                                }),
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                    ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => launchUrl(
-                        Uri.parse('${rawRecipe['source_url']}'),
-                        mode: LaunchMode.externalApplication,
-                      ),
-                      child: Text(context.t('original')),
-                    ),
-                  ],
+              RecipeDisclosure(
+                plain: true,
+                icon: EatMeGlyph.bookOpen,
+                title:
+                    '${rawRecipe['source_creator'] ?? context.t('original_source')}',
+                subtitle: (rawRecipe['adaptations'] as List? ?? []).isEmpty
+                    ? context.t('original_source')
+                    : context.t('adaptation_count', {
+                        'count': (rawRecipe['adaptations'] as List).length,
+                      }),
+                onTap: () => launchUrl(
+                  Uri.parse('${rawRecipe['source_url']}'),
+                  mode: LaunchMode.externalApplication,
                 ),
               ),
             ],
             const SizedBox(height: 20),
-            ExpansionTile(
-              tilePadding: EdgeInsets.zero,
-              title: Text(context.t('recipe_actions')),
-              children: [
-                AsyncAction(
-                  label: context.t('share_recipe'),
-                  secondary: true,
-                  action: () => shareText(
-                    context,
-                    localized(recipe.title, context.language),
-                    '${localized(recipe.title, context.language)}\n${context.t('portions', {'count': recipe.servings})}\n${recipe.ingredients.map((i) {
-                      final food = ref.read(appProvider).foods.where((f) => f.id == i['food_id']).firstOrNull;
-                      return '${food == null ? context.t('food_unavailable') : localized(food.name, context.language)}: ${i['quantity']} ${food?.unit ?? ''}';
-                    }).join('\n')}\n\n${recipe.instructions(context.language).asMap().entries.map((s) => '${s.key + 1}. ${s.value}').join('\n')}',
-                  ),
-                ),
-              ],
-            ),
             const SizedBox(height: 16),
             Row(
               children: [
@@ -520,38 +496,45 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               ],
             ),
             const SizedBox(height: 20),
-            AsyncAction(
-              label: context.t('who_is_eating'),
-              secondary: true,
-              action: () async {
-                final api = ref.read(apiProvider);
-                final value = await chooseDiners(context, api, participants);
-                if (value != null && mounted) {
-                  final home = await api.request('GET', '/households');
-                  if (!mounted) return;
-                  final members = records(home['members']);
-                  setState(() {
-                    participants = value;
-                    selectedDiners = members
-                        .where((member) => value.contains(member['user_id']))
-                        .toList();
-                    future = load();
-                  });
-                }
-              },
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                for (final diner in selectedDiners) _DinerChip(diner: diner),
+                AsyncAction(
+                  label: context.t(
+                    selectedDiners.isEmpty ? 'who_is_eating' : 'manage',
+                  ),
+                  secondary: true,
+                  action: () async {
+                    final api = ref.read(apiProvider);
+                    final value = await chooseDiners(
+                      context,
+                      api,
+                      participants,
+                    );
+                    if (value != null && mounted) {
+                      final home = await api.request('GET', '/households');
+                      if (!mounted) return;
+                      final members = records(home['members']);
+                      setState(() {
+                        participants = value;
+                        selectedDiners = members
+                            .where(
+                              (member) => value.contains(member['user_id']),
+                            )
+                            .toList();
+                        future = load();
+                      });
+                    }
+                  },
+                ),
+              ],
             ),
-            if (selectedDiners.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  for (final diner in selectedDiners) _DinerChip(diner: diner),
-                ],
-              ),
-            ],
             const SizedBox(height: 24),
             EatMeTabStrip(
+              editorial: true,
               values: [
                 for (final value in [
                   'overview',
@@ -566,32 +549,10 @@ class _RecipePageState extends ConsumerState<RecipePage> {
             ),
             const SizedBox(height: 20),
             if (tab == 'overview') ...[
-              InformationPanel(
-                tinted: false,
-                child: Row(
-                  children: [
-                    const EatMeIcon(EatMeGlyph.refrigerator, size: 26),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            context.t('you_have'),
-                            style: Theme.of(context).textTheme.labelLarge,
-                          ),
-                          Text(
-                            context.t('ingredient_coverage', {
-                              'available': availableCount,
-                              'total': ingredientRows.length,
-                            }),
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+              RecipeAvailability(
+                available: availableCount,
+                total: ingredientRows.length,
+                onTap: () => setState(() => tab = 'ingredients'),
               ),
               const SizedBox(height: 12),
               StatusNote(text: context.t('validation_explanation')),
@@ -633,6 +594,8 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                             EatMeIcon(
                               isAvailable
                                   ? EatMeGlyph.circleCheck
+                                  : available == null || required == null
+                                  ? EatMeGlyph.circleAlert
                                   : EatMeGlyph.shoppingBasket,
                               size: 20,
                               color: isAvailable
@@ -660,9 +623,10 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                   const SizedBox(height: 3),
                                   Text(
                                     context.t('required_available', {
-                                      'required': item['quantity'] as String,
-                                      'available': item['available'] as String,
-                                      'unit': item['food']['unit'] as String,
+                                      'required': '${item['quantity'] ?? '—'}',
+                                      'available':
+                                          '${item['available'] ?? '—'}',
+                                      'unit': '${item['food']['unit'] ?? ''}',
                                     }),
                                     style: Theme.of(
                                       context,
@@ -747,27 +711,26 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                   ),
                 ),
             ],
+            if (ingredientRows.any(
+              (item) =>
+                  double.tryParse('${item['quantity']}') == null ||
+                  double.tryParse('${item['available']}') == null,
+            ))
+              StatusNote(text: context.t('ingredient_quantity_unknown')),
             if ((plan['shortages'] as List).isNotEmpty)
               StatusNote(text: context.t('missing_ingredients_notice')),
             const SizedBox(height: 24),
-            FilledButton(
-              onPressed:
-                  ref.watch(appProvider).offline ||
-                      plan['preview_unavailable'] != null
-                  ? null
-                  : () => context.push(
-                      '/cook/${recipe.id}?servings=$servings',
-                      extra: participants,
-                    ),
-              child: Text(context.t('start_cooking')),
+            ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              title: Text(context.t('recipe_actions')),
+              children: [
+                AsyncAction(
+                  label: context.t('share_recipe'),
+                  secondary: true,
+                  action: () => shareRecipe(recipe),
+                ),
+              ],
             ),
-            const SizedBox(height: 10),
-            OutlinedButton.icon(
-              onPressed: () => context.push('/plan?recipe=${recipe.id}'),
-              icon: const EatMeIcon(EatMeGlyph.calendarDays, size: 20),
-              label: Text(context.t('add_to_plan')),
-            ),
-            const SizedBox(height: 20),
             ExpansionTile(
               tilePadding: EdgeInsets.zero,
               title: Text(context.t('more_recipe_tools')),
@@ -908,9 +871,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               ],
             ),
           ],
-        );
-      },
-    ),
+        ),
+      );
+    },
   );
 }
 
