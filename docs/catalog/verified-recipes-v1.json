@@ -10359,6 +10359,26 @@
       "status": "verified"
     },
     {
+      "slug": "3-ingredient-crispy-cool-ranch-pickle-chips",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a71312045/3-ingredient-crispy-cool-ranch-pickle-chips-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "4-way-sheet-pan-pancake",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a32616675/4-way-sheet-pan-pancake/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
       "slug": "5-minute-mocha-pots",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/five-minute-mocha-pots",
@@ -10529,6 +10549,16 @@
       "status": "verified"
     },
     {
+      "slug": "air-fryer-scallops",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a39739680/air-fryer-scallops-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "air-fryer-sponge-cake",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/air-fryer-sponge-cake",
@@ -10545,6 +10575,16 @@
       "prep_minutes": 2,
       "cook_minutes": 15,
       "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "air-fryer-turkey-meatloaf",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a39854157/air-fryer-turkey-meatloaf-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 35,
       "servings": 2,
       "status": "verified"
     },
@@ -10589,6 +10629,26 @@
       "status": "verified"
     },
     {
+      "slug": "almond-joy-bark",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a50636/almond-joy-bark-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 60,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "almond-joy-cupcakes",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a51438/almond-joy-cupcakes-recipe/",
+      "prep_minutes": 35,
+      "cook_minutes": 0,
+      "rest_minutes": 30,
+      "servings": 1,
+      "status": "verified"
+    },
+    {
       "slug": "amatriciana-chicken-traybake",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/amatriciana-chicken-traybake",
@@ -10629,6 +10689,16 @@
       "status": "verified"
     },
     {
+      "slug": "apple-cranberry-roasted-chicken",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a45106298/apple-and-cranberry-roasted-chicken-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 45,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "apple-pancakes-with-cinnamon-butter-syrup",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/apple-cranberry-pancakes-cinnamon-butter-syrup",
@@ -10646,6 +10716,16 @@
       "cook_minutes": 25,
       "rest_minutes": 0,
       "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "apple-pie",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a55693/best-homemade-apple-pie-recipe-from-scratch/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 220,
+      "servings": 8,
       "status": "verified"
     },
     {
@@ -10696,6 +10776,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "arash-hashemis-joojeh-kabob-saffron-chicken-skewers",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a71679091/arash-hashemi-joojeh-kabob-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 370,
+      "servings": 6,
       "status": "verified"
     },
     {
@@ -11039,6 +11129,16 @@
       "status": "verified"
     },
     {
+      "slug": "bacon-jalapeno-corn-salad",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a53460/bacon-jalapeno-corn-salad-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "baguette-alla-ratatouille",
       "source_name": "Il Cucchiaio d'Argento",
       "source_url": "https://www.cucchiaio.it/ricetta/ricetta-baguette-ratatouille/",
@@ -11065,6 +11165,16 @@
       "prep_minutes": 5,
       "cook_minutes": 40,
       "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "baked-chicken-fingers-with-honey-mustard-dipping-sauce",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a43150/baked-chicken-fingers-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 10,
       "servings": 4,
       "status": "verified"
     },
@@ -11115,6 +11225,46 @@
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "baked-risotto-with-lemon-peas-parmesan",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a39562253/baked-risotto-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 30,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "baked-spaghetti",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a55510/easy-baked-spaghetti-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 45,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "baked-sweet-potato",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a55377/perfect-baked-sweet-potato-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 50,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "baked-tilapia",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a19665918/oven-baked-tilapia-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 30,
       "servings": 4,
       "status": "verified"
     },
@@ -11179,6 +11329,16 @@
       "status": "verified"
     },
     {
+      "slug": "bang-bang-shrimp",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a53694/best-bang-bang-shrimp-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "banoffee-cupcake",
       "source_name": "Il Cucchiaio d'Argento",
       "source_url": "https://www.cucchiaio.it/ricetta/banoffee-cupcake/",
@@ -11216,6 +11376,16 @@
       "cook_minutes": 5,
       "rest_minutes": 0,
       "servings": 1,
+      "status": "verified"
+    },
+    {
+      "slug": "basil-avocado-shrimp-salad-wraps-sweet-potato-chips",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a25564220/avocado-shrimp-salad-lettuce-wraps-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 30,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -11299,12 +11469,42 @@
       "status": "verified"
     },
     {
+      "slug": "bbq-lime-brussels-sprouts",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a56761/crack-brussels-sprouts-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "bbq-lime-cauliflower-bites",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a47105/crack-cauliflower/",
+      "prep_minutes": 10,
+      "cook_minutes": 25,
+      "rest_minutes": 5,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "bbq-mackerel",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/barbecued-mackerel-ginger-chilli-lime-drizzle",
       "prep_minutes": 0,
       "cook_minutes": 8,
       "rest_minutes": 15,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "bbq-protein-bowls",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a54360/barbeque-power-bowls-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
       "servings": 4,
       "status": "verified"
     },
@@ -11399,6 +11599,26 @@
       "status": "verified"
     },
     {
+      "slug": "beef-stir-fry-with-soba-noodles",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a48083/beef-stir-fry-with-soba-noodles-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "beef-wellington-bites",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipes/a50572/beef-wellington-bites-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
       "slug": "beef-with-red-wine-carrots",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/beef-red-wine-carrots",
@@ -11485,6 +11705,26 @@
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "best-brownies",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a42958116/brownie-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 40,
+      "servings": 18,
+      "status": "verified"
+    },
+    {
+      "slug": "best-ever-texas-toast",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a33082534/texas-toast-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 10,
       "servings": 4,
       "status": "verified"
     },
@@ -11679,6 +11919,16 @@
       "status": "verified"
     },
     {
+      "slug": "biscuits-gravy",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a46119187/biscuits-and-gravy-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 40,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "bistecca-alla-fiorentina",
       "source_name": "Il Cucchiaio d'Argento",
       "source_url": "https://www.cucchiaio.it/ricetta/bistecca-alla-fiorentina/",
@@ -11869,6 +12119,16 @@
       "status": "verified"
     },
     {
+      "slug": "boxty",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a42452906/boxty-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 80,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
       "slug": "boxty-with-bacon-eggs-tomatoes",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/boxty-bacon-eggs-tomatoes",
@@ -11956,6 +12216,16 @@
       "cook_minutes": 0,
       "rest_minutes": 30,
       "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "breakfast-tacos",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a32687489/breakfast-tacos-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 2,
       "status": "verified"
     },
     {
@@ -12059,6 +12329,36 @@
       "status": "verified"
     },
     {
+      "slug": "broccoli-cheddar-macaroni-soup",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a50329/broccoli-cheddar-macaroni-soup-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "broccoli-cheddar-soup",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a50009/broccoli-cheddar-soup-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "broccoli-cheddar-twice-baked-potatoes",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a50118/broccoli-cheddar-twice-baked-potatoes-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 85,
+      "rest_minutes": 0,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
       "slug": "broccoli-chicken-cashew-nut-stir-fry",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/broccoli-chicken-cashew-nut-stir-fry",
@@ -12149,6 +12449,36 @@
       "status": "verified"
     },
     {
+      "slug": "brown-butter-apple-blondies",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a60777483/best-brown-butter-apple-blondies-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 65,
+      "servings": 15,
+      "status": "verified"
+    },
+    {
+      "slug": "brown-butter-shrimp",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a49062/brown-butter-shrimp-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 10,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "brown-sugar-salmon",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a63980886/easy-brown-sugar-salmon-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 10,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "brownies-cheesecake",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/brownies-cheesecake-la-ricetta/",
@@ -12209,6 +12539,16 @@
       "status": "verified"
     },
     {
+      "slug": "bucatini-all-amatriciana",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a34922698/bucatini-pasta-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 35,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "bucatini-con-salsa-ai-peperoni",
       "source_name": "Il Cucchiaio d'Argento",
       "source_url": "https://www.cucchiaio.it/ricetta/ricetta-bucatini-salsa-peperoni/",
@@ -12226,6 +12566,16 @@
       "cook_minutes": 22,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "buckeye-roll",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a57039/buckeye-roll-recipe/",
+      "prep_minutes": 30,
+      "cook_minutes": 0,
+      "rest_minutes": 60,
+      "servings": 8,
       "status": "verified"
     },
     {
@@ -12399,6 +12749,16 @@
       "status": "verified"
     },
     {
+      "slug": "butternut-squash-casserole",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a40509027/butternut-squash-casserole-recipe/",
+      "prep_minutes": 25,
+      "cook_minutes": 0,
+      "rest_minutes": 45,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
       "slug": "butternut-squash-romesco-dip",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/butternut-squash-romesco-dip",
@@ -12439,6 +12799,16 @@
       "status": "verified"
     },
     {
+      "slug": "caesar-salad-dressing",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a64578117/caesar-salad-dressing-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 5,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "caffe-bombon",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/caffe-bombon-ricetta/",
@@ -12459,6 +12829,16 @@
       "status": "verified"
     },
     {
+      "slug": "cajun-butter-shrimp-sausage-skewers",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a28576081/cajun-butter-shrimp-sausage-skewers-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "cajun-prawn-charred-corn-salad",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/cajun-prawn-charred-corn-salad",
@@ -12466,6 +12846,16 @@
       "cook_minutes": 10,
       "rest_minutes": 0,
       "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "cajun-rice-bake",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a49655/cajun-rice-bake-recipe/",
+      "prep_minutes": 0,
+      "cook_minutes": 45,
+      "rest_minutes": 15,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -12495,6 +12885,26 @@
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "california-burger-bowls",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a20066889/california-burger-bowls-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 10,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "california-star-ruby-grapefruit-jalapeno-baked-cod",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a31087454/grapefruit-jalapeno-baked-cod-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
       "servings": 4,
       "status": "verified"
     },
@@ -12554,6 +12964,16 @@
       "source_url": "https://www.cucchiaio.it/ricetta/ricetta-caprese-nocciole/",
       "prep_minutes": 20,
       "cook_minutes": 40,
+      "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "caprese-pasta-salad",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a53227/caprese-pasta-salad-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 6,
       "status": "verified"
@@ -12666,6 +13086,16 @@
       "cook_minutes": 20,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "carolina-pulled-pork",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a22536830/carolina-style-pulled-pork-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 180,
+      "servings": 12,
       "status": "verified"
     },
     {
@@ -12809,6 +13239,16 @@
       "status": "verified"
     },
     {
+      "slug": "cauliflower-mac-and-cheese",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a55536/healthy-cauliflower-mac-and-cheese-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "cauliflower-salad",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/cauliflower-carrot-salad",
@@ -12825,6 +13265,16 @@
       "prep_minutes": 25,
       "cook_minutes": 55,
       "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "cauliflower-toast",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipes/a50033/cauliflower-toast-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 30,
       "servings": 4,
       "status": "verified"
     },
@@ -13409,6 +13859,26 @@
       "status": "verified"
     },
     {
+      "slug": "cheesy-asparagus-foil-packs",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a21086025/cheesy-asparagus-foil-packs-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "cheesy-asparagus-stuffed-chicken",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a43414236/cheesy-asparagus-stuffed-chicken-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "cheesy-bean-potatoes",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/cheesy-bean-potatoes",
@@ -13439,6 +13909,16 @@
       "status": "verified"
     },
     {
+      "slug": "cheesy-garlic-butter-potatoes",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a22667515/cheesy-garlic-butter-potatoes-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "cheesy-hot-cross-buns",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/cheesy-hot-cross-buns",
@@ -13446,6 +13926,16 @@
       "cook_minutes": 30,
       "rest_minutes": 0,
       "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "cheesy-lasagna-dip",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a50523/cheesy-lasagna-dip-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 6,
       "status": "verified"
     },
     {
@@ -13489,6 +13979,16 @@
       "status": "verified"
     },
     {
+      "slug": "cheesy-sweet-potato-casserole",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a50722/cheesy-sweet-potato-casserole-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 65,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "cherry-tomato-ham-bread-butter-bake",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/cherry-tomato-ham-bread-butter-bake",
@@ -13529,6 +14029,16 @@
       "status": "verified"
     },
     {
+      "slug": "chicken-alfredo",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a53695/one-pot-chicken-alfredo-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "chicken-alfredo-pasta-bake",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/chicken-alfredo-pasta-bake",
@@ -13546,6 +14056,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "chicken-avocado-roll-ups",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipes/a52540/chicken-avocado-roll-ups/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 8,
       "status": "verified"
     },
     {
@@ -13659,6 +14179,16 @@
       "status": "verified"
     },
     {
+      "slug": "chicken-parm-stuffed-zucchini",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a53546/chicken-parm-stuffed-zucchini-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "chicken-pasta-salad",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/chicken-pasta-salad",
@@ -13729,6 +14259,16 @@
       "status": "verified"
     },
     {
+      "slug": "chicken-tacos",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a58716/easy-chicken-tacos-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "chicken-tinga-style-enchiladas",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/chicken-tinga-style-enchiladas",
@@ -13759,6 +14299,16 @@
       "status": "verified"
     },
     {
+      "slug": "chickpea-broccoli-alfredo-skillet",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a62770456/chickpea-broccoli-alfredo-skillet-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "chickpea-fritters-with-courgette-salad",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/chickpea-fritters-courgette-salad",
@@ -13785,6 +14335,16 @@
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "chili-mac",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a49097/best-chili-mac-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
       "servings": 6,
       "status": "verified"
     },
@@ -13899,6 +14459,16 @@
       "status": "verified"
     },
     {
+      "slug": "chocolate-avocado-bread",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a22520594/chocolate-avocado-bread-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 75,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
       "slug": "chocolate-birthday-cake",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/chocolate-birthday-cake",
@@ -13979,6 +14549,16 @@
       "status": "verified"
     },
     {
+      "slug": "chocolate-hot-cross-buns",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a26975471/chocolate-hot-cross-buns-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 260,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
       "slug": "chocolate-orange-babka",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/chocolate-orange-babka",
@@ -13995,6 +14575,16 @@
       "prep_minutes": 25,
       "cook_minutes": 40,
       "rest_minutes": 0,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "chocolate-peanut-butter-banana-bark",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a61838882/chocolate-peanut-butter-banana-bark-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 80,
       "servings": 12,
       "status": "verified"
     },
@@ -14016,6 +14606,16 @@
       "cook_minutes": 10,
       "rest_minutes": 0,
       "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "chorizo-bucatini",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipes/a46140/chorizo-bucatini-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -14089,6 +14689,16 @@
       "status": "verified"
     },
     {
+      "slug": "churro-banana-bites",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a51527/churro-banana-bites-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 10,
+      "servings": 1,
+      "status": "verified"
+    },
+    {
       "slug": "chutney-di-mele-e-ribes",
       "source_name": "Il Cucchiaio d'Argento",
       "source_url": "https://www.cucchiaio.it/ricetta/ricetta-chutney-mele-ribes/",
@@ -14109,6 +14719,36 @@
       "status": "verified"
     },
     {
+      "slug": "cilantro-lime-chicken-skewers",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a60076235/cilantro-lime-chicken-skewers-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 40,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "cilantro-lime-salmon",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a52015/honey-cilantro-lime-salmon-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "cilantro-lime-shrimp-pasta",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a19637739/cilantro-lime-shrimp-pasta-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 40,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "cinghiale-alle-olive",
       "source_name": "Il Cucchiaio d'Argento",
       "source_url": "https://www.cucchiaio.it/ricetta/ricetta-cinghiale-olive/",
@@ -14119,6 +14759,16 @@
       "status": "verified"
     },
     {
+      "slug": "cinnamon-apple-cake",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a21925367/easy-apple-cake-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 80,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
       "slug": "cinnamon-blueberry-tart",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/cinnamon-blueberry-tart",
@@ -14126,6 +14776,16 @@
       "cook_minutes": 15,
       "rest_minutes": 0,
       "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "cinnamon-swirl-bread",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a32082355/cinnamon-swirl-bread-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 230,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -14236,6 +14896,16 @@
       "cook_minutes": 5,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "citrus-upside-down-cake",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a35702428/citrus-upside-down-cake-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 70,
+      "servings": 8,
       "status": "verified"
     },
     {
@@ -14449,6 +15119,16 @@
       "status": "verified"
     },
     {
+      "slug": "cookie-brittle",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a45848798/cookie-brittle-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 30,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
       "slug": "cookies-al-cioccolato-e-zenzero-candito",
       "source_name": "Il Cucchiaio d'Argento",
       "source_url": "https://www.cucchiaio.it/ricetta/cookies-al-cioccolato-e-zenzero-candito/",
@@ -14466,6 +15146,46 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "copycat-cosmic-brownies",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a36144868/copycat-cosmic-brownies-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 80,
+      "servings": 20,
+      "status": "verified"
+    },
+    {
+      "slug": "copycat-olive-garden-zuppa-toscana",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a45873/best-copycat-olive-garden-zuppa-toscana-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "copycat-starbucks-pumpkin-cream-cold-brew",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a33807739/starbucks-pumpkin-cream-cold-brew-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 965,
+      "servings": 1,
+      "status": "verified"
+    },
+    {
+      "slug": "copycat-texas-roadhouse-rattlesnake-bites",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a54671/copycat-texas-roadhouse-rattlesnake-bites-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 30,
+      "servings": 6,
       "status": "verified"
     },
     {
@@ -14699,6 +15419,36 @@
       "status": "verified"
     },
     {
+      "slug": "crab-artichoke-dip",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a49883/crab-artichoke-dip-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "crab-cake-bites",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a50406/crab-cake-bites-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "crab-cakes",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a58704/best-crab-cakes-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
       "slug": "crab-cakes-with-dill-mayonnaise",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/crab-cakes-dill-mayonnaise",
@@ -14759,6 +15509,16 @@
       "status": "verified"
     },
     {
+      "slug": "cranberry-bliss-cupcakes",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a62121995/cranberry-bliss-cupcakes-recipe/",
+      "prep_minutes": 30,
+      "cook_minutes": 45,
+      "rest_minutes": 60,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
       "slug": "cranberry-marmalade-sauce",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/cranberry-marmalade-sauce",
@@ -14786,6 +15546,16 @@
       "cook_minutes": 60,
       "rest_minutes": 0,
       "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "cream-of-broccoli-soup",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a40274495/cream-of-broccoli-soup-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 30,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -14849,6 +15619,16 @@
       "status": "verified"
     },
     {
+      "slug": "creamy-cajun-stuffed-salmon",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a41603292/creamy-cajun-stuffed-salmon-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "creamy-chicken-bean-leek-traybake",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/creamy-chicken-bean-leek-traybake",
@@ -14869,6 +15649,16 @@
       "status": "verified"
     },
     {
+      "slug": "creamy-garlic-chicken-penne",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a52927/creamy-garlic-chicken-penne-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "creamy-leek-potato-cheddar-chive-fish-pie",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/creamy-leek-potato-cheddar-chive-fish-pie",
@@ -14876,6 +15666,26 @@
       "cook_minutes": 60,
       "rest_minutes": 0,
       "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "creamy-lemon-parmesan-chicken",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a58631/creamy-lemon-parmesan-chicken-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 30,
+      "servings": 3,
+      "status": "verified"
+    },
+    {
+      "slug": "creamy-lemon-shrimp-with-spinach",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a50330/creamy-lemon-shrimp-with-spinach-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -14935,6 +15745,16 @@
       "prep_minutes": 10,
       "cook_minutes": 25,
       "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "creamy-tuscan-butter-chicken-orzo",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a31275611/creamy-tuscan-butter-chicken-and-orzo-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 35,
       "servings": 4,
       "status": "verified"
     },
@@ -15329,6 +16149,16 @@
       "status": "verified"
     },
     {
+      "slug": "crispy-zucchini-stacks",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a61112067/crispy-zucchini-stacks-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 60,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
       "slug": "croccante-allamarena",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/croccante-allamarena/",
@@ -15336,6 +16166,36 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "crock-pot-potato-soup",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a24228410/crock-pot-potato-soup-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 210,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "crock-pot-spaghetti",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a19660462/easy-crockpot-spaghetti-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 360,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "croque-madame",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a27186101/croque-madame-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 2,
       "status": "verified"
     },
     {
@@ -15789,6 +16649,26 @@
       "status": "verified"
     },
     {
+      "slug": "dessert-gnocchi",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a32882035/dessert-gnocchi-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 10,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "deviled-avocados",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a28541924/deviled-avocados-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
       "slug": "devilled-tofu-kebabs",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/devilled-tofu-kebabs",
@@ -15796,6 +16676,16 @@
       "cook_minutes": 35,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "dirty-rice",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a5263/dirty-rice-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 8,
       "status": "verified"
     },
     {
@@ -16059,6 +16949,16 @@
       "status": "verified"
     },
     {
+      "slug": "easy-dill-dip",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a29368889/dill-dip-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 5,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "easy-green-vegetable-soup",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/easy-green-vegetable-soup",
@@ -16116,6 +17016,16 @@
       "cook_minutes": 65,
       "rest_minutes": 0,
       "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "easy-overnight-oats",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a43444387/overnight-oats-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 475,
+      "servings": 2,
       "status": "verified"
     },
     {
@@ -16449,6 +17359,16 @@
       "status": "verified"
     },
     {
+      "slug": "feta-spinach-tomato-stuffed-salmon",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a43365439/feta-spinach-and-tomato-stuffed-salmon-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "fettine-alla-senape",
       "source_name": "Il Cucchiaio d'Argento",
       "source_url": "https://www.cucchiaio.it/ricetta/ricetta-fettine-senape/",
@@ -16699,6 +17619,16 @@
       "status": "verified"
     },
     {
+      "slug": "flourless-fudge-cookies",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a19573617/flourless-fudge-cookies-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 50,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
       "slug": "fluffy-japanese-souffle-pancakes",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/fluffy-japanese-pancakes-2",
@@ -16809,6 +17739,26 @@
       "status": "verified"
     },
     {
+      "slug": "french-onion-gnocchi-soup",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a42710759/french-onion-gnocchi-soup-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 45,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "french-onion-smashed-potatoes",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a62870077/french-onion-smashed-potatoes-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 115,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "french-onion-soup",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/french-onion-soup",
@@ -16816,6 +17766,16 @@
       "cook_minutes": 55,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "french-silk-brownies",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a62611087/french-silk-brownies-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 220,
+      "servings": 12,
       "status": "verified"
     },
     {
@@ -16856,6 +17816,16 @@
       "cook_minutes": 60,
       "rest_minutes": 30,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "fried-ham-cheese-mozzarella-sticks",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a64208037/fried-ham-cheese-mozzarella-sticks-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 12,
       "status": "verified"
     },
     {
@@ -17209,6 +18179,16 @@
       "status": "verified"
     },
     {
+      "slug": "garlic-butter-shells",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a48136/bistro-chicken-pasta-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "garlic-mashed-potatoes",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/garlic-mashed-potatoes",
@@ -17229,6 +18209,16 @@
       "status": "verified"
     },
     {
+      "slug": "garlic-parmesan-roasted-carrots",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a42676799/garlic-parmesan-roasted-carrots-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "garlic-prawn-rice",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/garlic-prawn-rice",
@@ -17236,6 +18226,16 @@
       "cook_minutes": 18,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "garlicky-green-beans-with-crispy-onions",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a50183/garlicky-green-beans-with-crispy-onions-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 6,
       "status": "verified"
     },
     {
@@ -17379,6 +18379,16 @@
       "status": "verified"
     },
     {
+      "slug": "general-tso-meatballs",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a58552/general-tso-meatballs-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "genovese-di-tonno",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/genovese-di-tonno/",
@@ -17436,6 +18446,16 @@
       "cook_minutes": 10,
       "rest_minutes": 0,
       "servings": 16,
+      "status": "verified"
+    },
+    {
+      "slug": "ginger-glazed-salmon-with-charred-broccoli",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a48015/ginger-glazed-salmon-with-charred-broccoli-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -17506,6 +18526,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "glazed-pork-tenderloin",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a52049/glazed-pork-tenderloin-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 30,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -17626,6 +18656,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "gnocchi-stuffing",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a45759097/gnocchi-stuffing-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 70,
+      "servings": 8,
       "status": "verified"
     },
     {
@@ -17839,6 +18879,26 @@
       "status": "verified"
     },
     {
+      "slug": "greek-pasta-salad",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a47991/best-greek-pasta-salad-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 10,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "greek-salad",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a54226/best-greek-salad-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 5,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "greek-salad-muffins",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/greek-salad-muffins",
@@ -17856,6 +18916,16 @@
       "cook_minutes": 20,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "greek-yogurt-onion-dip",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a48659/greek-yogurt-onion-dip-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 8,
       "status": "verified"
     },
     {
@@ -17959,12 +19029,42 @@
       "status": "verified"
     },
     {
+      "slug": "grilled-baked-potatoes",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a39504984/grilled-baked-potato-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 75,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "grilled-bass-with-sauce-vierge",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/grilled-bass-sauce-vierge",
       "prep_minutes": 20,
       "cook_minutes": 10,
       "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "grilled-chicken-banh-mi-with-pickled-vegetables-and-sriracha-mayo",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a43367/grilled-chicken-bahn-mi-pickled-vegetables-sriracha-mayo/",
+      "prep_minutes": 25,
+      "cook_minutes": 0,
+      "rest_minutes": 5,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "grilled-chicken-quesadillas",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a21273390/grilled-chicken-quesadillas-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
       "servings": 4,
       "status": "verified"
     },
@@ -18025,6 +19125,16 @@
       "prep_minutes": 10,
       "cook_minutes": 20,
       "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "grilled-shrimp-tostadas-with-guacamole-and-red-cabbage-slaw",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a43234/grilled-shrimp-tostadas-guacamole-red-cabbage-slaw-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
       "servings": 4,
       "status": "verified"
     },
@@ -18104,6 +19214,26 @@
       "source_url": "https://www.bbcgoodfood.com/recipes/harissa-chicken-traybake-peppers-feta",
       "prep_minutes": 10,
       "cook_minutes": 35,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "harissa-grilled-chicken",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a40208036/harissa-grilled-chicken-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 55,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "harissa-spiced-turkey-breast",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a34703485/harissa-spiced-turkey-breast-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
       "status": "verified"
@@ -18259,6 +19389,16 @@
       "status": "verified"
     },
     {
+      "slug": "high-protein-hamburger-helper",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a69169868/high-protein-hamburger-helper-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "hob-to-table-moussaka",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/hob-table-moussaka",
@@ -18289,6 +19429,16 @@
       "status": "verified"
     },
     {
+      "slug": "homemade-mayo-paleo-and-whole30-friendly",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a25363303/whole30-paleo-mayo-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 5,
+      "servings": 1,
+      "status": "verified"
+    },
+    {
       "slug": "homemade-rye-bread",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/rye-bread",
@@ -18305,6 +19455,16 @@
       "prep_minutes": 15,
       "cook_minutes": 15,
       "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "honey-lime-tilapia-and-corn-foil-pack",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a47498/honey-lime-tilapia-and-corn-foil-pack-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
       "servings": 4,
       "status": "verified"
     },
@@ -18349,6 +19509,16 @@
       "status": "verified"
     },
     {
+      "slug": "hot-german-potato-salad",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a19637562/hot-german-potato-salad-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 30,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "hot-honey-orange-sesame-prawn-stir-fry",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/hot-honey-orange-sesame-prawn-stir-fry",
@@ -18379,6 +19549,16 @@
       "status": "verified"
     },
     {
+      "slug": "how-to-cook-beet-greens",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a36099933/how-to-cook-beet-greens/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
+      "servings": 3,
+      "status": "verified"
+    },
+    {
       "slug": "how-to-make-marmalade",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/seville-orange-marmalade",
@@ -18386,6 +19566,16 @@
       "cook_minutes": 120,
       "rest_minutes": 1275,
       "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "huli-huli-chicken",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a27972975/huli-huli-chicken-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 95,
+      "servings": 3,
       "status": "verified"
     },
     {
@@ -18679,6 +19869,66 @@
       "status": "verified"
     },
     {
+      "slug": "instant-pot-cheesy-spaghetti-squash",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a27345958/instant-pot-spaghetti-squash-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 40,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "instant-pot-chicken-tortilla-soup",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a25401821/instant-pot-chicken-tortilla-soup/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 35,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "instant-pot-jambalaya",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a42551468/instant-pot-jambalaya-recipe/",
+      "prep_minutes": 30,
+      "cook_minutes": 0,
+      "rest_minutes": 40,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "instant-pot-pork-tenderloin",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a27211563/instant-pot-pork-tenderloin-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 3,
+      "status": "verified"
+    },
+    {
+      "slug": "instant-pot-sweet-spicy-brisket",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a27290240/instant-pot-sweet-and-spicy-brisket-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 135,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "instant-pot-vegetable-soup",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a25336945/instant-pot-vegetable-soup/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 30,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "involtini-di-zucchine",
       "source_name": "Il Cucchiaio d'Argento",
       "source_url": "https://www.cucchiaio.it/ricetta/involtini-di-zucchine/",
@@ -18705,6 +19955,16 @@
       "prep_minutes": 10,
       "cook_minutes": 75,
       "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "italian-penicillin-soup",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a63856341/italian-penicillin-soup-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 30,
       "servings": 4,
       "status": "verified"
     },
@@ -18756,6 +20016,16 @@
       "cook_minutes": 55,
       "rest_minutes": 0,
       "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "jalapeno-popper-pizza",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a29800650/chicken-crust-jalapeno-popper-pizza-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 35,
+      "servings": 1,
       "status": "verified"
     },
     {
@@ -18836,6 +20106,26 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "keto-bacon-sushi",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a26409980/keto-bacon-sushi-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
+      "slug": "keto-stuffed-peppers",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a25562593/keto-stuffed-peppers-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 60,
+      "servings": 8,
       "status": "verified"
     },
     {
@@ -19069,6 +20359,16 @@
       "status": "verified"
     },
     {
+      "slug": "lemon-blueberry-shortcakes",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a40022837/lemon-blueberry-shortcakes-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 85,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "lemon-chive-mayonnaise",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/lemon-chive-mayonnaise",
@@ -19095,6 +20395,16 @@
       "prep_minutes": 5,
       "cook_minutes": 20,
       "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "lemon-poppyseed-pancakes",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a20534727/lemon-poppy-seed-pancakes-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
       "servings": 4,
       "status": "verified"
     },
@@ -19259,6 +20569,16 @@
       "status": "verified"
     },
     {
+      "slug": "linguine-with-clams",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a50868/linguine-with-clams-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "linguine-with-garlic-butter-prawns",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/linguine-garlic-butter-prawns",
@@ -19276,6 +20596,16 @@
       "cook_minutes": 20,
       "rest_minutes": 0,
       "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "loaded-meatloaf-casserole",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a73724395/loaded-meatloaf-casserole-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 55,
+      "servings": 6,
       "status": "verified"
     },
     {
@@ -19309,6 +20639,16 @@
       "status": "verified"
     },
     {
+      "slug": "low-carb-breakfast-hash",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a55631/low-carb-breakfast-hash-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 40,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "low-fat-roasties",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/low-fat-roasties",
@@ -19326,6 +20666,16 @@
       "cook_minutes": 40,
       "rest_minutes": 0,
       "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "mac-cheese-stuffed-zucchini",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a39464505/mac-and-cheese-stuffed-zucchini-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 60,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -19459,6 +20809,16 @@
       "status": "verified"
     },
     {
+      "slug": "maple-chorizo-breakfast-skillet",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a36426262/campfire-breakfast-skillet/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
       "slug": "maple-granola-crunch-porridge-topping",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/maple-granola-crunch-porridge-topping",
@@ -19535,6 +20895,16 @@
       "prep_minutes": 20,
       "cook_minutes": 45,
       "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "marry-me-pasta",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a46555128/marry-me-pasta-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
       "servings": 4,
       "status": "verified"
     },
@@ -19909,6 +21279,16 @@
       "status": "verified"
     },
     {
+      "slug": "mini-apple-berry-crumble-pies",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a43506/mini-apple-berry-crumble-pies-recipe/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
       "slug": "mini-baked-potatoes",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/mini-jacket-potatoes-0",
@@ -20096,6 +21476,26 @@
       "cook_minutes": 30,
       "rest_minutes": 180,
       "servings": 1,
+      "status": "verified"
+    },
+    {
+      "slug": "monster-meatballs",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a63363431/best-monster-meatballs-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 70,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "morning-glory-zucchini-bread",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a22575733/morning-glory-zucchini-bread-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 70,
+      "servings": 12,
       "status": "verified"
     },
     {
@@ -20394,6 +21794,26 @@
       "source_url": "https://www.bbcgoodfood.com/recipes/muffin-tin-chilli-pots",
       "prep_minutes": 15,
       "cook_minutes": 5,
+      "rest_minutes": 0,
+      "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "mushroom-barley-soup",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a45472/mushroom-barley-soup-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "mushroom-calamari-with-spicy-marinara",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a37051972/mushroom-calamari-recipe/",
+      "prep_minutes": 0,
+      "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 2,
       "status": "verified"
@@ -20739,6 +22159,16 @@
       "status": "verified"
     },
     {
+      "slug": "one-pan-orange-chickpeas-broccoli",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a68062475/one-pan-orange-chickpeas-broccoli-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "one-pan-roast-rack-of-lamb-green-olive-potatoes",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/one-pan-roast-rack-of-lamb-green-olive-potatoes",
@@ -20769,6 +22199,16 @@
       "status": "verified"
     },
     {
+      "slug": "onion-boil",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a63117659/onion-boil-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 80,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "open-prawn-cocktail-sandwich",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/open-prawn-cocktail-sandwich",
@@ -20795,6 +22235,16 @@
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "orecchiette-with-broccoli-rabe",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a28414419/orecchiette-pasta-with-broccoli-rabe-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
       "servings": 4,
       "status": "verified"
     },
@@ -21295,6 +22745,16 @@
       "prep_minutes": 15,
       "cook_minutes": 30,
       "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "party-chicken",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a63918147/best-party-chicken-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 35,
       "servings": 4,
       "status": "verified"
     },
@@ -22339,6 +23799,36 @@
       "status": "verified"
     },
     {
+      "slug": "peanut-butter-chocolate-chip-cookies",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a41611860/peanut-butter-chocolate-chip-cookies-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 50,
+      "servings": 20,
+      "status": "verified"
+    },
+    {
+      "slug": "peanut-butter-explosion-cakes",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a27409021/instant-pot-peanut-butter-explosion-cake-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 35,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "peanut-butter-honey-cornbread",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a63496875/peanut-butter-honey-cornbread-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 45,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
       "slug": "pear-blackberry-crostata",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/pear-blackberry-crostata",
@@ -22406,6 +23896,16 @@
       "cook_minutes": 75,
       "rest_minutes": 0,
       "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "peda",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a35045384/peda-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 30,
+      "servings": 20,
       "status": "verified"
     },
     {
@@ -22586,6 +24086,26 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 3,
+      "status": "verified"
+    },
+    {
+      "slug": "perfect-birthday-cake",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a23120595/funfetti-cake-birthday-cake-recipe/",
+      "prep_minutes": 30,
+      "cook_minutes": 0,
+      "rest_minutes": 90,
+      "servings": 16,
+      "status": "verified"
+    },
+    {
+      "slug": "perfect-buttered-noodles",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a25636049/easy-buttered-noodles-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -23569,6 +25089,16 @@
       "status": "verified"
     },
     {
+      "slug": "potato-skin-bites",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a51179/potato-skin-bites-recipe/",
+      "prep_minutes": 30,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
       "slug": "potato-taleggio-spinach-tart",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/potato-taleggio-spinach-tart",
@@ -23829,6 +25359,16 @@
       "status": "verified"
     },
     {
+      "slug": "pumpkin-chocolate-chip-breakfast-cake",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a62336227/best-pumpkin-chocolate-chip-breakfast-cake-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 80,
+      "servings": 12,
+      "status": "verified"
+    },
+    {
       "slug": "pumpkin-cornbread-with-whipped-jalapeno-butter",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/pumpkin-cornbread-with-whipped-jalapeno-butter",
@@ -23856,6 +25396,16 @@
       "cook_minutes": 60,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "pumpkin-spice-chocolate-chip-biscotti",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a73686412/pumpkin-chocolate-chip-biscotti-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 80,
+      "servings": 20,
       "status": "verified"
     },
     {
@@ -23939,6 +25489,16 @@
       "status": "verified"
     },
     {
+      "slug": "queso-fundido",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a38771867/queso-fundido-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
       "slug": "quiche-di-polenta",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/quiche-di-polenta-la-ricetta/",
@@ -23956,6 +25516,16 @@
       "cook_minutes": 40,
       "rest_minutes": 0,
       "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "quiche-lorraine",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a58388/quiche-lorraine-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 80,
+      "servings": 6,
       "status": "verified"
     },
     {
@@ -24016,6 +25586,16 @@
       "cook_minutes": 10,
       "rest_minutes": 0,
       "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "ranch-dressing",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a25634518/homemade-ranch-dressing-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 5,
+      "servings": 1,
       "status": "verified"
     },
     {
@@ -24989,6 +26569,16 @@
       "status": "verified"
     },
     {
+      "slug": "salmon-en-croute",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a45225305/salmon-en-croute-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 30,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "salmon-fennel-orange-salad",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/salmon-fennel-orange-salad",
@@ -25249,6 +26839,16 @@
       "status": "verified"
     },
     {
+      "slug": "santa-fe-chicken-salad",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a50635/santa-fe-chicken-salad-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 3,
+      "status": "verified"
+    },
+    {
       "slug": "sarde-e-piade",
       "source_name": "Il Cucchiaio d'Argento",
       "source_url": "https://www.cucchiaio.it/ricetta/ricetta-sarde-piade/",
@@ -25376,6 +26976,16 @@
       "cook_minutes": 50,
       "rest_minutes": 0,
       "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "sausage-peppers-foil-pack",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a47494/sausage-and-peppers-foil-pack-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -25606,6 +27216,16 @@
       "cook_minutes": 40,
       "rest_minutes": 0,
       "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "scotch-eggs",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a42782220/scotch-eggs-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 50,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -25939,6 +27559,26 @@
       "status": "verified"
     },
     {
+      "slug": "sheet-pan-sausage-vegetables",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a36146173/sheet-pan-sausage-and-vegetables-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 45,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "sheet-pan-stuffing",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a34703692/sheet-pan-stuffing-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 60,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
       "slug": "shells-with-balsamic-tomatoes-mozzarella",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/shells-balsamic-tomatoes-mozzarella",
@@ -25989,6 +27629,26 @@
       "status": "verified"
     },
     {
+      "slug": "shrimp-tomato-succotash-skillet",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a61602225/shrimp-and-tomato-succotash-skillet-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "shrimpo-de-gallo",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a21271867/shrimpo-de-gallo-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
       "slug": "simil-panna-fatta-in-casa-la-ricetta-semplice-e-velocissima-con-solo-3",
       "source_name": "Cookist",
       "source_url": "https://www.cookist.it/panna-da-cucina-fatta-in-casa/",
@@ -26005,6 +27665,26 @@
       "prep_minutes": 20,
       "cook_minutes": 0,
       "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "skillet-cheeseburger-mac-and-cheese",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a49455/skillet-cheeseburger-mac-and-cheese-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 20,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "sloppy-joe-stuffed-peppers",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a54668/sloppy-joe-stuffed-peppers-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 55,
       "servings": 4,
       "status": "verified"
     },
@@ -26049,6 +27729,36 @@
       "status": "verified"
     },
     {
+      "slug": "slow-cooker-boiled-peanuts",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a54770/slow-cooker-boiled-peanuts-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 10,
+      "status": "verified"
+    },
+    {
+      "slug": "slow-cooker-brisket",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a64324710/slow-cooker-brisket-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 350,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "slow-cooker-carnitas-tacos-with-sriracha-mayo",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a45956/slow-cooker-carnitas-tacos-with-sriracha-mayo/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 500,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "slow-cooker-chicken-alfredo",
       "source_name": "Delish",
       "source_url": "https://www.delish.com/cooking/recipe-ideas/a55419/best-slow-cooker-chicken-alfredo-recipe/",
@@ -26066,6 +27776,16 @@
       "cook_minutes": 480,
       "rest_minutes": 0,
       "servings": 5,
+      "status": "verified"
+    },
+    {
+      "slug": "slow-cooker-garlic-parmesan-chicken",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a46066/slow-cooker-garlic-parmesan-chicken-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 260,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -26106,6 +27826,16 @@
       "cook_minutes": 240,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "slow-cooker-sausage-and-white-bean-soup",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a58390/slow-cooker-sausage-and-white-bean-soup-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 430,
+      "servings": 8,
       "status": "verified"
     },
     {
@@ -26205,6 +27935,16 @@
       "prep_minutes": 5,
       "cook_minutes": 75,
       "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "smashed-sweet-potatoes",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a58272/smashed-sweet-potatoes-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 35,
       "servings": 4,
       "status": "verified"
     },
@@ -26579,6 +28319,16 @@
       "status": "verified"
     },
     {
+      "slug": "spaghetti-with-kale-pesto-and-meatballs",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a45042/spaghetti-kale-pesto-meatballs-recipe/",
+      "prep_minutes": 35,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "spaghetti-with-smoked-anchovies-chilli-breadcrumbs-fried-egg",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/spaghetti-smoked-anchovies-chilli-breadcrumbs-fried-egg",
@@ -26816,6 +28566,16 @@
       "cook_minutes": 25,
       "rest_minutes": 0,
       "servings": 6,
+      "status": "verified"
+    },
+    {
+      "slug": "spicy-ginger-chicken-with-steamed-bok-choy",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a45954/spicy-ginger-chicken-steamed-bok-choy-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -27279,6 +29039,16 @@
       "status": "verified"
     },
     {
+      "slug": "stir-fried-green-beans",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a36732344/stir-fried-green-beans-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "stir-fried-greens-with-fish-sauce",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/stir-fried-greens-fish-sauce",
@@ -27335,6 +29105,16 @@
       "prep_minutes": 0,
       "cook_minutes": 0,
       "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "stracciatella-soup",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a39224739/stracciatella-soup-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
       "servings": 4,
       "status": "verified"
     },
@@ -27649,6 +29429,16 @@
       "status": "verified"
     },
     {
+      "slug": "taco-pie",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a45572614/taco-pie-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 30,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "tacos-al-pollo-fritto-e-salsa-allo-yogurt",
       "source_name": "Il Cucchiaio d'Argento",
       "source_url": "https://www.cucchiaio.it/ricetta/tacos-al-pollo-fritto-e-salsa-allo-yogurt/",
@@ -27716,6 +29506,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "tamarind-dipping-sauce",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a33396213/tamarind-dipping-sauce/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -27879,6 +29679,16 @@
       "status": "verified"
     },
     {
+      "slug": "tex-mex-chicken-fajita-foil-packets",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a40729912/tex-mex-chicken-fajita-foil-packets-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "thai-beef-salad",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/thai-beef-salad",
@@ -27896,6 +29706,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 3,
+      "status": "verified"
+    },
+    {
+      "slug": "thai-fried-rice",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a35035252/thai-fried-rice-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 15,
+      "rest_minutes": 0,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -28129,6 +29949,16 @@
       "status": "verified"
     },
     {
+      "slug": "tjs-copycat-peach-salsa",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a60718777/tjs-copycat-peach-salsa-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 5,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "toad-in-the-hole-in-4-easy-steps",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/toad-hole-4-easy-steps",
@@ -28196,6 +30026,16 @@
       "cook_minutes": 60,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "tomato-feta-pinwheels",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a41848650/tomato-feta-pinwheels-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 50,
+      "servings": 8,
       "status": "verified"
     },
     {
@@ -29299,6 +31139,16 @@
       "status": "verified"
     },
     {
+      "slug": "triple-chocolate-pumpkin-bread",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a49433/triple-chocolate-pumpkin-bread-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 75,
+      "servings": 1,
+      "status": "verified"
+    },
+    {
       "slug": "trofie-con-feta-e-rucola",
       "source_name": "Il Cucchiaio d'Argento",
       "source_url": "https://www.cucchiaio.it/ricetta/ricetta-trofie-rinfrescanti/",
@@ -29359,6 +31209,16 @@
       "status": "verified"
     },
     {
+      "slug": "turkey-and-rice-vegetable-soup",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a49666/turkey-and-rice-vegetable-soup-recipe/",
+      "prep_minutes": 5,
+      "cook_minutes": 0,
+      "rest_minutes": 15,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "turkey-bolognese-pasta-bake",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/turkey-bolognese-pasta-bake",
@@ -29389,6 +31249,16 @@
       "status": "verified"
     },
     {
+      "slug": "turkey-meatloaf",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a25605478/best-turkey-meatloaf-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 85,
+      "servings": 6,
+      "status": "verified"
+    },
+    {
       "slug": "turkey-mushroom-pot-pies",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/turkey-mushroom-pot-pies",
@@ -29399,6 +31269,16 @@
       "status": "verified"
     },
     {
+      "slug": "turkey-shepherd-s-pie",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a29504165/easy-turkey-shepherds-pie-recipe/",
+      "prep_minutes": 30,
+      "cook_minutes": 0,
+      "rest_minutes": 60,
+      "servings": 8,
+      "status": "verified"
+    },
+    {
       "slug": "turkey-steaks-with-citrus-ginger-sauce",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/turkey-steaks-citrus-ginger-sauce",
@@ -29406,6 +31286,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "turkey-tenderloin",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a41730917/turkey-tenderloin-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 20,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -29536,6 +31426,16 @@
       "cook_minutes": 0,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "upside-down-plum-cake",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a33983631/best-upside-down-plum-cake-recipe/",
+      "prep_minutes": 15,
+      "cook_minutes": 0,
+      "rest_minutes": 125,
+      "servings": 8,
       "status": "verified"
     },
     {
@@ -29899,6 +31799,16 @@
       "status": "verified"
     },
     {
+      "slug": "watermelon-caprese",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/recipes/a53719/watermelon-caprese-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 4,
+      "status": "verified"
+    },
+    {
       "slug": "whip-round-the-fridge-rice",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/whip-round-fridge-rice",
@@ -29906,6 +31816,16 @@
       "cook_minutes": 15,
       "rest_minutes": 0,
       "servings": 4,
+      "status": "verified"
+    },
+    {
+      "slug": "white-bean-blondies",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a22876959/white-bean-blondies-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 25,
+      "servings": 8,
       "status": "verified"
     },
     {
@@ -29936,6 +31856,16 @@
       "cook_minutes": 5,
       "rest_minutes": 240,
       "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "white-chocolate-cake",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a38842769/white-chocolate-cake-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 145,
+      "servings": 10,
       "status": "verified"
     },
     {
@@ -30009,6 +31939,16 @@
       "status": "verified"
     },
     {
+      "slug": "whole30-ranch-dressing",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a25564827/whole30-salad-dressing-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 0,
+      "servings": 1,
+      "status": "verified"
+    },
+    {
       "slug": "wild-mushroom-yorkshire-puddings",
       "source_name": "BBC Good Food",
       "source_url": "https://www.bbcgoodfood.com/recipes/wild-mushroom-yorkshire-puddings",
@@ -30016,6 +31956,16 @@
       "cook_minutes": 25,
       "rest_minutes": 0,
       "servings": 8,
+      "status": "verified"
+    },
+    {
+      "slug": "wild-rice",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a41467976/wild-rice-recipe/",
+      "prep_minutes": 10,
+      "cook_minutes": 0,
+      "rest_minutes": 70,
+      "servings": 4,
       "status": "verified"
     },
     {
@@ -30056,6 +32006,16 @@
       "cook_minutes": 5,
       "rest_minutes": 0,
       "servings": 2,
+      "status": "verified"
+    },
+    {
+      "slug": "yellow-cake",
+      "source_name": "Delish",
+      "source_url": "https://www.delish.com/cooking/recipe-ideas/a27044802/yellow-cake-recipe/",
+      "prep_minutes": 20,
+      "cook_minutes": 0,
+      "rest_minutes": 95,
+      "servings": 8,
       "status": "verified"
     },
     {
