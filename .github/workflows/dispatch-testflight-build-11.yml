@@ -1,0 +1,30 @@
+name: Dispatch TestFlight build 11
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/dispatch-testflight-build-11.yml
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch reviewed main commit to TestFlight
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: 000620fa79d3a6818c9cff15eb07e161c81c2235
+        run: |
+          test -n "$RELEASE_SHA"
+          test "$RELEASE_SHA" != "0000000000000000000000000000000000000000"
+          gh workflow run testflight.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main \
+            -f release_sha="$RELEASE_SHA" \
+            -f build_number=11 \
+            -f upload_to_testflight=true
