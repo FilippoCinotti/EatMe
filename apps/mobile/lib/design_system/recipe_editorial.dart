@@ -99,7 +99,7 @@ class RecipeActionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
-      if (constraints.maxWidth < 330 ||
+      if (constraints.maxWidth < 300 ||
           MediaQuery.textScalerOf(context).scale(15) > 20) {
         return Column(
           mainAxisSize: MainAxisSize.min,

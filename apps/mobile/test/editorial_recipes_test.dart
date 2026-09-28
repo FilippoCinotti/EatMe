@@ -1,4 +1,5 @@
 import 'package:eatme/core/models.dart';
+import 'package:eatme/main.dart';
 import 'package:eatme/design_system/widgets.dart';
 import 'package:eatme/features/chef_table/chef_table.dart';
 import 'package:eatme/features/cooking/cooking.dart';
@@ -123,7 +124,7 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
         for (final (name, page) in <(String, Widget)>[
-          ('chef', const ChefTablePage()),
+          ('chef', const AppShell(path: '/chef', child: ChefTablePage())),
           ('recipe', const RecipePage(recipeId: recipeId)),
         ]) {
           await tester.pumpWidget(const SizedBox.shrink());
