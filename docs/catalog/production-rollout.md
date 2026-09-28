@@ -1,4 +1,4 @@
-# Rilascio del catalogo ricette v4 (1.023 ricette + foto AI)
+# Rilascio del catalogo ricette v5 (3.604 ricette + foto AI) e dispensa
 
 Istruzioni operative, pensate per essere seguite da un assistente (es. ChatGPT) o da una persona
 con accesso al repository GitHub `FilippoCinotti/EatMe` e al progetto Supabase `ngqetldudwzemdhjprmv`.
@@ -8,7 +8,7 @@ Seguile nell'ordine; ogni passo dice come verificare che sia andato a buon fine.
 
 | File | Scopo |
 |---|---|
-| `generated/verified_recipes_catalog.json` | 1.023 ricette verificate (IT/EN), ingredienti mappati sul catalogo alimenti, `meal_types`, `diet_tags`, `image_prompt` |
+| `generated/verified_recipes_catalog.json` | 3.604 ricette verificate (IT/EN), più l'elenco `foods` dei nuovi alimenti di catalogo, ingredienti mappati sul catalogo alimenti, `meal_types`, `diet_tags`, `image_prompt` |
 | `docs/catalog/verified-recipes-v1.json` | Manifest delle fonti (catalog_version 4, 1.034 voci) |
 | `scripts/load_verified_recipes.py` | Upsert idempotente delle ricette nella tabella `recipes` (dry run di default) |
 | `scripts/generate_recipe_images.py` | Genera le foto con OpenAI, le carica su Supabase Storage e imposta `image_url` |
@@ -37,15 +37,24 @@ Entrambi i workflow girano nell'environment `production`. Crea l'environment se 
 
 Non incollare mai questi valori in chat, issue o commit.
 
-## 3. Caricamento ricette
+## 3. Migrazione database (dispensa)
+
+Prima del deploy dell'API applica la migrazione `supabase/migrations/202609270007_household_pantry.sql`
+(tabella `household_pantry` con RLS) con la procedura abituale: `python scripts/migrate.py` e
+`MIGRATION_DATABASE_URL` da un ambiente operatore fidato (vedi `docs/releases/deployment-runbook.md`).
+Lo script applica solo le migrazioni mancanti.
+
+## 3b. Caricamento ricette
 
 1. *Actions* → **Load verified recipe catalog** → *Run workflow* con `apply = false` (dry run).
 2. Nel log verifica la riga
-   `catalog v4: 1023 recipes; N loadable (… new, … updates); M skipped for unknown foods`.
+   `foods: F to insert, K matched to existing foods by slug` e
+   `catalog v5: 3604 recipes; N loadable (… new, … updates); M skipped for unknown foods`.
+   - Gli alimenti nuovi del catalogo vengono inseriti solo se non esiste già un alimento con lo stesso `slug`.
    - Atteso: `M = 0`. Se `M > 0` il log elenca le prime ricette saltate e gli `food_id` mancanti:
      significa che la tabella `foods` di produzione non contiene quegli alimenti del catalogo
      (`scripts/catalog_image_targets.json`). Si può procedere comunque: le ricette saltate non vengono scritte.
-3. Rilancia con `apply = true`. Atteso: `Upserted N recipes.`
+3. Rilancia con `apply = true`. Atteso: `Inserted F foods; upserted N recipes.`
 4. Il comando è idempotente: rilanciarlo aggiorna le stesse righe senza duplicati e **conserva** le foto già collegate.
 
 ## 4. Generazione foto
@@ -53,14 +62,15 @@ Non incollare mai questi valori in chat, issue o commit.
 Le foto sono illustrazioni AI di proprietà EatMe (nessuna foto delle fonti viene ripubblicata).
 
 1. *Actions* → **Generate recipe catalog images** → *Run workflow* con `dry_run = true`.
-   Atteso nel log: `1023 images to generate; 0 catalog recipes not loaded yet`.
+   Atteso nel log: `N images to generate; 0 catalog recipes not loaded yet`.
 2. Prova su pochi elementi: `dry_run = false`, `limit = 20`, `quality = medium`.
    - Controlla alcune immagini: Supabase → Storage → bucket `eatme-catalog-media` → cartella `recipes/`
      (il bucket viene creato pubblico automaticamente, solo `image/webp`, max 2 MB).
    - Controlla nell'app che le ricette mostrino la nuova foto.
 3. Completa: `limit = 0` (tutte le mancanti). Il job dura al massimo ~6 ore; se si interrompe o
    segnala `FAILED`, rilancialo: salta le ricette che hanno già `image_url`.
-4. Costo indicativo OpenAI per 1.023 immagini 1024×1024: circa 11 $ (`low`), 40–45 $ (`medium`), 170 $ (`high`).
+4. Costo indicativo OpenAI per 3.604 immagini 1024×1024: circa 40 $ (`low`), 150 $ (`medium`), 600 $ (`high`).
+   Se le 1.023 foto v4 sono già state generate, restano da fare solo le ~2.580 nuove.
    Verifica i prezzi correnti su platform.openai.com prima di lanciare.
 
 ## 5. Verifica finale in produzione
