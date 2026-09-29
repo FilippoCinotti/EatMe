@@ -438,7 +438,7 @@ class ContentService:
             raise DomainError("recipe_metadata_not_found", 422)
         with self.db.transaction() as tx:
             self._member(tx, user_id)
-            foods, _, _, _ = self._catalog(tx, user_id)
+            foods, _, _, _ = self._catalog(tx, user_id, include_recipes=False)
             ingredient_rows = _map_ingredients(ingredients_text, foods)
         title = (recipe.get("name") if recipe else parser.metadata.get("og:title")) or ""
         title = re.sub(r"\s*[-|]\s*(YouTube|Instagram)\s*$", "", str(title), flags=re.I)[:160]
@@ -697,7 +697,7 @@ class ContentService:
                 if data.get('package_checked') is not True:
                     raise DomainError('package_confirmation_required', 422)
                 product = decode(row['data'])
-                foods = self._catalog(tx, user_id)[0]
+                foods = self._catalog(tx, user_id, include_recipes=False)[0]
                 selected_food_id = data.get('food_id') or row['food_id']
                 canonical = foods.get(valid_uuid(selected_food_id)) if selected_food_id else None
                 if not canonical or canonical.get('group') == 'packaged':

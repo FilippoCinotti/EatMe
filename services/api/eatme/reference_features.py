@@ -21,7 +21,7 @@ class ReferenceFeaturesService:
                 self._member(tx, user_id, home, write=data.get('action') == 'create')
                 if data.get('action') == 'favorite':
                     food_id = valid_uuid(data.get('food_id'))
-                    if food_id not in self._catalog(tx, user_id)[0]:
+                    if food_id not in self._catalog(tx, user_id, include_recipes=False)[0]:
                         raise DomainError('invalid_food', 404)
                     enabled = data.get('enabled')
                     if type(enabled) is not bool:
@@ -75,7 +75,7 @@ class ReferenceFeaturesService:
     def food_photo(self, user_id, food_id):
         with self.db.transaction() as tx:
             self._profile(tx, user_id)
-            food = self._catalog(tx, user_id)[0].get(valid_uuid(food_id))
+            food = self._catalog(tx, user_id, include_recipes=False)[0].get(valid_uuid(food_id))
             if not food:
                 raise DomainError('invalid_food', 404)
             media_id = food.get('photo_id')
