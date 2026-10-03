@@ -46,7 +46,10 @@ class _FridgePageState extends ConsumerState<FridgePage> {
               b.expiryDate ?? DateTime(9999),
             ),
     );
-    final expired = items.where((b) => (expiryDays(b) ?? 0) < 0).length;
+    bool isExpired(Batch batch) =>
+        !batch.usable ||
+        (batch.expiryKind == 'use_by' && (expiryDays(batch) ?? 0) < 0);
+    final expired = items.where(isExpired).length;
     final dueSoon = items.where((b) {
       final days = expiryDays(b);
       return days != null && days >= 0 && days <= 3;
@@ -54,7 +57,7 @@ class _FridgePageState extends ConsumerState<FridgePage> {
     final visible = items.where((b) {
       final days = expiryDays(b);
       return expiryFilter == 'all' ||
-          (expiryFilter == 'expired' && days != null && days < 0) ||
+          (expiryFilter == 'expired' && isExpired(b)) ||
           (expiryFilter == 'soon' && days != null && days >= 0 && days <= 3);
     }).toList();
     return Scaffold(

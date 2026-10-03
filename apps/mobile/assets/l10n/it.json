@@ -1077,7 +1077,7 @@
   "expiry_today": "Oggi",
   "expiry_tomorrow": "Domani",
   "expiry_in_days": "Tra {count} giorni",
-  "expiry_days_ago": "Da {count} giorni",
+  "expiry_days_ago": "{count} giorni fa",
   "expiry_no_matches": "Nessun alimento in questo filtro",
   "cooking_back": "Indietro",
   "cooking_manual_timer": "Timer libero: scegli la durata quando ti serve.",
