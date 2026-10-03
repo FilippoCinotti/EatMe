@@ -76,6 +76,16 @@ class DinnerApi extends support.TestApi {
       };
     }
     if (method == 'GET' && path == '/dinners/dinner-1') return event;
+    if (method == 'GET' && path == '/entitlements') {
+      return {
+        'tier': 'free',
+        'capabilities': {'canUseGeneratedShopping': false},
+        'limits': <String, dynamic>{},
+        'usage': <String, dynamic>{},
+        'remaining': <String, dynamic>{},
+        'configured': true,
+      };
+    }
     if (method == 'GET' && path == '/recipes') {
       return {
         'items': [
@@ -128,7 +138,9 @@ void main() {
       );
       expect(navigation.selectedIndex, 2);
       expect(navigation.destinations, hasLength(4));
-      expect(find.text('Dinner with friends'), findsOneWidget);
+      final dinner = find.text('Dinner with friends');
+      await tester.scrollUntilVisible(dinner, 200);
+      expect(dinner, findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -147,8 +159,11 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Ada'), 200);
     expect(find.text('Ada'), findsOneWidget);
-    expect(find.text('Waiting for a guest’s food needs'), findsOneWidget);
+    final waiting = find.text('Waiting for a guest’s food needs');
+    await tester.scrollUntilVisible(waiting, 200);
+    expect(waiting, findsOneWidget);
     expect(
       find.text('Works for everyone in the answered profiles'),
       findsNothing,
@@ -166,7 +181,10 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(PopupMenuButton<String>));
+    final guestMenu = find.byType(PopupMenuButton<String>);
+    await tester.ensureVisible(guestMenu);
+    await tester.pumpAndSettle();
+    await tester.tap(guestMenu);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Invite guest'));
     await tester.pumpAndSettle();
@@ -174,6 +192,31 @@ void main() {
     expect(
       find.text('https://guest.eatme.test/en/invite/test-capability-token'),
       findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('free plan sees the EatMe+ prompt instead of a failing request', (
+    tester,
+  ) async {
+    final api = DinnerApi();
+    await tester.pumpWidget(
+      support.harness(const DinnerDetailPage(dinnerId: 'dinner-1'), api),
+    );
+    await tester.pumpAndSettle();
+    final action = find.byKey(const ValueKey('dinner-shopping-action'));
+    await tester.scrollUntilVisible(action, 200);
+    await tester.tap(action);
+    // The row keeps its progress indicator while the sheet is open.
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(
+      find.textContaining('the shopping list for this dinner is built for you'),
+      findsOneWidget,
+    );
+    expect(
+      api.calls.where((call) => call['body']?['action'] == 'generate_shopping'),
+      isEmpty,
     );
     expect(tester.takeException(), isNull);
   });

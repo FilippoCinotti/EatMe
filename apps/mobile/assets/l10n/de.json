@@ -1087,6 +1087,10 @@
   "use_by_today": "Läuft heute ab",
   "use_by_tomorrow": "Läuft morgen ab",
   "use_by_in_days": "Läuft in {count} Tagen ab",
+  "extra_portions_title": "Extra-Portionen",
+  "extra_portions_hint": "Für Reste oder spontane Gäste",
+  "cancel_dinner_confirm": "Die Links der Gäste funktionieren dann nicht mehr und niemand kann mehr antworten.",
+  "dinner_shopping_plus_body": "Mit EatMe+ entsteht die Einkaufsliste für dieses Essen automatisch aus dem Menü, der Gästezahl und dem, was schon im Vorrat ist.",
   "with_friends": "Mit Freunden",
   "plan_kicker": "Dein Plan",
   "plan_compact_title": "Eine Woche, die einfach läuft.",
@@ -1114,5 +1118,10 @@
   "timer_suggested": "Empfohlener Timer",
   "next_step_preview": "Als Nächstes: {step}",
   "recognized_receipt": "Kassenbon erkannt",
-  "recognized_food_photo": "Lebensmittelfoto erkannt"
+  "recognized_food_photo": "Lebensmittelfoto erkannt",
+  "dinner_shopping_short": "Einkaufsliste",
+  "dinner_answered": "Antworten: {answered} von {total} Gästen",
+  "dinner_no_guests": "Füge Gäste hinzu, um ihre Bedürfnisse zu erfahren",
+  "dinner_guests": "Gäste",
+  "your_dinners": "Deine Essen"
 }

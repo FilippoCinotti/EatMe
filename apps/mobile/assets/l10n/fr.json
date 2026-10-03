@@ -1087,6 +1087,10 @@
   "use_by_today": "Expire aujourd’hui",
   "use_by_tomorrow": "Expire demain",
   "use_by_in_days": "Expire dans {count} jours",
+  "extra_portions_title": "Portions en plus",
+  "extra_portions_hint": "Pour les restes ou les invités de dernière minute",
+  "cancel_dinner_confirm": "Les liens des invités ne fonctionneront plus et personne ne pourra répondre.",
+  "dinner_shopping_plus_body": "Avec EatMe+, la liste de courses de ce dîner se crée toute seule à partir du menu, du nombre d’invités et de ce que vous avez déjà dans le Garde-manger.",
   "with_friends": "Entre amis",
   "plan_kicker": "Votre planning",
   "plan_compact_title": "Une semaine qui coule de source.",
@@ -1114,5 +1118,10 @@
   "timer_suggested": "Minuteur conseillé",
   "next_step_preview": "Ensuite : {step}",
   "recognized_receipt": "Ticket reconnu",
-  "recognized_food_photo": "Photo d’aliment reconnue"
+  "recognized_food_photo": "Photo d’aliment reconnue",
+  "dinner_shopping_short": "Liste de courses",
+  "dinner_answered": "Réponses : {answered} sur {total} invités",
+  "dinner_no_guests": "Ajoutez des invités pour connaître leurs besoins",
+  "dinner_guests": "Invités",
+  "your_dinners": "Vos dîners"
 }

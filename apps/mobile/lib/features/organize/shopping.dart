@@ -18,6 +18,20 @@ class ShoppingPage extends ConsumerStatefulWidget {
 class _ShoppingState extends ResourceState<ShoppingPage> {
   @override
   String get path => '/shopping';
+
+  /// Generated rows store the English catalog name; show catalog foods in the
+  /// app language. A name the user typed for a food stays as written.
+  String itemLabel(Json item) {
+    final label = item['label'] as String;
+    final food = ref
+        .read(appProvider)
+        .foods
+        .where((food) => food.id == item['food_id'])
+        .firstOrNull;
+    if (food == null || label != localized(food.name, 'en')) return label;
+    return localized(food.name, context.language);
+  }
+
   Future<void> add() async {
     final food = await chooseFood(context, ref.read(appProvider).foods);
     if (food == null || !mounted || !context.mounted) return;
@@ -78,7 +92,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                     children: [
                       for (final item in candidates)
                         EatMeToggleRow(
-                          title: item['label'] as String,
+                          title: itemLabel(item),
                           subtitle: '${item['quantity']} ${item['unit']}',
                           icon: EatMeGlyph.shoppingBasket,
                           value: selected.contains(item['id']),
@@ -156,7 +170,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                     categories
                         .map(
                           (category) =>
-                              '${context.t('food_group_$category')}\n${items.where((i) => (i['category'] ?? 'other') == category).map((i) => "${i['checked'] == true ? '✓' : '☐'} ${i['label']} — ${i['quantity']} ${i['unit']}").join('\n')}',
+                              '${context.t('food_group_$category')}\n${items.where((i) => (i['category'] ?? 'other') == category).map((i) => "${i['checked'] == true ? '✓' : '☐'} ${itemLabel(i)} — ${i['quantity']} ${i['unit']}").join('\n')}',
                         )
                         .join('\n\n'),
                   ),
@@ -259,7 +273,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                         fallback: Icons.shopping_bag_outlined,
                       ),
                       value: item['checked'] == true,
-                      title: Text(item['label'] as String),
+                      title: Text(itemLabel(item)),
                       subtitle: Text('${item['quantity']} ${item['unit']}'),
                       onChanged: (value) async {
                         try {

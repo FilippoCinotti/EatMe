@@ -199,6 +199,32 @@ class DinnerCase(unittest.TestCase):
         )
         self.assertCode("invitation_unavailable", lambda: self.app.public_guest_invite(invitation["token"]))
 
+    def test_dinner_shopping_requires_plus_and_generates_missing_items(self):
+        dinner = self.create_dinner()
+        dinner = self.app.dinner_action(
+            self.host,
+            {
+                "action": "set_menu",
+                "id": dinner["id"],
+                "expected_version": dinner["version"],
+                "recipe_ids": [identifier("recipe", "sunny-bowl")],
+                "extra_portions": 1,
+            },
+            new_id(),
+        )
+        generate = {"action": "generate_shopping", "id": dinner["id"], "expected_version": dinner["version"]}
+        self.assertCode("eatme_plus_required", lambda: self.app.dinner_action(self.host, generate, new_id()))
+        with self.db.transaction() as tx:
+            tx.execute(
+                "INSERT INTO subscriptions VALUES (?,?,?,?)",
+                (self.host, "revenuecat", encode({"eatme_plus": {"active": True, "expires_at": None}}), "2030-01-01T00:00:00+00:00"),
+            )
+        self.app.dinner_action(self.host, generate, new_id())
+        with self.db.transaction() as tx:
+            items = tx.all("SELECT * FROM shopping_items WHERE source_key=?", ("dinner:" + dinner["id"],))
+        self.assertTrue(items)
+        self.assertTrue(all(item["quantity_milli"] > 0 for item in items))
+
     def test_public_transport_requires_only_the_capability_and_never_a_bearer_token(self):
         dinner, participant = self.add_guest(self.create_dinner())
         invitation = self.invite(dinner, participant)

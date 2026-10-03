@@ -73,7 +73,11 @@ class _AsyncActionState extends State<AsyncAction> {
                     backgroundColor: Theme.of(
                       context,
                     ).colorScheme.errorContainer,
-                    foregroundColor: Theme.of(context).colorScheme.error,
+                    // The container/on-container pair keeps the label legible
+                    // in both themes.
+                    foregroundColor: Theme.of(
+                      context,
+                    ).colorScheme.onErrorContainer,
                   )
                 : null,
             onPressed: busy || !widget.enabled ? null : run,

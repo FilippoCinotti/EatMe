@@ -1087,6 +1087,10 @@
   "use_by_today": "Caduca hoy",
   "use_by_tomorrow": "Caduca mañana",
   "use_by_in_days": "Caduca en {count} días",
+  "extra_portions_title": "Raciones extra",
+  "extra_portions_hint": "Para sobras o invitados de última hora",
+  "cancel_dinner_confirm": "Los enlaces de los invitados dejarán de funcionar y nadie podrá responder.",
+  "dinner_shopping_plus_body": "Con EatMe+, la lista de la compra de esta cena se crea sola a partir del menú, el número de invitados y lo que ya tienes en la Despensa.",
   "with_friends": "Con amigos",
   "plan_kicker": "Tu plan",
   "plan_compact_title": "Una semana que fluye.",
@@ -1114,5 +1118,10 @@
   "timer_suggested": "Temporizador sugerido",
   "next_step_preview": "Siguiente: {step}",
   "recognized_receipt": "Ticket reconocido",
-  "recognized_food_photo": "Foto de alimento reconocida"
+  "recognized_food_photo": "Foto de alimento reconocida",
+  "dinner_shopping_short": "Lista de la compra",
+  "dinner_answered": "Respuestas: {answered} de {total} invitados",
+  "dinner_no_guests": "Añade invitados para conocer sus necesidades",
+  "dinner_guests": "Invitados",
+  "your_dinners": "Tus cenas"
 }
