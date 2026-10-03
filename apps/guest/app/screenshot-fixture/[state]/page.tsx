@@ -13,13 +13,14 @@ const invitation: InvitePayload = {
   guest: { display_name: "Sam", status: "invited" },
   response: null,
   questionnaire: {
-    eating_styles: ["omnivore", "mediterranean", "vegetarian", "vegan", "pescatarian", "flexitarian"],
-    allergies: ["peanut", "milk", "egg", "fish", "wheat"],
-    intolerances: ["lactose", "fructose", "histamine"],
-    sensitivities: ["spicy", "caffeine"],
+    // Same codes the API sends (services/api/eatme/catalog.py, dinners.EATING_STYLES).
+    eating_styles: ["balanced", "flexitarian", "gluten-free", "mediterranean", "omnivore", "pescatarian", "plant-forward", "vegan", "vegetarian"],
+    allergies: ["gluten", "crustaceans", "eggs", "fish", "peanut", "soy", "milk", "nuts", "wheat", "celery", "mustard", "sesame"],
+    intolerances: ["lactose", "fructose", "sorbitol", "fructans"],
+    sensitivities: ["caffeine", "alcohol", "spicy_food", "histamine"],
     avoidances: [
-      { id: "tomato", slug: "tomato", name: { en: "Tomato", it: "Pomodoro" } },
-      { id: "mushroom", slug: "mushroom", name: { en: "Mushrooms", it: "Funghi" } },
+      { id: "tomato", slug: "tomato", name: { en: "Tomato", it: "Pomodoro", es: "Tomate", fr: "Tomate", de: "Tomate", "zh-Hans": "番茄" } },
+      { id: "mushroom", slug: "mushroom", name: { en: "Mushrooms", it: "Funghi", es: "Setas", fr: "Champignons", de: "Pilze", "zh-Hans": "蘑菇" } },
     ],
     note_max_length: 500,
   },
@@ -71,6 +72,7 @@ export default async function ScreenshotFixture({
     <GuestFlow
       api="https://api.eatme.invalid/api/v1"
       initialStatus={state === "error" ? "error" : state === "success" ? "saved" : "idle"}
+      initialRsvp={state === "landing" ? undefined : "accepted"}
       initialStep={steps[state]}
       invitation={fixture}
       locale={locale}

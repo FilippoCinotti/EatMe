@@ -47,6 +47,11 @@ export type Copy = {
   error: string;
   yes: string;
   no: string;
+  /** "{name}" is replaced with the guest's display name. */
+  attendQuestion: string;
+  chooseAnswer: string;
+  response: string;
+  addToCalendar: string;
 };
 
 export const copy: Record<Locale, Copy> = {
@@ -88,6 +93,10 @@ export const copy: Record<Locale, Copy> = {
     error: "We couldn’t save that. Check the link and try again.",
     yes: "Yes",
     no: "No",
+    attendQuestion: "{name}, will you join us?",
+    chooseAnswer: "Choose an answer to continue.",
+    response: "Your answer",
+    addToCalendar: "Add to calendar",
   },
   it: {
     invitation: "Invito a cena", invitedBy: "Invito di", when: "Quando", where: "Dove",
@@ -107,7 +116,7 @@ export const copy: Record<Locale, Copy> = {
     network: "Non è stato possibile caricare l’invito", networkDetail: "Controlla la connessione e riprova.",
     privacy: "La tua privacy",
     privacyDetail: "Le risposte servono solo per organizzare questa cena, salvo tua richiesta esplicita di ricordarle.",
-    error: "Non è stato possibile salvare. Controlla il link e riprova.", yes: "Sì", no: "No",
+    error: "Non è stato possibile salvare. Controlla il link e riprova.", yes: "Sì", no: "No", attendQuestion: "{name}, ci sarai?", chooseAnswer: "Scegli una risposta per continuare.", response: "La tua risposta", addToCalendar: "Aggiungi al calendario",
   },
   es: {
     invitation: "Invitación a cenar", invitedBy: "Invitación de", when: "Cuándo", where: "Dónde",
@@ -126,7 +135,7 @@ export const copy: Record<Locale, Copy> = {
     cancelled: "Esta cena fue cancelada", cancelledDetail: "No hace falta responder.",
     network: "No pudimos cargar la invitación", networkDetail: "Comprueba la conexión e inténtalo de nuevo.",
     privacy: "Tu privacidad", privacyDetail: "Tus respuestas solo se usan para organizar esta cena, salvo que pidas guardarlas.",
-    error: "No pudimos guardar la respuesta. Comprueba el enlace e inténtalo de nuevo.", yes: "Sí", no: "No",
+    error: "No pudimos guardar la respuesta. Comprueba el enlace e inténtalo de nuevo.", yes: "Sí", no: "No", attendQuestion: "{name}, ¿vendrás?", chooseAnswer: "Elige una respuesta para continuar.", response: "Tu respuesta", addToCalendar: "Añadir al calendario",
   },
   fr: {
     invitation: "Invitation à dîner", invitedBy: "Invitation de", when: "Quand", where: "Où",
@@ -145,7 +154,7 @@ export const copy: Record<Locale, Copy> = {
     cancelled: "Ce dîner a été annulé", cancelledDetail: "Aucune réponse n’est nécessaire.",
     network: "Impossible de charger l’invitation", networkDetail: "Vérifiez votre connexion et réessayez.",
     privacy: "Votre vie privée", privacyDetail: "Vos réponses servent uniquement à préparer ce dîner, sauf demande explicite de mémorisation.",
-    error: "Impossible d’enregistrer. Vérifiez le lien et réessayez.", yes: "Oui", no: "Non",
+    error: "Impossible d’enregistrer. Vérifiez le lien et réessayez.", yes: "Oui", no: "Non", attendQuestion: "{name}, serez-vous des nôtres ?", chooseAnswer: "Choisissez une réponse pour continuer.", response: "Votre réponse", addToCalendar: "Ajouter au calendrier",
   },
   de: {
     invitation: "Einladung zum Abendessen", invitedBy: "Eingeladen von", when: "Wann", where: "Wo",
@@ -164,7 +173,7 @@ export const copy: Record<Locale, Copy> = {
     cancelled: "Dieses Abendessen wurde abgesagt", cancelledDetail: "Eine Antwort ist nicht erforderlich.",
     network: "Die Einladung konnte nicht geladen werden", networkDetail: "Prüfe deine Verbindung und versuche es erneut.",
     privacy: "Deine Privatsphäre", privacyDetail: "Deine Antworten werden nur für dieses Essen genutzt, sofern du das Speichern nicht erlaubst.",
-    error: "Die Antwort konnte nicht gespeichert werden. Prüfe den Link und versuche es erneut.", yes: "Ja", no: "Nein",
+    error: "Die Antwort konnte nicht gespeichert werden. Prüfe den Link und versuche es erneut.", yes: "Ja", no: "Nein", attendQuestion: "{name}, bist du dabei?", chooseAnswer: "Wähle eine Antwort, um fortzufahren.", response: "Deine Antwort", addToCalendar: "Zum Kalender hinzufügen",
   },
   "zh-Hans": {
     invitation: "晚餐邀请", invitedBy: "邀请人", when: "时间", where: "地点",
@@ -181,6 +190,6 @@ export const copy: Record<Locale, Copy> = {
     cancelled: "本次聚餐已取消", cancelledDetail: "无需回复。",
     network: "无法加载邀请", networkDetail: "请检查网络连接后重试。",
     privacy: "你的隐私", privacyDetail: "除非你明确同意保存，否则回答只用于筹备本次晚餐。",
-    error: "无法保存。请检查链接后重试。", yes: "是", no: "否",
+    error: "无法保存。请检查链接后重试。", yes: "是", no: "否", attendQuestion: "{name}，你会来吗？", chooseAnswer: "请选择一个回答后继续。", response: "你的回复", addToCalendar: "添加到日历",
   },
 };
