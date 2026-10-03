@@ -43,6 +43,17 @@ class Reminders {
     await plugin.cancelAll();
   }
 
+  // Scheduled without a BuildContext, so the copy lives here for every
+  // supported language (keyed by language code, as passed by the caller).
+  static const _reminderBody = {
+    'en': 'A moment to check in with your kitchen.',
+    'it': 'Un momento per organizzare la tua cucina.',
+    'es': 'Un momento para organizar tu cocina.',
+    'fr': 'Un moment pour faire le point sur votre cuisine.',
+    'de': 'Ein kurzer Moment für deine Küche.',
+    'zh': '花一点时间整理一下你的厨房吧。',
+  };
+
   static Future<void> schedule(
     Json prefs,
     List<Batch> inventory,
@@ -110,9 +121,7 @@ class Reminders {
       await plugin.zonedSchedule(
         id: identifier,
         title: 'EatMe+',
-        body: language == 'it'
-            ? 'Un momento per organizzare la tua cucina.'
-            : 'A moment to check in with your kitchen.',
+        body: _reminderBody[language] ?? _reminderBody['en']!,
         scheduledDate: when,
         notificationDetails: const NotificationDetails(
           android: AndroidNotificationDetails(
