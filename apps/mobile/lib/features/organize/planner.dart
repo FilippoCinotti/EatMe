@@ -113,21 +113,31 @@ class _PlannerState extends ResourceState<PlannerPage> {
     await addSpecificMeal(day, slot, recipe);
   }
 
-  Future<Json?> chooseRecipe() => showModalBottomSheet<Json>(
-    context: context,
-    useRootNavigator: true,
-    useSafeArea: true,
-    builder: (context) => ListView(
-      children: [
-        for (final recipe in recipes)
-          ListTile(
-            title: Text(labelOf(recipe['title'], context)),
-            subtitle: Text('${recipe['minutes']} min'),
-            onTap: () => Navigator.pop(context, recipe),
-          ),
-      ],
-    ),
-  );
+  Future<Json?> chooseRecipe() async {
+    // The planner shell can become interactive before its recipe request has
+    // completed. Fetch on demand so a quick tap never opens an empty picker.
+    if (recipes.isEmpty) {
+      final result = await ref.read(apiProvider).request('GET', '/recipes');
+      if (!mounted) return null;
+      setState(() => recipes = records(result['items']));
+    }
+    if (!mounted) return null;
+    return showModalBottomSheet<Json>(
+      context: context,
+      useRootNavigator: true,
+      useSafeArea: true,
+      builder: (context) => ListView(
+        children: [
+          for (final recipe in recipes)
+            ListTile(
+              title: Text(labelOf(recipe['title'], context)),
+              subtitle: Text('${recipe['minutes']} min'),
+              onTap: () => Navigator.pop(context, recipe),
+            ),
+        ],
+      ),
+    );
+  }
 
   Future<void> replaceMeal(DateTime day, String slot, Json meal) async {
     final recipe = await chooseRecipe();
