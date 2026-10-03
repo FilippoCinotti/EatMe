@@ -612,67 +612,67 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
                   title: participant['display_name'] as String,
                   subtitle: context.t('guest_status_${participant['status']}'),
                   onTap: participant['response'] is Map
-                    ? () => showGuestResponse(participant)
-                    : null,
-                trailing:
-                    active &&
-                        [
-                          'temporary_guest',
-                          'saved_guest',
-                        ].contains(participant['kind'])
-                    ? PopupMenuButton<String>(
-                        tooltip: context.t('more'),
-                        icon: const EatMeIcon(EatMeGlyph.ellipsis),
-                        onSelected: (action) async {
-                          if (action == 'invite') await invite(participant);
-                          if (action == 'rotate') {
-                            await invite(participant, action: 'rotate');
-                          }
-                          if (action == 'revoke') {
-                            await revokeInvite(participant);
-                          }
-                          if (action == 'rename') {
-                            await renameGuest(participant);
-                          }
-                          if (action == 'remove') {
-                            await send({
-                              'action': 'remove_participant',
-                              'participant_id': participant['id'],
-                            });
-                          }
-                        },
-                        itemBuilder: (context) {
-                          final hasInvite = invitations.any(
-                            (item) =>
-                                item['participant_id'] == participant['id'] &&
-                                item['revoked_at'] == null,
-                          );
-                          return [
-                            PopupMenuItem(
-                              value: hasInvite ? 'rotate' : 'invite',
-                              child: Text(
-                                context.t(
-                                  hasInvite ? 'replace_link' : 'invite_guest',
+                      ? () => showGuestResponse(participant)
+                      : null,
+                  trailing:
+                      active &&
+                          [
+                            'temporary_guest',
+                            'saved_guest',
+                          ].contains(participant['kind'])
+                      ? PopupMenuButton<String>(
+                          tooltip: context.t('more'),
+                          icon: const EatMeIcon(EatMeGlyph.ellipsis),
+                          onSelected: (action) async {
+                            if (action == 'invite') await invite(participant);
+                            if (action == 'rotate') {
+                              await invite(participant, action: 'rotate');
+                            }
+                            if (action == 'revoke') {
+                              await revokeInvite(participant);
+                            }
+                            if (action == 'rename') {
+                              await renameGuest(participant);
+                            }
+                            if (action == 'remove') {
+                              await send({
+                                'action': 'remove_participant',
+                                'participant_id': participant['id'],
+                              });
+                            }
+                          },
+                          itemBuilder: (context) {
+                            final hasInvite = invitations.any(
+                              (item) =>
+                                  item['participant_id'] == participant['id'] &&
+                                  item['revoked_at'] == null,
+                            );
+                            return [
+                              PopupMenuItem(
+                                value: hasInvite ? 'rotate' : 'invite',
+                                child: Text(
+                                  context.t(
+                                    hasInvite ? 'replace_link' : 'invite_guest',
+                                  ),
                                 ),
                               ),
-                            ),
-                            if (hasInvite)
+                              if (hasInvite)
+                                PopupMenuItem(
+                                  value: 'revoke',
+                                  child: Text(context.t('revoke_invite')),
+                                ),
                               PopupMenuItem(
-                                value: 'revoke',
-                                child: Text(context.t('revoke_invite')),
+                                value: 'rename',
+                                child: Text(context.t('rename_guest')),
                               ),
-                            PopupMenuItem(
-                              value: 'rename',
-                              child: Text(context.t('rename_guest')),
-                            ),
-                            PopupMenuItem(
-                              value: 'remove',
-                              child: Text(context.t('remove')),
-                            ),
-                          ];
-                        },
-                      )
-                    : null,
+                              PopupMenuItem(
+                                value: 'remove',
+                                child: Text(context.t('remove')),
+                              ),
+                            ];
+                          },
+                        )
+                      : null,
                 ),
             ],
           ),
@@ -843,9 +843,9 @@ class _MenuRow extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       subtitle,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),

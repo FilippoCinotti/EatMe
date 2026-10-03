@@ -199,7 +199,9 @@ void main() {
     final action = find.text('Build dinner shopping list');
     await tester.scrollUntilVisible(action, 200);
     await tester.tap(action);
-    await tester.pumpAndSettle();
+    // The row keeps its progress indicator while the sheet is open.
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
     expect(
       find.textContaining('the shopping list for this dinner is built for you'),
       findsOneWidget,

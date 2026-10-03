@@ -31,6 +31,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
     if (food == null || label != localized(food.name, 'en')) return label;
     return localized(food.name, context.language);
   }
+
   Future<void> add() async {
     final food = await chooseFood(context, ref.read(appProvider).foods);
     if (food == null || !mounted || !context.mounted) return;
