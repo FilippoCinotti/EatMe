@@ -1086,5 +1086,12 @@
   "use_by_days_ago": "已过期{count}天",
   "use_by_today": "今天到期",
   "use_by_tomorrow": "明天到期",
-  "use_by_in_days": "{count}天后到期"
+  "use_by_in_days": "{count}天后到期",
+  "extra_portions_title": "额外份数",
+  "extra_portions_hint": "留作剩菜或临时来客",
+  "dinner_prepare": "准备工作",
+  "build_dinner_shopping_hint": "把缺少的食材加入购物清单",
+  "build_timeline_hint": "每道菜何时开始做，才能同时上桌",
+  "cancel_dinner_confirm": "宾客链接将失效，任何人都无法再回复。",
+  "dinner_shopping_plus_body": "开通 EatMe+ 后，系统会根据菜单、宾客人数和「食材」中已有的东西，自动生成这次聚餐的购物清单。"
 }

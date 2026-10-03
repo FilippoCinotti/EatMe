@@ -259,6 +259,10 @@ class DinnerService:
         return {"title": title, "starts_at": starts, "timezone": timezone_name, "location": location}
 
     def dinner_action(self, user_id: str, data: dict, key: str) -> dict:
+        if data.get("action") == "generate_shopping":
+            # Checked before the dinner transaction: the entitlement lookup
+            # uses its own transaction, which must not nest inside this one.
+            self.require_capability(user_id, "canUseGeneratedShopping")
         home = self._household(user_id, write=True)
         with self.db.transaction(home) as tx:
             def change():
@@ -389,7 +393,6 @@ class DinnerService:
                 elif action == "set_menu":
                     self._set_menu(tx, user_id, dinner, data)
                 elif action == "generate_shopping":
-                    self.require_capability(user_id, "canUseGeneratedShopping")
                     self._generate_dinner_shopping(tx, user_id, dinner)
                 elif action == "generate_timeline":
                     self._generate_timeline(tx, dinner)

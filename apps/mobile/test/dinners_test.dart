@@ -76,6 +76,16 @@ class DinnerApi extends support.TestApi {
       };
     }
     if (method == 'GET' && path == '/dinners/dinner-1') return event;
+    if (method == 'GET' && path == '/entitlements') {
+      return {
+        'tier': 'free',
+        'capabilities': {'canUseGeneratedShopping': false},
+        'limits': <String, dynamic>{},
+        'usage': <String, dynamic>{},
+        'remaining': <String, dynamic>{},
+        'configured': true,
+      };
+    }
     if (method == 'GET' && path == '/recipes') {
       return {
         'items': [
@@ -174,6 +184,29 @@ void main() {
     expect(
       find.text('https://guest.eatme.test/en/invite/test-capability-token'),
       findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('free plan sees the EatMe+ prompt instead of a failing request', (
+    tester,
+  ) async {
+    final api = DinnerApi();
+    await tester.pumpWidget(
+      support.harness(const DinnerDetailPage(dinnerId: 'dinner-1'), api),
+    );
+    await tester.pumpAndSettle();
+    final action = find.text('Build dinner shopping list');
+    await tester.scrollUntilVisible(action, 200);
+    await tester.tap(action);
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('the shopping list for this dinner is built for you'),
+      findsOneWidget,
+    );
+    expect(
+      api.calls.where((call) => call['body']?['action'] == 'generate_shopping'),
+      isEmpty,
     );
     expect(tester.takeException(), isNull);
   });

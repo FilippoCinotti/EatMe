@@ -1086,5 +1086,12 @@
   "use_by_days_ago": "Seit {count} Tagen abgelaufen",
   "use_by_today": "Läuft heute ab",
   "use_by_tomorrow": "Läuft morgen ab",
-  "use_by_in_days": "Läuft in {count} Tagen ab"
+  "use_by_in_days": "Läuft in {count} Tagen ab",
+  "extra_portions_title": "Extra-Portionen",
+  "extra_portions_hint": "Für Reste oder spontane Gäste",
+  "dinner_prepare": "Vorbereiten",
+  "build_dinner_shopping_hint": "Fügt Fehlendes zur Einkaufsliste hinzu",
+  "build_timeline_hint": "Wann du jedes Gericht beginnst, damit alles zusammen fertig ist",
+  "cancel_dinner_confirm": "Die Links der Gäste funktionieren dann nicht mehr und niemand kann mehr antworten.",
+  "dinner_shopping_plus_body": "Mit EatMe+ entsteht die Einkaufsliste für dieses Essen automatisch aus dem Menü, der Gästezahl und dem, was schon im Vorrat ist."
 }

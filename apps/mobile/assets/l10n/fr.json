@@ -1086,5 +1086,12 @@
   "use_by_days_ago": "Expiré depuis {count} jours",
   "use_by_today": "Expire aujourd’hui",
   "use_by_tomorrow": "Expire demain",
-  "use_by_in_days": "Expire dans {count} jours"
+  "use_by_in_days": "Expire dans {count} jours",
+  "extra_portions_title": "Portions en plus",
+  "extra_portions_hint": "Pour les restes ou les invités de dernière minute",
+  "dinner_prepare": "Préparez-vous",
+  "build_dinner_shopping_hint": "Ajoute à la liste de courses ce qui vous manque",
+  "build_timeline_hint": "Quand commencer chaque plat pour tout servir en même temps",
+  "cancel_dinner_confirm": "Les liens des invités ne fonctionneront plus et personne ne pourra répondre.",
+  "dinner_shopping_plus_body": "Avec EatMe+, la liste de courses de ce dîner se crée toute seule à partir du menu, du nombre d’invités et de ce que vous avez déjà dans le Garde-manger."
 }

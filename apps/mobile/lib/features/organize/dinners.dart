@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../core/api.dart';
+import '../../core/entitlements.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/share_text.dart';
@@ -98,30 +101,25 @@ class _DinnersPageState extends ResourceState<DinnersPage> {
             title: context.t('no_dinners'),
             body: context.t('no_dinners_body'),
           ),
-        for (final event in events) ...[
-          const SizedBox(height: 14),
-          InformationPanel(
-            tinted: false,
-            padding: EdgeInsets.zero,
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 18,
-                vertical: 9,
-              ),
-              leading: const EatMeIcon(EatMeGlyph.utensils),
-              title: Text(event['title'] as String),
-              subtitle: Text(
-                MaterialLocalizations.of(context).formatFullDate(
-                  DateTime.parse(event['starts_at'] as String).toLocal(),
+        if (events.isNotEmpty) ...[
+          const SizedBox(height: 20),
+          _DinnerGroup(
+            children: [
+              for (final event in events)
+                SettingRow(
+                  icon: EatMeGlyph.utensils,
+                  title: event['title'] as String,
+                  subtitle: MaterialLocalizations.of(context).formatFullDate(
+                    DateTime.parse(event['starts_at'] as String).toLocal(),
+                  ),
+                  trailing: StatusBadge(
+                    label: context.t('dinner_status_${event['status']}'),
+                    warning: event['status'] == 'cancelled',
+                    emphasis: event['status'] == 'planned',
+                  ),
+                  onTap: () => context.push('/plan/dinners/${event['id']}'),
                 ),
-              ),
-              trailing: StatusBadge(
-                label: context.t('dinner_status_${event['status']}'),
-                warning: event['status'] == 'cancelled',
-                emphasis: event['status'] == 'planned',
-              ),
-              onTap: () => context.push('/plan/dinners/${event['id']}'),
-            ),
+            ],
           ),
         ],
       ]),
@@ -509,6 +507,46 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
     }
   }
 
+  Future<void> buildDinnerShopping() async {
+    final entitlement = await ref.read(entitlementsProvider.future);
+    if (!entitlement.can(EntitlementCapability.generatedShopping)) {
+      if (mounted) {
+        await showContextualPlusPrompt(
+          context,
+          benefit: 'dinner_shopping_plus_body',
+        );
+      }
+      return;
+    }
+    await send({'action': 'generate_shopping'});
+    if (mounted) context.go('/plan/shopping');
+  }
+
+  Future<void> cancelDinner() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(context.t('cancel_dinner')),
+        content: Text(context.t('cancel_dinner_confirm')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(context.t('back')),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(context.t('cancel_dinner')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) await send({'action': 'cancel'});
+  }
+
   Json? recipeById(String id) =>
       recipes.where((recipe) => recipe['id'] == id).firstOrNull;
 
@@ -551,10 +589,13 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
             Text(event!['location'] as String),
           ],
           const SizedBox(height: 12),
-          StatusBadge(
-            label: context.t('dinner_status_${event!['status']}'),
-            warning: !active,
-            emphasis: active,
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: StatusBadge(
+              label: context.t('dinner_status_${event!['status']}'),
+              warning: !active,
+              emphasis: active,
+            ),
           ),
           SectionHeading(
             title: context.t('cooking_for', {
@@ -563,17 +604,14 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
             actionLabel: active ? context.t('add_person') : null,
             onAction: active ? showAddParticipant : null,
           ),
-          for (final participant in participants)
-            InformationPanel(
-              tinted: false,
-              padding: EdgeInsets.zero,
-              child: ListTile(
-                leading: const EatMeIcon(EatMeGlyph.userRound),
-                title: Text(participant['display_name'] as String),
-                subtitle: Text(
-                  context.t('guest_status_${participant['status']}'),
-                ),
-                onTap: participant['response'] is Map
+          _DinnerGroup(
+            children: [
+              for (final participant in participants)
+                SettingRow(
+                  icon: EatMeGlyph.userRound,
+                  title: participant['display_name'] as String,
+                  subtitle: context.t('guest_status_${participant['status']}'),
+                  onTap: participant['response'] is Map
                     ? () => showGuestResponse(participant)
                     : null,
                 trailing:
@@ -583,6 +621,8 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
                           'saved_guest',
                         ].contains(participant['kind'])
                     ? PopupMenuButton<String>(
+                        tooltip: context.t('more'),
+                        icon: const EatMeIcon(EatMeGlyph.ellipsis),
                         onSelected: (action) async {
                           if (action == 'invite') await invite(participant);
                           if (action == 'rotate') {
@@ -633,8 +673,9 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
                         },
                       )
                     : null,
-              ),
-            ),
+                ),
+            ],
+          ),
           SectionHeading(
             title: context.t('dinner_menu'),
             actionLabel: active ? context.t('choose_menu') : null,
@@ -643,105 +684,233 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
           if (menu.isEmpty)
             StatusNote(text: context.t('menu_empty'))
           else
-            for (final recipeId in menu)
-              InformationPanel(
-                tinted: false,
-                padding: EdgeInsets.zero,
-                child: ListTile(
-                  leading: FoodImage(
-                    id: recipeId,
-                    width: 54,
-                    height: 54,
-                    radius: 12,
-                  ),
-                  title: Text(
-                    labelOf(recipeById(recipeId)?['title'] ?? '', context),
-                  ),
-                  subtitle: Text(
-                    context.t(
+            _DinnerGroup(
+              children: [
+                for (final recipeId in menu)
+                  _MenuRow(
+                    recipeId: recipeId,
+                    title: labelOf(
+                      recipeById(recipeId)?['title'] ?? '',
+                      context,
+                    ),
+                    subtitle: context.t(
                       'diet_fit_${fit[recipeId]?['status'] ?? 'review_required'}',
                     ),
+                    onTap: () => context.push('/recipes/$recipeId'),
                   ),
-                  trailing: const EatMeIcon(EatMeGlyph.chevronRight),
-                  onTap: () => context.push('/recipes/$recipeId'),
-                ),
-              ),
-          const SizedBox(height: 14),
-          InformationPanel(
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    context.t('extra_portions', {'count': extra}),
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-                IconButton(
-                  onPressed: active && extra > 0
-                      ? () => setExtraPortions(extra - 1)
-                      : null,
-                  icon: const EatMeIcon(EatMeGlyph.minus),
-                ),
-                IconButton(
-                  onPressed: active && extra < 20
-                      ? () => setExtraPortions(extra + 1)
-                      : null,
-                  icon: const EatMeIcon(EatMeGlyph.plus),
-                ),
               ],
             ),
+          const SizedBox(height: 12),
+          _DinnerGroup(
+            children: [
+              SettingRow(
+                icon: EatMeGlyph.usersRound,
+                title: context.t('extra_portions_title'),
+                subtitle: context.t('extra_portions_hint'),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    EatMeIconButton(
+                      glyph: EatMeGlyph.minus,
+                      label: context.t('fewer'),
+                      size: 40,
+                      iconSize: 18,
+                      onPressed: active && extra > 0
+                          ? () => setExtraPortions(extra - 1)
+                          : null,
+                    ),
+                    SizedBox(
+                      width: 32,
+                      child: Text(
+                        '$extra',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                    EatMeIconButton(
+                      glyph: EatMeGlyph.plus,
+                      label: context.t('more'),
+                      size: 40,
+                      iconSize: 18,
+                      onPressed: active && extra < 20
+                          ? () => setExtraPortions(extra + 1)
+                          : null,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           if (active && menu.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            AsyncAction(
-              label: context.t('build_dinner_shopping'),
-              secondary: true,
-              action: () async {
-                await send({'action': 'generate_shopping'});
-                if (context.mounted) context.go('/plan/shopping');
-              },
-            ),
-            AsyncAction(
-              label: context.t('build_timeline'),
-              secondary: true,
-              action: () async => send({'action': 'generate_timeline'}),
+            SectionHeading(title: context.t('dinner_prepare')),
+            _DinnerGroup(
+              children: [
+                _ActionRow(
+                  icon: EatMeGlyph.shoppingBasket,
+                  title: context.t('build_dinner_shopping'),
+                  subtitle: context.t('build_dinner_shopping_hint'),
+                  action: buildDinnerShopping,
+                ),
+                _ActionRow(
+                  icon: EatMeGlyph.clock,
+                  title: context.t('build_timeline'),
+                  subtitle: context.t('build_timeline_hint'),
+                  action: () async => send({'action': 'generate_timeline'}),
+                ),
+              ],
             ),
           ],
           if (timeline.isNotEmpty) ...[
             SectionHeading(title: context.t('cooking_timeline')),
-            for (final item in timeline)
-              ListTile(
-                leading: const EatMeIcon(EatMeGlyph.clock),
-                title: Text(
-                  MaterialLocalizations.of(context).formatTimeOfDay(
-                    TimeOfDay.fromDateTime(
-                      DateTime.parse(item['start_at'] as String).toLocal(),
+            _DinnerGroup(
+              children: [
+                for (final item in timeline)
+                  SettingRow(
+                    icon: EatMeGlyph.timer,
+                    title: MaterialLocalizations.of(context).formatTimeOfDay(
+                      TimeOfDay.fromDateTime(
+                        DateTime.parse(item['start_at'] as String).toLocal(),
+                      ),
+                    ),
+                    subtitle: labelOf(
+                      recipeById(item['recipe_id'] as String)?['title'] ?? '',
+                      context,
                     ),
                   ),
-                ),
-                subtitle: Text(
-                  labelOf(
-                    recipeById(item['recipe_id'] as String)?['title'] ?? '',
-                    context,
-                  ),
-                ),
-              ),
+              ],
+            ),
           ],
           if (active) ...[
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
             AsyncAction(
               label: context.t('complete_dinner'),
               action: completeDinner,
             ),
+            const SizedBox(height: 10),
             AsyncAction(
               label: context.t('cancel_dinner'),
               secondary: true,
               destructive: true,
-              action: () async => send({'action': 'cancel'}),
+              action: cancelDinner,
             ),
           ],
         ],
       ),
     );
   }
+}
+
+/// Rows grouped on one borderless panel, as in the Profile settings groups.
+class _DinnerGroup extends StatelessWidget {
+  const _DinnerGroup({required this.children});
+  final List<Widget> children;
+  @override
+  Widget build(BuildContext context) => InformationPanel(
+    tinted: false,
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    child: Column(children: children),
+  );
+}
+
+class _MenuRow extends StatelessWidget {
+  const _MenuRow({
+    required this.recipeId,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+  final String recipeId, title, subtitle;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      button: true,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            children: [
+              FoodImage(id: recipeId, width: 52, height: 52, radius: 14),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              EatMeIcon(
+                EatMeGlyph.chevronRight,
+                size: 18,
+                color: scheme.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A grouped row that runs an API action, with progress and error feedback
+/// like AsyncAction.
+class _ActionRow extends StatefulWidget {
+  const _ActionRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.action,
+  });
+  final EatMeGlyph icon;
+  final String title, subtitle;
+  final Future<void> Function() action;
+  @override
+  State<_ActionRow> createState() => _ActionRowState();
+}
+
+class _ActionRowState extends State<_ActionRow> {
+  bool busy = false;
+  Future<void> run() async {
+    setState(() => busy = true);
+    try {
+      await widget.action();
+      unawaited(HapticFeedback.lightImpact());
+    } catch (error) {
+      if (mounted) {
+        final code = error is ApiFailure ? error.code : 'unknown_error';
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.t(code))));
+      }
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => SettingRow(
+    icon: widget.icon,
+    title: widget.title,
+    subtitle: widget.subtitle,
+    onTap: busy ? null : run,
+    trailing: busy
+        ? const SizedBox(
+            width: 18,
+            height: 18,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        : null,
+  );
 }
