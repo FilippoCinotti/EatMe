@@ -56,12 +56,16 @@ class _RecipePageState extends ConsumerState<RecipePage> {
   );
 
   Future<Food?> chooseReplacement(Recipe recipe, Food original) async {
-    final response = await mutation
-        .send(ref.read(apiProvider), 'POST', '/recipes', {
-          'action': 'substitution_candidates',
-          'recipe_id': recipe.id,
-          'food_id': original.id,
-        });
+    final response = await mutation.send(
+      ref.read(apiProvider),
+      'POST',
+      '/recipes',
+      {
+        'action': 'substitution_candidates',
+        'recipe_id': recipe.id,
+        'food_id': original.id,
+      },
+    );
     if (!mounted) return null;
     final candidates = records(response['candidates']);
     final allFoods = ref
@@ -131,9 +135,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                     ),
                                     context.language,
                                   ),
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
                                 ),
                                 Text(
                                   context.t(
@@ -188,14 +192,18 @@ class _RecipePageState extends ConsumerState<RecipePage> {
       numeric: true,
     );
     if (amount == null) return;
-    final changed = await Mutation()
-        .send(ref.read(apiProvider), 'POST', '/recipes', {
-          'action': 'substitute',
-          'recipe_id': recipe.id,
-          'food_id': original.id,
-          'replacement_id': replacement.id,
-          'quantity': amount,
-        });
+    final changed = await Mutation().send(
+      ref.read(apiProvider),
+      'POST',
+      '/recipes',
+      {
+        'action': 'substitute',
+        'recipe_id': recipe.id,
+        'food_id': original.id,
+        'replacement_id': replacement.id,
+        'quantity': amount,
+      },
+    );
     if (mounted && context.mounted) {
       context.push('/recipe-editor', extra: changed);
     }
@@ -304,6 +312,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
       }).length;
       final hasConflict =
           rawRecipe['compatibility']?['status'] == 'not_compatible';
+      final stepCount = recipe.instructions(context.language).length;
       final needsReview =
           compatibilityWarnings.isNotEmpty ||
           rawRecipe['compatibility']?['status'] == null ||
@@ -369,9 +378,8 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                       foregroundColor: favorite
                           ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.onSurface,
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.surface.withValues(alpha: .92),
+                      backgroundColor: Theme.of(context).colorScheme.surface
+                          .withValues(alpha: .92),
                       onPressed: toggleFavorite,
                     ),
                   ),
@@ -381,7 +389,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
             const SizedBox(height: 20),
             Text(
               localized(recipe.title, context.language),
-              style: Theme.of(context).textTheme.displaySmall,
+              style: Theme.of(context).textTheme.headlineLarge,
             ),
             if (rawRecipe['description'] is Map) ...[
               const SizedBox(height: 10),
@@ -532,6 +540,58 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               ],
             ),
             const SizedBox(height: 16),
+            InformationPanel(
+              tinted: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.t('ready_to_cook'),
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _RecipePrepMetric(
+                          icon: EatMeGlyph.refrigerator,
+                          value: '$availableCount/${ingredientRows.length}',
+                          label: context.t('ingredients_ready'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _RecipePrepMetric(
+                          icon: EatMeGlyph.clock,
+                          value: '${recipe.minutes}',
+                          label: context.t('minutes_short'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _RecipePrepMetric(
+                          icon: EatMeGlyph.fileText,
+                          value: '$stepCount',
+                          label: context.t('steps'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (ingredientRows.length > availableCount) ...[
+                    const SizedBox(height: 14),
+                    TextButton.icon(
+                      onPressed: () => setState(() => tab = 'ingredients'),
+                      icon: const EatMeIcon(
+                        EatMeGlyph.shoppingBasket,
+                        size: 18,
+                      ),
+                      label: Text(context.t('review_missing_ingredients')),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
             EatMeTabStrip(
               editorial: true,
               values: [
@@ -599,9 +659,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                               size: 20,
                               color: isAvailable
                                   ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
+                                  : Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -615,9 +675,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                       ),
                                       context.language,
                                     ),
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleMedium,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium,
                                   ),
                                   const SizedBox(height: 3),
                                   Text(
@@ -627,9 +687,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                           '${item['available'] ?? '—'}',
                                       'unit': '${item['food']['unit'] ?? ''}',
                                     }),
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall,
                                   ),
                                 ],
                               ),
@@ -777,12 +837,16 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                         ),
                         secondary: true,
                         action: () async {
-                          await Mutation()
-                              .send(ref.read(apiProvider), 'POST', '/recipes', {
-                                'action': 'feedback',
-                                'recipe_id': recipe.id,
-                                'rating': rating,
-                              });
+                          await Mutation().send(
+                            ref.read(apiProvider),
+                            'POST',
+                            '/recipes',
+                            {
+                              'action': 'feedback',
+                              'recipe_id': recipe.id,
+                              'rating': rating,
+                            },
+                          );
                         },
                       ),
                   ],
@@ -873,6 +937,41 @@ class _RecipePageState extends ConsumerState<RecipePage> {
         ),
       );
     },
+  );
+}
+
+class _RecipePrepMetric extends StatelessWidget {
+  const _RecipePrepMetric({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
+
+  final EatMeGlyph icon;
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(18),
+    ),
+    child: Column(
+      children: [
+        EatMeIcon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+        const SizedBox(height: 7),
+        Text(value, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.labelSmall,
+        ),
+      ],
+    ),
   );
 }
 

@@ -27,6 +27,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
   Json? selected;
   List<Json>? draftMeals;
   bool pendingAdded = false;
+  int focusedDay = 0;
   @override
   Future<void> load() async {
     await super.load();
@@ -35,9 +36,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
       if (mounted && context.mounted) {
         setState(() {
           recipes = records(result['items']);
-          selected = records(
-            data?['items'],
-          ).where((p) => p['start_date'] == isoDay(start)).firstOrNull;
+          selected = records(data?['items'])
+              .where((p) => p['start_date'] == isoDay(start))
+              .firstOrNull;
         });
       }
     } on ApiFailure catch (e) {
@@ -149,9 +150,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
       numeric: true,
     );
     if (servings == null) return;
-    final meals = records(
-      selected?['data']?['meals'],
-    ).where((m) => !(m['date'] == isoDay(day) && m['slot'] == slot)).toList();
+    final meals = records(selected?['data']?['meals'])
+        .where((m) => !(m['date'] == isoDay(day) && m['slot'] == slot))
+        .toList();
     meals.add({
       'date': isoDay(day),
       'slot': slot,
@@ -162,6 +163,33 @@ class _PlannerState extends ResourceState<PlannerPage> {
     await saveMeals(meals);
     if (mounted && recipe['id'] == widget.initialRecipeId) {
       setState(() => pendingAdded = true);
+    }
+  }
+
+  Future<void> generatePlan(bool canSmartPlan) async {
+    if (!canSmartPlan) {
+      await showContextualPlusPrompt(
+        context,
+        benefit: 'smart_planning_plus_body',
+      );
+      return;
+    }
+    final result = await command({
+      'action': 'preview_generate',
+      if (participants != null) 'participants': participants,
+      'start_date': isoDay(start),
+      'servings': 1,
+    });
+    if (mounted && result['preview'] == true) {
+      setState(() => draftMeals = records(result['data']?['meals']));
+    }
+  }
+
+  Future<void> removeMeal(Json meal, List<Json> meals) async {
+    if (draftMeals != null) {
+      setState(() => draftMeals!.remove(meal));
+    } else {
+      await saveMeals(meals.where((value) => value != meal).toList());
     }
   }
 
@@ -180,21 +208,73 @@ class _PlannerState extends ResourceState<PlannerPage> {
     final mealTiming = Map<String, dynamic>.from(
       settings['meal_timing'] as Map? ?? const {'mode': 'standard'},
     );
-    final enabledSlots = Map<String, dynamic>.from(
+    final enabled = Map<String, dynamic>.from(
       mealTiming['slots'] as Map? ?? const {},
     );
+    final slots = [
+      'breakfast',
+      'lunch',
+      'dinner',
+      'snack',
+    ].where((slot) => enabled[slot] as bool? ?? true).toList();
+    final day = start.add(Duration(days: focusedDay));
+    final plannedToday = <({String slot, Json meal, Json? recipe})>[];
+    for (final slot in slots) {
+      final meal = meals
+          .where(
+            (value) => value['date'] == isoDay(day) && value['slot'] == slot,
+          )
+          .firstOrNull;
+      if (meal != null) {
+        plannedToday.add((
+          slot: slot,
+          meal: meal,
+          recipe: recipes
+              .where((recipe) => recipe['id'] == meal['recipe_id'])
+              .firstOrNull,
+        ));
+      }
+    }
+    final featured =
+        plannedToday.where((value) => value.slot == 'dinner').firstOrNull ??
+        plannedToday.firstOrNull;
+    final upcoming = <({DateTime day, Json meal, Json? recipe})>[];
+    for (
+      var offset = focusedDay + 1;
+      offset < 7 && upcoming.length < 2;
+      offset++
+    ) {
+      final candidateDay = start.add(Duration(days: offset));
+      final meal = meals
+          .where((value) => value['date'] == isoDay(candidateDay))
+          .firstOrNull;
+      if (meal != null) {
+        upcoming.add((
+          day: candidateDay,
+          meal: meal,
+          recipe: recipes
+              .where((recipe) => recipe['id'] == meal['recipe_id'])
+              .firstOrNull,
+        ));
+      }
+    }
+    final emptyDays = List.generate(
+      7,
+      (index) => isoDay(start.add(Duration(days: index))),
+    ).where((date) => !meals.any((meal) => meal['date'] == date)).length;
     final pendingRecipe = pendingAdded || widget.initialRecipeId == null
         ? null
         : recipes
               .where((recipe) => recipe['id'] == widget.initialRecipeId)
               .firstOrNull;
+
     return Scaffold(
       appBar: EatMeAppBar(title: Text(context.t('plan'))),
       body: content([
         EatMeTabStrip(
           values: [
             ('plan', context.t('my_plan')),
-            ('dinners', context.t('dinners')),
+            ('dinners', context.t('with_friends')),
             ('shopping', context.t('shopping_list')),
           ],
           selected: 'plan',
@@ -203,22 +283,36 @@ class _PlannerState extends ResourceState<PlannerPage> {
             if (value == 'shopping') context.go('/plan/shopping');
           },
         ),
-        const SizedBox(height: 14),
-        const KitchenLoopBanner(),
         const SizedBox(height: 24),
         Text(
-          context.t('week_at_a_glance'),
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        const SizedBox(height: 6),
-        Text(
-          context.t('plan_editorial'),
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          context.t('plan_kicker').toUpperCase(),
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            letterSpacing: 3,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
+        const SizedBox(height: 8),
+        Text(
+          context.t('plan_compact_title'),
+          style: Theme.of(context).textTheme.headlineLarge,
+        ),
+        const SizedBox(height: 20),
+        _WeekStrip(
+          start: start,
+          selected: focusedDay,
+          onSelected: (value) => setState(() => focusedDay = value),
+        ),
+        const SizedBox(height: 18),
+        _WeekSummary(
+          planned: meals.length,
+          emptyDays: emptyDays,
+          progress: slots.isEmpty
+              ? 0
+              : (meals.length / (slots.length * 7)).clamp(0.0, 1.0).toDouble(),
+          onComplete: () => generatePlan(canSmartPlan),
+        ),
         if (mealTiming['mode'] != 'standard') ...[
-          const SizedBox(height: 14),
+          const SizedBox(height: 12),
           StatusNote(
             text: context.t('active_eating_window', {
               'start': mealTiming['start'] as String? ?? '—',
@@ -227,31 +321,35 @@ class _PlannerState extends ResourceState<PlannerPage> {
           ),
         ],
         if (pendingRecipe != null) ...[
-          const SizedBox(height: 18),
+          const SizedBox(height: 14),
           InformationPanel(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  context.t('plan_this_recipe'),
-                  style: Theme.of(context).textTheme.titleLarge,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(context.t('plan_this_recipe')),
+                      Text(
+                        labelOf(pendingRecipe['title'], context),
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 6),
-                Text(labelOf(pendingRecipe['title'], context)),
-                const SizedBox(height: 14),
-                AsyncAction(
-                  label: context.t('add_to_tonight'),
-                  action: () => addSpecificMeal(
+                FilledButton(
+                  onPressed: () => addSpecificMeal(
                     DateUtils.dateOnly(DateTime.now()),
                     'dinner',
                     pendingRecipe,
                   ),
+                  child: Text(context.t('add_to_tonight')),
                 ),
               ],
             ),
           ),
         ],
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -259,9 +357,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
               child: _PlannerActionTile(
                 key: const ValueKey('planner-date-action'),
                 icon: EatMeGlyph.calendar,
-                label: MaterialLocalizations.of(
-                  context,
-                ).formatMediumDate(start),
+                label: context.t('change_week'),
                 onTap: () async {
                   final date = await showDatePicker(
                     context: context,
@@ -272,7 +368,10 @@ class _PlannerState extends ResourceState<PlannerPage> {
                     lastDate: DateTime.now().add(const Duration(days: 730)),
                   );
                   if (date != null) {
-                    setState(() => start = date);
+                    setState(() {
+                      start = DateUtils.dateOnly(date);
+                      focusedDay = 0;
+                    });
                     await load();
                   }
                 },
@@ -307,26 +406,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
                     : EatMeGlyph.badgeCheck,
                 label: context.t(canSmartPlan ? 'generate_week' : 'eatme_plus'),
                 emphasized: true,
-                onTap: () async {
-                  if (!canSmartPlan) {
-                    await showContextualPlusPrompt(
-                      context,
-                      benefit: 'smart_planning_plus_body',
-                    );
-                    return;
-                  }
-                  final result = await command({
-                    'action': 'preview_generate',
-                    if (participants != null) 'participants': participants,
-                    'start_date': isoDay(start),
-                    'servings': 1,
-                  });
-                  if (mounted && result['preview'] == true) {
-                    setState(
-                      () => draftMeals = records(result['data']?['meals']),
-                    );
-                  }
-                },
+                onTap: () => generatePlan(canSmartPlan),
               ),
             ),
           ],
@@ -359,8 +439,98 @@ class _PlannerState extends ResourceState<PlannerPage> {
             ),
           ),
         ],
-        const SizedBox(height: 8),
-        if (selected != null)
+        const SizedBox(height: 26),
+        Row(
+          children: [
+            Text(
+              DateUtils.isSameDay(day, DateTime.now())
+                  ? context.t('today')
+                  : context.t('day_plan'),
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const Spacer(),
+            Text(
+              MaterialLocalizations.of(context).formatMediumDate(day),
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        if (featured != null)
+          _PlannerMealCard(
+            day: day,
+            slot: featured.slot,
+            meal: featured.meal,
+            recipe: featured.recipe,
+            featured: true,
+            guiltyPleasure: hasGuiltyPleasure(featured.meal, overrides),
+            onOpen: () =>
+                context.push('/recipes/${featured.meal['recipe_id']}'),
+            onReplace: () => replaceMeal(day, featured.slot, featured.meal),
+            onDelete: () => removeMeal(featured.meal, meals),
+            onGuiltyPleasure: () => changeGuiltyPleasure(featured.meal),
+          ),
+        for (final slot in slots)
+          if (featured == null || slot != featured.slot) ...[
+            const SizedBox(height: 10),
+            Builder(
+              builder: (context) {
+                final item = plannedToday
+                    .where((value) => value.slot == slot)
+                    .firstOrNull;
+                return _PlannerMealCard(
+                  day: day,
+                  slot: slot,
+                  meal: item?.meal,
+                  recipe: item?.recipe,
+                  featured: false,
+                  guiltyPleasure: item == null
+                      ? false
+                      : hasGuiltyPleasure(item.meal, overrides),
+                  onOpen: () => item == null
+                      ? addMeal(day, slot)
+                      : context.push('/recipes/${item.meal['recipe_id']}'),
+                  onReplace: item == null
+                      ? null
+                      : () => replaceMeal(day, slot, item.meal),
+                  onDelete: item == null
+                      ? null
+                      : () => removeMeal(item.meal, meals),
+                  onGuiltyPleasure: item == null
+                      ? null
+                      : () => changeGuiltyPleasure(item.meal),
+                );
+              },
+            ),
+          ],
+        if (upcoming.isNotEmpty) ...[
+          const SizedBox(height: 28),
+          Text(
+            context.t('upcoming_days'),
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 132,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: upcoming.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 10),
+              itemBuilder: (context, index) {
+                final item = upcoming[index];
+                return _UpcomingMealCard(
+                  day: item.day,
+                  meal: item.meal,
+                  recipe: item.recipe,
+                  onTap: () =>
+                      context.push('/recipes/${item.meal['recipe_id']}'),
+                );
+              },
+            ),
+          ),
+        ],
+        if (selected != null) ...[
+          const SizedBox(height: 20),
           AsyncAction(
             label: context.t(
               canGenerateShopping
@@ -385,122 +555,363 @@ class _PlannerState extends ResourceState<PlannerPage> {
               if (mounted && context.mounted) context.go('/plan/shopping');
             },
           ),
-        const SizedBox(height: 24),
-        for (var i = 0; i < 7; i++) ...[
-          Text(
-            MaterialLocalizations.of(
-              context,
-            ).formatFullDate(start.add(Duration(days: i))),
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          for (final slot in [
-            'breakfast',
-            'lunch',
-            'dinner',
-            'snack',
-          ].where((slot) => enabledSlots[slot] as bool? ?? true))
-            Builder(
-              builder: (context) {
-                final day = start.add(Duration(days: i));
-                final meal = meals
-                    .where((m) => m['date'] == isoDay(day) && m['slot'] == slot)
-                    .firstOrNull;
-                final recipe = recipes
-                    .where((r) => r['id'] == meal?['recipe_id'])
-                    .firstOrNull;
-                final guiltyPleasure =
-                    meal != null && hasGuiltyPleasure(meal, overrides);
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: InformationPanel(
-                    tinted: false,
-                    padding: EdgeInsets.zero,
-                    child: ListTile(
-                      leading: meal == null
-                          ? null
-                          : FoodImage(
-                              id: '${meal['recipe_id']}',
-                              width: 56,
-                              height: 56,
-                              radius: 12,
-                            ),
-                      title: Text(context.t(slot)),
-                      subtitle: meal == null
-                          ? null
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${labelOf(recipe?['title'] ?? '', context)} · ${meal['servings']}',
-                                ),
-                                if (guiltyPleasure)
-                                  Text(
-                                    context.t('guilty_pleasure'),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelSmall
-                                        ?.copyWith(
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.primary,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                  ),
-                              ],
-                            ),
-                      trailing: meal == null
-                          ? const EatMeIcon(EatMeGlyph.plus)
-                          : PopupMenuButton<String>(
-                              onSelected: (action) async {
-                                if (action == 'delete') {
-                                  if (draftMeals != null) {
-                                    setState(() => draftMeals!.remove(meal));
-                                  } else {
-                                    await saveMeals(
-                                      meals.where((m) => m != meal).toList(),
-                                    );
-                                  }
-                                } else if (action == 'guilty_pleasure') {
-                                  await changeGuiltyPleasure(meal);
-                                } else {
-                                  await replaceMeal(day, slot, meal);
-                                }
-                              },
-                              itemBuilder: (context) => [
-                                PopupMenuItem(
-                                  value: 'replace',
-                                  child: Text(context.t('replace')),
-                                ),
-                                PopupMenuItem(
-                                  value: 'guilty_pleasure',
-                                  child: Text(
-                                    context.t(
-                                      guiltyPleasure
-                                          ? 'view_guilty_pleasure_context'
-                                          : 'make_guilty_pleasure',
-                                    ),
-                                  ),
-                                ),
-                                PopupMenuItem(
-                                  value: 'delete',
-                                  child: Text(context.t('delete')),
-                                ),
-                              ],
-                            ),
-                      onTap: () => meal == null
-                          ? addMeal(day, slot)
-                          : context.push('/recipes/${meal['recipe_id']}'),
-                    ),
-                  ),
-                );
-              },
-            ),
-          const SizedBox(height: 24),
         ],
+        const SizedBox(height: 24),
       ]),
     );
   }
+}
+
+class _WeekStrip extends StatelessWidget {
+  const _WeekStrip({
+    required this.start,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final DateTime start;
+  final int selected;
+  final ValueChanged<int> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = MaterialLocalizations.of(context);
+    final today = DateUtils.dateOnly(DateTime.now());
+    return Row(
+      children: [
+        for (var index = 0; index < 7; index++)
+          Expanded(
+            child: Semantics(
+              button: true,
+              selected: selected == index,
+              label: localizations.formatFullDate(
+                start.add(Duration(days: index)),
+              ),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () => onSelected(index),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  child: Column(
+                    children: [
+                      Text(
+                        localizations.narrowWeekdays[start
+                                .add(Duration(days: index))
+                                .weekday %
+                            7],
+                        style: Theme.of(context).textTheme.labelMedium,
+                      ),
+                      const SizedBox(height: 6),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        width: 38,
+                        height: 38,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: selected == index
+                              ? Theme.of(context).colorScheme.primary
+                              : Colors.transparent,
+                        ),
+                        child: Text(
+                          '${start.add(Duration(days: index)).day}',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                color: selected == index
+                                    ? Theme.of(context).colorScheme.onPrimary
+                                    : null,
+                              ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      SizedBox(
+                        height: 14,
+                        child:
+                            DateUtils.isSameDay(
+                              start.add(Duration(days: index)),
+                              today,
+                            )
+                            ? Text(
+                                context.t('today'),
+                                style: Theme.of(context).textTheme.labelSmall
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary,
+                                    ),
+                              )
+                            : null,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _WeekSummary extends StatelessWidget {
+  const _WeekSummary({
+    required this.planned,
+    required this.emptyDays,
+    required this.progress,
+    required this.onComplete,
+  });
+
+  final int planned;
+  final int emptyDays;
+  final double progress;
+  final VoidCallback onComplete;
+
+  @override
+  Widget build(BuildContext context) => InformationPanel(
+    child: Column(
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                shape: BoxShape.circle,
+              ),
+              child: const EatMeIcon(EatMeGlyph.utensils, size: 23),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.t('planned_meals_count', {'count': planned}),
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  Text(
+                    context.t('days_to_complete', {'count': emptyDays}),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+            TextButton(
+              onPressed: onComplete,
+              child: Text(context.t('complete')),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(5),
+          child: LinearProgressIndicator(value: progress, minHeight: 5),
+        ),
+      ],
+    ),
+  );
+}
+
+class _PlannerMealCard extends StatelessWidget {
+  const _PlannerMealCard({
+    required this.day,
+    required this.slot,
+    required this.meal,
+    required this.recipe,
+    required this.featured,
+    required this.guiltyPleasure,
+    required this.onOpen,
+    this.onReplace,
+    this.onDelete,
+    this.onGuiltyPleasure,
+  });
+
+  final DateTime day;
+  final String slot;
+  final Json? meal;
+  final Json? recipe;
+  final bool featured;
+  final bool guiltyPleasure;
+  final VoidCallback onOpen;
+  final VoidCallback? onReplace;
+  final VoidCallback? onDelete;
+  final VoidCallback? onGuiltyPleasure;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasMeal = meal != null;
+    final title = hasMeal
+        ? labelOf(recipe?['title'] ?? '', context)
+        : context.t('add_meal');
+    return InformationPanel(
+      tinted: featured,
+      padding: EdgeInsets.zero,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: onOpen,
+        child: Padding(
+          padding: EdgeInsets.all(featured ? 14 : 10),
+          child: Row(
+            children: [
+              if (hasMeal)
+                FoodImage(
+                  id: '${meal!['recipe_id']}',
+                  imageUrl: '${recipe?['image_url'] ?? ''}',
+                  width: featured ? 104 : 52,
+                  height: featured ? 92 : 52,
+                  radius: featured ? 18 : 14,
+                )
+              else
+                Container(
+                  width: 52,
+                  height: 52,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const EatMeIcon(EatMeGlyph.plus, size: 22),
+                ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.t(slot).toUpperCase(),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        letterSpacing: 1.6,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      title,
+                      maxLines: featured ? 2 : 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: featured
+                          ? Theme.of(context).textTheme.headlineSmall
+                          : Theme.of(context).textTheme.titleMedium,
+                    ),
+                    if (hasMeal) ...[
+                      const SizedBox(height: 5),
+                      Text(
+                        '${recipe?['minutes'] ?? '—'} min · ${meal!['servings']} ${context.t('servings')}',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      if (guiltyPleasure)
+                        Text(
+                          context.t('guilty_pleasure'),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                        ),
+                    ],
+                  ],
+                ),
+              ),
+              if (hasMeal)
+                PopupMenuButton<String>(
+                  onSelected: (action) {
+                    if (action == 'replace') onReplace?.call();
+                    if (action == 'delete') onDelete?.call();
+                    if (action == 'guilty_pleasure') onGuiltyPleasure?.call();
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'replace',
+                      child: Text(context.t('replace')),
+                    ),
+                    PopupMenuItem(
+                      value: 'guilty_pleasure',
+                      child: Text(
+                        context.t(
+                          guiltyPleasure
+                              ? 'view_guilty_pleasure_context'
+                              : 'make_guilty_pleasure',
+                        ),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Text(context.t('delete')),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _UpcomingMealCard extends StatelessWidget {
+  const _UpcomingMealCard({
+    required this.day,
+    required this.meal,
+    required this.recipe,
+    required this.onTap,
+  });
+
+  final DateTime day;
+  final Json meal;
+  final Json? recipe;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+    width: 270,
+    child: InformationPanel(
+      tinted: false,
+      padding: EdgeInsets.zero,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            children: [
+              FoodImage(
+                id: '${meal['recipe_id']}',
+                imageUrl: '${recipe?['image_url'] ?? ''}',
+                width: 92,
+                height: 92,
+                radius: 17,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      MaterialLocalizations.of(context).formatShortDate(day),
+                      style: Theme.of(context).textTheme.labelMedium,
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      labelOf(recipe?['title'] ?? '', context),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 4),
+                    Text('${recipe?['minutes'] ?? '—'} min'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 class _PlannerActionTile extends StatelessWidget {
@@ -535,7 +946,7 @@ class _PlannerActionTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(22),
           onTap: onTap,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 82),
+            constraints: const BoxConstraints(minHeight: 74),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
               child: Column(

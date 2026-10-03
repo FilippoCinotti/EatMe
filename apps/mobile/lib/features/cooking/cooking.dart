@@ -117,12 +117,89 @@ class _CookingPageState extends ConsumerState<CookingPage> {
       );
       if (remaining == 0) {
         t.cancel();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.t('timer_done'))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.t('timer_done'))));
       }
     });
   }
+
+  String stepTitle(String instruction) {
+    final firstClause = instruction.split(RegExp(r'[,.!;:]')).first.trim();
+    final words = firstClause.split(RegExp(r'\s+'));
+    return words.take(5).join(' ');
+  }
+
+  List<Json> ingredientsForStep(String instruction) {
+    final normalized = instruction.toLowerCase();
+    final ingredients = records(preview['ingredients']);
+    final matches = ingredients.where((item) {
+      final rawName = item['food']?['name'];
+      if (rawName is! Map) return false;
+      final name = localized(
+        Map<String, dynamic>.from(rawName),
+        context.language,
+      ).toLowerCase();
+      if (normalized.contains(name)) return true;
+      return name
+          .split(RegExp(r'\s+'))
+          .where((word) => word.length > 3)
+          .any(normalized.contains);
+    }).toList();
+    if (matches.isNotEmpty) return matches.take(3).toList();
+    return step == 0 ? ingredients.take(3).toList() : const [];
+  }
+
+  void showAllSteps(List<String> steps) => sheet(
+    context,
+    ListView(
+      shrinkWrap: true,
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+      children: [
+        Text(
+          context.t('cooking_all_steps'),
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 8),
+        for (var index = 0; index < steps.length; index++)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: CircleAvatar(radius: 18, child: Text('${index + 1}')),
+            title: Text(steps[index]),
+            selected: index == step,
+            onTap: () {
+              Navigator.pop(context);
+              showStep(index);
+            },
+          ),
+      ],
+    ),
+  );
+
+  void showIngredients() => sheet(
+    context,
+    ListView(
+      shrinkWrap: true,
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+      children: [
+        Text(
+          context.t('cooking_ingredients_for', {'count': widget.servings}),
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 12),
+        for (final raw in (preview['ingredients'] as List? ?? []))
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(
+              localized(
+                Map<String, dynamic>.from(raw['food']['name'] as Map),
+                context.language,
+              ),
+            ),
+            subtitle: Text('${raw['quantity'] ?? '—'} ${raw['food']['unit']}'),
+          ),
+      ],
+    ),
+  );
 
   @override
   Widget build(BuildContext context) => RecipeEditorial(builder: _build);
@@ -172,32 +249,72 @@ class _CookingPageState extends ConsumerState<CookingPage> {
         }
         final suggestedTimer =
             customTimers[step] ?? recipe.timerMinutes(context.language, step);
+        final currentIngredients = ingredientsForStep(steps[step]);
         return Scaffold(
-          appBar: EatMeAppBar(title: Text(context.t('cooking_mode'))),
+          appBar: EatMeAppBar(
+            title: Text(context.t('cooking_mode')),
+            actions: [
+              IconButton(
+                tooltip: context.t('cooking_all_steps'),
+                onPressed: () => showAllSteps(steps),
+                icon: const Icon(Icons.format_list_numbered_rounded),
+              ),
+            ],
+          ),
           bottomNavigationBar: RecipeActionBar(
-            child: RecipeActionRow(
-              primary: FilledButton(
-                onPressed: () {
-                  if (step == steps.length - 1) {
-                    setState(() {
-                      timer?.cancel();
-                      remaining = 0;
-                      confirmation = true;
-                    });
-                  } else {
-                    showStep(step + 1);
-                  }
-                },
-                child: Text(
-                  context.t(
-                    step == steps.length - 1 ? 'finished_cooking' : 'next_step',
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (step < steps.length - 1) ...[
+                  Text(
+                    context.t('next_step_preview', {
+                      'step': stepTitle(steps[step + 1]).toLowerCase(),
+                    }),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
+                  const SizedBox(height: 8),
+                ],
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 52,
+                      child: OutlinedButton(
+                        onPressed: step > 0 ? () => showStep(step - 1) : null,
+                        child: const EatMeIcon(
+                          EatMeGlyph.chevronLeft,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () {
+                          if (step == steps.length - 1) {
+                            setState(() {
+                              timer?.cancel();
+                              remaining = 0;
+                              confirmation = true;
+                            });
+                          } else {
+                            showStep(step + 1);
+                          }
+                        },
+                        child: Text(
+                          context.t(
+                            step == steps.length - 1
+                                ? 'finished_cooking'
+                                : 'next_step',
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              secondary: OutlinedButton(
-                onPressed: step > 0 ? () => showStep(step - 1) : null,
-                child: Text(context.t('cooking_back')),
-              ),
+              ],
             ),
           ),
           body: PageBody(
@@ -229,142 +346,108 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                       ],
                     ),
                   ),
+                  Text(
+                    '${step + 1} / ${steps.length}',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.restaurant_outlined, size: 18),
-                    label: Text(context.t('ingredients')),
-                    onPressed: () => sheet(
-                      context,
-                      ListView(
-                        shrinkWrap: true,
-                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-                        children: [
-                          Text(
-                            context.t('cooking_ingredients_for', {
-                              'count': widget.servings,
-                            }),
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 12),
-                          for (final raw
-                              in (preview['ingredients'] as List? ?? []))
-                            ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              title: Text(
-                                localized(
-                                  Map<String, dynamic>.from(
-                                    raw['food']['name'] as Map,
-                                  ),
-                                  context.language,
-                                ),
-                              ),
-                              subtitle: Text(
-                                '${raw['quantity'] ?? '—'} ${raw['food']['unit']}',
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.format_list_numbered, size: 18),
-                    label: Text(context.t('cooking_all_steps')),
-                    onPressed: () => sheet(
-                      context,
-                      ListView(
-                        shrinkWrap: true,
-                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-                        children: [
-                          Text(
-                            context.t('cooking_all_steps'),
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          for (var index = 0; index < steps.length; index++)
-                            ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: Text(
-                                '${index + 1}',
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                              title: Text(steps[index]),
-                              selected: index == step,
-                              onTap: () {
-                                Navigator.pop(context);
-                                showStep(index);
-                              },
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+              LinearProgressIndicator(
+                value: (step + 1) / steps.length,
+                minHeight: 4,
+                borderRadius: BorderRadius.circular(4),
               ),
+              const SizedBox(height: 28),
+              Text(
+                context.t('step_count', {
+                  'current': step + 1,
+                  'total': steps.length,
+                }).toUpperCase(),
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  letterSpacing: 2,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                stepTitle(steps[step]),
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+              const SizedBox(height: 14),
+              Text(
+                steps[step],
+                style: Theme.of(context).textTheme.bodyLarge
+                    ?.copyWith(fontSize: 17, height: 1.55),
+              ),
+              if (currentIngredients.isNotEmpty) ...[
+                const SizedBox(height: 22),
+                InformationPanel(
+                  tinted: false,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.t('needed_now').toUpperCase(),
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(letterSpacing: 1.5),
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final item in currentIngredients)
+                            Chip(
+                              avatar: const EatMeIcon(
+                                EatMeGlyph.utensils,
+                                size: 16,
+                              ),
+                              label: Text(
+                                '${item['quantity'] ?? '—'} ${item['food']['unit'] ?? ''} ${localized(Map<String, dynamic>.from(item['food']['name'] as Map), context.language)}',
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      TextButton.icon(
+                        onPressed: showIngredients,
+                        icon: const EatMeIcon(
+                          EatMeGlyph.refrigerator,
+                          size: 18,
+                        ),
+                        label: Text(context.t('ingredients')),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: 20),
               InformationPanel(
                 tinted: false,
+                padding: const EdgeInsets.all(18),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      context.t('step_count', {
-                        'current': step + 1,
-                        'total': steps.length,
-                      }),
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 12),
-                    LinearProgressIndicator(
-                      value: (step + 1) / steps.length,
-                      minHeight: 4,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      steps[step],
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontSize: 17,
-                        height: 1.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              InformationPanel(
-                tinted: false,
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
                     if (remaining > 0) ...[
-                      SizedBox(
-                        width: 104,
-                        height: 104,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            SizedBox.expand(
-                              child: CircularProgressIndicator(
-                                value: remaining / (durationMinutes * 60),
-                                strokeWidth: 7,
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.primaryContainer,
-                              ),
-                            ),
-                            Text(
-                              '${(remaining ~/ 60).toString().padLeft(2, '0')}:${(remaining % 60).toString().padLeft(2, '0')}',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ],
-                        ),
+                      Text(
+                        context.t('timer_running'),
+                        style: Theme.of(context).textTheme.labelLarge,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${(remaining ~/ 60).toString().padLeft(2, '0')}:${(remaining % 60).toString().padLeft(2, '0')}',
+                        style: Theme.of(context).textTheme.displaySmall,
+                      ),
+                      const SizedBox(height: 12),
+                      LinearProgressIndicator(
+                        value: remaining / (durationMinutes * 60),
+                        minHeight: 6,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      const SizedBox(height: 14),
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton.icon(
@@ -376,17 +459,32 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                     ] else ...[
                       Row(
                         children: [
-                          const EatMeIcon(EatMeGlyph.timer, size: 22),
-                          const SizedBox(width: 10),
+                          const EatMeIcon(EatMeGlyph.timer, size: 24),
+                          const SizedBox(width: 12),
                           Expanded(
-                            child: Text(
-                              suggestedTimer == null
-                                  ? context.t('cooking_manual_timer')
-                                  : context.t('start_timer_minutes', {
-                                      'count': suggestedTimer,
-                                    }),
-                              style: Theme.of(context).textTheme.titleSmall,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  suggestedTimer == null
+                                      ? context.t('cooking_manual_timer')
+                                      : context.t('timer_suggested'),
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                                if (suggestedTimer != null)
+                                  Text(
+                                    '${suggestedTimer.toString().padLeft(2, '0')}:00',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineMedium,
+                                  ),
+                              ],
                             ),
+                          ),
+                          IconButton(
+                            tooltip: context.t('set_timer'),
+                            onPressed: () => editTimer(context, suggestedTimer),
+                            icon: const EatMeIcon(EatMeGlyph.pencil, size: 19),
                           ),
                         ],
                       ),
@@ -400,8 +498,9 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                           ),
                         )
                       else
-                        RecipeActionRow(
-                          primary: FilledButton.icon(
+                        SizedBox(
+                          width: double.infinity,
+                          child: FilledButton.icon(
                             key: const ValueKey('cooking-start-timer'),
                             onPressed: () => toggleTimer(suggestedTimer),
                             icon: const EatMeIcon(EatMeGlyph.timer),
@@ -411,17 +510,23 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                               }),
                             ),
                           ),
-                          secondary: AsyncAction(
-                            label: context.t('set_timer'),
-                            secondary: true,
-                            action: () => editTimer(context, suggestedTimer),
-                          ),
                         ),
                     ],
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 10),
+              Center(
+                child: TextButton.icon(
+                  onPressed: () => showAllSteps(steps),
+                  icon: const Icon(
+                    Icons.format_list_numbered_rounded,
+                    size: 19,
+                  ),
+                  label: Text(context.t('cooking_all_steps')),
+                ),
+              ),
+              const SizedBox(height: 20),
             ],
           ),
         );
@@ -564,9 +669,9 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
                                     ),
                                     context.language,
                                   ),
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
                                 ),
                                 Text(
                                   '${raw['quantity']} ${raw['food']['unit']}',

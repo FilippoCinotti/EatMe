@@ -65,12 +65,12 @@ class _DinnersPageState extends ResourceState<DinnersPage> {
   Widget build(BuildContext context) {
     final events = records(data?['items']);
     return Scaffold(
-      appBar: EatMeAppBar(title: Text(context.t('dinners'))),
+      appBar: EatMeAppBar(title: Text(context.t('with_friends'))),
       body: content([
         EatMeTabStrip(
           values: [
             ('plan', context.t('my_plan')),
-            ('dinners', context.t('dinners')),
+            ('dinners', context.t('with_friends')),
             ('shopping', context.t('shopping_list')),
           ],
           selected: 'dinners',
@@ -87,9 +87,8 @@ class _DinnersPageState extends ResourceState<DinnersPage> {
         const SizedBox(height: 6),
         Text(
           context.t('dinner_planning_body'),
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
+          style: Theme.of(context).textTheme.bodyLarge
+              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: 20),
         AsyncAction(label: context.t('create_dinner'), action: createDinner),
@@ -198,12 +197,12 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
   Future<void> addHouseholdMember() async {
     final home = await ref.read(apiProvider).request('GET', '/households');
     if (!mounted) return;
-    final existing = records(
-      event?['participants'],
-    ).map((item) => item['user_id']).toSet();
-    final candidates = records(
-      home['members'],
-    ).where((item) => !existing.contains(item['user_id'])).toList();
+    final existing = records(event?['participants'])
+        .map((item) => item['user_id'])
+        .toSet();
+    final candidates = records(home['members'])
+        .where((item) => !existing.contains(item['user_id']))
+        .toList();
     final selected = await showModalBottomSheet<Json>(
       context: context,
       useRootNavigator: true,

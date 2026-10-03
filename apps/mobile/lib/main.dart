@@ -172,7 +172,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, _) => const ImportRecipePage(),
       ),
       GoRoute(path: '/scanning', builder: (_, _) => const ScanningPage()),
-      GoRoute(path: '/barcode', builder: (_, _) => const BarcodePage()),
+      GoRoute(
+        path: '/barcode',
+        builder: (_, state) =>
+            BarcodePage(initialCode: state.uri.queryParameters['code']),
+      ),
       GoRoute(path: '/preferences', builder: (_, _) => const PreferencesPage()),
       GoRoute(
         path: '/notifications',
@@ -346,9 +350,8 @@ class AppShell extends StatelessWidget {
     extendBody: true,
     body: MediaQuery(
       data: MediaQuery.of(context).copyWith(
-        padding: MediaQuery.paddingOf(
-          context,
-        ).copyWith(bottom: MediaQuery.paddingOf(context).bottom + 92),
+        padding: MediaQuery.paddingOf(context)
+            .copyWith(bottom: MediaQuery.paddingOf(context).bottom + 92),
       ),
       child: child,
     ),
