@@ -481,11 +481,16 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                               ],
                             ),
                           ),
-                          TextButton.icon(
-                            onPressed: () => editTimer(context, suggestedTimer),
-                            icon: const EatMeIcon(EatMeGlyph.pencil, size: 19),
-                            label: Text(context.t('set_timer')),
-                          ),
+                          if (suggestedTimer != null)
+                            TextButton.icon(
+                              onPressed: () =>
+                                  editTimer(context, suggestedTimer),
+                              icon: const EatMeIcon(
+                                EatMeGlyph.pencil,
+                                size: 19,
+                              ),
+                              label: Text(context.t('set_timer')),
+                            ),
                         ],
                       ),
                       const SizedBox(height: 14),
