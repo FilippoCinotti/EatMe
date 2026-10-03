@@ -402,6 +402,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                       else
                         RecipeActionRow(
                           primary: FilledButton.icon(
+                            key: const ValueKey('cooking-start-timer'),
                             onPressed: () => toggleTimer(suggestedTimer),
                             icon: const EatMeIcon(EatMeGlyph.timer),
                             label: Text(

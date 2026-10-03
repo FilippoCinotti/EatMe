@@ -215,8 +215,9 @@ void main() {
       await tester.enterText(find.byType(TextFormField), '2');
       await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('Start 2-minute timer'));
-      await tester.tap(find.text('Start 2-minute timer'));
+      final startTimer = find.byKey(const ValueKey('cooking-start-timer'));
+      await tester.ensureVisible(startTimer);
+      await tester.tap(startTimer);
       await tester.pump(const Duration(seconds: 1));
       expect(
         find.textContaining(RegExp(r'(02:00|01:[0-5][0-9])')),
