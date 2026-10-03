@@ -10,6 +10,30 @@ from eatme.storage import Database
 
 @unittest.skipUnless(os.getenv('EATME_TEST_POSTGRES'), 'Requires the PostgreSQL CI database')
 class PostgresTransactions(unittest.TestCase):
+    def test_transactions_have_no_duplicate_begin_and_rollback_atomically(self):
+        from unittest.mock import patch
+
+        db = Database(os.environ['EATME_TEST_POSTGRES'])
+        notices = []
+        connect = db.connect
+
+        def observed_connect():
+            connection = connect()
+            connection.add_notice_handler(lambda diagnostic: notices.append(diagnostic.message_primary))
+            return connection
+
+        home = new_id()
+        with patch.object(db, 'connect', side_effect=observed_connect):
+            with self.assertRaisesRegex(RuntimeError, 'rollback probe'):
+                with db.transaction() as tx:
+                    self.assertEqual(tx.one('SELECT current_user AS role')['role'], 'eatme_backend')
+                    tx.execute('INSERT INTO households(id,owner_id,size,created_at) VALUES (?,?,?,?)',
+                               (home, new_id(), 1, '2026-09-29T00:00:00+00:00'))
+                    raise RuntimeError('rollback probe')
+            with db.transaction() as tx:
+                self.assertIsNone(tx.one('SELECT id FROM households WHERE id=?', (home,)))
+        self.assertNotIn('there is already a transaction in progress', notices)
+
     def test_concurrent_purchase_replay_creates_one_batch(self):
         service = Service(Database(os.environ['EATME_TEST_POSTGRES']))
         seed_catalog(service.db)

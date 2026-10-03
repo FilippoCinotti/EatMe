@@ -16,7 +16,12 @@ def main():
     for name in (signal.SIGINT, signal.SIGTERM):
         signal.signal(name, lambda *_: stop.set())
     service = configured_router().service
+    run_worker(service, stop)
+
+
+def run_worker(service, stop):
     last_cleanup = 0.0
+    idle_delay = 2
     while not stop.is_set():
         try:
             if time.monotonic() - last_cleanup > 60:
@@ -33,8 +38,13 @@ def main():
                 code=error.code if isinstance(error, DomainError) else "io_error",
             )
             worked = False
-        if not worked:
-            stop.wait(2)
+        if worked:
+            idle_delay = 2
+        else:
+            # Avoid opening a database connection every two seconds overnight.
+            # Event.wait preserves prompt SIGTERM; active queues drain immediately.
+            stop.wait(idle_delay)
+            idle_delay = min(idle_delay * 2, 30)
 
 
 if __name__ == '__main__':

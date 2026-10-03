@@ -50,6 +50,26 @@ class EatMeCase(unittest.TestCase):
             fn()
         self.assertEqual(raised.exception.code,code)
 
+    def test_ingredient_operations_do_not_download_recipes(self):
+        self.add("tomato", 300)
+        statements = []
+        connect = self.db.connect
+
+        def traced_connect():
+            connection = connect()
+            connection.set_trace_callback(statements.append)
+            return connection
+
+        with patch.object(self.db, "connect", side_effect=traced_connect):
+            self.assertTrue(self.service.catalog(self.user)["foods"])
+            self.assertEqual(len(self.service.inventory(self.user)["items"]), 1)
+            self.service.pantry(self.user)
+        self.assertFalse(any("from recipes" in sql.lower() for sql in statements))
+        statements.clear()
+        with patch.object(self.db, "connect", side_effect=traced_connect):
+            self.assertTrue(self.service.recommendations(self.user)["items"])
+        self.assertTrue(any("from recipes" in sql.lower() for sql in statements))
+
     def test_quantities_are_exact_and_reject_invalid_input(self):
         self.assertEqual(amount_milli("0.001"),1)
         self.assertEqual(quantity(100010),"100.01")

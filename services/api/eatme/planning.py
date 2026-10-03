@@ -63,7 +63,7 @@ class PlanningService:
                 action = data.get("action")
                 if action == "add":
                     food_id = data.get("food_id")
-                    food = self._catalog(tx, user_id)[0].get(valid_uuid(food_id)) if food_id else None
+                    food = self._catalog(tx, user_id, include_recipes=False)[0].get(valid_uuid(food_id)) if food_id else None
                     if food_id and not food:
                         raise DomainError("food_not_found", 404)
                     unit = food["unit"] if food else choice(data.get("unit", "pcs"), {"pcs", "g", "ml"})
@@ -144,7 +144,7 @@ class PlanningService:
     def _purchase_line(self, tx, user_id, home, item, location, expiry, kind, estimate):
         """Move one shopping line into the fridge as a batch; returns (batch_id, expiry, kind)."""
         if estimate:
-            food = self._catalog(tx, user_id)[0].get(item["food_id"])
+            food = self._catalog(tx, user_id, include_recipes=False)[0].get(item["food_id"])
             if food:
                 expiry, kind = self._estimated_expiry(tx, user_id, food, location, expiry, kind)
         batch_id, stamp = new_id(), now()
@@ -197,7 +197,7 @@ class PlanningService:
             raise DomainError("invalid_meal", 422)
         integer(meal.get("servings"), minimum=1, maximum=20)
         profile, foods, recipes, _, _, today = self._context(tx, user_id)
-        versions = self._catalog(tx, user_id)[3]
+        versions = self._catalog(tx, user_id, include_recipes=False)[3]
         settings, rules, _, _ = self._diners(tx, user_id, meal.get("participants"), profile, versions, today)
         recipe = next((r for r in recipes if r["id"] == meal.get("recipe_id")), None)
         if not recipe:
@@ -237,7 +237,7 @@ class PlanningService:
                 if data.get("action") in {"generate", "preview_generate"}:
                     profile, foods, recipes, _, _, today = self._context(tx, user_id)
                     participants = data.get("participants", [user_id])
-                    settings, rules, _, _ = self._diners(tx, user_id, participants, profile, self._catalog(tx, user_id)[3], today)
+                    settings, rules, _, _ = self._diners(tx, user_id, participants, profile, self._catalog(tx, user_id, include_recipes=False)[3], today)
                     servings = integer(data.get("servings", len(participants)), minimum=1, maximum=20)
                     ranked, _ = rank(recipes, foods, self._inventory(tx, home), settings, rules, today, data.get("mode", "for_you"), servings, self.weights,
                                      staples=self._staples(tx, home))
@@ -268,7 +268,7 @@ class PlanningService:
 
     def _leftover_validation(self, tx, user_id, item, participants):
         profile, foods, _, _, _, today = self._context(tx, user_id)
-        settings, rules, rule_versions, profiles = self._diners(tx, user_id, participants, profile, self._catalog(tx, user_id)[3], today)
+        settings, rules, rule_versions, profiles = self._diners(tx, user_id, participants, profile, self._catalog(tx, user_id, include_recipes=False)[3], today)
         if item['user_use_date'] and item['user_use_date'] < today.isoformat():
             raise DomainError('leftover_date_passed', 409)
         original = decode(item['record'])
@@ -363,7 +363,7 @@ class PlanningService:
                         recipe_id, cooking_id, stamp = new_id(), new_id(), now()
                         tx.execute('INSERT INTO recipes VALUES (?,?)', (recipe_id, encode({**recipe, 'id': recipe_id, 'private': True, 'is_demo': False})))
                         tx.execute("INSERT INTO content_ownership VALUES ('recipe',?,?,NULL)", (recipe_id, user_id))
-                        catalog = self._catalog(tx, user_id)[0]
+                        catalog = self._catalog(tx, user_id, include_recipes=False)[0]
                         plan['ingredients'] = [{'food_id': i['food_id'], 'quantity': i['quantity'], 'food': catalog[i['food_id']]} for i in recipe['ingredients']]
                         for allocation in plan['allocations']:
                             changed = tx.execute('UPDATE inventory_batches SET quantity_milli=quantity_milli-?,version=version+1,updated_at=? WHERE id=? AND version=? AND quantity_milli>=?', (allocation['quantity_milli'], stamp, allocation['batch_id'], allocation['version'], allocation['quantity_milli']))
