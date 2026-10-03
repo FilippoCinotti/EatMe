@@ -1,0 +1,35 @@
+name: Dispatch mobile build 13
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/dispatch-mobile-build-13.yml
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch reviewed commit to both stores
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          gh workflow run testflight.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main \
+            -f release_sha="$RELEASE_SHA" \
+            -f build_number=13 \
+            -f upload_to_testflight=true
+          gh workflow run playstore.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main \
+            -f release_sha="$RELEASE_SHA" \
+            -f build_number=13 \
+            -f track=internal \
+            -f upload_to_play=true
