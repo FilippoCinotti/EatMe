@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import sqlite3
+import threading
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterator
@@ -35,13 +36,32 @@ class Database:
     def __init__(self, url: str):
         self.url = url
         self.postgres = url.startswith(("postgresql://", "postgres://"))
+        self._pool = None
+        self._pool_lock = threading.Lock()
+
+    def _postgres_pool(self):
+        if self._pool is None:
+            with self._pool_lock:
+                if self._pool is None:
+                    from psycopg.rows import dict_row
+                    from psycopg_pool import ConnectionPool
+
+                    size = int(os.getenv("DATABASE_POOL_MAX_SIZE", "5"))
+                    if not 1 <= size <= 10:
+                        raise RuntimeError("DATABASE_POOL_MAX_SIZE must be between 1 and 10")
+                    self._pool = ConnectionPool(
+                        conninfo=self.url,
+                        min_size=0,
+                        max_size=size,
+                        timeout=10,
+                        kwargs={"row_factory": dict_row},
+                        open=True,
+                    )
+        return self._pool
 
     def connect(self):
         if self.postgres:
-            import psycopg
-            from psycopg.rows import dict_row
-
-            return psycopg.connect(self.url, row_factory=dict_row)
+            return self._postgres_pool().getconn()
         connection = sqlite3.connect(self.url, timeout=15, isolation_level=None)
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys=ON")
@@ -67,7 +87,10 @@ class Database:
             connection.rollback()
             raise
         finally:
-            connection.close()
+            if self.postgres:
+                self._postgres_pool().putconn(connection)
+            else:
+                connection.close()
 
     def migrate_local(self):
         if self.postgres or os.getenv("EATME_ENV", "development") != "development":
