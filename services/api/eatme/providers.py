@@ -41,12 +41,26 @@ def https_request(url, *, method="GET", body=None, headers=None, maximum=2_000_0
             payload = response.read(maximum + 1)
             if len(payload) > maximum:
                 raise DomainError("provider_response_too_large", 502)
+            details = {
+                "provider_status": response.status,
+                **(
+                    {"provider_request_id": response.getheader("x-request-id")}
+                    if response.getheader("x-request-id")
+                    else {}
+                ),
+            }
+            if response.status == 400:
+                raise DomainError("provider_request_invalid", 502, details)
+            if response.status in {401, 403}:
+                raise DomainError("provider_auth_failed", 503, details)
             if response.status == 404:
-                raise DomainError("provider_not_found", 404)
+                raise DomainError("provider_not_found", 404, details)
+            if response.status == 408:
+                raise DomainError("provider_timeout", 504, details)
             if response.status == 429:
-                raise DomainError("provider_rate_limited", 429)
+                raise DomainError("provider_rate_limited", 429, details)
             if not 200 <= response.status < 300:
-                raise DomainError("provider_unavailable", 502)
+                raise DomainError("provider_unavailable", 502, details)
             return payload
         finally:
             connection.close()

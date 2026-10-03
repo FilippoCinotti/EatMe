@@ -65,12 +65,12 @@ class _DinnersPageState extends ResourceState<DinnersPage> {
   Widget build(BuildContext context) {
     final events = records(data?['items']);
     return Scaffold(
-      appBar: EatMeAppBar(title: Text(context.t('dinners'))),
+      appBar: EatMeAppBar(title: Text(context.t('with_friends'))),
       body: content([
         EatMeTabStrip(
           values: [
             ('plan', context.t('my_plan')),
-            ('dinners', context.t('dinners')),
+            ('dinners', context.t('with_friends')),
             ('shopping', context.t('shopping_list')),
           ],
           selected: 'dinners',
