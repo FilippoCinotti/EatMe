@@ -218,17 +218,13 @@ void main() {
       await tester.ensureVisible(find.text('Start 2-minute timer'));
       await tester.tap(find.text('Start 2-minute timer'));
       await tester.pump(const Duration(seconds: 1));
-      expect(
-        find.textContaining(RegExp(r'Cancel · (02:00|01:[0-5][0-9])')),
-        findsOneWidget,
-      );
+      expect(find.text(RegExp(r'(02:00|01:[0-5][0-9])')), findsOneWidget);
+      expect(find.text('Cancel'), findsOneWidget);
       await tester.tap(find.text('Next step'));
       await tester.pump();
       expect(find.text('Cook gently, season and serve.'), findsOneWidget);
-      expect(
-        find.textContaining(RegExp(r'Cancel · (02:00|01:[0-5][0-9])')),
-        findsOneWidget,
-      );
+      expect(find.text(RegExp(r'(02:00|01:[0-5][0-9])')), findsOneWidget);
+      expect(find.text('Cancel'), findsOneWidget);
       await journey.capture(tester, boundary, 'editorial-cooking-timer');
       await tester.tap(find.text('I’m done'));
       await tester.pumpAndSettle();

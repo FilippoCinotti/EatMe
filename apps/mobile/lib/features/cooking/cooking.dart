@@ -31,6 +31,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
   Json preview = {};
   Timer? timer;
   DateTime? timerEnd;
+  final scrollController = ScrollController();
   int step = 0, remaining = 0, durationMinutes = 5;
   bool confirmation = false;
   final Map<int, int> customTimers = {};
@@ -63,8 +64,32 @@ class _CookingPageState extends ConsumerState<CookingPage> {
   @override
   void dispose() {
     timer?.cancel();
+    scrollController.dispose();
     unawaited(WakelockPlus.disable().catchError((Object _) {}));
     super.dispose();
+  }
+
+  void showStep(int next) {
+    setState(() => step = next);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !scrollController.hasClients) return;
+      scrollController.jumpTo(0);
+    });
+  }
+
+  Future<void> editTimer(BuildContext context, int? suggestedTimer) async {
+    final value = await askText(
+      context,
+      context.t('timer_minutes'),
+      initial: suggestedTimer == null ? '' : '$suggestedTimer',
+      numeric: true,
+    );
+    if (value == null) return;
+    final minutes = int.tryParse(value);
+    if (minutes == null || minutes < 1 || minutes > 180) {
+      throw const ApiFailure('invalid_timer');
+    }
+    if (mounted) setState(() => customTimers[step] = minutes);
   }
 
   void toggleTimer([int? requestedMinutes]) {
@@ -152,15 +177,17 @@ class _CookingPageState extends ConsumerState<CookingPage> {
           bottomNavigationBar: RecipeActionBar(
             child: RecipeActionRow(
               primary: FilledButton(
-                onPressed: () => setState(() {
+                onPressed: () {
                   if (step == steps.length - 1) {
-                    timer?.cancel();
-                    remaining = 0;
-                    confirmation = true;
+                    setState(() {
+                      timer?.cancel();
+                      remaining = 0;
+                      confirmation = true;
+                    });
                   } else {
-                    step++;
+                    showStep(step + 1);
                   }
-                }),
+                },
                 child: Text(
                   context.t(
                     step == steps.length - 1 ? 'finished_cooking' : 'next_step',
@@ -168,12 +195,13 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                 ),
               ),
               secondary: OutlinedButton(
-                onPressed: step > 0 ? () => setState(() => step--) : null,
+                onPressed: step > 0 ? () => showStep(step - 1) : null,
                 child: Text(context.t('cooking_back')),
               ),
             ),
           ),
           body: PageBody(
+            controller: scrollController,
             children: [
               Row(
                 children: [
@@ -267,8 +295,8 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                               title: Text(steps[index]),
                               selected: index == step,
                               onTap: () {
-                                setState(() => step = index);
                                 Navigator.pop(context);
+                                showStep(index);
                               },
                             ),
                         ],
@@ -308,69 +336,90 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              if (suggestedTimer == null && remaining == 0)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(
-                    context.t('cooking_manual_timer'),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-              if (remaining > 0) ...[
-                Center(
-                  child: SizedBox(
-                    width: 104,
-                    height: 104,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        SizedBox.expand(
-                          child: CircularProgressIndicator(
-                            value: remaining / (durationMinutes * 60),
-                            strokeWidth: 7,
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.primaryContainer,
+              InformationPanel(
+                tinted: false,
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    if (remaining > 0) ...[
+                      SizedBox(
+                        width: 104,
+                        height: 104,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            SizedBox.expand(
+                              child: CircularProgressIndicator(
+                                value: remaining / (durationMinutes * 60),
+                                strokeWidth: 7,
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.primaryContainer,
+                              ),
+                            ),
+                            Text(
+                              '${(remaining ~/ 60).toString().padLeft(2, '0')}:${(remaining % 60).toString().padLeft(2, '0')}',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () => toggleTimer(),
+                          icon: const EatMeIcon(EatMeGlyph.timer),
+                          label: Text(context.t('cancel')),
+                        ),
+                      ),
+                    ] else ...[
+                      Row(
+                        children: [
+                          const EatMeIcon(EatMeGlyph.timer, size: 22),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              suggestedTimer == null
+                                  ? context.t('cooking_manual_timer')
+                                  : context.t('start_timer_minutes', {
+                                      'count': suggestedTimer,
+                                    }),
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      if (suggestedTimer == null)
+                        SizedBox(
+                          width: double.infinity,
+                          child: AsyncAction(
+                            label: context.t('set_timer'),
+                            action: () => editTimer(context, suggestedTimer),
+                          ),
+                        )
+                      else
+                        RecipeActionRow(
+                          primary: FilledButton.icon(
+                            onPressed: () => toggleTimer(suggestedTimer),
+                            icon: const EatMeIcon(EatMeGlyph.timer),
+                            label: Text(
+                              context.t('start_timer_minutes', {
+                                'count': suggestedTimer,
+                              }),
+                            ),
+                          ),
+                          secondary: AsyncAction(
+                            label: context.t('set_timer'),
+                            secondary: true,
+                            action: () => editTimer(context, suggestedTimer),
                           ),
                         ),
-                        const EatMeIcon(EatMeGlyph.timer, size: 32),
-                      ],
-                    ),
-                  ),
+                    ],
+                  ],
                 ),
-                const SizedBox(height: 20),
-              ],
-              if (remaining == 0)
-                AsyncAction(
-                  label: context.t('set_timer'),
-                  secondary: true,
-                  action: () async {
-                    final value = await askText(
-                      context,
-                      context.t('timer_minutes'),
-                      initial: suggestedTimer == null ? '' : '$suggestedTimer',
-                      numeric: true,
-                    );
-                    if (value == null) return;
-                    final minutes = int.tryParse(value);
-                    if (minutes == null || minutes < 1 || minutes > 180) {
-                      throw const ApiFailure('invalid_timer');
-                    }
-                    if (mounted) setState(() => customTimers[step] = minutes);
-                  },
-                ),
-              if (suggestedTimer != null || remaining > 0)
-                OutlinedButton.icon(
-                  onPressed: () => toggleTimer(suggestedTimer),
-                  icon: const EatMeIcon(EatMeGlyph.timer),
-                  label: Text(
-                    remaining == 0
-                        ? context.t('start_timer_minutes', {
-                            'count': suggestedTimer ?? durationMinutes,
-                          })
-                        : '${context.t('cancel')} · ${(remaining ~/ 60).toString().padLeft(2, '0')}:${(remaining % 60).toString().padLeft(2, '0')}',
-                  ),
-                ),
+              ),
               const SizedBox(height: 24),
             ],
           ),

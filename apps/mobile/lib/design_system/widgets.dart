@@ -87,12 +87,19 @@ class _AsyncActionState extends State<AsyncAction> {
 }
 
 class PageBody extends StatelessWidget {
-  const PageBody({super.key, required this.children, this.onRefresh});
+  const PageBody({
+    super.key,
+    required this.children,
+    this.onRefresh,
+    this.controller,
+  });
   final List<Widget> children;
   final Future<void> Function()? onRefresh;
+  final ScrollController? controller;
   @override
   Widget build(BuildContext context) {
     final content = ListView(
+      controller: controller,
       padding: EdgeInsets.fromLTRB(
         20,
         12,
