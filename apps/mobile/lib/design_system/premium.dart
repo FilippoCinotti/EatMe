@@ -118,27 +118,31 @@ class EatMeWordmark extends StatelessWidget {
     return Semantics(
       label: label,
       child: ExcludeSemantics(
-        child: Flex(
-          direction: large ? Axis.vertical : Axis.horizontal,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            EatMeBrandMark(size: large ? 52 : 22),
-            SizedBox(width: large ? 0 : 6, height: large ? 8 : 0),
-            Text.rich(
-              TextSpan(
-                text: hasPlus ? label.substring(0, label.length - 1) : label,
-                children: hasPlus
-                    ? [
-                        TextSpan(
-                          text: '+',
-                          style: TextStyle(fontSize: fontSize * plusScale),
-                        ),
-                      ]
-                    : const [],
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: AlignmentDirectional.centerStart,
+          child: Flex(
+            direction: large ? Axis.vertical : Axis.horizontal,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              EatMeBrandMark(size: large ? 52 : 22),
+              SizedBox(width: large ? 0 : 6, height: large ? 8 : 0),
+              Text.rich(
+                TextSpan(
+                  text: hasPlus ? label.substring(0, label.length - 1) : label,
+                  children: hasPlus
+                      ? [
+                          TextSpan(
+                            text: '+',
+                            style: TextStyle(fontSize: fontSize * plusScale),
+                          ),
+                        ]
+                      : const [],
+                ),
+                style: style,
               ),
-              style: style,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

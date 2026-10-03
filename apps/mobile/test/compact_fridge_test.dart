@@ -80,7 +80,11 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('Scaduti · 1'));
+      await tester.scrollUntilVisible(
+        find.text('Scaduti · 1'),
+        180,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.tap(find.text('Scaduti · 1'));
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.byType(CompactBatchRow));
