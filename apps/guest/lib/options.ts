@@ -65,3 +65,20 @@ export function optionName(code: string, locale: Locale): string {
 }
 
 export const knownOptionCodes = Object.keys(names);
+
+// Decorative emoji shown before an option (aria-hidden). Codes without an
+// unambiguous food emoji simply have none.
+const emoji: Record<string, string> = {
+  omnivore: "🍗", balanced: "⚖️", mediterranean: "🫒", vegetarian: "🥕", vegan: "🌱",
+  pescatarian: "🐟", flexitarian: "🥗", "plant-forward": "🥦", "gluten-free": "🌾",
+  gluten: "🌾", wheat: "🌾", crustaceans: "🦐", eggs: "🥚", fish: "🐟", peanut: "🥜", soy: "🫘",
+  milk: "🥛", nuts: "🌰", almond: "🌰", hazelnut: "🌰", walnut: "🌰", cashew: "🌰", pecan: "🌰",
+  brazil_nut: "🌰", pistachio: "🌰", macadamia: "🌰", celery: "🥬", molluscs: "🦑", sulphites: "🍷",
+  lactose: "🥛", fructose: "🍎", sorbitol: "🍬", mannitol: "🍬", xylitol: "🍬", maltitol: "🍬",
+  fructans: "🧅", gos: "🫘",
+  caffeine: "☕", alcohol: "🍷", spicy_food: "🌶️", histamine: "🧀",
+};
+
+export function optionEmoji(code: string): string | undefined {
+  return emoji[code];
+}

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { copy, locales, type Locale } from "../lib/i18n";
-import { optionName } from "../lib/options";
+import { optionEmoji, optionName } from "../lib/options";
 
 type FoodOption = { id: string; slug?: string; name: Record<string, string> };
 type Settings = {
@@ -85,22 +85,37 @@ function useDocumentLanguage(locale: Locale) {
   }, [locale]);
 }
 
+/** Chip content: decorative emoji (when the code has one) and the label. */
+function ChipLabel({ emoji, label }: { emoji?: string; label: string }) {
+  return (
+    <>
+      {emoji && <span aria-hidden="true" className="emoji">{emoji}</span>}
+      <span>{label}</span>
+    </>
+  );
+}
+
 function ToggleList({
   legend,
+  hint,
   options,
   selected,
   onChange,
   optionLabel,
+  optionIcon,
 }: {
   legend: string;
+  hint?: string;
   options: string[];
   selected: string[];
   onChange: (values: string[]) => void;
   optionLabel: (value: string) => string;
+  optionIcon?: (value: string) => string | undefined;
 }) {
   return (
     <fieldset>
       <legend>{legend}</legend>
+      {hint && <p className="hint">{hint}</p>}
       <div className="choices">
         {options.map((option) => {
           const active = selected.includes(option);
@@ -113,7 +128,7 @@ function ToggleList({
                 }
                 type="checkbox"
               />
-              <span>{optionLabel(option)}</span>
+              <ChipLabel emoji={optionIcon?.(option)} label={optionLabel(option)} />
             </label>
           );
         })}
@@ -300,29 +315,29 @@ export default function GuestFlow({
         )}
         {step === 1 && (
           <fieldset>
-            <legend>{t.eatingStyle}</legend>
+            <legend>{t.styleQuestion}</legend>
             <div className="choices">
               <label className={!style ? "choice active" : "choice"}>
                 <input checked={!style} name="style" onChange={() => setStyle("")} type="radio" />
-                <span>{t.none}</span>
+                <span>{t.noneStyle}</span>
               </label>
               {invitation.questionnaire.eating_styles.map((item) => (
                 <label className={style === item ? "choice active" : "choice"} key={item}>
                   <input checked={style === item} name="style" onChange={() => setStyle(item)} type="radio" />
-                  <span>{name(item)}</span>
+                  <ChipLabel emoji={optionEmoji(item)} label={name(item)} />
                 </label>
               ))}
             </div>
           </fieldset>
         )}
-        {step === 2 && <ToggleList legend={t.allergies} onChange={setAllergies} optionLabel={name} options={invitation.questionnaire.allergies} selected={allergies} />}
-        {step === 3 && <ToggleList legend={t.intolerances} onChange={setIntolerances} optionLabel={name} options={invitation.questionnaire.intolerances} selected={intolerances} />}
+        {step === 2 && <ToggleList hint={t.selectHint} legend={t.allergiesQuestion} onChange={setAllergies} optionIcon={optionEmoji} optionLabel={name} options={invitation.questionnaire.allergies} selected={allergies} />}
+        {step === 3 && <ToggleList hint={t.selectHint} legend={t.intolerancesQuestion} onChange={setIntolerances} optionIcon={optionEmoji} optionLabel={name} options={invitation.questionnaire.intolerances} selected={intolerances} />}
         {step === 4 && (
           <>
-            <ToggleList legend={t.sensitivities} onChange={setSensitivities} optionLabel={name} options={invitation.questionnaire.sensitivities} selected={sensitivities} />
+            <ToggleList hint={t.selectHint} legend={t.sensitivitiesQuestion} onChange={setSensitivities} optionIcon={optionEmoji} optionLabel={name} options={invitation.questionnaire.sensitivities} selected={sensitivities} />
             {invitation.questionnaire.avoidances.length > 0 && (
               <ToggleList
-                legend={t.avoidances}
+                legend={t.avoidancesQuestion}
                 onChange={setAvoidances}
                 optionLabel={foodName}
                 options={invitation.questionnaire.avoidances.map((item) => item.id)}
@@ -338,8 +353,8 @@ export default function GuestFlow({
             <textarea id="note" maxLength={invitation.questionnaire.note_max_length} onChange={(event) => setNote(event.target.value)} rows={5} value={note} />
             {!declined && (
               <label className="remember">
-                <input checked={remember} onChange={(event) => setRemember(event.target.checked)} type="checkbox" />
                 <span><strong>{t.remember}</strong><small>{t.rememberDetail}</small></span>
+                <input checked={remember} className="switch" onChange={(event) => setRemember(event.target.checked)} role="switch" type="checkbox" />
               </label>
             )}
           </>
