@@ -304,6 +304,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
       }).length;
       final hasConflict =
           rawRecipe['compatibility']?['status'] == 'not_compatible';
+      final stepCount = recipe.instructions(context.language).length;
       final needsReview =
           compatibilityWarnings.isNotEmpty ||
           rawRecipe['compatibility']?['status'] == null ||
@@ -381,7 +382,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
             const SizedBox(height: 20),
             Text(
               localized(recipe.title, context.language),
-              style: Theme.of(context).textTheme.displaySmall,
+              style: Theme.of(context).textTheme.headlineLarge,
             ),
             if (rawRecipe['description'] is Map) ...[
               const SizedBox(height: 10),
@@ -532,6 +533,58 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               ],
             ),
             const SizedBox(height: 16),
+            InformationPanel(
+              tinted: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.t('ready_to_cook'),
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _RecipePrepMetric(
+                          icon: EatMeGlyph.refrigerator,
+                          value: '$availableCount/${ingredientRows.length}',
+                          label: context.t('ingredients_ready'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _RecipePrepMetric(
+                          icon: EatMeGlyph.clock,
+                          value: '${recipe.minutes}',
+                          label: context.t('minutes_short'),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _RecipePrepMetric(
+                          icon: EatMeGlyph.fileText,
+                          value: '$stepCount',
+                          label: context.t('steps'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (ingredientRows.length > availableCount) ...[
+                    const SizedBox(height: 14),
+                    TextButton.icon(
+                      onPressed: () => setState(() => tab = 'ingredients'),
+                      icon: const EatMeIcon(
+                        EatMeGlyph.shoppingBasket,
+                        size: 18,
+                      ),
+                      label: Text(context.t('review_missing_ingredients')),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
             EatMeTabStrip(
               editorial: true,
               values: [
@@ -873,6 +926,41 @@ class _RecipePageState extends ConsumerState<RecipePage> {
         ),
       );
     },
+  );
+}
+
+class _RecipePrepMetric extends StatelessWidget {
+  const _RecipePrepMetric({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
+
+  final EatMeGlyph icon;
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(18),
+    ),
+    child: Column(
+      children: [
+        EatMeIcon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
+        const SizedBox(height: 7),
+        Text(value, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.labelSmall,
+        ),
+      ],
+    ),
   );
 }
 

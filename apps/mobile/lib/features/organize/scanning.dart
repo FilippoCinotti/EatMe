@@ -105,6 +105,22 @@ class _ScanningState extends ResourceState<ScanningPage> {
     await command({'action': 'create', 'kind': kind, 'media_id': image['id']});
   }
 
+  Future<void> openSmartCapture() async {
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SmartCapturePage(
+          onPhoto: (file) async {
+            if (!await consent()) return false;
+            await scanFile('auto', file);
+            return true;
+          },
+        ),
+      ),
+    );
+    await load();
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: EatMeAppBar(title: Text(context.t('scan_and_import'))),
@@ -113,25 +129,20 @@ class _ScanningState extends ResourceState<ScanningPage> {
         context.t('less_typing'),
         style: Theme.of(context).textTheme.headlineMedium,
       ),
+      const SizedBox(height: 6),
+      Text(
+        context.t('smart_capture_body'),
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+      ),
+      const SizedBox(height: 18),
+      AsyncAction(
+        label: context.t('smart_capture_action'),
+        action: openSmartCapture,
+      ),
+      const SizedBox(height: 10),
       StatusNote(text: context.t('scan_review_notice')),
-      AsyncAction(
-        label: context.t('scan_barcode'),
-        action: () async {
-          await context.push('/barcode');
-        },
-      ),
-      const SizedBox(height: 8),
-      AsyncAction(
-        label: context.t('food_photo'),
-        secondary: true,
-        action: () => chooseSource('photo'),
-      ),
-      const SizedBox(height: 8),
-      AsyncAction(
-        label: context.t('receipt_photo'),
-        secondary: true,
-        action: () => chooseSource('receipt'),
-      ),
       const SizedBox(height: 8),
       AsyncAction(
         label: context.t('generate_recipe'),
@@ -220,6 +231,158 @@ class _ScanningState extends ResourceState<ScanningPage> {
   );
 }
 
+class SmartCapturePage extends StatefulWidget {
+  const SmartCapturePage({super.key, required this.onPhoto, this.picker});
+
+  final Future<bool> Function(XFile file) onPhoto;
+  final PhotoPicker? picker;
+
+  @override
+  State<SmartCapturePage> createState() => _SmartCapturePageState();
+}
+
+class _SmartCapturePageState extends State<SmartCapturePage> {
+  final controller = MobileScannerController(
+    formats: [BarcodeFormat.ean13, BarcodeFormat.ean8, BarcodeFormat.upcA],
+  );
+  bool busy = false;
+  String? error;
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> openBarcode(String value) async {
+    if (busy || value.isEmpty) return;
+    setState(() => busy = true);
+    await controller.stop();
+    if (mounted) {
+      await context.push('/barcode?code=${Uri.encodeQueryComponent(value)}');
+    }
+    if (mounted) {
+      setState(() => busy = false);
+      await controller.start();
+    }
+  }
+
+  Future<void> pick(ImageSource source) async {
+    if (busy) return;
+    var shouldRestart = true;
+    setState(() {
+      busy = true;
+      error = null;
+    });
+    await controller.stop();
+    try {
+      final file =
+          await (widget.picker?.call(source) ??
+              ImagePicker().pickImage(
+                source: source,
+                imageQuality: 85,
+                maxWidth: 2048,
+                maxHeight: 2048,
+              ));
+      if (file == null) return;
+      final completed = await widget.onPhoto(file);
+      if (completed && mounted) {
+        shouldRestart = false;
+        Navigator.pop(context);
+      }
+    } on ApiFailure catch (failure) {
+      if (mounted) setState(() => error = failure.code);
+    } catch (_) {
+      if (mounted) setState(() => error = 'photo_unavailable');
+    } finally {
+      if (mounted) {
+        setState(() => busy = false);
+        if (shouldRestart) await controller.start();
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: EatMeAppBar(title: Text(context.t('smart_capture_title'))),
+    body: SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+        child: Column(
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(28),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    MobileScanner(
+                      controller: controller,
+                      onDetect: (capture) {
+                        final value = capture.barcodes.firstOrNull?.rawValue;
+                        if (value != null) openBarcode(value);
+                      },
+                    ),
+                    IgnorePointer(
+                      child: Container(
+                        margin: const EdgeInsets.all(34),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: .78),
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                      ),
+                    ),
+                    if (busy)
+                      ColoredBox(
+                        color: Colors.black.withValues(alpha: .62),
+                        child: const Center(child: CircularProgressIndicator()),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              context.t('smart_capture_hint'),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            if (error != null) ...[
+              const SizedBox(height: 10),
+              StatusNote(text: context.t(error!), warning: true),
+            ],
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: busy ? null : () => pick(ImageSource.gallery),
+                    icon: const EatMeIcon(EatMeGlyph.image, size: 20),
+                    label: Text(context.t('gallery')),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: busy ? null : () => pick(ImageSource.camera),
+                    icon: const EatMeIcon(EatMeGlyph.camera, size: 20),
+                    label: Text(context.t('take_photo')),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 class DetectionReviewPage extends ConsumerStatefulWidget {
   const DetectionReviewPage({super.key, required this.job});
   final Json job;
@@ -251,6 +414,17 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
       body: PageBody(
         children: [
           StatusNote(text: context.t('scan_review_notice')),
+          if (widget.job['result']['detected_type'] != null)
+            StatusBadge(
+              label: context.t(
+                widget.job['result']['detected_type'] == 'receipt'
+                    ? 'recognized_receipt'
+                    : 'recognized_food_photo',
+              ),
+              icon: widget.job['result']['detected_type'] == 'receipt'
+                  ? EatMeGlyph.fileText
+                  : EatMeGlyph.camera,
+            ),
           if (preview != null) ...[
             FutureBuilder<Json>(
               future: preview,
@@ -396,7 +570,8 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
 }
 
 class BarcodePage extends ConsumerStatefulWidget {
-  const BarcodePage({super.key});
+  const BarcodePage({super.key, this.initialCode});
+  final String? initialCode;
   @override
   ConsumerState<BarcodePage> createState() => _BarcodeState();
 }
@@ -410,6 +585,16 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
   Json? product;
   Food? classification;
   String? error;
+  @override
+  void initState() {
+    super.initState();
+    final initial = widget.initialCode;
+    if (initial != null && initial.isNotEmpty) {
+      code.text = initial;
+      WidgetsBinding.instance.addPostFrameCallback((_) => lookup(initial));
+    }
+  }
+
   @override
   void dispose() {
     controller.dispose();

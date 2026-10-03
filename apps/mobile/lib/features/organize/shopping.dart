@@ -181,7 +181,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
         EatMeTabStrip(
           values: [
             ('plan', context.t('my_plan')),
-            ('dinners', context.t('dinners')),
+            ('dinners', context.t('with_friends')),
             ('shopping', context.t('shopping_list')),
           ],
           selected: 'shopping',

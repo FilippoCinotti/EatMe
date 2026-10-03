@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 from eatme.catalog import identifier, seed_catalog
 from eatme.errors import DomainError
-from eatme.intelligence import normalize_image
+from eatme.intelligence import OpenAIProvider, normalize_image
 from eatme.providers import barcode, nutrition
 from eatme.service import Service, new_id
 from eatme.storage import Database
@@ -98,6 +98,34 @@ class ContentCase(unittest.TestCase):
         first = self.app.job_action(self.owner, body, key)
         self.assertEqual(first, self.app.job_action(self.owner, body, key))
         self.assertEqual(len(self.app.inventory(self.owner)['items']), 1)
+
+    def test_auto_scan_classifies_the_image_without_a_frontend_mode_choice(self):
+        self.app.preferences(self.owner, {'expected_version': 0, 'data': {'ai_consent': True}}, new_id())
+        from PIL import Image
+        buffer = io.BytesIO()
+        Image.new('RGB', (200, 200), 'green').save(buffer, format='PNG')
+        media = self.app.media_upload(self.owner, {'kind': 'photo', 'base64': base64.b64encode(buffer.getvalue()).decode()})
+        created = self.app.job_action(self.owner, {'action': 'create', 'kind': 'auto', 'media_id': media['id']}, new_id())
+        self.assertTrue(self.app.run_next_job())
+        job = next(value for value in self.app.jobs(self.owner)['items'] if value['id'] == created['id'])
+        self.assertEqual(job['status'], 'completed')
+        self.assertEqual(job['result']['detected_type'], 'food_photo')
+        self.assertTrue(job['result']['items'])
+
+    def test_openai_model_failure_is_reported_distinctly_without_secrets(self):
+        with patch.dict(os.environ, {'AI_API_KEY': 'test-secret', 'AI_MODEL': 'missing-model'}), patch(
+            'eatme.intelligence.json_request',
+            side_effect=DomainError(
+                'provider_not_found',
+                404,
+                {'provider_status': 404, 'provider_request_id': 'req-test'},
+            ),
+        ):
+            with self.assertRaises(DomainError) as error:
+                OpenAIProvider().run('photo', {}, {}, b'image')
+        self.assertEqual(error.exception.code, 'ai_model_unavailable')
+        self.assertEqual(error.exception.details['provider_status'], 404)
+        self.assertNotIn('test-secret', str(error.exception.details))
 
     def test_invalid_ai_output_fails_closed_and_cancelled_job_does_not_run(self):
         self.app.preferences(self.owner, {'expected_version': 0, 'data': {'ai_consent': True}}, new_id())
