@@ -24,7 +24,7 @@ class PantryService:
         household_id = self._household(user_id)
         with self.db.transaction() as tx:
             self._member(tx, user_id, household_id)
-            foods = self._catalog(tx, user_id)[0]
+            foods = self._catalog(tx, user_id, include_recipes=False)[0]
             row = tx.one("SELECT data,version FROM household_pantry WHERE household_id=?", (household_id,))
             ids = [f for f in (decode(row["data"]).get("food_ids", []) if row else []) if f in foods]
             by_slug = {food.get("slug"): food for food in foods.values()}
@@ -42,7 +42,7 @@ class PantryService:
                 food_ids = data.get("food_ids")
                 if not isinstance(food_ids, list) or len(food_ids) > MAX_STAPLES:
                     raise DomainError("invalid_pantry", 422)
-                foods = self._catalog(tx, user_id)[0]
+                foods = self._catalog(tx, user_id, include_recipes=False)[0]
                 ids = list(dict.fromkeys(valid_uuid(f) for f in food_ids))
                 if any(f not in foods for f in ids):
                     raise DomainError("invalid_food", 404)

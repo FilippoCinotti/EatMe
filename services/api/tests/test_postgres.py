@@ -10,6 +10,30 @@ from eatme.storage import Database
 
 @unittest.skipUnless(os.getenv('EATME_TEST_POSTGRES'), 'Requires the PostgreSQL CI database')
 class PostgresTransactions(unittest.TestCase):
+    def test_transactions_have_no_duplicate_begin_and_rollback_atomically(self):
+        from unittest.mock import patch
+
+        db = Database(os.environ['EATME_TEST_POSTGRES'])
+        notices = []
+        connect = db.connect
+
+        def observed_connect():
+            connection = connect()
+            connection.add_notice_handler(lambda diagnostic: notices.append(diagnostic.message_primary))
+            return connection
+
+        home = new_id()
+        with patch.object(db, 'connect', side_effect=observed_connect):
+            with self.assertRaisesRegex(RuntimeError, 'rollback probe'):
+                with db.transaction() as tx:
+                    self.assertEqual(tx.one('SELECT current_user AS role')['role'], 'eatme_backend')
+                    tx.execute('INSERT INTO households(id,owner_id,size,created_at) VALUES (?,?,?,?)',
+                               (home, new_id(), 1, '2026-09-29T00:00:00+00:00'))
+                    raise RuntimeError('rollback probe')
+            with db.transaction() as tx:
+                self.assertIsNone(tx.one('SELECT id FROM households WHERE id=?', (home,)))
+        self.assertNotIn('there is already a transaction in progress', notices)
+
     def test_concurrent_purchase_replay_creates_one_batch(self):
         service = Service(Database(os.environ['EATME_TEST_POSTGRES']))
         seed_catalog(service.db)
@@ -39,3 +63,38 @@ class PostgresTransactions(unittest.TestCase):
         result = service.shopping_action(user_id, {'action': 'purchase_many', 'items': [{'id': line['id'], 'expected_version': 1}]}, new_id())
         self.assertEqual(result['purchased'][0]['expiry_kind'], 'estimated')
         self.assertEqual(service.export_all(user_id)['pantry']['data'], {'food_ids': [oil]})
+
+    def test_recipe_image_pipeline_updates_only_image_fields(self):
+        import json
+        import sys
+        import tempfile
+        from pathlib import Path
+        sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'scripts'))
+        from recipe_images import pipeline
+        from recipe_images.storage import LocalStorage
+        from recipe_images.stores import PostgresStore
+        from test_recipe_images import FOODS, FakeProvider, recipe
+
+        url = os.environ['EATME_TEST_POSTGRES']
+        public = recipe(901, id=identifier('recipe', new_id()))
+        store = PostgresStore(url)
+        self.addCleanup(store.close)
+        with store.connection.transaction():
+            store.connection.execute('INSERT INTO recipes(id, data) VALUES (%s, %s)', (public['id'], json.dumps(public)))
+
+        def remove():
+            with store.connection.transaction():
+                store.connection.execute('DELETE FROM recipes WHERE id = %s', (public['id'],))
+        self.addCleanup(remove)
+        store.foods = lambda: FOODS
+        options = pipeline.Options(recipes=(public['slug'],))
+        with tempfile.TemporaryDirectory() as directory:
+            summary = pipeline.run(options, store, LocalStorage(directory), FakeProvider(), log=lambda *_: None)
+        self.assertEqual(summary.generated, 1)
+        with store.connection.transaction():
+            data = json.loads(store.connection.execute('SELECT data FROM recipes WHERE id = %s',
+                                                       (public['id'],)).fetchone()[0])
+        self.assertEqual(data['image_source']['status'], 'generated')
+        self.assertIsNone(data['image_url'])
+        self.assertEqual({k: v for k, v in data.items() if k not in ('image_url', 'image_source')},
+                         {k: v for k, v in public.items() if k not in ('image_url', 'image_source')})

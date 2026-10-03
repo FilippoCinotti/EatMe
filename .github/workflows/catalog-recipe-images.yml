@@ -1,25 +1,29 @@
 name: Generate recipe catalog images
 
+# Local open-model generation (FLUX.1-schnell); no paid image API.
+# GitHub-hosted runners have no GPU, so the dry run runs there and generation
+# runs only on a self-hosted runner labelled "gpu". Guide: docs/catalog/recipe-images.md
+
 on:
   workflow_dispatch:
     inputs:
-      limit:
-        description: Max images this run (0 = all recipes still without an image)
-        type: number
-        default: 20
-      quality:
-        description: OpenAI image quality
+      mode:
+        description: dry-run (prompts only) or generate (needs a self-hosted GPU runner)
         type: choice
-        options: [low, medium, high]
-        default: medium
-      model:
-        description: OpenAI image model
+        options: [dry-run, generate]
+        default: dry-run
+      limit:
+        description: Max recipes this run (0 = every recipe still missing an image)
+        type: number
+        default: 10
+      sample:
+        description: Pick this many representative recipes instead (0 = off)
+        type: number
+        default: 0
+      recipe:
+        description: Optional single recipe id or slug
         type: string
-        default: gpt-image-1
-      dry_run:
-        description: Only count what would be generated
-        type: boolean
-        default: true
+        default: ''
 
 permissions:
   contents: read
@@ -29,25 +33,48 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  images:
+  dry-run:
+    if: inputs.mode == 'dry-run'
     runs-on: ubuntu-latest
     environment: production
-    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - run: python -m pip install 'psycopg[binary]>=3.2'
-      - name: Generate, upload and attach images
+      - run: python -m pip install 'psycopg[binary]>=3.2' 'Pillow>=12.3.0,<13'
+      - name: List recipes and prompts
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          CATALOG_DATABASE_URL: ${{ secrets.CATALOG_DATABASE_URL }}
+          LIMIT: ${{ inputs.limit }}
+          SAMPLE: ${{ inputs.sample }}
+          RECIPE: ${{ inputs.recipe }}
+        run: |
+          args=(--dry-run --limit "$LIMIT" --sample "$SAMPLE")
+          if [ -n "$RECIPE" ]; then args+=(--recipe "$RECIPE"); fi
+          python scripts/generate_recipe_images.py --status
+          python scripts/generate_recipe_images.py "${args[@]}"
+
+  generate:
+    if: inputs.mode == 'generate'
+    runs-on: [self-hosted, gpu]
+    environment: production
+    timeout-minutes: 720
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install local inference dependencies
+        run: python3 -m pip install -r scripts/recipe_images/requirements-gpu.txt
+      - name: Generate, upload and record candidates
+        env:
+          CATALOG_DATABASE_URL: ${{ secrets.CATALOG_DATABASE_URL }}
           SUPABASE_URL: ${{ vars.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          CATALOG_DATABASE_URL: ${{ secrets.CATALOG_DATABASE_URL }}
-        run: >-
-          python scripts/generate_recipe_images.py
-          --limit ${{ inputs.limit }}
-          --quality ${{ inputs.quality }}
-          --model ${{ inputs.model }}
-          ${{ inputs.dry_run && '--dry-run' || '' }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          LIMIT: ${{ inputs.limit }}
+          SAMPLE: ${{ inputs.sample }}
+          RECIPE: ${{ inputs.recipe }}
+        run: |
+          args=(--missing --limit "$LIMIT" --sample "$SAMPLE")
+          if [ -n "$RECIPE" ]; then args+=(--recipe "$RECIPE"); fi
+          python3 scripts/generate_recipe_images.py "${args[@]}"
+          python3 scripts/generate_recipe_images.py --status

@@ -25,6 +25,19 @@ HEALTH_CONSENT = "nutrition-profile-1"
 MEDICAL_CONSENT = "medical-nutrition-1"
 
 
+# Clients receive only these image_source keys; generation metadata (prompts,
+# seeds, candidates) stays in the database for operators and audits.
+PUBLIC_IMAGE_SOURCE_KEYS = ("kind", "owner", "status")
+
+
+def client_recipe(recipe: dict) -> dict:
+    source = recipe.get("image_source")
+    if isinstance(source, dict):
+        recipe["image_source"] = {key: source[key] for key in PUBLIC_IMAGE_SOURCE_KEYS if key in source}
+    recipe.pop("image_prompt", None)
+    return recipe
+
+
 def new_id() -> str:
     return str(uuid4())
 
@@ -89,10 +102,11 @@ class Service(
                 raise DomainError("forbidden",403)
             return profile["household_id"]
 
-    def _catalog(self, tx, user_id=None):
+    def _catalog(self, tx, user_id=None, *, include_recipes=True):
         foods = {r["id"]:decode(r["data"]) for r in tx.all("SELECT f.* FROM foods f LEFT JOIN content_ownership o ON o.content_id=f.id AND o.kind='food' WHERE o.content_id IS NULL OR o.user_id=? OR o.household_id IN (SELECT household_id FROM household_members WHERE user_id=?)", (user_id,user_id))}
-        recipes = [decode(r["data"]) for r in tx.all("SELECT r.* FROM recipes r LEFT JOIN content_ownership o ON o.content_id=r.id AND o.kind='recipe' WHERE o.content_id IS NULL OR o.user_id=?", (user_id,))]
-        recipes = [recipe for recipe in recipes if not recipe.get("archived")]
+        # Ingredient/profile operations do not need multi-megabyte recipe rows.
+        recipes = [decode(r["data"]) for r in tx.all("SELECT r.* FROM recipes r LEFT JOIN content_ownership o ON o.content_id=r.id AND o.kind='recipe' WHERE o.content_id IS NULL OR o.user_id=?", (user_id,))] if include_recipes else []
+        recipes = [client_recipe(recipe) for recipe in recipes if not recipe.get("archived")]
         diets = [decode(r["data"]) for r in tx.all("SELECT * FROM diet_definitions")]
         versions = [{**v,"rules":decode(v["rules"])} for v in tx.all("SELECT * FROM diet_versions")]
         retired = tx.all("SELECT DISTINCT g.kind,g.subject_id FROM governed_content g WHERE g.status='DEPRECATED' AND NOT EXISTS (SELECT 1 FROM governed_content p WHERE p.kind=g.kind AND p.subject_id=g.subject_id AND p.status='PUBLISHED')")
@@ -105,7 +119,7 @@ class Service(
 
     def catalog(self, user_id=None) -> dict:
         with self.db.transaction() as tx:
-            foods,_,diets,versions = self._catalog(tx,user_id)
+            foods,_,diets,versions = self._catalog(tx,user_id,include_recipes=False)
             current = self.clock() if self.clock else date.today()
             for diet in diets:
                 diet["selectable"] = any(v["diet_id"]==diet["id"] and v["status"]=="PUBLISHED" and
@@ -277,7 +291,7 @@ class Service(
             def save():
                 if tx.one("SELECT 1 FROM account_deletions WHERE user_id=? AND status IN ('pending','completed')", (user_id,)):
                     raise DomainError("account_deletion_pending", 409)
-                foods,_,diets,versions = self._catalog(tx)
+                foods,_,diets,versions = self._catalog(tx,include_recipes=False)
                 active_rules(assignments,versions,self.today({"timezone":timezone}))
                 chosen = {a["diet_id"] for a in assignments}
                 medical = [d for d in diets if d["id"] in chosen and d["medical"]]
@@ -348,7 +362,7 @@ class Service(
     def inventory(self,user_id):
         household_id = self._household(user_id)
         with self.db.transaction() as tx:
-            foods,_,_,_ = self._catalog(tx,user_id)
+            foods,_,_,_ = self._catalog(tx,user_id,include_recipes=False)
             settings = self._profile(tx,user_id)["settings"]
             return {"items":[{**b,"quantity":quantity(b["quantity_milli"]),"food":foods[b["food_id"]],
                               "usable":batch_usable(b,self.today(settings))} for b in self._inventory(tx,household_id)]}
@@ -381,7 +395,7 @@ class Service(
             def add():
                 nonlocal expiry, kind
                 self._member(tx,user_id,household_id,write=True)
-                food = self._catalog(tx, user_id)[0].get(valid_uuid(data.get("food_id")))
+                food = self._catalog(tx, user_id, include_recipes=False)[0].get(valid_uuid(data.get("food_id")))
                 if not food:
                     raise DomainError("food_not_found",404)
                 if food["unit"]=="pcs" and amount%1000:
@@ -531,7 +545,7 @@ class Service(
     def _preview(self,tx,user_id,data):
         profile,foods,recipes,rules,versions,today = self._context(tx,user_id)
         self._member(tx,user_id,profile["household_id"])
-        settings,rules,versions,participants = self._diners(tx,user_id,data.get("participants"),profile,self._catalog(tx,user_id)[3],today)
+        settings,rules,versions,participants = self._diners(tx,user_id,data.get("participants"),profile,self._catalog(tx,user_id, include_recipes=False)[3],today)
         recipe = next((r for r in recipes if r["id"]==data.get("recipe_id")),None)
         if not recipe:
             raise DomainError("recipe_not_found",404)

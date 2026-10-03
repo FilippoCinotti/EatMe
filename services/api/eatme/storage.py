@@ -53,9 +53,12 @@ class Database:
         connection = self.connect()
         try:
             tx = Transaction(connection, self.postgres)
-            tx.execute("BEGIN" if self.postgres else "BEGIN IMMEDIATE")
             if self.postgres:
+                # Psycopg starts the transaction before this first statement.
+                # An explicit BEGIN here would emit a warning for every request.
                 tx.execute("SET LOCAL ROLE eatme_backend")
+            else:
+                tx.execute("BEGIN IMMEDIATE")
             if household_id and self.postgres:
                 tx.execute("SELECT id FROM households WHERE id=? FOR UPDATE", (household_id,))
             yield tx
