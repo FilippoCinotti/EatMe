@@ -286,15 +286,16 @@ class _PlannerState extends ResourceState<PlannerPage> {
         const SizedBox(height: 24),
         Text(
           context.t('plan_kicker').toUpperCase(),
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            letterSpacing: 3,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            letterSpacing: 2.35,
+            fontWeight: FontWeight.w700,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 8),
         Text(
           context.t('plan_compact_title'),
-          style: Theme.of(context).textTheme.headlineLarge,
+          style: Theme.of(context).textTheme.displaySmall,
         ),
         const SizedBox(height: 20),
         _WeekStrip(
@@ -507,7 +508,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
           const SizedBox(height: 28),
           Text(
             context.t('upcoming_days'),
-            style: Theme.of(context).textTheme.headlineSmall,
+            style: Theme.of(context).textTheme.headlineMedium,
           ),
           const SizedBox(height: 12),
           SizedBox(
@@ -795,7 +796,7 @@ class _PlannerMealCard extends StatelessWidget {
                       maxLines: featured ? 2 : 1,
                       overflow: TextOverflow.ellipsis,
                       style: featured
-                          ? Theme.of(context).textTheme.headlineSmall
+                          ? Theme.of(context).textTheme.titleLarge
                           : Theme.of(context).textTheme.titleMedium,
                     ),
                     if (hasMeal) ...[
