@@ -63,7 +63,9 @@ class _DinnersPageState extends ResourceState<DinnersPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => RecipeEditorial(builder: _build);
+
+  Widget _build(BuildContext context) {
     final events = records(data?['items']);
     return Scaffold(
       appBar: EatMeAppBar(title: Text(context.t('with_friends'))),
@@ -562,7 +564,9 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
       recipes.where((recipe) => recipe['id'] == id).firstOrNull;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => RecipeEditorial(builder: _build);
+
+  Widget _build(BuildContext context) {
     if (event == null) {
       return Scaffold(
         appBar: EatMeAppBar(title: Text(context.t('dinners'))),

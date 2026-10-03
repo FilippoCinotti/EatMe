@@ -194,7 +194,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => RecipeEditorial(builder: _build);
+
+  Widget _build(BuildContext context) {
     final meals = draftMeals ?? records(selected?['data']?['meals']);
     final overrides = preferenceOverrides;
     final entitlement = ref.watch(entitlementsProvider).asData?.value;
