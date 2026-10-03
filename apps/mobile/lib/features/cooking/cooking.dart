@@ -28,6 +28,7 @@ class CookingPage extends ConsumerStatefulWidget {
 
 class _CookingPageState extends ConsumerState<CookingPage> {
   late Future<Recipe> future = load();
+  Json preview = {};
   Timer? timer;
   DateTime? timerEnd;
   int step = 0, remaining = 0, durationMinutes = 5;
@@ -35,7 +36,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
   final Map<int, int> customTimers = {};
   Future<Recipe> load() async {
     final api = ref.read(apiProvider);
-    await api.request(
+    preview = await api.request(
       'POST',
       '/cooking/preview',
       body: {
@@ -168,38 +169,153 @@ class _CookingPageState extends ConsumerState<CookingPage> {
               ),
               secondary: OutlinedButton(
                 onPressed: step > 0 ? () => setState(() => step--) : null,
-                child: Text(context.t('previous_step')),
+                child: Text(context.t('cooking_back')),
               ),
             ),
           ),
           body: PageBody(
             children: [
-              Text(
-                context.t('step_count', {
-                  'current': step + 1,
-                  'total': steps.length,
-                }),
-                style: Theme.of(context).textTheme.labelLarge,
+              Row(
+                children: [
+                  FoodImage(
+                    id: recipe.id,
+                    imageUrl: recipe.imageUrl,
+                    width: 64,
+                    height: 64,
+                    radius: 14,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          localized(recipe.title, context.language),
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${widget.servings} ${context.t('servings')} · ${recipe.minutes} min',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
-              LinearProgressIndicator(
-                value: (step + 1) / steps.length,
-                minHeight: 4,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                localized(recipe.title, context.language),
-                style: Theme.of(context).textTheme.titleLarge,
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.restaurant_outlined, size: 18),
+                    label: Text(context.t('ingredients')),
+                    onPressed: () => sheet(
+                      context,
+                      ListView(
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                        children: [
+                          Text(
+                            context.t('cooking_ingredients_for', {
+                              'count': widget.servings,
+                            }),
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 12),
+                          for (final raw
+                              in (preview['ingredients'] as List? ?? []))
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text(
+                                localized(
+                                  Map<String, dynamic>.from(
+                                    raw['food']['name'] as Map,
+                                  ),
+                                  context.language,
+                                ),
+                              ),
+                              subtitle: Text(
+                                '${raw['quantity'] ?? '—'} ${raw['food']['unit']}',
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.format_list_numbered, size: 18),
+                    label: Text(context.t('cooking_all_steps')),
+                    onPressed: () => sheet(
+                      context,
+                      ListView(
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                        children: [
+                          Text(
+                            context.t('cooking_all_steps'),
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          for (var index = 0; index < steps.length; index++)
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: Text(
+                                '${index + 1}',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              title: Text(steps[index]),
+                              selected: index == step,
+                              onTap: () {
+                                setState(() => step = index);
+                                Navigator.pop(context);
+                              },
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
-              Text(
-                steps[step],
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(fontSize: 17, height: 1.6),
+              InformationPanel(
+                tinted: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.t('step_count', {
+                        'current': step + 1,
+                        'total': steps.length,
+                      }),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    LinearProgressIndicator(
+                      value: (step + 1) / steps.length,
+                      minHeight: 4,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      steps[step],
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontSize: 17,
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
+              if (suggestedTimer == null && remaining == 0)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    context.t('cooking_manual_timer'),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
               if (remaining > 0) ...[
                 Center(
                   child: SizedBox(
@@ -232,7 +348,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                     final value = await askText(
                       context,
                       context.t('timer_minutes'),
-                      initial: '${suggestedTimer ?? durationMinutes}',
+                      initial: suggestedTimer == null ? '' : '$suggestedTimer',
                       numeric: true,
                     );
                     if (value == null) return;
@@ -243,17 +359,18 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                     if (mounted) setState(() => customTimers[step] = minutes);
                   },
                 ),
-              OutlinedButton.icon(
-                onPressed: () => toggleTimer(suggestedTimer),
-                icon: const EatMeIcon(EatMeGlyph.timer),
-                label: Text(
-                  remaining == 0
-                      ? context.t('start_timer_minutes', {
-                          'count': suggestedTimer ?? durationMinutes,
-                        })
-                      : '${context.t('cancel')} · ${(remaining ~/ 60).toString().padLeft(2, '0')}:${(remaining % 60).toString().padLeft(2, '0')}',
+              if (suggestedTimer != null || remaining > 0)
+                OutlinedButton.icon(
+                  onPressed: () => toggleTimer(suggestedTimer),
+                  icon: const EatMeIcon(EatMeGlyph.timer),
+                  label: Text(
+                    remaining == 0
+                        ? context.t('start_timer_minutes', {
+                            'count': suggestedTimer ?? durationMinutes,
+                          })
+                        : '${context.t('cancel')} · ${(remaining ~/ 60).toString().padLeft(2, '0')}:${(remaining % 60).toString().padLeft(2, '0')}',
+                  ),
                 ),
-              ),
               const SizedBox(height: 24),
             ],
           ),

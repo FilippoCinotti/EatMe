@@ -20,9 +20,11 @@ class FridgePage extends ConsumerStatefulWidget {
 }
 
 class _FridgePageState extends ConsumerState<FridgePage> {
-  String location = 'all', search = '', sort = 'expiry';
+  String location = 'all', search = '', sort = 'expiry', expiryFilter = 'all';
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => RecipeEditorial(builder: _build);
+
+  Widget _build(BuildContext context) {
     final state = ref.watch(appProvider);
     final items = state.inventory
         .where(
@@ -44,25 +46,17 @@ class _FridgePageState extends ConsumerState<FridgePage> {
               b.expiryDate ?? DateTime(9999),
             ),
     );
-    final today = DateUtils.dateOnly(DateTime.now());
-    final dueSoon = items
-        .where(
-          (batch) =>
-              batch.usable &&
-              batch.expiryDate != null &&
-              batch.expiryDate!.difference(today).inDays >= 0 &&
-              batch.expiryDate!.difference(today).inDays <= 3,
-        )
-        .length;
-    final expiring = items
-        .where(
-          (batch) =>
-              batch.usable &&
-              batch.expiryDate != null &&
-              batch.expiryDate!.difference(today).inDays >= 0 &&
-              batch.expiryDate!.difference(today).inDays <= 3,
-        )
-        .toList();
+    final expired = items.where((b) => (expiryDays(b) ?? 0) < 0).length;
+    final dueSoon = items.where((b) {
+      final days = expiryDays(b);
+      return days != null && days >= 0 && days <= 3;
+    }).length;
+    final visible = items.where((b) {
+      final days = expiryDays(b);
+      return expiryFilter == 'all' ||
+          (expiryFilter == 'expired' && days != null && days < 0) ||
+          (expiryFilter == 'soon' && days != null && days >= 0 && days <= 3);
+    }).toList();
     return Scaffold(
       body: PageBody(
         onRefresh: () => ref.read(appProvider.notifier).refresh(),
@@ -135,42 +129,52 @@ class _FridgePageState extends ConsumerState<FridgePage> {
           ),
           if (state.offline)
             StatusNote(text: context.t('offline_inventory'), warning: true),
-          if (dueSoon > 0) ...[
-            SectionHeading(
-              title: context.t('use_these_first'),
-              actionLabel: context.t('view_all'),
-              onAction: () => context.push('/expiry'),
+          const SizedBox(height: 12),
+          RecipeActionRow(
+            primary: OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                side: expiryFilter == 'soon'
+                    ? BorderSide(color: Theme.of(context).colorScheme.primary)
+                    : BorderSide.none,
+              ),
+              onPressed: () => setState(
+                () => expiryFilter = expiryFilter == 'soon' ? 'all' : 'soon',
+              ),
+              icon: const EatMeIcon(EatMeGlyph.clockAlert),
+              label: Text('${context.t('expiry_soon_short')} · $dueSoon'),
             ),
-            HorizontalFoodRail(
-              children: [
-                for (final batch in expiring)
-                  FoodPhotoCard(
-                    id: batch.food.id,
-                    photoId: batch.food.photoId,
-                    imageUrl: batch.food.imageUrl,
-                    title: localized(batch.food.name, context.language),
-                    subtitle: '${batch.quantity} ${batch.food.unit}',
-                    imageHeight: 125,
-                    badge: StatusBadge(
-                      label: expiryLabel(context, batch),
-                      icon: EatMeGlyph.clock,
-                      urgent: batch.expiryDate!.difference(today).inDays == 0,
-                      warning: batch.expiryDate!.difference(today).inDays > 0,
-                    ),
-                    onTap: () => sheet(context, BatchSheet(batch: batch)),
-                  ),
-              ],
+            secondary: OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                side: expiryFilter == 'expired'
+                    ? BorderSide(color: Theme.of(context).colorScheme.primary)
+                    : BorderSide.none,
+              ),
+              onPressed: () => setState(
+                () => expiryFilter = expiryFilter == 'expired'
+                    ? 'all'
+                    : 'expired',
+              ),
+              icon: const EatMeIcon(EatMeGlyph.triangleAlert),
+              label: Text('${context.t('expiry_expired')} · $expired'),
             ),
-          ],
+          ),
           SectionHeading(
-            title: context.t('all_foods'),
+            title: context.t(
+              expiryFilter == 'expired'
+                  ? 'expiry_expired'
+                  : expiryFilter == 'soon'
+                  ? 'expiry_soon_short'
+                  : 'all_foods',
+            ),
             actionLabel: context.t('sort_$sort'),
             onAction: () =>
                 setState(() => sort = sort == 'expiry' ? 'name' : 'expiry'),
           ),
-          if (items.isEmpty)
+          if (visible.isEmpty)
             EmptyMessage(
-              title: context.t('empty_fridge'),
+              title: context.t(
+                items.isEmpty ? 'empty_fridge' : 'expiry_no_matches',
+              ),
               body: context.t('empty_fridge_body'),
               action: FilledButton(
                 onPressed: state.offline
@@ -179,33 +183,11 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                 child: Text(context.t('add_food')),
               ),
             ),
-          AdaptivePhotoGrid(
-            children: [
-              for (final batch in items)
-                FoodPhotoCard(
-                  id: batch.food.id,
-                  photoId: batch.food.photoId,
-                  imageUrl: batch.food.imageUrl,
-                  title: localized(batch.food.name, context.language),
-                  subtitle:
-                      '${batch.quantity} ${batch.food.unit} · ${context.t(batch.location)}',
-                  badge: StatusBadge(
-                    label: expiryLabel(context, batch),
-                    urgent: !batch.usable,
-                    warning:
-                        batch.usable &&
-                        batch.expiryDate != null &&
-                        batch.expiryDate!.difference(today).inDays <= 3,
-                    icon: batch.usable
-                        ? EatMeGlyph.clock
-                        : EatMeGlyph.triangleAlert,
-                  ),
-                  onTap: () => sheet(context, BatchSheet(batch: batch)),
-                  onAction: () => sheet(context, BatchSheet(batch: batch)),
-                  actionLabel: context.t('manage_food'),
-                ),
-            ],
-          ),
+          for (final batch in visible)
+            CompactBatchRow(
+              batch: batch,
+              onTap: () => sheet(context, BatchSheet(batch: batch)),
+            ),
           const SizedBox(height: 24),
           SettingsGroup(
             children: [
@@ -287,7 +269,7 @@ class _LeftoversSheetState extends ConsumerState<LeftoversSheet> {
             context.t('leftovers'),
             style: Theme.of(context).textTheme.headlineMedium,
           ),
-          if (items.isEmpty) StatusNote(text: context.t('leftovers_empty')),
+          if (visible.isEmpty) StatusNote(text: context.t('leftovers_empty')),
           for (final item in items)
             ListTile(
               contentPadding: EdgeInsets.zero,

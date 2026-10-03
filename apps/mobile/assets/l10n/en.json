@@ -1071,5 +1071,20 @@
   "estimated_expiry_hint": "No date? EatMe+ will estimate {date} from typical shelf life.",
   "stale_pantry": "Pantry staples changed elsewhere. Reload and try again.",
   "invalid_pantry": "That pantry list is not valid.",
-  "invalid_items": "Select at least one item."
+  "invalid_items": "Select at least one item.",
+  "expiry_expired": "Expired",
+  "expiry_soon_short": "Due soon",
+  "expiry_today": "Today",
+  "expiry_tomorrow": "Tomorrow",
+  "expiry_in_days": "In {count} days",
+  "expiry_days_ago": "{count} days ago",
+  "expiry_no_matches": "No food in this filter",
+  "cooking_back": "Back",
+  "cooking_manual_timer": "Set a timer whenever you need one.",
+  "cooking_all_steps": "All steps",
+  "cooking_ingredients_for": "Ingredients for {count} servings",
+  "use_by_days_ago": "Expired {count} days ago",
+  "use_by_today": "Expires today",
+  "use_by_tomorrow": "Expires tomorrow",
+  "use_by_in_days": "Expires in {count} days"
 }

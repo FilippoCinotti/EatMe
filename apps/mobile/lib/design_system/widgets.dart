@@ -292,3 +292,117 @@ String expiryLabel(BuildContext context, Batch batch) {
   ).formatCompactDate(batch.expiryDate!);
   return context.t(batch.expiryKind, {'date': date});
 }
+
+/// Calendar-day arithmetic also works across daylight-saving transitions.
+int? expiryDays(Batch batch, {DateTime? now}) {
+  final date = batch.expiryDate;
+  if (date == null) return null;
+  final today = now ?? DateTime.now();
+  return DateTime.utc(
+    date.year,
+    date.month,
+    date.day,
+  ).difference(DateTime.utc(today.year, today.month, today.day)).inDays;
+}
+
+String relativeExpiryLabel(BuildContext context, Batch batch) {
+  final days = expiryDays(batch);
+  if (days == null) return context.t('date_unknown');
+  if (batch.expiryKind == 'use_by') {
+    return context.t(
+      days < 0
+          ? 'use_by_days_ago'
+          : days == 0
+          ? 'use_by_today'
+          : days == 1
+          ? 'use_by_tomorrow'
+          : 'use_by_in_days',
+      {'count': days.abs()},
+    );
+  }
+  final relative = context.t(
+    days < 0
+        ? 'expiry_days_ago'
+        : days == 0
+        ? 'expiry_today'
+        : days == 1
+        ? 'expiry_tomorrow'
+        : 'expiry_in_days',
+    {'count': days.abs()},
+  );
+  if (batch.expiryKind == 'estimated') {
+    return '${context.t('estimated_label')} · $relative';
+  }
+  if (batch.expiryKind == 'best_before') {
+    return '${context.t('best_before_label')} · $relative';
+  }
+  return relative;
+}
+
+class CompactBatchRow extends StatelessWidget {
+  const CompactBatchRow({super.key, required this.batch, required this.onTap});
+  final Batch batch;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    final days = expiryDays(batch);
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: scheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(18),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                FoodImage(
+                  id: batch.food.id,
+                  photoId: batch.food.photoId,
+                  imageUrl: batch.food.imageUrl,
+                  width: 56,
+                  height: 56,
+                  radius: 12,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        localized(batch.food.name, context.language),
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      Text(
+                        '${batch.quantity} ${batch.food.unit} · ${context.t(batch.location)}',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        relativeExpiryLabel(context, batch),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color:
+                              !batch.usable ||
+                                  (days != null &&
+                                      days < 0 &&
+                                      batch.expiryKind == 'use_by')
+                              ? scheme.error
+                              : scheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Icon(Icons.chevron_right, size: 18),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

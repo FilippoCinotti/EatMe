@@ -1071,5 +1071,20 @@
   "estimated_expiry_hint": "Nessuna data? EatMe+ stimerà il {date} in base alla durata tipica.",
   "stale_pantry": "La dispensa è stata modificata altrove. Ricarica e riprova.",
   "invalid_pantry": "Questa lista della dispensa non è valida.",
-  "invalid_items": "Seleziona almeno un articolo."
+  "invalid_items": "Seleziona almeno un articolo.",
+  "expiry_expired": "Scaduti",
+  "expiry_soon_short": "In scadenza",
+  "expiry_today": "Oggi",
+  "expiry_tomorrow": "Domani",
+  "expiry_in_days": "Tra {count} giorni",
+  "expiry_days_ago": "Da {count} giorni",
+  "expiry_no_matches": "Nessun alimento in questo filtro",
+  "cooking_back": "Indietro",
+  "cooking_manual_timer": "Timer libero: scegli la durata quando ti serve.",
+  "cooking_all_steps": "Tutti i passaggi",
+  "cooking_ingredients_for": "Ingredienti per {count} porzioni",
+  "use_by_days_ago": "Scaduto da {count} giorni",
+  "use_by_today": "Scade oggi",
+  "use_by_tomorrow": "Scade domani",
+  "use_by_in_days": "Scade tra {count} giorni"
 }

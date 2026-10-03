@@ -466,8 +466,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 ),
               ),
             ],
-            const SizedBox(height: 20),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             Row(
               children: [
                 Text(context.t('servings')),
@@ -495,7 +494,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -532,7 +531,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             EatMeTabStrip(
               editorial: true,
               values: [
