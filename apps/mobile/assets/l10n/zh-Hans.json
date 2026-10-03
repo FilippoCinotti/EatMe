@@ -63,5 +63,20 @@
   "read_more": "展开阅读",
   "show_less": "收起",
   "recipe_steps_unavailable": "此食谱暂无烹饪步骤。",
-  "ingredient_quantity_unknown": "部分用量未知，请在烹饪前检查食材。"
+  "ingredient_quantity_unknown": "部分用量未知，请在烹饪前检查食材。",
+  "expiry_expired": "已过期",
+  "expiry_soon_short": "即将到期",
+  "expiry_today": "今天",
+  "expiry_tomorrow": "明天",
+  "expiry_in_days": "{count}天后",
+  "expiry_days_ago": "{count}天前",
+  "expiry_no_matches": "此筛选中没有食材",
+  "cooking_back": "返回",
+  "cooking_manual_timer": "需要时可自行设置计时器。",
+  "cooking_all_steps": "所有步骤",
+  "cooking_ingredients_for": "{count}份所需食材",
+  "use_by_days_ago": "已过期{count}天",
+  "use_by_today": "今天到期",
+  "use_by_tomorrow": "明天到期",
+  "use_by_in_days": "{count}天后到期"
 }

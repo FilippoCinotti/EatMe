@@ -17,7 +17,9 @@ class ExpiryPage extends ConsumerStatefulWidget {
 class _ExpiryState extends ConsumerState<ExpiryPage> {
   String location = 'all';
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => RecipeEditorial(builder: _build);
+
+  Widget _build(BuildContext context) {
     final state = ref.watch(appProvider);
     final batches =
         state.inventory
@@ -30,9 +32,7 @@ class _ExpiryState extends ConsumerState<ExpiryPage> {
           );
     final groups = <String, List<Batch>>{};
     for (final batch in batches) {
-      final label = batch.expiryDate == null
-          ? context.t('date_unknown')
-          : MaterialLocalizations.of(context).formatFullDate(batch.expiryDate!);
+      final label = relativeExpiryLabel(context, batch);
       groups.putIfAbsent(label, () => []).add(batch);
     }
     return Scaffold(
@@ -59,17 +59,9 @@ class _ExpiryState extends ConsumerState<ExpiryPage> {
           for (final group in groups.entries) ...[
             SectionHeading(title: '${group.key} (${group.value.length})'),
             for (final batch in group.value)
-              Card(
-                child: ListTile(
-                  leading: FoodMark(food: batch.food),
-                  title: Text(localized(batch.food.name, context.language)),
-                  subtitle: Text(
-                    '${batch.quantity} ${batch.food.unit}\n${expiryLabel(context, batch)}',
-                  ),
-                  isThreeLine: true,
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => sheet(context, BatchSheet(batch: batch)),
-                ),
+              CompactBatchRow(
+                batch: batch,
+                onTap: () => sheet(context, BatchSheet(batch: batch)),
               ),
           ],
         ],

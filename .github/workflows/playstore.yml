@@ -1,0 +1,240 @@
+name: Google Play release candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Reviewed commit from main to build
+        required: true
+        type: string
+      build_number:
+        description: Unused monotonically increasing Android version code
+        required: true
+        type: number
+      track:
+        description: Google Play testing track
+        required: true
+        default: internal
+        type: choice
+        options:
+          - internal
+          - alpha
+          - beta
+      upload_to_play:
+        description: Upload the signed bundle to Google Play
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: playstore-${{ inputs.release_sha }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and upload Android RC
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    environment: playstore
+    env:
+      PACKAGE_NAME: com.filippocinotti.eatme
+      MARKETING_VERSION: 1.0.0
+      FLUTTER_VERSION: 3.47.2
+      API_URL: ${{ vars.PRODUCTION_API_URL }}
+      SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+      PRIVACY_URL: ${{ vars.PRIVACY_URL }}
+      TERMS_URL: ${{ vars.TERMS_URL }}
+      REVENUECAT_ANDROID_KEY: ${{ secrets.REVENUECAT_ANDROID_PUBLISHABLE_KEY }}
+      APPLE_ANDROID_CLIENT_ID: ${{ vars.APPLE_ANDROID_CLIENT_ID }}
+      APPLE_ANDROID_CALLBACK_URL: ${{ vars.APPLE_ANDROID_CALLBACK_URL }}
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      FIREBASE_ANDROID_CONFIG_JSON_BASE64: ${{ secrets.FIREBASE_ANDROID_CONFIG_JSON_BASE64 }}
+      GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64 }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Restrict release source to current main
+        env:
+          RELEASE_SHA: ${{ inputs.release_sha }}
+        run: |
+          git fetch origin main --no-tags
+          git cat-file -e "$RELEASE_SHA^{commit}"
+          test "$(git rev-parse origin/main)" = "$RELEASE_SHA"
+          git checkout --detach "$RELEASE_SHA"
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Validate public release configuration
+        run: |
+          python3 - <<'PY'
+          import json, os
+          required = ('API_URL', 'SUPABASE_URL', 'SUPABASE_ANON_KEY', 'PRIVACY_URL', 'TERMS_URL')
+          missing = [name for name in required if not os.environ.get(name)]
+          if missing:
+              raise SystemExit('Missing protected release configuration: ' + ', '.join(missing))
+          config = {
+              'AUTH_MODE': 'supabase',
+              'API_URL': os.environ['API_URL'],
+              'SUPABASE_URL': os.environ['SUPABASE_URL'],
+              'SUPABASE_ANON_KEY': os.environ['SUPABASE_ANON_KEY'],
+              'OAUTH_ENABLED': True,
+              'REVENUECAT_ANDROID_KEY': os.environ.get('REVENUECAT_ANDROID_KEY', ''),
+              'REVENUECAT_IOS_KEY': '',
+              'PRIVACY_URL': os.environ['PRIVACY_URL'],
+              'TERMS_URL': os.environ['TERMS_URL'],
+              'APPLE_ANDROID_CLIENT_ID': os.environ.get('APPLE_ANDROID_CLIENT_ID', ''),
+              'APPLE_ANDROID_CALLBACK_URL': os.environ.get('APPLE_ANDROID_CALLBACK_URL', ''),
+              'APPLE_IOS_BUNDLE_ID': '',
+          }
+          os.makedirs('build', exist_ok=True)
+          with open('build/release-public-config.json', 'w') as output:
+              json.dump(config, output)
+          PY
+          python3 scripts/check_release_config.py build/release-public-config.json --expected-supabase-project-ref ngqetldudwzemdhjprmv
+          curl --fail --silent --show-error --max-time 15 "$API_URL/health" >/dev/null
+
+      - name: Install and validate Android provider configuration
+        run: |
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD FIREBASE_ANDROID_CONFIG_JSON_BASE64; do
+            test -n "${!name}" || { echo "Missing protected Android setting: $name"; exit 1; }
+          done
+          keystore="$RUNNER_TEMP/eatme-upload.jks"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$keystore"
+          keytool -list -keystore "$keystore" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" >/dev/null
+          printf '%s' "$FIREBASE_ANDROID_CONFIG_JSON_BASE64" | base64 --decode > apps/mobile/android/app/google-services.json
+          python3 - <<'PY'
+          import json, os
+          config = json.load(open('apps/mobile/android/app/google-services.json'))
+          if config.get('project_info', {}).get('project_id') != 'eatme-project':
+              raise SystemExit('Firebase Android project does not match eatme-project')
+          packages = {
+              client.get('client_info', {}).get('android_client_info', {}).get('package_name')
+              for client in config.get('client', [])
+          }
+          if os.environ['PACKAGE_NAME'] not in packages:
+              raise SystemExit('Firebase Android package does not match the production application ID')
+          PY
+          echo "ANDROID_KEYSTORE_PATH=$keystore" >> "$GITHUB_ENV"
+
+      - name: Verify Flutter release sources
+        working-directory: apps/mobile
+        run: |
+          flutter clean
+          python3 ../../scripts/bootstrap_mobile.py
+          dart format --output=none --set-exit-if-changed lib test integration_test
+          flutter analyze
+          flutter test
+
+      - name: Validate localization contract
+        run: python3 scripts/check_localizations.py apps/mobile/assets/l10n
+
+      - name: Build signed Android App Bundle
+        working-directory: apps/mobile
+        env:
+          BUILD_NUMBER: ${{ inputs.build_number }}
+        run: |
+          flutter build appbundle --release \
+            --build-name="$MARKETING_VERSION" \
+            --build-number="$BUILD_NUMBER" \
+            --dart-define="AUTH_MODE=supabase" \
+            --dart-define="API_URL=$API_URL" \
+            --dart-define="SUPABASE_URL=$SUPABASE_URL" \
+            --dart-define="SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" \
+            --dart-define="OAUTH_ENABLED=true" \
+            --dart-define="PRIVACY_URL=$PRIVACY_URL" \
+            --dart-define="TERMS_URL=$TERMS_URL" \
+            --dart-define="REVENUECAT_ANDROID_KEY=$REVENUECAT_ANDROID_KEY" \
+            --dart-define="APPLE_ANDROID_CLIENT_ID=$APPLE_ANDROID_CLIENT_ID" \
+            --dart-define="APPLE_ANDROID_CALLBACK_URL=$APPLE_ANDROID_CALLBACK_URL" \
+            --dart-define="FIREBASE_CRASHLYTICS_ENABLED=true"
+          bundle="build/app/outputs/bundle/release/app-release.aab"
+          test -s "$bundle"
+          jarsigner -verify "$bundle"
+          sha256sum "$bundle" | tee "$GITHUB_WORKSPACE/build/android-aab-sha256.txt"
+          echo "EATME_AAB=$GITHUB_WORKSPACE/apps/mobile/$bundle" >> "$GITHUB_ENV"
+
+      - name: Upload signed AAB artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: EatMe-${{ env.MARKETING_VERSION }}-${{ inputs.build_number }}-signed-aab
+          path: ${{ env.EATME_AAB }}
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload to Google Play
+        if: inputs.upload_to_play
+        env:
+          BUILD_NUMBER: ${{ inputs.build_number }}
+          TRACK: ${{ inputs.track }}
+        run: |
+          test -n "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64" || { echo "Missing protected Google Play service account"; exit 1; }
+          credentials="$RUNNER_TEMP/google-play-service-account.json"
+          printf '%s' "$GOOGLE_PLAY_SERVICE_ACCOUNT_JSON_BASE64" | base64 --decode > "$credentials"
+          chmod 600 "$credentials"
+          python -m pip install 'google-auth>=2.40,<3' 'requests>=2.32,<3'
+          python scripts/upload_google_play.py "$EATME_AAB" \
+            --credentials "$credentials" \
+            --package "$PACKAGE_NAME" \
+            --track "$TRACK" \
+            --release-name "EatMe $MARKETING_VERSION ($BUILD_NUMBER)"
+
+      - name: Write release evidence
+        if: always()
+        env:
+          BUILD_NUMBER: ${{ inputs.build_number }}
+          RELEASE_SHA: ${{ inputs.release_sha }}
+          TRACK: ${{ inputs.track }}
+        run: |
+          python3 - <<'PY'
+          import json, os, platform
+          evidence = {
+              'git_sha': os.environ['RELEASE_SHA'],
+              'version': os.environ['MARKETING_VERSION'],
+              'build': os.environ['BUILD_NUMBER'],
+              'package': os.environ['PACKAGE_NAME'],
+              'track': os.environ['TRACK'],
+              'flutter': os.environ['FLUTTER_VERSION'],
+              'runner': 'ubuntu-24.04',
+              'upload_requested': '${{ inputs.upload_to_play }}',
+              'workflow_result': '${{ job.status }}',
+              'python': platform.python_version(),
+          }
+          os.makedirs('build/play-release-evidence', exist_ok=True)
+          with open('build/play-release-evidence/release.json', 'w') as output:
+              json.dump(evidence, output, indent=2)
+          PY
+          if [ -f build/android-aab-sha256.txt ]; then cp build/android-aab-sha256.txt build/play-release-evidence/; fi
+
+      - name: Upload release evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: play-release-evidence-${{ inputs.build_number }}
+          path: build/play-release-evidence
+          retention-days: 90
+
+      - name: Destroy temporary signing material
+        if: always()
+        run: |
+          rm -f "${ANDROID_KEYSTORE_PATH:-}" "$RUNNER_TEMP/google-play-service-account.json"
+          rm -f apps/mobile/android/app/google-services.json

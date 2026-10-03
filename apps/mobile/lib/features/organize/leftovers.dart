@@ -18,7 +18,9 @@ class _LeftoversState extends ResourceState<LeftoversPage> {
   String get path => '/leftovers';
   String tab = 'available';
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => RecipeEditorial(builder: _build);
+
+  Widget _build(BuildContext context) {
     final items = records(
       data?['items'],
     ).where((i) => (i['remaining'] as int) > 0).toList();
@@ -68,18 +70,32 @@ class _LeftoversState extends ResourceState<LeftoversPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  FoodImage(
-                    id: item['recipe_id'] as String? ?? '',
-                    height: 130,
+                  Row(
+                    children: [
+                      FoodImage(
+                        id: item['recipe_id'] as String? ?? '',
+                        height: 56,
+                        width: 56,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              labelOf(item['recipe_title'], context),
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            Text(
+                              '${item['remaining']} ${context.t('servings')} · ${context.t(item['location'] as String)}',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    labelOf(item['recipe_title'], context),
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  Text(
-                    '${item['remaining']} ${context.t('servings')} · ${context.t(item['location'] as String)}',
-                  ),
+                  const SizedBox(height: 8),
                   if (item['user_use_date'] != null)
                     Text(
                       '${context.t('your_use_date')}: ${item['user_use_date']}',

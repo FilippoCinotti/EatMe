@@ -123,7 +123,6 @@ def claim(data, *, clock=None, regenerate=False, curated=frozenset(), retry_fail
     source.setdefault('approved', None)
     return data.get('image_url'), source
 
-
 def complete(data, candidate, *, clock=None):
     source = source_of(data)
     if source.get('status') != 'generating' or source.get('generation') != candidate['generation']:
@@ -184,4 +183,3 @@ def queue(data, *, clock=None, curated=frozenset()):
     source.setdefault('approved', None)
     source.setdefault('generation', 0)
     return data.get('image_url'), source
-

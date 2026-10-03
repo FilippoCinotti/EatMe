@@ -63,5 +63,20 @@
   "read_more": "Lire la suite",
   "show_less": "Voir moins",
   "recipe_steps_unavailable": "Les étapes de préparation de cette recette ne sont pas disponibles.",
-  "ingredient_quantity_unknown": "Certaines quantités sont inconnues. Vérifiez les ingrédients avant de cuisiner."
+  "ingredient_quantity_unknown": "Certaines quantités sont inconnues. Vérifiez les ingrédients avant de cuisiner.",
+  "expiry_expired": "Dates dépassées",
+  "expiry_soon_short": "À utiliser bientôt",
+  "expiry_today": "Aujourd’hui",
+  "expiry_tomorrow": "Demain",
+  "expiry_in_days": "Dans {count} jours",
+  "expiry_days_ago": "Il y a {count} jours",
+  "expiry_no_matches": "Aucun aliment dans ce filtre",
+  "cooking_back": "Retour",
+  "cooking_manual_timer": "Réglez un minuteur selon vos besoins.",
+  "cooking_all_steps": "Toutes les étapes",
+  "cooking_ingredients_for": "Ingrédients pour {count} portions",
+  "use_by_days_ago": "Expiré depuis {count} jours",
+  "use_by_today": "Expire aujourd’hui",
+  "use_by_tomorrow": "Expire demain",
+  "use_by_in_days": "Expire dans {count} jours"
 }

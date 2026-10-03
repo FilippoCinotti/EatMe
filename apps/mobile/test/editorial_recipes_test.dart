@@ -207,6 +207,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       await journey.capture(tester, boundary, 'editorial-cooking-step');
+      await tester.ensureVisible(find.text('Set timer duration'));
       await tester.tap(find.text('Set timer duration'));
       // AsyncAction remains busy behind the open dialog until it is answered.
       await tester.pump();
@@ -214,25 +215,53 @@ void main() {
       await tester.enterText(find.byType(TextFormField), '2');
       await tester.tap(find.text('Save'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Start 2-minute timer'));
+      final startTimer = find.byKey(const ValueKey('cooking-start-timer'));
+      await tester.ensureVisible(startTimer);
+      await tester.tap(startTimer);
       await tester.pump(const Duration(seconds: 1));
       expect(
-        find.textContaining(RegExp(r'Cancel · (02:00|01:[0-5][0-9])')),
+        find.textContaining(RegExp(r'(02:00|01:[0-5][0-9])')),
         findsOneWidget,
       );
+      expect(find.text('Cancel'), findsOneWidget);
       await tester.tap(find.text('Next step'));
       await tester.pump();
       expect(find.text('Cook gently, season and serve.'), findsOneWidget);
       expect(
-        find.textContaining(RegExp(r'Cancel · (02:00|01:[0-5][0-9])')),
+        find.textContaining(RegExp(r'(02:00|01:[0-5][0-9])')),
         findsOneWidget,
       );
+      expect(find.text('Cancel'), findsOneWidget);
       await journey.capture(tester, boundary, 'editorial-cooking-timer');
       await tester.tap(find.text('I’m done'));
       await tester.pumpAndSettle();
       expect(find.byType(ConfirmCookingPage), findsOneWidget);
       expect(tester.takeException(), isNull);
       await journey.capture(tester, boundary, 'editorial-cooking-confirm');
+    },
+  );
+
+  testWidgets(
+    'untimed step has no invented timer and ingredients use preview quantities',
+    (tester) async {
+      await tester.pumpWidget(
+        support.harness(
+          const CookingPage(recipeId: recipeId, servings: 2),
+          EditorialApi(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Ingredients'));
+      await tester.pumpAndSettle();
+      expect(find.text('Eggs'), findsOneWidget);
+      expect(find.text('2 pcs'), findsOneWidget);
+      Navigator.of(tester.element(find.text('Eggs'))).pop();
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Next step'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Start 5-minute timer'), findsNothing);
+      expect(find.text('Set timer duration'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     },
   );
 
