@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -84,10 +82,18 @@ class _DinnersPageState extends ResourceState<DinnersPage> {
         ),
         const SizedBox(height: 24),
         Text(
-          context.t('dinner_planning_title'),
-          style: Theme.of(context).textTheme.headlineMedium,
+          context.t('with_friends').toUpperCase(),
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            letterSpacing: 3,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
+        Text(
+          context.t('dinner_planning_title'),
+          style: Theme.of(context).textTheme.headlineLarge,
+        ),
+        const SizedBox(height: 8),
         Text(
           context.t('dinner_planning_body'),
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -100,27 +106,18 @@ class _DinnersPageState extends ResourceState<DinnersPage> {
           EmptyMessage(
             title: context.t('no_dinners'),
             body: context.t('no_dinners_body'),
-          ),
-        if (events.isNotEmpty) ...[
-          const SizedBox(height: 20),
-          _DinnerGroup(
-            children: [
-              for (final event in events)
-                SettingRow(
-                  icon: EatMeGlyph.utensils,
-                  title: event['title'] as String,
-                  subtitle: MaterialLocalizations.of(context).formatFullDate(
-                    DateTime.parse(event['starts_at'] as String).toLocal(),
-                  ),
-                  trailing: StatusBadge(
-                    label: context.t('dinner_status_${event['status']}'),
-                    warning: event['status'] == 'cancelled',
-                    emphasis: event['status'] == 'planned',
-                  ),
-                  onTap: () => context.push('/plan/dinners/${event['id']}'),
-                ),
-            ],
-          ),
+          )
+        else ...[
+          const SizedBox(height: 28),
+          _Heading(title: context.t('your_dinners')),
+          for (final (index, event) in events.indexed) ...[
+            if (index > 0) const SizedBox(height: 10),
+            _DinnerCard(
+              event: event,
+              featured: index == 0 && event['status'] == 'planned',
+              onTap: () => context.push('/plan/dinners/${event['id']}'),
+            ),
+          ],
         ],
       ]),
     );
@@ -507,6 +504,19 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
     }
   }
 
+  /// Runs a tile action with the same error feedback as AsyncAction.
+  Future<void> guarded(Future<void> Function() action) async {
+    try {
+      await action();
+    } catch (error) {
+      if (!mounted) return;
+      final code = error is ApiFailure ? error.code : 'unknown_error';
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.t(code))));
+    }
+  }
+
   Future<void> buildDinnerShopping() async {
     final entitlement = await ref.read(entitlementsProvider.future);
     if (!entitlement.can(EntitlementCapability.generatedShopping)) {
@@ -572,38 +582,125 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
     final timeline = records(event!['timeline']);
     final active = event!['status'] == 'planned';
     final extra = event!['extra_portions'] as int? ?? 0;
+    final guests = participants
+        .where(
+          (item) => ['temporary_guest', 'saved_guest'].contains(item['kind']),
+        )
+        .toList();
+    final answered = guests.where((item) => item['status'] != 'invited').length;
+    final canShop =
+        ref
+            .watch(entitlementsProvider)
+            .asData
+            ?.value
+            .can(EntitlementCapability.generatedShopping) ??
+        true;
+    final starts = DateTime.parse(event!['starts_at'] as String).toLocal();
+    final kicker =
+        '${MaterialLocalizations.of(context).formatMediumDate(starts)} · '
+        '${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(starts))}';
     return Scaffold(
-      appBar: EatMeAppBar(title: Text(event!['title'] as String)),
+      appBar: EatMeAppBar(title: Text(context.t('with_friends'))),
       body: PageBody(
         onRefresh: load,
         children: [
           if (error != null) StatusNote(text: context.t(error!), warning: true),
+          const SizedBox(height: 8),
           Text(
-            MaterialLocalizations.of(context).formatFullDate(
-              DateTime.parse(event!['starts_at'] as String).toLocal(),
+            kicker.toUpperCase(),
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              letterSpacing: 3,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-            style: Theme.of(context).textTheme.headlineMedium,
           ),
-          if (event!['location'] != null) ...[
-            const SizedBox(height: 6),
-            Text(event!['location'] as String),
+          const SizedBox(height: 8),
+          Text(
+            event!['title'] as String,
+            style: Theme.of(context).textTheme.headlineLarge,
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 12,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              StatusBadge(
+                label: context.t('dinner_status_${event!['status']}'),
+                warning: !active,
+                emphasis: active,
+              ),
+              if (event!['location'] != null)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    EatMeIcon(
+                      EatMeGlyph.house,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      event!['location'] as String,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _GuestSummary(
+            servings: event!['servings'] as int? ?? 1,
+            guests: guests.length,
+            answered: answered,
+            onAdd: active ? showAddParticipant : null,
+          ),
+          if (active) ...[
+            const SizedBox(height: 14),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: EatMeActionTile(
+                    key: const ValueKey('dinner-menu-action'),
+                    icon: EatMeGlyph.utensils,
+                    label: context.t('choose_menu'),
+                    onTap: () => guarded(chooseMenu),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: EatMeActionTile(
+                    key: const ValueKey('dinner-shopping-action'),
+                    icon: canShop
+                        ? EatMeGlyph.shoppingBasket
+                        : EatMeGlyph.badgeCheck,
+                    label: context.t(
+                      canShop ? 'dinner_shopping_short' : 'eatme_plus',
+                    ),
+                    emphasized: true,
+                    onTap: menu.isEmpty
+                        ? null
+                        : () => guarded(buildDinnerShopping),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: EatMeActionTile(
+                    key: const ValueKey('dinner-timeline-action'),
+                    icon: EatMeGlyph.clock,
+                    label: context.t('cooking_timeline'),
+                    onTap: menu.isEmpty
+                        ? null
+                        : () => guarded(
+                            () async => send({'action': 'generate_timeline'}),
+                          ),
+                  ),
+                ),
+              ],
+            ),
           ],
-          const SizedBox(height: 12),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: StatusBadge(
-              label: context.t('dinner_status_${event!['status']}'),
-              warning: !active,
-              emphasis: active,
-            ),
-          ),
-          SectionHeading(
-            title: context.t('cooking_for', {
-              'count': event!['servings'] as int? ?? 1,
-            }),
-            actionLabel: active ? context.t('add_person') : null,
-            onAction: active ? showAddParticipant : null,
-          ),
+          const SizedBox(height: 28),
+          _Heading(title: context.t('dinner_guests')),
           _DinnerGroup(
             children: [
               for (final participant in participants)
@@ -676,30 +773,27 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
                 ),
             ],
           ),
-          SectionHeading(
+          const SizedBox(height: 28),
+          _Heading(
             title: context.t('dinner_menu'),
             actionLabel: active ? context.t('choose_menu') : null,
-            onAction: active ? chooseMenu : null,
+            onAction: active ? () => guarded(chooseMenu) : null,
           ),
           if (menu.isEmpty)
             StatusNote(text: context.t('menu_empty'))
           else
-            _DinnerGroup(
-              children: [
-                for (final recipeId in menu)
-                  _MenuRow(
-                    recipeId: recipeId,
-                    title: labelOf(
-                      recipeById(recipeId)?['title'] ?? '',
-                      context,
-                    ),
-                    subtitle: context.t(
-                      'diet_fit_${fit[recipeId]?['status'] ?? 'review_required'}',
-                    ),
-                    onTap: () => context.push('/recipes/$recipeId'),
-                  ),
-              ],
-            ),
+            for (final (index, recipeId) in menu.indexed) ...[
+              if (index > 0) const SizedBox(height: 10),
+              _MenuCard(
+                recipeId: recipeId,
+                recipe: recipeById(recipeId),
+                status:
+                    fit[recipeId]?['status'] as String? ?? 'review_required',
+                servings: event!['servings'] as int? ?? 1,
+                featured: index == 0,
+                onTap: () => context.push('/recipes/$recipeId'),
+              ),
+            ],
           const SizedBox(height: 12),
           _DinnerGroup(
             children: [
@@ -741,27 +835,9 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
               ),
             ],
           ),
-          if (active && menu.isNotEmpty) ...[
-            SectionHeading(title: context.t('dinner_prepare')),
-            _DinnerGroup(
-              children: [
-                _ActionRow(
-                  icon: EatMeGlyph.shoppingBasket,
-                  title: context.t('build_dinner_shopping'),
-                  subtitle: context.t('build_dinner_shopping_hint'),
-                  action: buildDinnerShopping,
-                ),
-                _ActionRow(
-                  icon: EatMeGlyph.clock,
-                  title: context.t('build_timeline'),
-                  subtitle: context.t('build_timeline_hint'),
-                  action: () async => send({'action': 'generate_timeline'}),
-                ),
-              ],
-            ),
-          ],
           if (timeline.isNotEmpty) ...[
-            SectionHeading(title: context.t('cooking_timeline')),
+            const SizedBox(height: 28),
+            _Heading(title: context.t('cooking_timeline')),
             _DinnerGroup(
               children: [
                 for (final item in timeline)
@@ -812,45 +888,173 @@ class _DinnerGroup extends StatelessWidget {
   );
 }
 
-class _MenuRow extends StatelessWidget {
-  const _MenuRow({
+/// Section title in the editorial Plan style, with an optional text action.
+class _Heading extends StatelessWidget {
+  const _Heading({required this.title, this.actionLabel, this.onAction});
+  final String title;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: Row(
+      children: [
+        Expanded(
+          child: Text(title, style: Theme.of(context).textTheme.headlineSmall),
+        ),
+        if (actionLabel != null && onAction != null)
+          TextButton(onPressed: onAction, child: Text(actionLabel!)),
+      ],
+    ),
+  );
+}
+
+/// Who is coming, mirroring the Plan's week summary.
+class _GuestSummary extends StatelessWidget {
+  const _GuestSummary({
+    required this.servings,
+    required this.guests,
+    required this.answered,
+    required this.onAdd,
+  });
+  final int servings, guests, answered;
+  final VoidCallback? onAdd;
+  @override
+  Widget build(BuildContext context) => InformationPanel(
+    child: Column(
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                shape: BoxShape.circle,
+              ),
+              child: const EatMeIcon(EatMeGlyph.usersRound, size: 23),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.t('cooking_for', {'count': servings}),
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  Text(
+                    guests == 0
+                        ? context.t('dinner_no_guests')
+                        : context.t('dinner_answered', {
+                            'answered': answered,
+                            'total': guests,
+                          }),
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+            if (onAdd != null)
+              EatMeIconButton(
+                key: const ValueKey('dinner-add-person'),
+                glyph: EatMeGlyph.plus,
+                label: context.t('add_person'),
+                onPressed: onAdd,
+              ),
+          ],
+        ),
+        if (guests > 0) ...[
+          const SizedBox(height: 14),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(5),
+            child: LinearProgressIndicator(
+              value: answered / guests,
+              minHeight: 5,
+            ),
+          ),
+        ],
+      ],
+    ),
+  );
+}
+
+/// A menu course, styled like the Plan's meal cards. The first course is
+/// featured with a larger photo.
+class _MenuCard extends StatelessWidget {
+  const _MenuCard({
     required this.recipeId,
-    required this.title,
-    required this.subtitle,
+    required this.recipe,
+    required this.status,
+    required this.servings,
+    required this.featured,
     required this.onTap,
   });
-  final String recipeId, title, subtitle;
+  final String recipeId, status;
+  final Json? recipe;
+  final int servings;
+  final bool featured;
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Semantics(
-      button: true,
+    final fitColor = switch (status) {
+      'works_for_everyone' => scheme.primary,
+      'not_compatible' => scheme.error,
+      _ =>
+        Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xffffcf70)
+            : const Color(0xff855400),
+    };
+    return InformationPanel(
+      tinted: featured,
+      padding: EdgeInsets.zero,
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(24),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: EdgeInsets.all(featured ? 14 : 10),
           child: Row(
             children: [
-              FoodImage(id: recipeId, width: 52, height: 52, radius: 14),
+              FoodImage(
+                id: recipeId,
+                imageUrl: '${recipe?['image_url'] ?? ''}',
+                width: featured ? 104 : 52,
+                height: featured ? 92 : 52,
+                radius: featured ? 18 : 14,
+              ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(height: 3),
                     Text(
-                      subtitle,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
+                      labelOf(recipe?['title'] ?? '', context),
+                      maxLines: featured ? 3 : 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: featured
+                          ? Theme.of(context).textTheme.headlineSmall
+                          : Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      '${recipe?['minutes'] ?? '—'} min · $servings ${context.t('servings').toLowerCase()}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 4),
+                    // Diet-Fit is safety information: kept as a readable
+                    // sentence, colored by outcome.
+                    Text(
+                      context.t('diet_fit_$status'),
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: fitColor,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
               EatMeIcon(
                 EatMeGlyph.chevronRight,
                 size: 18,
@@ -864,53 +1068,88 @@ class _MenuRow extends StatelessWidget {
   }
 }
 
-/// A grouped row that runs an API action, with progress and error feedback
-/// like AsyncAction.
-class _ActionRow extends StatefulWidget {
-  const _ActionRow({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.action,
+/// A dinner in the list, styled like the Plan's meal cards: the date is the
+/// kicker and the next planned dinner is featured.
+class _DinnerCard extends StatelessWidget {
+  const _DinnerCard({
+    required this.event,
+    required this.featured,
+    required this.onTap,
   });
-  final EatMeGlyph icon;
-  final String title, subtitle;
-  final Future<void> Function() action;
+  final Json event;
+  final bool featured;
+  final VoidCallback onTap;
   @override
-  State<_ActionRow> createState() => _ActionRowState();
-}
-
-class _ActionRowState extends State<_ActionRow> {
-  bool busy = false;
-  Future<void> run() async {
-    setState(() => busy = true);
-    try {
-      await widget.action();
-      unawaited(HapticFeedback.lightImpact());
-    } catch (error) {
-      if (mounted) {
-        final code = error is ApiFailure ? error.code : 'unknown_error';
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.t(code))));
-      }
-    } finally {
-      if (mounted) setState(() => busy = false);
-    }
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final starts = DateTime.parse(event['starts_at'] as String).toLocal();
+    final status = event['status'] as String;
+    return InformationPanel(
+      tinted: featured,
+      padding: EdgeInsets.zero,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.all(featured ? 16 : 12),
+          child: Row(
+            children: [
+              Container(
+                width: featured ? 56 : 48,
+                height: featured ? 56 : 48,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: featured
+                      ? scheme.surface.withValues(alpha: .7)
+                      : scheme.primaryContainer,
+                  shape: BoxShape.circle,
+                ),
+                child: EatMeIcon(
+                  EatMeGlyph.utensils,
+                  size: featured ? 26 : 22,
+                  color: scheme.primary,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${MaterialLocalizations.of(context).formatMediumDate(starts)} · ${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(starts))}'
+                          .toUpperCase(),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        letterSpacing: 1.6,
+                        color: scheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      event['title'] as String,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: featured
+                          ? Theme.of(context).textTheme.headlineSmall
+                          : Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    StatusBadge(
+                      label: context.t('dinner_status_$status'),
+                      warning: status == 'cancelled',
+                      emphasis: status == 'planned',
+                    ),
+                  ],
+                ),
+              ),
+              EatMeIcon(
+                EatMeGlyph.chevronRight,
+                size: 18,
+                color: scheme.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
-
-  @override
-  Widget build(BuildContext context) => SettingRow(
-    icon: widget.icon,
-    title: widget.title,
-    subtitle: widget.subtitle,
-    onTap: busy ? null : run,
-    trailing: busy
-        ? const SizedBox(
-            width: 18,
-            height: 18,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          )
-        : null,
-  );
 }

@@ -1089,9 +1089,6 @@
   "use_by_in_days": "Expires in {count} days",
   "extra_portions_title": "Extra portions",
   "extra_portions_hint": "For leftovers or last-minute guests",
-  "dinner_prepare": "Get ready",
-  "build_dinner_shopping_hint": "Adds what you’re missing to the shopping list",
-  "build_timeline_hint": "When to start each dish so everything is ready together",
   "cancel_dinner_confirm": "Guest links will stop working and nobody can respond anymore.",
   "dinner_shopping_plus_body": "With EatMe+, the shopping list for this dinner is built for you from the menu, the number of guests and what’s already in your Fridge.",
   "with_friends": "With friends",
@@ -1121,5 +1118,10 @@
   "timer_suggested": "Suggested timer",
   "next_step_preview": "Next: {step}",
   "recognized_receipt": "Receipt recognized",
-  "recognized_food_photo": "Food photo recognized"
+  "recognized_food_photo": "Food photo recognized",
+  "dinner_shopping_short": "Shopping list",
+  "dinner_answered": "Replies: {answered} of {total} guests",
+  "dinner_no_guests": "Add guests to collect their food needs",
+  "dinner_guests": "Guests",
+  "your_dinners": "Your dinners"
 }

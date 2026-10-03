@@ -1089,9 +1089,6 @@
   "use_by_in_days": "Scade tra {count} giorni",
   "extra_portions_title": "Porzioni extra",
   "extra_portions_hint": "Per gli avanzi o gli ospiti dell’ultimo minuto",
-  "dinner_prepare": "Preparati",
-  "build_dinner_shopping_hint": "Aggiunge alla lista della spesa ciò che ti manca",
-  "build_timeline_hint": "Quando iniziare ogni piatto per servire tutto insieme",
   "cancel_dinner_confirm": "I link degli ospiti smetteranno di funzionare e nessuno potrà più rispondere.",
   "dinner_shopping_plus_body": "Con EatMe+ la spesa per questa cena si crea da sola, in base al menu, al numero di ospiti e a ciò che hai già in Frigo.",
   "with_friends": "Con amici",
@@ -1121,5 +1118,10 @@
   "timer_suggested": "Timer consigliato",
   "next_step_preview": "Il prossimo: {step}",
   "recognized_receipt": "Scontrino riconosciuto",
-  "recognized_food_photo": "Foto alimento riconosciuta"
+  "recognized_food_photo": "Foto alimento riconosciuta",
+  "dinner_shopping_short": "Crea la spesa",
+  "dinner_answered": "Risposte: {answered} su {total} ospiti",
+  "dinner_no_guests": "Aggiungi gli ospiti per raccogliere le loro esigenze",
+  "dinner_guests": "Ospiti",
+  "your_dinners": "Le tue cene"
 }

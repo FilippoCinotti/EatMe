@@ -138,7 +138,9 @@ void main() {
       );
       expect(navigation.selectedIndex, 2);
       expect(navigation.destinations, hasLength(4));
-      expect(find.text('Dinner with friends'), findsOneWidget);
+      final dinner = find.text('Dinner with friends');
+      await tester.scrollUntilVisible(dinner, 200);
+      expect(dinner, findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -157,8 +159,11 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Ada'), 200);
     expect(find.text('Ada'), findsOneWidget);
-    expect(find.text('Waiting for a guest’s food needs'), findsOneWidget);
+    final waiting = find.text('Waiting for a guest’s food needs');
+    await tester.scrollUntilVisible(waiting, 200);
+    expect(waiting, findsOneWidget);
     expect(
       find.text('Works for everyone in the answered profiles'),
       findsNothing,
@@ -176,7 +181,10 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byType(PopupMenuButton<String>));
+    final guestMenu = find.byType(PopupMenuButton<String>);
+    await tester.ensureVisible(guestMenu);
+    await tester.pumpAndSettle();
+    await tester.tap(guestMenu);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Invite guest'));
     await tester.pumpAndSettle();
@@ -196,7 +204,7 @@ void main() {
       support.harness(const DinnerDetailPage(dinnerId: 'dinner-1'), api),
     );
     await tester.pumpAndSettle();
-    final action = find.text('Build dinner shopping list');
+    final action = find.byKey(const ValueKey('dinner-shopping-action'));
     await tester.scrollUntilVisible(action, 200);
     await tester.tap(action);
     // The row keeps its progress indicator while the sheet is open.

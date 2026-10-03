@@ -1205,3 +1205,70 @@ class EatMeAppBar extends StatelessWidget implements PreferredSizeWidget {
     ),
   );
 }
+
+/// Square action tile used in the Plan and dinner headers; the emphasized
+/// tile carries the primary or EatMe+ action. A null [onTap] disables it.
+class EatMeActionTile extends StatelessWidget {
+  const EatMeActionTile({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.emphasized = false,
+  });
+
+  final EatMeGlyph icon;
+  final String label;
+  final VoidCallback? onTap;
+  final bool emphasized;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final background = emphasized
+        ? scheme.primaryContainer
+        : scheme.surfaceContainer;
+    final foreground = onTap == null
+        ? scheme.onSurface.withValues(alpha: .38)
+        : emphasized
+        ? scheme.primary
+        : scheme.onSurface;
+
+    return Semantics(
+      button: true,
+      enabled: onTap != null,
+      label: label,
+      child: Material(
+        color: background,
+        borderRadius: BorderRadius.circular(22),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 74),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  EatMeIcon(icon, size: 24, color: foreground),
+                  const SizedBox(height: 7),
+                  Text(
+                    label,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: foreground,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

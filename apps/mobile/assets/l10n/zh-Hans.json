@@ -1089,9 +1089,6 @@
   "use_by_in_days": "{count}天后到期",
   "extra_portions_title": "额外份数",
   "extra_portions_hint": "留作剩菜或临时来客",
-  "dinner_prepare": "准备工作",
-  "build_dinner_shopping_hint": "把缺少的食材加入购物清单",
-  "build_timeline_hint": "每道菜何时开始做，才能同时上桌",
   "cancel_dinner_confirm": "宾客链接将失效，任何人都无法再回复。",
   "dinner_shopping_plus_body": "开通 EatMe+ 后，系统会根据菜单、宾客人数和「食材」中已有的东西，自动生成这次聚餐的购物清单。",
   "with_friends": "与朋友",
@@ -1121,5 +1118,10 @@
   "timer_suggested": "建议计时",
   "next_step_preview": "下一步：{step}",
   "recognized_receipt": "已识别收据",
-  "recognized_food_photo": "已识别食物照片"
+  "recognized_food_photo": "已识别食物照片",
+  "dinner_shopping_short": "购物清单",
+  "dinner_answered": "已回复：{answered}/{total} 位宾客",
+  "dinner_no_guests": "添加宾客以了解他们的饮食需求",
+  "dinner_guests": "宾客",
+  "your_dinners": "你的聚餐"
 }

@@ -354,7 +354,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: _PlannerActionTile(
+              child: EatMeActionTile(
                 key: const ValueKey('planner-date-action'),
                 icon: EatMeGlyph.calendar,
                 label: context.t('change_week'),
@@ -380,7 +380,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
             if (participants == null || participants!.isEmpty) ...[
               const SizedBox(width: 10),
               Expanded(
-                child: _PlannerActionTile(
+                child: EatMeActionTile(
                   key: const ValueKey('planner-diners-action'),
                   icon: EatMeGlyph.usersRound,
                   label: context.t('who_is_eating'),
@@ -399,7 +399,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
             ],
             const SizedBox(width: 10),
             Expanded(
-              child: _PlannerActionTile(
+              child: EatMeActionTile(
                 key: const ValueKey('planner-smart-action'),
                 icon: canSmartPlan
                     ? EatMeGlyph.sparkles
@@ -913,64 +913,4 @@ class _UpcomingMealCard extends StatelessWidget {
       ),
     ),
   );
-}
-
-class _PlannerActionTile extends StatelessWidget {
-  const _PlannerActionTile({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.emphasized = false,
-  });
-
-  final EatMeGlyph icon;
-  final String label;
-  final VoidCallback onTap;
-  final bool emphasized;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final background = emphasized
-        ? scheme.primaryContainer
-        : scheme.surfaceContainer;
-    final foreground = emphasized ? scheme.primary : scheme.onSurface;
-
-    return Semantics(
-      button: true,
-      label: label,
-      child: Material(
-        color: background,
-        borderRadius: BorderRadius.circular(22),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(22),
-          onTap: onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 74),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  EatMeIcon(icon, size: 24, color: foreground),
-                  const SizedBox(height: 7),
-                  Text(
-                    label,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: foreground,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
