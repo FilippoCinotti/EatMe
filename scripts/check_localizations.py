@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-"""Validate locale JSON shape and the frozen release-critical key contract."""
+"""Validate locale JSON shape, the release-critical keys and full key parity.
+
+Every locale must translate every key of the canonical English file, with the
+same {placeholders}; a missing key would silently fall back to English.
+"""
 
 from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 
@@ -27,11 +32,19 @@ RELEASE_CRITICAL = {
 }
 
 
+PLACEHOLDER = re.compile(r"\{[A-Za-z_]+\}")
+
+
+def placeholders(value: str) -> list[str]:
+    return sorted(PLACEHOLDER.findall(value))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("directory", type=Path)
     args = parser.parse_args()
     failures = []
+    canonical = json.loads((args.directory / "en.json").read_text())
     for locale in LOCALES:
         path = args.directory / f"{locale}.json"
         try:
@@ -45,9 +58,25 @@ def main() -> int:
             failures.append(f"{locale}: missing release keys {missing}")
         if blank:
             failures.append(f"{locale}: blank release keys {blank}")
+        untranslated = sorted(set(canonical) - set(data))
+        if untranslated:
+            failures.append(f"{locale}: {len(untranslated)} keys missing, e.g. {untranslated[:5]}")
+        unknown = sorted(set(data) - set(canonical))
+        if unknown:
+            failures.append(f"{locale}: keys not in en.json {unknown[:5]}")
+        empty = sorted(key for key, value in data.items() if not str(value).strip())
+        if empty:
+            failures.append(f"{locale}: empty values {empty[:5]}")
+        mismatched = sorted(
+            key
+            for key in set(canonical) & set(data)
+            if placeholders(str(canonical[key])) != placeholders(str(data[key]))
+        )
+        if mismatched:
+            failures.append(f"{locale}: placeholder mismatch {mismatched[:5]}")
     if failures:
         raise SystemExit("\n".join(failures))
-    print("Localization release contract passed for en, it, es, fr, de and zh-Hans")
+    print(f"Localization contract passed: {len(canonical)} keys in en, it, es, fr, de and zh-Hans")
     return 0
 
 
