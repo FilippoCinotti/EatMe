@@ -93,6 +93,11 @@ void main() {
       250,
       scrollable: find.byType(Scrollable).first,
     );
+    await Scrollable.ensureVisible(
+      tester.element(dinnerSlot),
+      alignment: 0.5,
+    );
+    await tester.pumpAndSettle();
     await tester.tap(dinnerSlot);
     await waitFor(tester, find.text(recipeTitle));
     await tester.ensureVisible(find.text(recipeTitle));
