@@ -11,7 +11,7 @@ Seguile nell'ordine; ogni passo dice come verificare che sia andato a buon fine.
 | `generated/verified_recipes_catalog.json` | 3.604 ricette verificate (IT/EN), più l'elenco `foods` dei nuovi alimenti di catalogo, ingredienti mappati sul catalogo alimenti, `meal_types`, `diet_tags`, `image_prompt` |
 | `docs/catalog/verified-recipes-v1.json` | Manifest delle fonti (catalog_version 4, 1.034 voci) |
 | `scripts/load_verified_recipes.py` | Upsert idempotente delle ricette nella tabella `recipes` (dry run di default) |
-| `scripts/generate_recipe_images.py` | Genera le foto con OpenAI, le carica su Supabase Storage e imposta `image_url` |
+| `scripts/generate_recipe_images.py` | Genera le foto con un modello open locale (FLUX.1-schnell), le carica su Supabase Storage; `image_url` solo dopo approvazione (vedi `docs/catalog/recipe-images.md`) |
 | `.github/workflows/catalog-recipes-load.yml` | Workflow manuale per il caricamento ricette |
 | `.github/workflows/catalog-recipe-images.yml` | Workflow manuale per le foto |
 | `services/api/tests/test_verified_catalog.py` | Validazione del catalogo e del loader |
@@ -32,7 +32,7 @@ Entrambi i workflow girano nell'environment `production`. Crea l'environment se 
 |---|---|---|
 | `CATALOG_DATABASE_URL` | secret | Connection string PostgreSQL di Supabase con permesso di scrittura su `recipes` (Supabase → Project Settings → Database → Connection string, modalità *Session pooler*, utente `postgres`) |
 | `SUPABASE_SERVICE_ROLE_KEY` | secret | Supabase → Project Settings → API → `service_role` |
-| `OPENAI_API_KEY` | secret | Chiave OpenAI con accesso alle Images API (gpt-image) |
+| `HF_TOKEN` | secret | Solo per la generazione foto: token Hugging Face (gratuito) di un account che ha accettato i termini di FLUX.1-schnell |
 | `SUPABASE_URL` | variable | `https://ngqetldudwzemdhjprmv.supabase.co` (già usata dal workflow TestFlight: se esiste a livello repository va bene) |
 
 Non incollare mai questi valori in chat, issue o commit.
@@ -59,19 +59,15 @@ Lo script applica solo le migrazioni mancanti.
 
 ## 4. Generazione foto
 
-Le foto sono illustrazioni AI di proprietà EatMe (nessuna foto delle fonti viene ripubblicata).
+Le foto sono immagini originali EatMe generate con un modello open eseguito in locale (FLUX.1-schnell):
+nessuna API a pagamento, nessuna foto delle fonti copiata. Procedura completa, requisiti GPU e comandi in
+[`recipe-images.md`](recipe-images.md). In sintesi:
 
-1. *Actions* → **Generate recipe catalog images** → *Run workflow* con `dry_run = true`.
-   Atteso nel log: `N images to generate; 0 catalog recipes not loaded yet`.
-2. Prova su pochi elementi: `dry_run = false`, `limit = 20`, `quality = medium`.
-   - Controlla alcune immagini: Supabase → Storage → bucket `eatme-catalog-media` → cartella `recipes/`
-     (il bucket viene creato pubblico automaticamente, solo `image/webp`, max 2 MB).
-   - Controlla nell'app che le ricette mostrino la nuova foto.
-3. Completa: `limit = 0` (tutte le mancanti). Il job dura al massimo ~6 ore; se si interrompe o
-   segnala `FAILED`, rilancialo: salta le ricette che hanno già `image_url`.
-4. Costo indicativo OpenAI per 3.604 immagini 1024×1024: circa 40 $ (`low`), 150 $ (`medium`), 600 $ (`high`).
-   Se le 1.023 foto v4 sono già state generate, restano da fare solo le ~2.580 nuove.
-   Verifica i prezzi correnti su platform.openai.com prima di lanciare.
+1. *Actions* → **Generate recipe catalog images** → `mode = dry-run`: stato e prompt dalle ricette reali.
+2. Su una macchina con GPU (o runner self-hosted con etichetta `gpu`, `mode = generate`):
+   prima `--sample 10`, revisione con `--review-sheet`, `--approve` delle buone, verifica nell'app.
+3. Poi il catalogo completo con `--missing` (riprendibile: rilanciare lo stesso comando).
+   Le immagini compaiono nell'app solo dopo `--approve`.
 
 ## 5. Verifica finale in produzione
 
@@ -82,7 +78,7 @@ Le foto sono illustrazioni AI di proprietà EatMe (nessuna foto delle fonti vien
 
 ## Rollback
 
-- Foto: rimuovere `image_url`/`image_source` dalle righe interessate e svuotare `recipes/` nel bucket.
-- Ricette: le righe nuove hanno `catalog_version = 4` nel JSON `data`; si possono rendere invisibili
+- Foto: `--reject <slug>` ritira un'immagine dall'app; per tutte, `image_url = null` sulle ricette con `image_source.kind = ai-generated` (dettagli in `recipe-images.md`).
+- Ricette: le righe nuove hanno `catalog_version = 5` nel JSON `data`; si possono rendere invisibili
   impostando `recommendation_eligible = false` (vengono escluse da libreria e suggerimenti) oppure
   eliminarle se non hanno preferiti/feedback collegati.

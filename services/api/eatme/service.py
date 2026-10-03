@@ -25,6 +25,19 @@ HEALTH_CONSENT = "nutrition-profile-1"
 MEDICAL_CONSENT = "medical-nutrition-1"
 
 
+# Clients receive only these image_source keys; generation metadata (prompts,
+# seeds, candidates) stays in the database for operators and audits.
+PUBLIC_IMAGE_SOURCE_KEYS = ("kind", "owner", "status")
+
+
+def client_recipe(recipe: dict) -> dict:
+    source = recipe.get("image_source")
+    if isinstance(source, dict):
+        recipe["image_source"] = {key: source[key] for key in PUBLIC_IMAGE_SOURCE_KEYS if key in source}
+    recipe.pop("image_prompt", None)
+    return recipe
+
+
 def new_id() -> str:
     return str(uuid4())
 
@@ -93,7 +106,7 @@ class Service(
         foods = {r["id"]:decode(r["data"]) for r in tx.all("SELECT f.* FROM foods f LEFT JOIN content_ownership o ON o.content_id=f.id AND o.kind='food' WHERE o.content_id IS NULL OR o.user_id=? OR o.household_id IN (SELECT household_id FROM household_members WHERE user_id=?)", (user_id,user_id))}
         # Ingredient/profile operations do not need multi-megabyte recipe rows.
         recipes = [decode(r["data"]) for r in tx.all("SELECT r.* FROM recipes r LEFT JOIN content_ownership o ON o.content_id=r.id AND o.kind='recipe' WHERE o.content_id IS NULL OR o.user_id=?", (user_id,))] if include_recipes else []
-        recipes = [recipe for recipe in recipes if not recipe.get("archived")]
+        recipes = [client_recipe(recipe) for recipe in recipes if not recipe.get("archived")]
         diets = [decode(r["data"]) for r in tx.all("SELECT * FROM diet_definitions")]
         versions = [{**v,"rules":decode(v["rules"])} for v in tx.all("SELECT * FROM diet_versions")]
         retired = tx.all("SELECT DISTINCT g.kind,g.subject_id FROM governed_content g WHERE g.status='DEPRECATED' AND NOT EXISTS (SELECT 1 FROM governed_content p WHERE p.kind=g.kind AND p.subject_id=g.subject_id AND p.status='PUBLISHED')")

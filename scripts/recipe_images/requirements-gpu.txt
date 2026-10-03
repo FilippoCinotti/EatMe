@@ -1,0 +1,11 @@
+# Local inference for scripts/generate_recipe_images.py (GPU machine only; not used by CI).
+# Install the torch build that matches your CUDA version first if needed:
+#   https://pytorch.org/get-started/locally/
+torch>=2.4
+diffusers>=0.30
+transformers>=4.44
+accelerate>=0.33
+sentencepiece>=0.2
+protobuf>=4
+Pillow>=12.3.0,<13
+psycopg[binary]>=3.2
