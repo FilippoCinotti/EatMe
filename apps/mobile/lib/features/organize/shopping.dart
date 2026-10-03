@@ -149,7 +149,9 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => RecipeEditorial(builder: _build);
+
+  Widget _build(BuildContext context) {
     final items = records(data?['items']);
     final categories =
         items.map((i) => i['category'] as String? ?? 'other').toSet().toList()
