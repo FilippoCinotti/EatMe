@@ -30,8 +30,9 @@ class _ScanningState extends ResourceState<ScanningPage> {
   void initState() {
     super.initState();
     timer = Timer.periodic(const Duration(seconds: 4), (_) {
-      if (records(data?['items'])
-          .any((j) => ['queued', 'processing'].contains(j['status']))) {
+      if (records(
+        data?['items'],
+      ).any((j) => ['queued', 'processing'].contains(j['status']))) {
         load();
       }
     });
@@ -131,8 +132,9 @@ class _ScanningState extends ResourceState<ScanningPage> {
       const SizedBox(height: 6),
       Text(
         context.t('smart_capture_body'),
-        style: Theme.of(context).textTheme.bodyLarge
-            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
       ),
       const SizedBox(height: 18),
       AsyncAction(
@@ -395,9 +397,9 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
   @override
   void initState() {
     super.initState();
-    items = records(widget.job['result']['items'])
-        .map((i) => {...i, 'confirmed': false})
-        .toList();
+    items = records(
+      widget.job['result']['items'],
+    ).map((i) => {...i, 'confirmed': false}).toList();
     final mediaId = widget.job['media_id'] as String?;
     if (mediaId != null) {
       preview = ref.read(apiProvider).request('GET', '/media/$mediaId');
@@ -738,17 +740,13 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
                 numeric: true,
               );
               if (amount == null) return;
-              await Mutation().send(
-                ref.read(apiProvider),
-                'POST',
-                '/products/stock',
-                {
-                  'product_id': product!['id'],
-                  'food_id': classification!.id,
-                  'quantity': amount,
-                  'package_checked': true,
-                },
-              );
+              await Mutation()
+                  .send(ref.read(apiProvider), 'POST', '/products/stock', {
+                    'product_id': product!['id'],
+                    'food_id': classification!.id,
+                    'quantity': amount,
+                    'package_checked': true,
+                  });
               await ref.read(appProvider.notifier).refresh();
               if (context.mounted) context.pop();
             },

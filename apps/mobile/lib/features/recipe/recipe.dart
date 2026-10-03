@@ -56,16 +56,12 @@ class _RecipePageState extends ConsumerState<RecipePage> {
   );
 
   Future<Food?> chooseReplacement(Recipe recipe, Food original) async {
-    final response = await mutation.send(
-      ref.read(apiProvider),
-      'POST',
-      '/recipes',
-      {
-        'action': 'substitution_candidates',
-        'recipe_id': recipe.id,
-        'food_id': original.id,
-      },
-    );
+    final response = await mutation
+        .send(ref.read(apiProvider), 'POST', '/recipes', {
+          'action': 'substitution_candidates',
+          'recipe_id': recipe.id,
+          'food_id': original.id,
+        });
     if (!mounted) return null;
     final candidates = records(response['candidates']);
     final allFoods = ref
@@ -135,9 +131,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                     ),
                                     context.language,
                                   ),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium,
                                 ),
                                 Text(
                                   context.t(
@@ -192,18 +188,14 @@ class _RecipePageState extends ConsumerState<RecipePage> {
       numeric: true,
     );
     if (amount == null) return;
-    final changed = await Mutation().send(
-      ref.read(apiProvider),
-      'POST',
-      '/recipes',
-      {
-        'action': 'substitute',
-        'recipe_id': recipe.id,
-        'food_id': original.id,
-        'replacement_id': replacement.id,
-        'quantity': amount,
-      },
-    );
+    final changed = await Mutation()
+        .send(ref.read(apiProvider), 'POST', '/recipes', {
+          'action': 'substitute',
+          'recipe_id': recipe.id,
+          'food_id': original.id,
+          'replacement_id': replacement.id,
+          'quantity': amount,
+        });
     if (mounted && context.mounted) {
       context.push('/recipe-editor', extra: changed);
     }
@@ -378,8 +370,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                       foregroundColor: favorite
                           ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.onSurface,
-                      backgroundColor: Theme.of(context).colorScheme.surface
-                          .withValues(alpha: .92),
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surface.withValues(alpha: .92),
                       onPressed: toggleFavorite,
                     ),
                   ),
@@ -659,9 +652,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                               size: 20,
                               color: isAvailable
                                   ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
+                                  : Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -675,9 +668,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                       ),
                                       context.language,
                                     ),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
                                   ),
                                   const SizedBox(height: 3),
                                   Text(
@@ -687,9 +680,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                           '${item['available'] ?? '—'}',
                                       'unit': '${item['food']['unit'] ?? ''}',
                                     }),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
                                   ),
                                 ],
                               ),
@@ -837,16 +830,12 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                         ),
                         secondary: true,
                         action: () async {
-                          await Mutation().send(
-                            ref.read(apiProvider),
-                            'POST',
-                            '/recipes',
-                            {
-                              'action': 'feedback',
-                              'recipe_id': recipe.id,
-                              'rating': rating,
-                            },
-                          );
+                          await Mutation()
+                              .send(ref.read(apiProvider), 'POST', '/recipes', {
+                                'action': 'feedback',
+                                'recipe_id': recipe.id,
+                                'rating': rating,
+                              });
                         },
                       ),
                   ],

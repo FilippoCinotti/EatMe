@@ -86,9 +86,14 @@ void main() {
     expect((await api.request('GET', '/shopping'))['items'], isEmpty);
     container.read(routerProvider).go('/planner');
     await tester.pumpAndSettle();
-    await waitFor(tester, find.text('Dinner').first);
-    await tester.ensureVisible(find.text('Dinner').first);
-    await tester.tap(find.text('Dinner').first);
+    await waitFor(tester, find.byKey(const ValueKey('planner-date-action')));
+    final dinnerSlot = find.byKey(const ValueKey('planner-slot-dinner'));
+    await tester.scrollUntilVisible(
+      dinnerSlot,
+      250,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(dinnerSlot);
     await waitFor(tester, find.text(recipeTitle));
     await tester.ensureVisible(find.text(recipeTitle));
     await tester.pumpAndSettle();
