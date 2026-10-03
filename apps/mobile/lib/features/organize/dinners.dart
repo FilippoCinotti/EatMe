@@ -83,15 +83,16 @@ class _DinnersPageState extends ResourceState<DinnersPage> {
         const SizedBox(height: 24),
         Text(
           context.t('with_friends').toUpperCase(),
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            letterSpacing: 3,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            letterSpacing: 2.35,
+            fontWeight: FontWeight.w700,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: 8),
         Text(
           context.t('dinner_planning_title'),
-          style: Theme.of(context).textTheme.headlineLarge,
+          style: Theme.of(context).textTheme.displaySmall,
         ),
         const SizedBox(height: 8),
         Text(
@@ -608,15 +609,16 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
           const SizedBox(height: 8),
           Text(
             kicker.toUpperCase(),
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              letterSpacing: 3,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              letterSpacing: 2.35,
+              fontWeight: FontWeight.w700,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             event!['title'] as String,
-            style: Theme.of(context).textTheme.headlineLarge,
+            style: Theme.of(context).textTheme.displaySmall,
           ),
           const SizedBox(height: 10),
           Wrap(
@@ -900,7 +902,7 @@ class _Heading extends StatelessWidget {
     child: Row(
       children: [
         Expanded(
-          child: Text(title, style: Theme.of(context).textTheme.headlineSmall),
+          child: Text(title, style: Theme.of(context).textTheme.headlineMedium),
         ),
         if (actionLabel != null && onAction != null)
           TextButton(onPressed: onAction, child: Text(actionLabel!)),
@@ -1034,7 +1036,7 @@ class _MenuCard extends StatelessWidget {
                       maxLines: featured ? 3 : 2,
                       overflow: TextOverflow.ellipsis,
                       style: featured
-                          ? Theme.of(context).textTheme.headlineSmall
+                          ? Theme.of(context).textTheme.titleLarge
                           : Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 5),
@@ -1129,7 +1131,7 @@ class _DinnerCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: featured
-                          ? Theme.of(context).textTheme.headlineSmall
+                          ? Theme.of(context).textTheme.titleLarge
                           : Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 8),
