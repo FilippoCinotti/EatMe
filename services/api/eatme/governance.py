@@ -145,7 +145,7 @@ class GovernanceService:
                 if not nutrition['values']:
                     raise DomainError('invalid_nutrition', 422)
         elif kind == 'recipe':
-            self._validate_recipe(value, self._catalog(tx)[0])
+            self._validate_recipe(value, self._catalog(tx, include_recipes=False)[0])
         elif kind == 'diet':
             text(value.get('slug'), maximum=80)
             if type(value.get('medical')) is not bool:
@@ -222,7 +222,7 @@ class GovernanceService:
             value.update(id=identifier, is_demo=False, provenance='reviewed-catalog')
             table = 'foods' if kind == 'food' else 'recipes'
             if kind == 'recipe':
-                value = {**self._validate_recipe(value, self._catalog(tx)[0]), 'id': identifier, 'is_demo': False}
+                value = {**self._validate_recipe(value, self._catalog(tx, include_recipes=False)[0]), 'id': identifier, 'is_demo': False}
             tx.execute(f'INSERT INTO {table} VALUES (?,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data', (identifier, encode(value)))
         elif kind == 'diet':
             value.update(id=identifier, status='PUBLISHED', is_demo=False)

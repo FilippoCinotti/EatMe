@@ -341,7 +341,7 @@ class IntelligenceService:
                 items = data.get('items')
                 if not isinstance(items, list) or not 1 <= len(items) <= 50:
                     raise DomainError('invalid_detections', 422)
-                foods = self._catalog(tx, user_id)[0]
+                foods = self._catalog(tx, user_id, include_recipes=False)[0]
                 identifiers = []
                 for item in items:
                     if not isinstance(item, dict) or item.get('confirmed') is not True or item.get('food_id') not in foods:
@@ -380,7 +380,7 @@ class IntelligenceService:
                 return True
             tx.execute("UPDATE processing_jobs SET status='processing',progress=20,attempts=attempts+1,lease_until=?,version=version+1 WHERE id=?", ((datetime.now(timezone.utc) + timedelta(minutes=3)).isoformat(), job['id']))
             lease_version = job['version'] + 1
-            foods = self._catalog(tx, job['user_id'])[0]
+            foods = self._catalog(tx, job['user_id'], include_recipes=False)[0]
         try:
             payload = decode(job['payload'])
             provider = getattr(self, 'ai_provider', None) or (DevelopmentAIProvider() if payload['provider'] == 'development' else OpenAIProvider())
