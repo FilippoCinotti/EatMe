@@ -269,7 +269,7 @@ class _LeftoversSheetState extends ConsumerState<LeftoversSheet> {
             context.t('leftovers'),
             style: Theme.of(context).textTheme.headlineMedium,
           ),
-          if (visible.isEmpty) StatusNote(text: context.t('leftovers_empty')),
+          if (items.isEmpty) StatusNote(text: context.t('leftovers_empty')),
           for (final item in items)
             ListTile(
               contentPadding: EdgeInsets.zero,
