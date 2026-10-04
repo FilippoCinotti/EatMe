@@ -422,7 +422,8 @@ class IntelligenceService:
                         item['food_id'] = None
                     if item['quantity'] is not None:
                         item['quantity'] = quantity(amount_milli(item['quantity']))
-                    choice(item['unit'], {'g', 'ml', 'pcs', None})
+                    if item['unit'] is not None:
+                        choice(item['unit'], {'g', 'ml', 'pcs'})
                     item['requires_confirmation'] = True
             value['development_fixture'] = payload['provider'] == 'development'
             with self.db.transaction() as tx:
