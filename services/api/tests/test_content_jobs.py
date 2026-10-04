@@ -120,9 +120,10 @@ class ContentCase(unittest.TestCase):
                 404,
                 {'provider_status': 404, 'provider_request_id': 'req-test'},
             ),
-        ):
+        ) as request:
             with self.assertRaises(DomainError) as error:
                 OpenAIProvider().run('photo', {}, {}, b'image')
+        self.assertEqual(request.call_args.kwargs['timeout'], 60)
         self.assertEqual(error.exception.code, 'ai_model_unavailable')
         self.assertEqual(error.exception.details['provider_status'], 404)
         self.assertNotIn('test-secret', str(error.exception.details))
