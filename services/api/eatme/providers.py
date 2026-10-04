@@ -12,8 +12,8 @@ from .errors import DomainError
 
 
 class PinnedHTTPS(http.client.HTTPSConnection):
-    def __init__(self, hostname, address):
-        super().__init__(hostname, timeout=15, context=ssl.create_default_context())
+    def __init__(self, hostname, address, timeout):
+        super().__init__(hostname, timeout=timeout, context=ssl.create_default_context())
         self.address = address
 
     def connect(self):
@@ -22,22 +22,22 @@ class PinnedHTTPS(http.client.HTTPSConnection):
         self.sock = self._context.wrap_socket(sock, server_hostname=self.host)
 
 
-def https_request(url, *, method="GET", body=None, headers=None, maximum=2_000_000, redirects=3):
+def https_request(url, *, method="GET", body=None, headers=None, maximum=2_000_000, redirects=3, timeout=15):
     parts = urlsplit(url)
-    if parts.scheme != "https" or not parts.hostname or parts.username or parts.password or parts.port not in (None, 443):
+    if parts.scheme != "https" or not parts.hostname or parts.username or parts.password or parts.port not in (None, 443) or not 1 <= timeout <= 60:
         raise DomainError("invalid_public_url", 422)
     try:
         addresses = {r[4][0] for r in socket.getaddrinfo(parts.hostname, 443, type=socket.SOCK_STREAM)}
         if not addresses or any(not ipaddress.ip_address(a).is_global for a in addresses):
             raise DomainError("invalid_public_url", 422)
-        connection = PinnedHTTPS(parts.hostname, sorted(addresses)[0])
+        connection = PinnedHTTPS(parts.hostname, sorted(addresses)[0], timeout)
         try:
             connection.request(method, (parts.path or "/") + ("?" + parts.query if parts.query else ""), body=body, headers={"User-Agent": "EatMe/1.0", "Accept-Encoding": "identity", **(headers or {})})
             response = connection.getresponse()
             if response.status in {301, 302, 303, 307, 308}:
                 if not redirects or method != "GET" or (headers and "Authorization" in headers):
                     raise DomainError("provider_redirect_rejected", 502)
-                return https_request(urljoin(url, response.getheader("Location", "")), maximum=maximum, redirects=redirects-1)
+                return https_request(urljoin(url, response.getheader("Location", "")), maximum=maximum, redirects=redirects-1, timeout=timeout)
             payload = response.read(maximum + 1)
             if len(payload) > maximum:
                 raise DomainError("provider_response_too_large", 502)

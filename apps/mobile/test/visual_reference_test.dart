@@ -412,7 +412,7 @@ void main() {
   });
 
   testWidgets(
-    'Planner actions stay horizontal and diners action disappears after selection',
+    'Planner keeps the selected diner avatar after hiding the action',
     (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;
@@ -445,6 +445,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byKey(const ValueKey('planner-diners-action')), findsNothing);
+      expect(
+        find.byKey(const ValueKey('planner-diners-avatar')),
+        findsOneWidget,
+      );
       expect(find.byKey(const ValueKey('planner-date-action')), findsOneWidget);
       expect(
         find.byKey(const ValueKey('planner-smart-action')),
