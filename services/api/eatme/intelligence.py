@@ -183,7 +183,7 @@ class OpenAIProvider:
             content.append({'type': 'image_url', 'image_url': {'url': 'data:image/jpeg;base64,' + base64.b64encode(image).decode()}})
         request = {'model': model, 'store': False, 'max_completion_tokens': 6000, 'messages': [{'role': 'system', 'content': PROMPT}, {'role': 'user', 'content': content}], 'response_format': {'type': 'json_schema', 'json_schema': {'name': 'eatme_' + kind, 'strict': True, 'schema': schema}}}
         try:
-            response = json_request('https://api.openai.com/v1/chat/completions', method='POST', body=encode(request).encode(), headers={'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json'}, maximum=200000)
+            response = json_request('https://api.openai.com/v1/chat/completions', method='POST', body=encode(request).encode(), headers={'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json'}, maximum=200000, timeout=60)
         except DomainError as error:
             if error.code == 'provider_not_found':
                 raise DomainError('ai_model_unavailable', 503, error.details) from error
