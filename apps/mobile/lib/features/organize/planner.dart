@@ -24,6 +24,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
   DateTime start = DateUtils.dateOnly(DateTime.now());
   List<Json> recipes = [];
   List<String>? participants;
+  List<Json> selectedDiners = [];
   Json? selected;
   List<Json>? draftMeals;
   bool pendingAdded = false;
@@ -183,6 +184,21 @@ class _PlannerState extends ResourceState<PlannerPage> {
     if (mounted && result['preview'] == true) {
       setState(() => draftMeals = records(result['data']?['meals']));
     }
+  }
+
+  Future<void> selectDiners() async {
+    final api = ref.read(apiProvider);
+    final value = await chooseDiners(context, api, participants);
+    if (value == null || !mounted) return;
+    final home = await api.request('GET', '/households');
+    if (!mounted) return;
+    final members = records(home['members']);
+    setState(() {
+      participants = value;
+      selectedDiners = members
+          .where((member) => value.contains(member['user_id']))
+          .toList();
+    });
   }
 
   Future<void> removeMeal(Json meal, List<Json> meals) async {
@@ -387,17 +403,15 @@ class _PlannerState extends ResourceState<PlannerPage> {
                   key: const ValueKey('planner-diners-action'),
                   icon: EatMeGlyph.usersRound,
                   label: context.t('who_is_eating'),
-                  onTap: () async {
-                    final value = await chooseDiners(
-                      context,
-                      ref.read(apiProvider),
-                      participants,
-                    );
-                    if (value != null && mounted) {
-                      setState(() => participants = value);
-                    }
-                  },
+                  onTap: selectDiners,
                 ),
+              ),
+            ] else ...[
+              const SizedBox(width: 10),
+              _PlannerDinersBadge(
+                key: const ValueKey('planner-diners-avatar'),
+                diners: selectedDiners,
+                onTap: selectDiners,
               ),
             ],
             const SizedBox(width: 10),
@@ -561,6 +575,87 @@ class _PlannerState extends ResourceState<PlannerPage> {
         ],
         const SizedBox(height: 24),
       ]),
+    );
+  }
+}
+
+class _PlannerDinersBadge extends ConsumerWidget {
+  const _PlannerDinersBadge({
+    super.key,
+    required this.diners,
+    required this.onTap,
+  });
+
+  final List<Json> diners;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final diner = diners.firstOrNull;
+    final name = (diner?['name'] as String? ?? '').trim();
+    final initials = name
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .take(2)
+        .map((part) => part.substring(0, 1).toUpperCase())
+        .join();
+    return SizedBox(
+      width: 56,
+      height: 74,
+      child: Center(
+        child: Tooltip(
+          message: context.t('who_is_eating'),
+          child: Semantics(
+            button: true,
+            label: context.t('who_is_eating'),
+            child: InkResponse(
+              onTap: onTap,
+              radius: 28,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  if (diner != null)
+                    MemberAvatar(
+                      api: ref.read(apiProvider),
+                      mediaId: diner['avatar_media_id'] as String?,
+                      initials: initials,
+                    )
+                  else
+                    CircleAvatar(
+                      radius: 22,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainer,
+                      child: const EatMeIcon(EatMeGlyph.usersRound, size: 20),
+                    ),
+                  if (diners.length > 1)
+                    Positioned(
+                      right: -5,
+                      bottom: -3,
+                      child: CircleAvatar(
+                        radius: 10,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimary,
+                        child: Text(
+                          '+${diners.length - 1}',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.labelSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
