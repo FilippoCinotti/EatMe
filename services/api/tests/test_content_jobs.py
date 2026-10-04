@@ -101,6 +101,19 @@ class ContentCase(unittest.TestCase):
 
     def test_auto_scan_classifies_the_image_without_a_frontend_mode_choice(self):
         self.app.preferences(self.owner, {'expected_version': 0, 'data': {'ai_consent': True}}, new_id())
+        class NullableUnitProvider:
+            def run(self, *args):
+                return {
+                    'detected_type': 'receipt',
+                    'items': [{
+                        'food_id': None,
+                        'name': 'Fresh produce',
+                        'quantity': None,
+                        'unit': None,
+                        'confidence': 0.9,
+                    }],
+                }
+        self.app.ai_provider = NullableUnitProvider()
         from PIL import Image
         buffer = io.BytesIO()
         Image.new('RGB', (200, 200), 'green').save(buffer, format='PNG')
@@ -109,8 +122,9 @@ class ContentCase(unittest.TestCase):
         self.assertTrue(self.app.run_next_job())
         job = next(value for value in self.app.jobs(self.owner)['items'] if value['id'] == created['id'])
         self.assertEqual(job['status'], 'completed')
-        self.assertEqual(job['result']['detected_type'], 'food_photo')
+        self.assertEqual(job['result']['detected_type'], 'receipt')
         self.assertTrue(job['result']['items'])
+        self.assertIsNone(job['result']['items'][0]['unit'])
 
     def test_openai_model_failure_is_reported_distinctly_without_secrets(self):
         with patch.dict(os.environ, {'AI_API_KEY': 'test-secret', 'AI_MODEL': 'missing-model'}), patch(
