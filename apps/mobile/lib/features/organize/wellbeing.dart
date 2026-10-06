@@ -170,7 +170,9 @@ class _WellbeingState extends ResourceState<WellbeingPage> {
                         color: scheme.primaryContainer,
                         clipBehavior: Clip.antiAlias,
                         child: InkWell(
-                          onTap: data == null ? null : () => editTarget(goal, 5),
+                          onTap: data == null
+                              ? null
+                              : () => editTarget(goal, 5),
                           child: Padding(
                             padding: const EdgeInsets.all(16),
                             child: Column(

@@ -894,9 +894,9 @@ class _SummaryPill extends StatelessWidget {
       label,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-        fontWeight: FontWeight.w700,
-      ),
+      style: Theme.of(
+        context,
+      ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700),
     ),
   );
 }
@@ -1007,15 +1007,16 @@ class _ActionPill extends StatelessWidget {
                       label,
                       maxLines: compact ? 1 : 2,
                       overflow: TextOverflow.ellipsis,
-                      style: (compact
-                              ? Theme.of(context).textTheme.labelMedium
-                              : Theme.of(context).textTheme.labelLarge)
-                          ?.copyWith(
-                            color: selected
-                                ? scheme.onPrimaryContainer
-                                : scheme.onSurface,
-                            fontWeight: FontWeight.w700,
-                          ),
+                      style:
+                          (compact
+                                  ? Theme.of(context).textTheme.labelMedium
+                                  : Theme.of(context).textTheme.labelLarge)
+                              ?.copyWith(
+                                color: selected
+                                    ? scheme.onPrimaryContainer
+                                    : scheme.onSurface,
+                                fontWeight: FontWeight.w700,
+                              ),
                     ),
                   ),
                 ],

@@ -576,10 +576,7 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
         ),
         if (batch.recalls.isNotEmpty) ...[
           const SizedBox(height: 10),
-          _BatchNoticeCard(
-            text: context.t('recalled_batch'),
-            warning: true,
-          ),
+          _BatchNoticeCard(text: context.t('recalled_batch'), warning: true),
           for (final recall in batch.recalls)
             TextButton(
               onPressed: () => launchUrl(
@@ -590,10 +587,7 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
             ),
         ] else if (!batch.usable) ...[
           const SizedBox(height: 10),
-          _BatchNoticeCard(
-            text: context.t('use_by_passed'),
-            warning: true,
-          ),
+          _BatchNoticeCard(text: context.t('use_by_passed'), warning: true),
         ],
         const SizedBox(height: 24),
         AsyncAction(

@@ -266,12 +266,13 @@ class _WelcomeLanding extends StatelessWidget {
                         child: Text(
                           context.t('lifestyle_tagline'),
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                            height: 1.35,
-                          ),
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                                height: 1.35,
+                              ),
                         ),
                       ),
                       SizedBox(height: compact ? 18 : 24),
@@ -473,10 +474,8 @@ class _GoogleMark extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) => CustomPaint(
-    size: Size.square(size),
-    painter: const _GoogleMarkPainter(),
-  );
+  Widget build(BuildContext context) =>
+      CustomPaint(size: Size.square(size), painter: const _GoogleMarkPainter());
 }
 
 class _GoogleMarkPainter extends CustomPainter {

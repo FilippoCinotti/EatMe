@@ -16,7 +16,8 @@ import 'shared.dart';
 import 'photo_acquisition.dart';
 import '../fridge/custom_food.dart';
 
-String mediaKindForScan(String jobKind) => jobKind == 'receipt' ? 'receipt' : 'photo';
+String mediaKindForScan(String jobKind) =>
+    jobKind == 'receipt' ? 'receipt' : 'photo';
 
 class ScanningPage extends ConsumerStatefulWidget {
   const ScanningPage({super.key});

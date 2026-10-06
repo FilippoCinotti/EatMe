@@ -832,10 +832,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                             {
                               'action': 'generate',
                               'meals': [
-                                {
-                                  'recipe_id': recipe.id,
-                                  'servings': servings,
-                                },
+                                {'recipe_id': recipe.id, 'servings': servings},
                               ],
                             },
                           );
@@ -898,21 +895,15 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                             context.t('report_notice'),
                           );
                           if (message == null || message.isEmpty) return;
-                          await mutation.send(
-                            ref.read(apiProvider),
-                            'POST',
-                            '/reports',
-                            {
-                              'kind': 'recipe',
-                              'subject_id': recipe.id,
-                              'message': message,
-                            },
-                          );
+                          await mutation
+                              .send(ref.read(apiProvider), 'POST', '/reports', {
+                                'kind': 'recipe',
+                                'subject_id': recipe.id,
+                                'message': message,
+                              });
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(context.t('report_sent')),
-                              ),
+                              SnackBar(content: Text(context.t('report_sent'))),
                             );
                           }
                         },
