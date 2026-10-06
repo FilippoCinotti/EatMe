@@ -176,15 +176,35 @@ void main() {
         support.harness(DetectionReviewPage(job: job), api),
       );
       await tester.pumpAndSettle();
+      expect(find.text('Tomatoes'), findsNWidgets(2));
+      final firstItemKey = tester.widget<Card>(find.byType(Card).first).key!;
+      await tester.scrollUntilVisible(
+        find.byType(CheckboxListTile),
+        250,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.byType(CheckboxListTile), findsOneWidget);
       expect(
-        tester
-            .widget<CheckboxListTile>(find.byType(CheckboxListTile).first)
-            .value,
+        tester.widget<CheckboxListTile>(find.byType(CheckboxListTile)).value,
         isFalse,
       );
-      expect(find.text('Tomatoes'), findsNWidgets(2));
-      expect(find.byType(CheckboxListTile), findsOneWidget);
-      await tester.tap(find.byTooltip('Delete').first);
+      await tester.tap(find.byType(CheckboxListTile));
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<CheckboxListTile>(find.byType(CheckboxListTile)).value,
+        isTrue,
+      );
+      await tester.scrollUntilVisible(
+        find.byKey(firstItemKey),
+        -250,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(firstItemKey),
+          matching: find.byTooltip('Delete'),
+        ),
+      );
       await tester.pumpAndSettle();
       expect(find.text('First item'), findsNothing);
       expect(find.text('250'), findsOneWidget);
