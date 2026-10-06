@@ -16,6 +16,9 @@ import 'shared.dart';
 import 'photo_acquisition.dart';
 import '../fridge/custom_food.dart';
 
+String mediaKindForScan(String jobKind) =>
+    jobKind == 'receipt' ? 'receipt' : 'photo';
+
 class ScanningPage extends ConsumerStatefulWidget {
   const ScanningPage({super.key});
   @override
@@ -98,7 +101,7 @@ class _ScanningState extends ResourceState<ScanningPage> {
           'POST',
           '/media',
           body: {
-            'kind': kind == 'recipe' ? 'photo' : kind,
+            'kind': mediaKindForScan(kind),
             'base64': base64Encode(await picked.readAsBytes()),
           },
         );
@@ -283,8 +286,13 @@ class _SmartCapturePageState extends State<SmartCapturePage> {
                 imageQuality: 85,
                 maxWidth: 2048,
                 maxHeight: 2048,
+                requestFullMetadata: false,
               ));
       if (file == null) return;
+      if (await file.length() == 0) {
+        if (mounted) setState(() => error = 'photo_unavailable');
+        return;
+      }
       final completed = await widget.onPhoto(file);
       if (completed && mounted) {
         shouldRestart = false;

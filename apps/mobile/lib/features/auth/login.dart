@@ -34,46 +34,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     final api = ref.read(apiProvider);
     if (welcome) {
-      return Scaffold(
-        body: PageBody(
-          children: [
-            const SizedBox(height: 32),
-            const Center(child: EatMeWordmark(large: true)),
-            const SizedBox(height: 24),
-            Text(
-              context.t('lifestyle_tagline'),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 28),
-            const FoodImage(
-              id: '913a438b-0805-543d-8719-c0253f8f103a',
-              height: 260,
-              radius: 28,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              context.t('welcome_promise'),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: () => setState(() {
-                welcome = false;
-                register = true;
-              }),
-              child: Text(context.t('start_now')),
-            ),
-            TextButton(
-              onPressed: () => setState(() {
-                welcome = false;
-                register = false;
-              }),
-              child: Text(context.t('already_account')),
-            ),
-          ],
-        ),
+      return _WelcomeLanding(
+        onStart: () => setState(() {
+          welcome = false;
+          register = true;
+        }),
+        onLogin: () => setState(() {
+          welcome = false;
+          register = false;
+        }),
       );
     }
     return Scaffold(
@@ -259,6 +228,108 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 }
 
+class _WelcomeLanding extends StatelessWidget {
+  const _WelcomeLanding({required this.onStart, required this.onLogin});
+
+  final VoidCallback onStart;
+  final VoidCallback onLogin;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    body: SafeArea(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxHeight < 760;
+          return SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              20,
+              compact ? 10 : 18,
+              20,
+              20 + MediaQuery.paddingOf(context).bottom,
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: 620,
+                  minHeight:
+                      constraints.maxHeight -
+                      (compact ? 30 : 38) -
+                      MediaQuery.paddingOf(context).bottom,
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    children: [
+                      const EatMeWordmark(large: true),
+                      SizedBox(height: compact ? 12 : 16),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 360),
+                        child: Text(
+                          context.t('lifestyle_tagline'),
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                                height: 1.35,
+                              ),
+                        ),
+                      ),
+                      SizedBox(height: compact ? 18 : 24),
+                      FoodImage(
+                        id: '913a438b-0805-543d-8719-c0253f8f103a',
+                        height: compact ? 190 : 220,
+                        radius: 26,
+                      ),
+                      SizedBox(height: compact ? 18 : 22),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 430),
+                        child: Text(
+                          context.t('welcome_promise'),
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                height: 1.1,
+                              ),
+                        ),
+                      ),
+                      const Spacer(),
+                      const SizedBox(height: 22),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size.fromHeight(56),
+                            textStyle: Theme.of(context).textTheme.labelLarge
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                          onPressed: onStart,
+                          child: Text(context.t('start_now')),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          minimumSize: const Size.fromHeight(44),
+                          textStyle: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        onPressed: onLogin,
+                        child: Text(context.t('already_account')),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    ),
+  );
+}
+
 class _SocialAuthBlock extends StatelessWidget {
   const _SocialAuthBlock({required this.api});
   final EatMeApi api;
@@ -275,18 +346,183 @@ class _SocialAuthBlock extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 14),
-      AsyncAction(
+      _SocialSignInButton(
+        key: const ValueKey('google-sign-in'),
         label: context.t('continue_google'),
+        provider: OAuthProvider.google,
         action: () => api.oauth(OAuthProvider.google),
       ),
       const SizedBox(height: 10),
-      AsyncAction(
+      _SocialSignInButton(
+        key: const ValueKey('apple-sign-in'),
         label: context.t('continue_apple'),
-        secondary: true,
+        provider: OAuthProvider.apple,
         action: () => api.oauth(OAuthProvider.apple),
       ),
     ],
   );
+}
+
+class _SocialSignInButton extends StatefulWidget {
+  const _SocialSignInButton({
+    super.key,
+    required this.label,
+    required this.provider,
+    required this.action,
+  });
+
+  final String label;
+  final OAuthProvider provider;
+  final Future<void> Function() action;
+
+  @override
+  State<_SocialSignInButton> createState() => _SocialSignInButtonState();
+}
+
+class _SocialSignInButtonState extends State<_SocialSignInButton> {
+  bool busy = false;
+
+  Future<void> run() async {
+    if (busy) return;
+    setState(() => busy = true);
+    try {
+      await widget.action();
+    } catch (error) {
+      if (!mounted) return;
+      final code = error is ApiFailure
+          ? error.code
+          : error is AuthException
+          ? 'authentication_failed'
+          : 'unknown_error';
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.t(code))));
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final google = widget.provider == OAuthProvider.google;
+    final background = google ? Colors.white : Colors.black;
+    final foreground = google ? const Color(0xff1f1f1f) : Colors.white;
+    return Material(
+      color: background,
+      shape: StadiumBorder(
+        side: BorderSide(
+          color: google
+              ? const Color(0xff747775)
+              : Colors.white.withValues(alpha: .18),
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: busy ? null : run,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 54),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: Center(
+                    child: busy
+                        ? SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: foreground,
+                            ),
+                          )
+                        : google
+                        ? const _GoogleMark(size: 20)
+                        : const Icon(
+                            Icons.apple,
+                            size: 24,
+                            color: Colors.white,
+                          ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    widget.label,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: foreground,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 36),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GoogleMark extends StatelessWidget {
+  const _GoogleMark({this.size = 20});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) =>
+      CustomPaint(size: Size.square(size), painter: const _GoogleMarkPainter());
+}
+
+class _GoogleMarkPainter extends CustomPainter {
+  const _GoogleMarkPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final stroke = size.width * .2;
+    final arcRect = rect.deflate(stroke * .52);
+    void arc(Color color, double start, double sweep) {
+      canvas.drawArc(
+        arcRect,
+        start,
+        sweep,
+        false,
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = stroke
+          ..strokeCap = StrokeCap.butt,
+      );
+    }
+
+    arc(const Color(0xff4285f4), -.15, 1.72);
+    arc(const Color(0xff34a853), 1.57, 1.55);
+    arc(const Color(0xfffbbc05), 3.12, .78);
+    arc(const Color(0xffea4335), 3.90, 1.42);
+
+    final blue = Paint()
+      ..color = const Color(0xff4285f4)
+      ..strokeWidth = stroke
+      ..strokeCap = StrokeCap.square;
+    canvas.drawLine(
+      Offset(size.width * .54, size.height * .5),
+      Offset(size.width * .91, size.height * .5),
+      blue,
+    );
+    canvas.drawLine(
+      Offset(size.width * .84, size.height * .5),
+      Offset(size.width * .84, size.height * .7),
+      blue,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _GoogleMarkPainter oldDelegate) => false;
 }
 
 class ResetPasswordPage extends StatefulWidget {

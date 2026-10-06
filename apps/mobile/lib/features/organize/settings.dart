@@ -128,26 +128,39 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final level in ['beginner', 'confident', 'advanced'])
-                  ChoiceChip(
-                    avatar: Text(
-                      {
-                        'beginner': '🥚',
-                        'confident': '🍳',
-                        'advanced': '👨‍🍳',
-                      }[level]!,
-                    ),
-                    label: Text(context.t(level)),
-                    selected: (prefs['skill'] ?? 'beginner') == level,
-                    onSelected: data == null
-                        ? null
-                        : (_) => update('skill', level),
+            LayoutBuilder(
+              builder: (context, constraints) => SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      for (final level in [
+                        'beginner',
+                        'confident',
+                        'advanced',
+                      ]) ...[
+                        ChoiceChip(
+                          avatar: Text(
+                            {
+                              'beginner': '🥚',
+                              'confident': '🍳',
+                              'advanced': '👨‍🍳',
+                            }[level]!,
+                          ),
+                          label: Text(context.t(level)),
+                          selected: (prefs['skill'] ?? 'beginner') == level,
+                          onSelected: data == null
+                              ? null
+                              : (_) => update('skill', level),
+                        ),
+                        if (level != 'advanced') const SizedBox(width: 8),
+                      ],
+                    ],
                   ),
-              ],
+                ),
+              ),
             ),
             const SizedBox(height: 20),
             Text(
@@ -186,6 +199,7 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
             ),
             const SizedBox(height: 10),
             Wrap(
+              alignment: WrapAlignment.center,
               spacing: 8,
               runSpacing: 8,
               children: [

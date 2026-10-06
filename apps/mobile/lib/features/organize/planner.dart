@@ -415,10 +415,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: EatMeActionTile(
+                child: _PlannerDinersActionTile(
                   key: const ValueKey('planner-diners-action'),
-                  icon: EatMeGlyph.usersRound,
-                  label: context.t('who_is_eating'),
+                  diners: selectedDiners,
                   onTap: selectDiners,
                 ),
               ),
@@ -439,14 +438,6 @@ class _PlannerState extends ResourceState<PlannerPage> {
             ],
           ),
         ),
-        if (selectedDiners.isNotEmpty) ...[
-          const SizedBox(height: 8),
-          _PlannerDinersBadge(
-            key: const ValueKey('planner-diners-avatar'),
-            diners: selectedDiners,
-            onTap: selectDiners,
-          ),
-        ],
         if (draftMeals != null) ...[
           const SizedBox(height: 12),
           InformationPanel(
@@ -598,8 +589,8 @@ class _PlannerState extends ResourceState<PlannerPage> {
   }
 }
 
-class _PlannerDinersBadge extends ConsumerWidget {
-  const _PlannerDinersBadge({
+class _PlannerDinersActionTile extends ConsumerWidget {
+  const _PlannerDinersActionTile({
     super.key,
     required this.diners,
     required this.onTap,
@@ -610,6 +601,7 @@ class _PlannerDinersBadge extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final scheme = Theme.of(context).colorScheme;
     final diner = diners.firstOrNull;
     final name = (diner?['name'] as String? ?? '').trim();
     final initials = name
@@ -618,57 +610,71 @@ class _PlannerDinersBadge extends ConsumerWidget {
         .take(2)
         .map((part) => part.substring(0, 1).toUpperCase())
         .join();
-    return SizedBox(
-      width: 56,
-      height: 74,
-      child: Center(
-        child: Tooltip(
-          message: context.t('who_is_eating'),
-          child: Semantics(
-            button: true,
-            label: context.t('who_is_eating'),
-            child: InkResponse(
-              onTap: onTap,
-              radius: 28,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  if (diner != null)
-                    MemberAvatar(
-                      api: ref.read(apiProvider),
-                      mediaId: diner['avatar_media_id'] as String?,
-                      initials: initials,
-                    )
-                  else
-                    CircleAvatar(
-                      radius: 22,
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.surfaceContainer,
-                      child: const EatMeIcon(EatMeGlyph.usersRound, size: 20),
-                    ),
-                  if (diners.length > 1)
-                    Positioned(
-                      right: -5,
-                      bottom: -3,
-                      child: CircleAvatar(
-                        radius: 10,
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Theme.of(
-                          context,
-                        ).colorScheme.onPrimary,
-                        child: Text(
-                          '+${diners.length - 1}',
-                          style: Theme.of(context).textTheme.labelSmall
-                              ?.copyWith(
-                                color: Theme.of(context).colorScheme.onPrimary,
-                                fontSize: 9,
-                                fontWeight: FontWeight.w700,
+
+    return Semantics(
+      button: true,
+      label: context.t('who_is_eating'),
+      child: Material(
+        color: scheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(22),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 74),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+              child: Center(
+                child: diners.isEmpty
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          EatMeIcon(
+                            EatMeGlyph.usersRound,
+                            size: 24,
+                            color: scheme.onSurface,
+                          ),
+                          const SizedBox(height: 7),
+                          Text(
+                            context.t('who_is_eating'),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.labelMedium
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                        ],
+                      )
+                    : Stack(
+                        key: const ValueKey('planner-diners-avatar'),
+                        clipBehavior: Clip.none,
+                        children: [
+                          MemberAvatar(
+                            api: ref.read(apiProvider),
+                            mediaId: diner?['avatar_media_id'] as String?,
+                            initials: initials,
+                          ),
+                          if (diners.length > 1)
+                            Positioned(
+                              right: -6,
+                              bottom: -4,
+                              child: CircleAvatar(
+                                radius: 11,
+                                backgroundColor: scheme.primary,
+                                foregroundColor: scheme.onPrimary,
+                                child: Text(
+                                  '+${diners.length - 1}',
+                                  style: Theme.of(context).textTheme.labelSmall
+                                      ?.copyWith(
+                                        color: scheme.onPrimary,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                ),
                               ),
-                        ),
+                            ),
+                        ],
                       ),
-                    ),
-                ],
               ),
             ),
           ),

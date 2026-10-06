@@ -153,45 +153,59 @@ class _WellbeingState extends ResourceState<WellbeingPage> {
                   width: constraints.maxWidth < 300
                       ? constraints.maxWidth
                       : (constraints.maxWidth - 12) / 2,
-                  child: Card(
-                    color: ColorScheme.fromSeed(
-                      seedColor: [
-                        Colors.teal,
-                        Colors.amber,
-                        Colors.indigo,
-                        Colors.green,
-                        Colors.deepOrange,
-                        Colors.purple,
-                      ][habitGoals.indexOf(goal)],
-                      brightness: Theme.of(context).brightness,
-                    ).primaryContainer,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            [
-                              Icons.restaurant_outlined,
-                              Icons.recycling,
-                              Icons.favorite_outline,
-                              Icons.eco_outlined,
-                              Icons.shopping_basket_outlined,
-                              Icons.balance,
-                            ][habitGoals.indexOf(goal)],
-                            size: 30,
+                  child: Builder(
+                    builder: (context) {
+                      final scheme = ColorScheme.fromSeed(
+                        seedColor: [
+                          Colors.teal,
+                          Colors.amber,
+                          Colors.indigo,
+                          Colors.green,
+                          Colors.deepOrange,
+                          Colors.purple,
+                        ][habitGoals.indexOf(goal)],
+                        brightness: Theme.of(context).brightness,
+                      );
+                      return Card(
+                        color: scheme.primaryContainer,
+                        clipBehavior: Clip.antiAlias,
+                        child: InkWell(
+                          onTap: data == null
+                              ? null
+                              : () => editTarget(goal, 5),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  [
+                                    Icons.restaurant_outlined,
+                                    Icons.recycling,
+                                    Icons.favorite_outline,
+                                    Icons.eco_outlined,
+                                    Icons.shopping_basket_outlined,
+                                    Icons.balance,
+                                  ][habitGoals.indexOf(goal)],
+                                  size: 30,
+                                  color: scheme.onPrimaryContainer,
+                                ),
+                                const SizedBox(height: 18),
+                                Text(
+                                  context.t('goal_$goal'),
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(
+                                        color: scheme.onPrimaryContainer,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                ),
+                              ],
+                            ),
                           ),
-                          const SizedBox(height: 12),
-                          AsyncAction(
-                            label: context.t('goal_$goal'),
-                            secondary: true,
-                            enabled: data != null,
-                            action: () => editTarget(goal, 5),
-                          ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   ),
                 ),
             ],
