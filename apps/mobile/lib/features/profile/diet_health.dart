@@ -165,28 +165,20 @@ class DietHealthPage extends ConsumerWidget {
                 Text(context.t('diet_health_hub_body')),
                 const SizedBox(height: 14),
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: 7,
+                  runSpacing: 7,
                   children: [
                     if (dietSummary(medical: false) !=
                         context.t('not_configured'))
-                      StatusBadge(
-                        label: dietSummary(medical: false),
-                        icon: EatMeGlyph.leaf,
-                        emphasis: true,
-                      ),
+                      _SummaryPill(label: dietSummary(medical: false)),
                     if (dietSummary(medical: true) !=
                         context.t('not_configured'))
-                      StatusBadge(
-                        label: dietSummary(medical: true),
-                        icon: EatMeGlyph.shield,
-                      ),
+                      _SummaryPill(label: dietSummary(medical: true)),
                     if ((settings['never_suggest'] as List? ?? const [])
                         .isNotEmpty)
-                      StatusBadge(
+                      _SummaryPill(
                         label:
                             '${context.t('excluded_foods')} · ${(settings['never_suggest'] as List).length}',
-                        icon: EatMeGlyph.triangleAlert,
                       ),
                   ],
                 ),
@@ -216,8 +208,8 @@ class DietHealthPage extends ConsumerWidget {
                         for (final value in section.$3.split(' · '))
                           _ActionPill(
                             label: value,
-                            icon: section.$4,
                             selected: true,
+                            compact: true,
                             onTap: () => edit(section.$1),
                           ),
                       ],
@@ -885,6 +877,30 @@ class _DietHealthPageState extends ConsumerState<_DietHealthEditorPage> {
   }
 }
 
+class _SummaryPill extends StatelessWidget {
+  const _SummaryPill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    constraints: const BoxConstraints(minHeight: 30),
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(999),
+    ),
+    child: Text(
+      label,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+  );
+}
+
 class _ChoiceWrap extends StatelessWidget {
   const _ChoiceWrap({
     required this.values,
@@ -926,15 +942,17 @@ class _ActionPill extends StatelessWidget {
   const _ActionPill({
     super.key,
     required this.label,
-    required this.icon,
     required this.onTap,
+    this.icon,
     this.selected = false,
+    this.compact = false,
   });
 
   final String label;
-  final EatMeGlyph icon;
+  final EatMeGlyph? icon;
   final VoidCallback onTap;
   final bool selected;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -964,29 +982,40 @@ class _ActionPill extends StatelessWidget {
           borderRadius: BorderRadius.circular(999),
           onTap: onTap,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 44),
+            constraints: BoxConstraints(minHeight: compact ? 30 : 44),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
+              padding: EdgeInsets.symmetric(
+                horizontal: compact ? 10 : 13,
+                vertical: compact ? 5 : 9,
+              ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  EatMeIcon(
-                    icon,
-                    size: 17,
-                    color: selected
-                        ? scheme.onPrimaryContainer
-                        : scheme.primary,
-                  ),
-                  const SizedBox(width: 7),
+                  if (icon != null) ...[
+                    EatMeIcon(
+                      icon!,
+                      size: compact ? 15 : 17,
+                      color: selected
+                          ? scheme.onPrimaryContainer
+                          : scheme.primary,
+                    ),
+                    SizedBox(width: compact ? 5 : 7),
+                  ],
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 230),
                     child: Text(
                       label,
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: selected
-                            ? scheme.onPrimaryContainer
-                            : scheme.onSurface,
-                      ),
+                      maxLines: compact ? 1 : 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: (compact
+                              ? Theme.of(context).textTheme.labelMedium
+                              : Theme.of(context).textTheme.labelLarge)
+                          ?.copyWith(
+                            color: selected
+                                ? scheme.onPrimaryContainer
+                                : scheme.onSurface,
+                            fontWeight: FontWeight.w700,
+                          ),
                     ),
                   ),
                 ],

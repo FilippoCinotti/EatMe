@@ -802,113 +802,126 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               tilePadding: EdgeInsets.zero,
               title: Text(context.t('more_recipe_tools')),
               children: [
-                AsyncAction(
-                  label: context.t('build_shopping_list'),
-                  icon: Icons.shopping_cart_outlined,
-                  secondary: true,
-                  action: () async {
-                    final entitlement = await ref.read(
-                      entitlementsProvider.future,
-                    );
-                    if (!entitlement.can(
-                      EntitlementCapability.generatedShopping,
-                    )) {
-                      if (context.mounted) {
-                        await showContextualPlusPrompt(
-                          context,
-                          benefit: 'generated_shopping_plus_body',
-                        );
-                      }
-                      return;
-                    }
-                    await Mutation().send(
-                      ref.read(apiProvider),
-                      'POST',
-                      '/shopping',
-                      {
-                        'action': 'generate',
-                        'meals': [
-                          {'recipe_id': recipe.id, 'servings': servings},
-                        ],
-                      },
-                    );
-                    if (context.mounted) context.push('/shopping');
-                  },
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  children: [
-                    for (final rating in [1, -1])
-                      AsyncAction(
-                        label: context.t(
-                          rating == 1 ? 'like_recipe' : 'dislike_recipe',
-                        ),
-                        icon: rating == 1
-                            ? Icons.thumb_up_outlined
-                            : Icons.thumb_down_outlined,
-                        secondary: true,
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      _RecipeToolAction(
+                        label: context.t('build_shopping_list'),
+                        icon: Icons.shopping_cart_outlined,
+                        action: () async {
+                          final entitlement = await ref.read(
+                            entitlementsProvider.future,
+                          );
+                          if (!entitlement.can(
+                            EntitlementCapability.generatedShopping,
+                          )) {
+                            if (context.mounted) {
+                              await showContextualPlusPrompt(
+                                context,
+                                benefit: 'generated_shopping_plus_body',
+                              );
+                            }
+                            return;
+                          }
+                          await Mutation().send(
+                            ref.read(apiProvider),
+                            'POST',
+                            '/shopping',
+                            {
+                              'action': 'generate',
+                              'meals': [
+                                {
+                                  'recipe_id': recipe.id,
+                                  'servings': servings,
+                                },
+                              ],
+                            },
+                          );
+                          if (context.mounted) context.push('/shopping');
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      _RecipeToolAction(
+                        label: context.t('like_recipe'),
+                        icon: Icons.thumb_up_outlined,
                         action: () async {
                           await Mutation()
                               .send(ref.read(apiProvider), 'POST', '/recipes', {
                                 'action': 'feedback',
                                 'recipe_id': recipe.id,
-                                'rating': rating,
+                                'rating': 1,
                               });
                         },
                       ),
-                  ],
+                      const SizedBox(width: 8),
+                      _RecipeToolAction(
+                        label: context.t('dislike_recipe'),
+                        icon: Icons.thumb_down_outlined,
+                        action: () async {
+                          await Mutation()
+                              .send(ref.read(apiProvider), 'POST', '/recipes', {
+                                'action': 'feedback',
+                                'recipe_id': recipe.id,
+                                'rating': -1,
+                              });
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      _RecipeToolAction(
+                        label: context.t('substitute_ingredient'),
+                        icon: Icons.swap_horiz,
+                        action: () async {
+                          final foods = ref.read(appProvider).foods;
+                          final original = await chooseFood(
+                            context,
+                            foods
+                                .where(
+                                  (f) => recipe.ingredients.any(
+                                    (i) => i['food_id'] == f.id,
+                                  ),
+                                )
+                                .toList(),
+                          );
+                          if (original == null || !context.mounted) return;
+                          await substituteIngredient(recipe, original);
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      _RecipeToolAction(
+                        label: context.t('report_problem'),
+                        icon: Icons.flag_outlined,
+                        action: () async {
+                          final message = await askText(
+                            context,
+                            context.t('report_notice'),
+                          );
+                          if (message == null || message.isEmpty) return;
+                          await mutation.send(
+                            ref.read(apiProvider),
+                            'POST',
+                            '/reports',
+                            {
+                              'kind': 'recipe',
+                              'subject_id': recipe.id,
+                              'message': message,
+                            },
+                          );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(context.t('report_sent')),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 8),
-                AsyncAction(
-                  label: context.t('substitute_ingredient'),
-                  icon: Icons.swap_horiz,
-                  secondary: true,
-                  action: () async {
-                    final foods = ref.read(appProvider).foods;
-                    final original = await chooseFood(
-                      context,
-                      foods
-                          .where(
-                            (f) => recipe.ingredients.any(
-                              (i) => i['food_id'] == f.id,
-                            ),
-                          )
-                          .toList(),
-                    );
-                    if (original == null || !context.mounted) return;
-                    await substituteIngredient(recipe, original);
-                  },
-                ),
-                const SizedBox(height: 24),
-                AsyncAction(
-                  label: context.t('report_problem'),
-                  icon: Icons.flag_outlined,
-                  secondary: true,
-                  action: () async {
-                    final message = await askText(
-                      context,
-                      context.t('report_notice'),
-                    );
-                    if (message == null || message.isEmpty) return;
-                    await mutation.send(
-                      ref.read(apiProvider),
-                      'POST',
-                      '/reports',
-                      {
-                        'kind': 'recipe',
-                        'subject_id': recipe.id,
-                        'message': message,
-                      },
-                    );
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(context.t('report_sent'))),
-                      );
-                    }
-                  },
-                ),
-                if (privateRecipe)
+                if (privateRecipe) ...[
+                  const SizedBox(height: 8),
                   AsyncAction(
                     label: context.t('archive_recipe'),
                     secondary: true,
@@ -941,12 +954,89 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                       if (context.mounted) context.go('/chef');
                     },
                   ),
+                ],
               ],
             ),
           ],
         ),
       );
     },
+  );
+}
+
+class _RecipeToolAction extends StatefulWidget {
+  const _RecipeToolAction({
+    required this.label,
+    required this.icon,
+    required this.action,
+  });
+
+  final String label;
+  final IconData icon;
+  final Future<void> Function() action;
+
+  @override
+  State<_RecipeToolAction> createState() => _RecipeToolActionState();
+}
+
+class _RecipeToolActionState extends State<_RecipeToolAction> {
+  bool busy = false;
+
+  Future<void> run() async {
+    if (busy) return;
+    setState(() => busy = true);
+    try {
+      await widget.action();
+    } catch (error) {
+      if (!mounted) return;
+      final code = error is ApiFailure ? error.code : 'unknown_error';
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.t(code))));
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Material(
+    color: Theme.of(context).colorScheme.surfaceContainer,
+    borderRadius: BorderRadius.circular(999),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: busy ? null : run,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (busy)
+              SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              )
+            else
+              Icon(
+                widget.icon,
+                size: 20,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            const SizedBox(width: 7),
+            Text(
+              widget.label,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
   );
 }
 

@@ -507,6 +507,18 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
     await apply('moved');
   }
 
+  Future<void> correctQuantity() async {
+    final value = await askText(
+      context,
+      context.t('correct_quantity'),
+      initial: amount.text,
+      numeric: true,
+    );
+    if (value == null || value.trim().isEmpty || !mounted) return;
+    amount.text = value.trim();
+    await apply('corrected');
+  }
+
   Future<void> apply(String action) async {
     final body = <String, dynamic>{
       'action': action,
@@ -544,9 +556,29 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
           localized(batch.food.name, context.language),
           style: Theme.of(context).textTheme.headlineMedium,
         ),
-        StatusNote(text: expiryLabel(context, batch), warning: !batch.usable),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _BatchMetaCard(
+                icon: Icons.event_outlined,
+                label: expiryLabel(context, batch),
+                warning: !batch.usable,
+              ),
+            ),
+            const SizedBox(width: 10),
+            _BatchMetaCard(
+              icon: Icons.scale_outlined,
+              label: '${amount.text} ${batch.food.unit}',
+            ),
+          ],
+        ),
         if (batch.recalls.isNotEmpty) ...[
-          StatusNote(text: context.t('recalled_batch'), warning: true),
+          const SizedBox(height: 10),
+          _BatchNoticeCard(
+            text: context.t('recalled_batch'),
+            warning: true,
+          ),
           for (final recall in batch.recalls)
             TextButton(
               onPressed: () => launchUrl(
@@ -555,16 +587,13 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
               ),
               child: Text(context.t('read_source')),
             ),
-        ] else if (!batch.usable)
-          StatusNote(text: context.t('use_by_passed'), warning: true),
-        TextField(
-          controller: amount,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: InputDecoration(
-            labelText: context.t('quantity'),
-            suffixText: batch.food.unit,
+        ] else if (!batch.usable) ...[
+          const SizedBox(height: 10),
+          _BatchNoticeCard(
+            text: context.t('use_by_passed'),
+            warning: true,
           ),
-        ),
+        ],
         const SizedBox(height: 24),
         AsyncAction(
           label: context.t('mark_consumed'),
@@ -596,11 +625,11 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
                 ),
                 AsyncAction(
                   label: context.t('correct_quantity'),
-                  icon: Icons.balance,
+                  icon: Icons.scale_outlined,
                   iconOnly: true,
                   secondary: true,
                   enabled: !offline,
-                  action: () => apply('corrected'),
+                  action: correctQuantity,
                 ),
                 AsyncAction(
                   label: context.t('opened_today'),
@@ -658,6 +687,95 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _BatchMetaCard extends StatelessWidget {
+  const _BatchMetaCard({
+    required this.icon,
+    required this.label,
+    this.warning = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool warning;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      constraints: const BoxConstraints(minHeight: 40),
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
+      decoration: BoxDecoration(
+        color: warning ? scheme.errorContainer : scheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 18,
+            color: warning ? scheme.onErrorContainer : scheme.primary,
+          ),
+          const SizedBox(width: 7),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: warning ? scheme.onErrorContainer : scheme.onSurface,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BatchNoticeCard extends StatelessWidget {
+  const _BatchNoticeCard({required this.text, this.warning = false});
+
+  final String text;
+  final bool warning;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
+      decoration: BoxDecoration(
+        color: warning ? scheme.errorContainer : scheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            warning ? Icons.warning_amber_rounded : Icons.info_outline,
+            size: 18,
+            color: warning ? scheme.onErrorContainer : scheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: warning
+                    ? scheme.onErrorContainer
+                    : scheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
