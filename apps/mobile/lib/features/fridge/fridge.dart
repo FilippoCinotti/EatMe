@@ -12,6 +12,7 @@ import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
+import '../organize/shared.dart';
 
 class FridgePage extends ConsumerStatefulWidget {
   const FridgePage({super.key});
