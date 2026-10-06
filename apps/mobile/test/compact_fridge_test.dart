@@ -33,33 +33,24 @@ class FridgeController extends support.TestController {
 }
 
 void main() {
-  test(
-    'expiry uses calendar days across timezones, month boundaries and leap days',
-    () {
-      expect(
-        expiryDays(
-          batch('a', DateTime(2026, 3, 30)),
-          now: DateTime(2026, 3, 29, 23, 59),
-        ),
-        1,
-      );
-      expect(
-        expiryDays(
-          batch('b', DateTime(2024, 3, 1)),
-          now: DateTime(2024, 2, 28),
-        ),
-        2,
-      );
-      expect(
-        expiryDays(
-          batch('c', DateTime(2025, 12, 31)),
-          now: DateTime(2026, 1, 1),
-        ),
-        -1,
-      );
-      expect(expiryDays(batch('d', null)), isNull);
-    },
-  );
+  test('expiry uses calendar days across timezones, month boundaries and leap days', () {
+    expect(
+      expiryDays(
+        batch('a', DateTime(2026, 3, 30)),
+        now: DateTime(2026, 3, 29, 23, 59),
+      ),
+      1,
+    );
+    expect(
+      expiryDays(batch('b', DateTime(2024, 3, 1)), now: DateTime(2024, 2, 28)),
+      2,
+    );
+    expect(
+      expiryDays(batch('c', DateTime(2025, 12, 31)), now: DateTime(2026, 1, 1)),
+      -1,
+    );
+    expect(expiryDays(batch('d', null)), isNull);
+  });
   for (final scale in [1.0, 1.6]) {
     testWidgets('compact fridge filters expired dates at scale $scale', (
       tester,

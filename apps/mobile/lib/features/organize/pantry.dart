@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
@@ -58,9 +59,8 @@ class _PantryState extends ResourceState<PantryPage> {
     extra.clear();
     await ref.read(appProvider.notifier).refresh();
     if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t('pantry_saved'))));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.t('pantry_saved'))));
     }
   }
 

@@ -88,9 +88,8 @@ Future<void> showContextualPlusPrompt(
             children: [
               Text(
                 context.t('eatme_plus'),
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                style: Theme.of(context).textTheme.labelLarge
+                    ?.copyWith(color: Theme.of(context).colorScheme.primary),
               ),
               const SizedBox(height: 8),
               Text(

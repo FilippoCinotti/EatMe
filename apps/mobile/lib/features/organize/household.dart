@@ -231,9 +231,8 @@ class _HouseholdMemberRow extends StatelessWidget {
             ),
             child: Text(
               initials,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-              ),
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(color: Theme.of(context).colorScheme.primary),
             ),
           ),
           const SizedBox(width: 14),

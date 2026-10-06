@@ -222,12 +222,16 @@ class _HealthyFoodPageState extends ResourceState<HealthyFoodPage> {
                       : () => guard(() async {
                           setState(() => savingFavorite = true);
                           try {
-                            await Mutation()
-                                .send(ref.read(apiProvider), 'POST', '/foods', {
-                                  'action': 'favorite',
-                                  'food_id': food.id,
-                                  'enabled': !favorites.contains(food.id),
-                                });
+                            await Mutation().send(
+                              ref.read(apiProvider),
+                              'POST',
+                              '/foods',
+                              {
+                                'action': 'favorite',
+                                'food_id': food.id,
+                                'enabled': !favorites.contains(food.id),
+                              },
+                            );
                             await load();
                           } finally {
                             if (mounted) {
@@ -304,9 +308,9 @@ class _FeaturedDiscoveryCard extends StatelessWidget {
                           context.t('featured_favorite_body'),
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                               ),
                         ),
                       ],
