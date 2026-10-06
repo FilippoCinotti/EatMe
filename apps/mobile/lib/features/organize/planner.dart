@@ -589,19 +589,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
   }
 }
 
-class _PlannerDinersBadge extends ConsumerWidget {
-  const _PlannerDinersBadge({
-    super.key,
-    required this.diners,
-    required this.onTap,
-  });
-
-  final List<Json> diners;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final diner = diners.firstOrNullclass _PlannerDinersActionTile extends ConsumerWidget {
+class _PlannerDinersActionTile extends ConsumerWidget {
   const _PlannerDinersActionTile({
     super.key,
     required this.diners,
@@ -695,7 +683,21 @@ class _PlannerDinersBadge extends ConsumerWidget {
     );
   }
 }
-ns = MaterialLocalizations.of(context);
+
+class _WeekStrip extends StatelessWidget {
+  const _WeekStrip({
+    required this.start,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final DateTime start;
+  final int selected;
+  final ValueChanged<int> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = MaterialLocalizations.of(context);
     final today = DateUtils.dateOnly(DateTime.now());
     return Row(
       children: [
