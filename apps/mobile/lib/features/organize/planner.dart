@@ -617,7 +617,7 @@ class _PlannerDinersBadge extends ConsumerWidget {
     final diner = diners.firstOrNull;
     final name = (diner?['name'] as String? ?? '').trim();
     final initials = name
-        .split(RegExp(r'\\s+'))
+        .split(RegExp(r'\s+'))
         .where((part) => part.isNotEmpty)
         .take(2)
         .map((part) => part.substring(0, 1).toUpperCase())
