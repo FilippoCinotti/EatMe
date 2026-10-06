@@ -219,8 +219,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
         participants = selectedDiners
             .map((m) => m['user_id'] as String)
             .toList();
-        if (participants!.isEmpty && api.userId != null)
+        if (participants!.isEmpty && api.userId != null) {
           participants = [api.userId!];
+        }
         servings = participants!.length.clamp(1, 20);
       } on ApiFailure catch (error) {
         if (!error.offline) rethrow;
@@ -252,8 +253,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
     } on ApiFailure catch (error) {
       if (!error.offline &&
           error.code != 'recipe_not_compatible' &&
-          error.code != 'participant_consent_required')
+          error.code != 'participant_consent_required') {
         rethrow;
+      }
       final model = Recipe.fromJson(recipe),
           foods = ref.read(appProvider).foods;
       return (

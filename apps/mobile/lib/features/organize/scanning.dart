@@ -491,7 +491,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                 firstDate: DateTime(2000),
                 lastDate: DateTime.now(),
               );
-              if (date != null && mounted)
+              if (date != null && mounted) {
                 setState(() {
                   purchased = date;
                   reviewed = false;
@@ -499,6 +499,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                     estimate(item);
                   }
                 });
+              }
             },
           ),
           for (final item in items)
@@ -583,6 +584,9 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                           children: [
                             Expanded(
                               child: TextFormField(
+                                key: ValueKey(
+                                  '${item['food_id']}:${item['unit']}',
+                                ),
                                 initialValue: '${item['quantity'] ?? ''}',
                                 keyboardType:
                                     const TextInputType.numberWithOptions(
@@ -613,7 +617,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                                       .where((f) => f.group != 'packaged')
                                       .toList(),
                                 );
-                                if (chosen != null && mounted)
+                                if (chosen != null && mounted) {
                                   setState(() {
                                     item['food_id'] = chosen.id;
                                     item['unit'] = chosen.unit;
@@ -623,6 +627,7 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                                     reviewed = false;
                                     estimate(item);
                                   });
+                                }
                               },
                             ),
                           ],

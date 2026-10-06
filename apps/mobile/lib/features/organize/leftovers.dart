@@ -291,10 +291,11 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
             .toList(),
         onChanged: (v) => setState(() {
           location = v!;
-          if (automaticDate)
+          if (automaticDate) {
             useDate = location == 'fridge'
                 ? prepared.add(const Duration(days: 3))
                 : null;
+          }
         }),
       ),
       ListTile(
@@ -311,8 +312,9 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
           if (date != null && mounted) {
             setState(() {
               prepared = date;
-              if (automaticDate && location == 'fridge')
+              if (automaticDate && location == 'fridge') {
                 useDate = prepared.add(const Duration(days: 3));
+              }
               if (useDate != null && useDate!.isBefore(date)) useDate = null;
             });
           }
@@ -335,11 +337,12 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
             firstDate: prepared,
             lastDate: DateTime(2100),
           );
-          if (date != null && mounted)
+          if (date != null && mounted) {
             setState(() {
               useDate = date;
               automaticDate = false;
             });
+          }
         },
       ),
       if (useDate != null)

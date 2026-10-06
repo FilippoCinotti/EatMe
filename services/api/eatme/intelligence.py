@@ -379,7 +379,7 @@ class IntelligenceService:
                     tx.execute('INSERT INTO inventory_batches VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', (identifier, home, food['id'], amount, location, expiry, kind, None, job['kind'] + '-confirmed', 1, stamp, stamp))
                     purchase_date = valid_date(item.get('purchase_date'))
                     if purchase_date:
-                        tx.execute('INSERT INTO inventory_metadata VALUES (?,?)', (identifier, encode({'purchase_date': purchase_date})))
+                        tx.execute('INSERT INTO inventory_metadata VALUES (?,?,?)', (identifier, encode({'purchase_date': purchase_date}), stamp))
                     self._event(tx, user_id, home, identifier, 'scan_confirmed', amount, {'job_id': job['id']})
                     identifiers.append(identifier)
                 tx.execute('UPDATE processing_jobs SET confirmed_at=?,version=version+1 WHERE id=?', (now(), job['id']))
