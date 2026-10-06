@@ -466,6 +466,47 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
     super.dispose();
   }
 
+  Future<void> changeLocation() async {
+    if (ref.read(appProvider).offline) return;
+    final destination = await showModalBottomSheet<String>(
+      context: context,
+      useRootNavigator: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.kitchen_outlined),
+                title: Text(context.t('fridge')),
+                selected: location == 'fridge',
+                onTap: () => Navigator.pop(sheetContext, 'fridge'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.ac_unit),
+                title: Text(context.t('freezer')),
+                selected: location == 'freezer',
+                onTap: () => Navigator.pop(sheetContext, 'freezer'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.inventory_2_outlined),
+                title: Text(context.t('pantry')),
+                selected: location == 'pantry',
+                onTap: () => Navigator.pop(sheetContext, 'pantry'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (destination == null || destination == location || !mounted) return;
+    setState(() => location = destination);
+    await apply('moved');
+  }
+
   Future<void> apply(String action) async {
     final body = <String, dynamic>{
       'action': action,
@@ -569,39 +610,53 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
                   enabled: !offline,
                   action: () => apply('opened'),
                 ),
+                AsyncAction(
+                  label: context.t('move_food'),
+                  icon: Icons.swap_horiz_rounded,
+                  iconOnly: true,
+                  secondary: true,
+                  enabled: !offline,
+                  action: changeLocation,
+                ),
+                AsyncAction(
+                  label: context.t('discard_food'),
+                  icon: Icons.delete_outline,
+                  iconOnly: true,
+                  secondary: true,
+                  enabled: !offline,
+                  action: () => apply('discarded'),
+                ),
               ],
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              isExpanded: true,
-              initialValue: location,
-              items: ['fridge', 'freezer', 'pantry']
-                  .map(
-                    (s) =>
-                        DropdownMenuItem(value: s, child: Text(context.t(s))),
-                  )
-                  .toList(),
-              onChanged: (v) => setState(() => location = v!),
-            ),
-            const SizedBox(height: 12),
-            AsyncAction(
-              label: context.t('move_food'),
-              icon: Icons.drive_file_move_outlined,
-              secondary: true,
-              enabled: !offline,
-              action: () => apply('moved'),
-            ),
-            const SizedBox(height: 12),
-            AsyncAction(
-              label: context.t('discard_food'),
-              icon: Icons.delete_outline,
-              secondary: true,
-              enabled: !offline,
-              action: () => apply('discarded'),
             ),
           ],
         ),
-        StatusNote(text: context.t('manual_source')),
+        Container(
+          width: double.infinity,
+          margin: const EdgeInsets.only(top: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainer,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.info_outline,
+                size: 18,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  context.t('manual_source'),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
