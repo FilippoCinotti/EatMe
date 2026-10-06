@@ -189,7 +189,8 @@ Future<List<String>?> chooseDiners(
   final home = await api.request('GET', '/households');
   if (!context.mounted) return null;
   final members = records(home['members']);
-  final selected = (initial ?? [api.userId!]).toSet();
+  final selected =
+      (initial ?? members.map((m) => m['user_id'] as String).toList()).toSet();
   return showDialog<List<String>>(
     context: context,
     builder: (context) => StatefulBuilder(
@@ -223,7 +224,7 @@ Future<List<String>?> chooseDiners(
                       borderRadius: BorderRadius.circular(22),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(22),
-                        onTap: blocked
+                        onTap: blocked && !active
                             ? null
                             : () => update(() {
                                 if (active) {

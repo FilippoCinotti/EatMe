@@ -534,32 +534,42 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
           tilePadding: EdgeInsets.zero,
           title: Text(context.t('manage_food')),
           children: [
-            AsyncAction(
-              label: context.t('edit_batch_details'),
-              secondary: true,
-              enabled: !offline,
-              action: () async {
-                await Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => BatchDetailsPage(batch: batch),
-                  ),
-                );
-                if (context.mounted) Navigator.pop(context);
-              },
-            ),
-            const SizedBox(height: 12),
-            AsyncAction(
-              label: context.t('correct_quantity'),
-              secondary: true,
-              enabled: !offline,
-              action: () => apply('corrected'),
-            ),
-            const SizedBox(height: 12),
-            AsyncAction(
-              label: context.t('opened_today'),
-              secondary: true,
-              enabled: !offline,
-              action: () => apply('opened'),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                AsyncAction(
+                  label: context.t('edit_batch_details'),
+                  icon: Icons.event_note,
+                  iconOnly: true,
+                  secondary: true,
+                  enabled: !offline,
+                  action: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => BatchDetailsPage(batch: batch),
+                      ),
+                    );
+                    if (context.mounted) Navigator.pop(context);
+                  },
+                ),
+                AsyncAction(
+                  label: context.t('correct_quantity'),
+                  icon: Icons.balance,
+                  iconOnly: true,
+                  secondary: true,
+                  enabled: !offline,
+                  action: () => apply('corrected'),
+                ),
+                AsyncAction(
+                  label: context.t('opened_today'),
+                  icon: Icons.lock_open,
+                  iconOnly: true,
+                  secondary: true,
+                  enabled: !offline,
+                  action: () => apply('opened'),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
@@ -576,6 +586,7 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
             const SizedBox(height: 12),
             AsyncAction(
               label: context.t('move_food'),
+              icon: Icons.drive_file_move_outlined,
               secondary: true,
               enabled: !offline,
               action: () => apply('moved'),
@@ -583,6 +594,7 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
             const SizedBox(height: 12),
             AsyncAction(
               label: context.t('discard_food'),
+              icon: Icons.delete_outline,
               secondary: true,
               enabled: !offline,
               action: () => apply('discarded'),

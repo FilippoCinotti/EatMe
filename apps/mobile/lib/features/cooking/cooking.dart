@@ -716,7 +716,13 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
               onChanged: (n) => setState(() => leftovers = n!),
             ),
             if (leftovers > 0)
-              StatusNote(text: context.t('leftover_date_unknown')),
+              StatusNote(
+                text: context.t('leftover_date_suggested', {
+                  'date': context.displayDate(
+                    DateTime.now().add(const Duration(days: 3)),
+                  ),
+                }),
+              ),
             const SizedBox(height: 28),
             AsyncAction(
               label: context.t('confirm_update'),

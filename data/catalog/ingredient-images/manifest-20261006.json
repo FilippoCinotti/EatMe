@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "date": "2026-10-06",
+  "provider": "ChatGPT built-in image generation",
+  "images": [
+    {
+      "id": "51596b88-19db-5595-90db-e5bbd62fd019",
+      "slug": "primo-sale",
+      "path": "data/catalog/ingredient-images/primo-sale.webp",
+      "image_source": "ai-generated",
+      "owner": "EatMe",
+      "prompt": "Plain Italian primo sale cheese. Warm ivory backdrop, soft natural side light, premium realistic ingredient catalog photograph. Only this ingredient; no text, logos, people or hands."
+    },
+    {
+      "id": "2fc8279b-ecc5-5dd1-b783-c8e494605c76",
+      "slug": "chipotle-paste",
+      "path": "data/catalog/ingredient-images/chipotle-paste.webp",
+      "image_source": "ai-generated",
+      "owner": "EatMe",
+      "prompt": "Square premium realistic ingredient catalog photograph of chipotle-paste. Warm ivory backdrop, soft natural side light. Only the ingredient; no text, logos, people or hands."
+    },
+    {
+      "id": "68555151-1df5-5233-9c61-3384e54299bf",
+      "slug": "amaretti",
+      "path": "data/catalog/ingredient-images/amaretti.webp",
+      "image_source": "ai-generated",
+      "owner": "EatMe",
+      "prompt": "Square premium realistic ingredient catalog photograph of amaretti. Warm ivory backdrop, soft natural side light. Only the ingredient; no text, logos, people or hands."
+    },
+    {
+      "id": "777e236d-1c6e-5c4c-ad53-d0de68d33cae",
+      "slug": "dry-biscuits",
+      "path": "data/catalog/ingredient-images/dry-biscuits.webp",
+      "image_source": "ai-generated",
+      "owner": "EatMe",
+      "prompt": "Square premium realistic ingredient catalog photograph of dry-biscuits. Warm ivory backdrop, soft natural side light. Only the ingredient; no text, logos, people or hands."
+    },
+    {
+      "id": "93019957-1ee0-5db7-90b5-9b856c823bd1",
+      "slug": "mixed-spice",
+      "path": "data/catalog/ingredient-images/mixed-spice.webp",
+      "image_source": "ai-generated",
+      "owner": "EatMe",
+      "prompt": "Square premium realistic ingredient catalog photograph of mixed-spice. Warm ivory backdrop, soft natural side light. Only the ingredient; no text, logos, people or hands."
+    },
+    {
+      "id": "bcf91ea4-5293-5c32-97a1-cde19875b90d",
+      "slug": "bechamel",
+      "path": "data/catalog/ingredient-images/bechamel.webp",
+      "image_source": "ai-generated",
+      "owner": "EatMe",
+      "prompt": "Square premium realistic ingredient catalog photograph of bechamel. Warm ivory backdrop, soft natural side light. Only the ingredient; no text, logos, people or hands."
+    },
+    {
+      "id": "d471f082-3899-5112-9d31-71ec31b2a04b",
+      "slug": "robiola",
+      "path": "data/catalog/ingredient-images/robiola.webp",
+      "image_source": "ai-generated",
+      "owner": "EatMe",
+      "prompt": "Square premium realistic ingredient catalog photograph of robiola. Warm ivory backdrop, soft natural side light. Only the ingredient; no text, logos, people or hands."
+    },
+    {
+      "id": "d506c5f4-2e56-5393-9c16-1c2f6e3b8673",
+      "slug": "corn-tortilla",
+      "path": "data/catalog/ingredient-images/corn-tortilla.webp",
+      "image_source": "ai-generated",
+      "owner": "EatMe",
+      "prompt": "Square premium realistic ingredient catalog photograph of corn-tortilla. Warm ivory backdrop, soft natural side light. Only the ingredient; no text, logos, people or hands."
+    },
+    {
+      "id": "ffb8065d-9110-5e93-b981-72d46f7baf08",
+      "slug": "agretti",
+      "path": "data/catalog/ingredient-images/agretti.webp",
+      "image_source": "ai-generated",
+      "owner": "EatMe",
+      "prompt": "Square premium realistic ingredient catalog photograph of agretti. Warm ivory backdrop, soft natural side light. Only the ingredient; no text, logos, people or hands."
+    }
+  ]
+}

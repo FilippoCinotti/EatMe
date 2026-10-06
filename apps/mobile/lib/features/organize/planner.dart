@@ -33,10 +33,26 @@ class _PlannerState extends ResourceState<PlannerPage> {
   Future<void> load() async {
     await super.load();
     try {
-      final result = await ref.read(apiProvider).request('GET', '/recipes');
+      final api = ref.read(apiProvider);
+      if (participants == null) {
+        final home = await api.request('GET', '/households');
+        selectedDiners = records(home['members']);
+        participants = selectedDiners
+            .map((m) => m['user_id'] as String)
+            .toList();
+      }
+      final result = await api.request('GET', '/recipes');
+      final available = records(result['items']);
+      if (widget.initialRecipeId != null &&
+          !available.any((r) => r['id'] == widget.initialRecipeId)) {
+        available.insert(
+          0,
+          await api.request('GET', '/recipes/${widget.initialRecipeId}'),
+        );
+      }
       if (mounted && context.mounted) {
         setState(() {
-          recipes = records(result['items']);
+          recipes = available;
           selected = records(
             data?['items'],
           ).where((p) => p['start_date'] == isoDay(start)).firstOrNull;
@@ -147,7 +163,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
     final servings = await askText(
       context,
       context.t('servings'),
-      initial: '1',
+      initial: '${participants?.length ?? 1}',
       numeric: true,
     );
     if (servings == null) return;
@@ -369,34 +385,34 @@ class _PlannerState extends ResourceState<PlannerPage> {
           ),
         ],
         const SizedBox(height: 14),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: EatMeActionTile(
-                key: const ValueKey('planner-date-action'),
-                icon: EatMeGlyph.calendar,
-                label: context.t('change_week'),
-                onTap: () async {
-                  final date = await showDatePicker(
-                    context: context,
-                    initialDate: start,
-                    firstDate: DateTime.now().subtract(
-                      const Duration(days: 365),
-                    ),
-                    lastDate: DateTime.now().add(const Duration(days: 730)),
-                  );
-                  if (date != null) {
-                    setState(() {
-                      start = DateUtils.dateOnly(date);
-                      focusedDay = 0;
-                    });
-                    await load();
-                  }
-                },
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: EatMeActionTile(
+                  key: const ValueKey('planner-date-action'),
+                  icon: EatMeGlyph.calendar,
+                  label: context.t('change_week'),
+                  onTap: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: start,
+                      firstDate: DateTime.now().subtract(
+                        const Duration(days: 365),
+                      ),
+                      lastDate: DateTime.now().add(const Duration(days: 730)),
+                    );
+                    if (date != null) {
+                      setState(() {
+                        start = DateUtils.dateOnly(date);
+                        focusedDay = 0;
+                      });
+                      await load();
+                    }
+                  },
+                ),
               ),
-            ),
-            if (participants == null || participants!.isEmpty) ...[
               const SizedBox(width: 10),
               Expanded(
                 child: EatMeActionTile(
@@ -406,28 +422,31 @@ class _PlannerState extends ResourceState<PlannerPage> {
                   onTap: selectDiners,
                 ),
               ),
-            ] else ...[
               const SizedBox(width: 10),
-              _PlannerDinersBadge(
-                key: const ValueKey('planner-diners-avatar'),
-                diners: selectedDiners,
-                onTap: selectDiners,
+              Expanded(
+                child: EatMeActionTile(
+                  key: const ValueKey('planner-smart-action'),
+                  icon: canSmartPlan
+                      ? EatMeGlyph.sparkles
+                      : EatMeGlyph.badgeCheck,
+                  label: context.t(
+                    canSmartPlan ? 'generate_week' : 'eatme_plus',
+                  ),
+                  emphasized: true,
+                  onTap: () => generatePlan(canSmartPlan),
+                ),
               ),
             ],
-            const SizedBox(width: 10),
-            Expanded(
-              child: EatMeActionTile(
-                key: const ValueKey('planner-smart-action'),
-                icon: canSmartPlan
-                    ? EatMeGlyph.sparkles
-                    : EatMeGlyph.badgeCheck,
-                label: context.t(canSmartPlan ? 'generate_week' : 'eatme_plus'),
-                emphasized: true,
-                onTap: () => generatePlan(canSmartPlan),
-              ),
-            ),
-          ],
+          ),
         ),
+        if (selectedDiners.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          _PlannerDinersBadge(
+            key: const ValueKey('planner-diners-avatar'),
+            diners: selectedDiners,
+            onTap: selectDiners,
+          ),
+        ],
         if (draftMeals != null) ...[
           const SizedBox(height: 12),
           InformationPanel(

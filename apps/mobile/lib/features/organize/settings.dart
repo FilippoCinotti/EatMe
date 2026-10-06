@@ -19,6 +19,7 @@ class PreferencesPage extends ConsumerStatefulWidget {
 class _PreferencesState extends ResourceState<PreferencesPage> {
   @override
   String get path => '/preferences';
+  double? selectedMinutes;
   Future<void> update(String name, dynamic value) async {
     if (data == null) return;
     await guard(() async {
@@ -122,49 +123,109 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
         const SizedBox(height: 24),
         SettingsGroup(
           children: [
-            _ControlLabel(
-              label: context.t('cooking_skill'),
-              child: EatMeTabStrip(
-                values: [
-                  for (final level in ['beginner', 'confident', 'advanced'])
-                    (level, context.t(level)),
-                ],
-                selected: prefs['skill'] as String? ?? 'beginner',
-                onSelected: (value) => update('skill', value),
-              ),
+            Text(
+              context.t('cooking_skill'),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final level in ['beginner', 'confident', 'advanced'])
+                  ChoiceChip(
+                    avatar: Text(
+                      {
+                        'beginner': '🥚',
+                        'confident': '🍳',
+                        'advanced': '👨‍🍳',
+                      }[level]!,
+                    ),
+                    label: Text(context.t(level)),
+                    selected: (prefs['skill'] ?? 'beginner') == level,
+                    onSelected: data == null
+                        ? null
+                        : (_) => update('skill', level),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Text(
+              '${context.t('cooking_time')} · ${(selectedMinutes ?? (prefs['max_minutes'] as num? ?? 30).toDouble()).round()} min',
+            ),
+            Row(
+              children: [
+                const Text('🐇', style: TextStyle(fontSize: 26)),
+                Expanded(
+                  child: Slider(
+                    min: 30,
+                    max: 240,
+                    divisions: 7,
+                    value:
+                        (selectedMinutes ??
+                                (prefs['max_minutes'] as num? ?? 30).toDouble())
+                            .clamp(30, 240),
+                    label:
+                        '${(selectedMinutes ?? (prefs['max_minutes'] as num? ?? 30).toDouble()).round()} min',
+                    onChanged: data == null
+                        ? null
+                        : (v) => setState(() => selectedMinutes = v),
+                    onChangeEnd: (v) async {
+                      await update('max_minutes', v.round());
+                      if (mounted) setState(() => selectedMinutes = null);
+                    },
+                  ),
+                ),
+                const Text('🐢', style: TextStyle(fontSize: 26)),
+              ],
             ),
             const SizedBox(height: 16),
-            DropdownButtonFormField<int>(
-              isExpanded: true,
-              initialValue: prefs['max_minutes'] as int? ?? 30,
-              decoration: InputDecoration(labelText: context.t('cooking_time')),
-              items: [
-                for (final time in [10, 15, 20, 30, 45, 60, 120])
-                  DropdownMenuItem(value: time, child: Text('$time min')),
-              ],
-              onChanged: (v) => update('max_minutes', v),
+            Text(
+              context.t('preferred_cuisines'),
+              style: Theme.of(context).textTheme.titleMedium,
             ),
-            const SizedBox(height: 24),
-            AsyncAction(
-              label: context.t('preferred_cuisines'),
-              secondary: true,
-              action: () async {
-                final value = await askText(
-                  context,
-                  context.t('comma_separated'),
-                  initial: (prefs['cuisines'] as List? ?? []).join(', '),
-                );
-                if (value != null) {
-                  await update(
-                    'cuisines',
-                    value
-                        .split(',')
-                        .map((v) => v.trim())
-                        .where((v) => v.isNotEmpty)
-                        .toList(),
-                  );
-                }
-              },
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final cuisine in {
+                  'italian',
+                  'mediterranean',
+                  'french',
+                  'indian',
+                  'japanese',
+                  'chinese',
+                  'mexican',
+                  'thai',
+                  'middle_eastern',
+                  'american',
+                  ...List<String>.from(prefs['cuisines'] as List? ?? []),
+                })
+                  FilterChip(
+                    label: Text(
+                      (Localizations.of<EatMeStrings>(
+                            context,
+                            EatMeStrings,
+                          )!.values['cuisine_$cuisine']) ??
+                          cuisine,
+                    ),
+                    selected: (prefs['cuisines'] as List? ?? []).contains(
+                      cuisine,
+                    ),
+                    onSelected: data == null
+                        ? null
+                        : (active) {
+                            final values = List<String>.from(
+                              prefs['cuisines'] as List? ?? [],
+                            );
+                            active
+                                ? values.add(cuisine)
+                                : values.remove(cuisine);
+                            update('cuisines', values);
+                          },
+                  ),
+              ],
             ),
           ],
         ),

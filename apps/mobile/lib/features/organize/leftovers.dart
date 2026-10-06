@@ -72,10 +72,38 @@ class _LeftoversState extends ResourceState<LeftoversPage> {
                 children: [
                   Row(
                     children: [
-                      FoodImage(
-                        id: item['recipe_id'] as String? ?? '',
-                        height: 56,
-                        width: 56,
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2,
+                          ),
+                        ),
+                        child: Stack(
+                          children: [
+                            FoodImage(
+                              id: item['recipe_id'] as String? ?? '',
+                              imageUrl: item['recipe_image_url'] as String?,
+                              height: 64,
+                              width: 76,
+                              radius: 10,
+                            ),
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: Icon(
+                                Icons.lunch_dining,
+                                size: 18,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -98,7 +126,12 @@ class _LeftoversState extends ResourceState<LeftoversPage> {
                   const SizedBox(height: 8),
                   if (item['user_use_date'] != null)
                     Text(
-                      '${context.t('your_use_date')}: ${item['user_use_date']}',
+                      '${context.t('your_use_date')}: ${context.displayDate(item['user_use_date'])}',
+                    ),
+                  if (item['user_use_date'] == null &&
+                      item['suggested_use_date'] != null)
+                    Text(
+                      '${context.t('expiry_estimated')}: ${context.displayDate(item['suggested_use_date'])}',
                     ),
                   const SizedBox(height: 16),
                   Wrap(
@@ -108,6 +141,7 @@ class _LeftoversState extends ResourceState<LeftoversPage> {
                       if (tab == 'reuse')
                         AsyncAction(
                           label: context.t('remix_leftovers'),
+                          icon: Icons.auto_awesome,
                           secondary: true,
                           action: () async {
                             await Navigator.of(context).push(
@@ -124,6 +158,9 @@ class _LeftoversState extends ResourceState<LeftoversPage> {
                               : <String>[]))
                         AsyncAction(
                           label: context.t(action),
+                          icon: action == 'consume'
+                              ? Icons.restaurant_outlined
+                              : Icons.delete_outline,
                           secondary: action == 'discard',
                           action: () async {
                             final amount = await askText(
@@ -144,6 +181,7 @@ class _LeftoversState extends ResourceState<LeftoversPage> {
                         ),
                       AsyncAction(
                         label: context.t('move'),
+                        icon: Icons.drive_file_move_outlined,
                         secondary: true,
                         action: () async {
                           await command({
@@ -158,6 +196,7 @@ class _LeftoversState extends ResourceState<LeftoversPage> {
                       ),
                       AsyncAction(
                         label: context.t('your_use_date'),
+                        icon: Icons.event_outlined,
                         secondary: true,
                         action: () async {
                           final date = await showDatePicker(
@@ -201,7 +240,10 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
   String location = 'fridge';
   int servings = 1;
   DateTime prepared = DateUtils.dateOnly(DateTime.now());
-  DateTime? useDate;
+  DateTime? useDate = DateUtils.dateOnly(
+    DateTime.now(),
+  ).add(const Duration(days: 3));
+  bool automaticDate = true;
   bool confirmed = false, saved = false;
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -248,11 +290,18 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
         items: ['fridge', 'freezer']
             .map((v) => DropdownMenuItem(value: v, child: Text(context.t(v))))
             .toList(),
-        onChanged: (v) => setState(() => location = v!),
+        onChanged: (v) => setState(() {
+          location = v!;
+          if (automaticDate) {
+            useDate = location == 'fridge'
+                ? prepared.add(const Duration(days: 3))
+                : null;
+          }
+        }),
       ),
       ListTile(
         title: Text(context.t('preparation_date')),
-        subtitle: Text(isoDay(prepared)),
+        subtitle: Text(context.displayDate(prepared)),
         trailing: const Icon(Icons.calendar_today_outlined),
         onTap: () async {
           final date = await showDatePicker(
@@ -264,15 +313,22 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
           if (date != null && mounted) {
             setState(() {
               prepared = date;
+              if (automaticDate && location == 'fridge') {
+                useDate = prepared.add(const Duration(days: 3));
+              }
               if (useDate != null && useDate!.isBefore(date)) useDate = null;
             });
           }
         },
       ),
       ListTile(
-        title: Text(context.t('your_use_date')),
+        title: Text(
+          context.t(automaticDate ? 'expiry_estimated' : 'your_use_date'),
+        ),
         subtitle: Text(
-          useDate == null ? context.t('optional') : isoDay(useDate!),
+          useDate == null
+              ? context.t('optional')
+              : context.displayDate(useDate),
         ),
         trailing: const Icon(Icons.calendar_today_outlined),
         onTap: () async {
@@ -282,12 +338,20 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
             firstDate: prepared,
             lastDate: DateTime(2100),
           );
-          if (date != null && mounted) setState(() => useDate = date);
+          if (date != null && mounted) {
+            setState(() {
+              useDate = date;
+              automaticDate = false;
+            });
+          }
         },
       ),
       if (useDate != null)
         TextButton(
-          onPressed: () => setState(() => useDate = null),
+          onPressed: () => setState(() {
+            useDate = null;
+            automaticDate = false;
+          }),
           child: Text(context.t('remove_date')),
         ),
       if (recipeId != null) ...[

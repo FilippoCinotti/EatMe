@@ -393,6 +393,8 @@ class DetectionReviewPage extends ConsumerStatefulWidget {
 class _DetectionState extends ConsumerState<DetectionReviewPage> {
   late List<Json> items;
   Future<Json>? preview;
+  bool reviewed = false;
+  late DateTime purchased;
   final mutation = Mutation();
   @override
   void initState() {
@@ -400,10 +402,42 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
     items = records(
       widget.job['result']['items'],
     ).map((i) => {...i, 'confirmed': false}).toList();
+    purchased =
+        DateTime.tryParse('${widget.job['created_at']}') ?? DateTime.now();
+    for (final item in items) {
+      estimate(item);
+    }
     final mediaId = widget.job['media_id'] as String?;
     if (mediaId != null) {
       preview = ref.read(apiProvider).request('GET', '/media/$mediaId');
     }
+  }
+
+  void estimate(Json item) {
+    item['purchase_date'] = isoDay(purchased);
+    final food = ref
+        .read(appProvider)
+        .foods
+        .where((f) => f.id == item['food_id'])
+        .firstOrNull;
+    if (item['expiry_date'] == null || item['automatic_expiry'] == true) {
+      final date = food?.estimatedExpiry(
+        item['location'] as String? ?? 'fridge',
+        purchased,
+      );
+      item['expiry_date'] = date == null ? null : isoDay(date);
+      item['expiry_kind'] = date == null ? 'unknown' : 'estimated';
+      item['automatic_expiry'] = true;
+    }
+  }
+
+  bool valid(Json item) {
+    final value = double.tryParse('${item['quantity']}');
+    return item['food_id'] != null &&
+        value != null &&
+        value.isFinite &&
+        value > 0 &&
+        (item['unit'] != 'pcs' || value == value.roundToDouble());
   }
 
   @override
@@ -447,117 +481,217 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
             ),
             const SizedBox(height: 16),
           ],
+          ListTile(
+            leading: const Icon(Icons.shopping_bag_outlined),
+            title: Text(context.t('purchase_date')),
+            subtitle: Text(context.displayDate(purchased)),
+            trailing: const Icon(Icons.edit_calendar_outlined),
+            onTap: () async {
+              final date = await showDatePicker(
+                context: context,
+                initialDate: purchased,
+                firstDate: DateTime(2000),
+                lastDate: DateTime.now(),
+              );
+              if (date != null && mounted) {
+                setState(() {
+                  purchased = date;
+                  reviewed = false;
+                  for (final item in items) {
+                    estimate(item);
+                  }
+                });
+              }
+            },
+          ),
           for (final item in items)
-            Card(
-              key: ObjectKey(item),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(item['name'] as String),
-                      subtitle: Text(
-                        context.t('estimated_confidence', {
-                          'value': ((item['confidence'] as num) * 100).round(),
-                        }),
-                      ),
-                      trailing: IconButton(
-                        tooltip: context.t('delete'),
-                        icon: const Icon(Icons.close),
-                        onPressed: () => setState(() => items.remove(item)),
-                      ),
+            Builder(
+              builder: (context) {
+                final food = foods
+                    .where((f) => f.id == item['food_id'])
+                    .firstOrNull;
+                final attention =
+                    !valid(item) || ((item['confidence'] as num?) ?? 0) < .85;
+                return Card(
+                  key: ObjectKey(item),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(
+                      color: attention
+                          ? Theme.of(context).colorScheme.error
+                          : Colors.transparent,
                     ),
-                    OutlinedButton(
-                      onPressed: () async {
-                        final food = await chooseFood(
-                          context,
-                          foods
-                              .where((food) => food.group != 'packaged')
-                              .toList(),
-                        );
-                        if (food != null && mounted) {
-                          setState(() {
-                            item['food_id'] = food.id;
-                            item['unit'] = food.unit;
-                            item['confirmed'] = false;
-                          });
-                        }
-                      },
-                      child: Text(
-                        foods
-                                .where((f) => f.id == item['food_id'])
-                                .map((f) => localized(f.name, context.language))
-                                .firstOrNull ??
-                            context.t('choose_food'),
-                      ),
-                    ),
-                    TextFormField(
-                      initialValue: '${item['quantity'] ?? ''}',
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      decoration: InputDecoration(
-                        labelText:
-                            '${context.t('quantity')} (${item['unit'] ?? ''})',
-                      ),
-                      onChanged: (v) {
-                        item['quantity'] = v.replaceAll(',', '.');
-                      },
-                    ),
-                    StorageDateFields(
-                      location: item['location'] as String? ?? 'fridge',
-                      date: DateTime.tryParse(
-                        item['expiry_date'] as String? ?? '',
-                      ),
-                      kind: item['expiry_kind'] == 'unknown'
-                          ? 'estimated'
-                          : item['expiry_kind'] as String? ?? 'estimated',
-                      onChanged: (l, d, k) {
-                        if (mounted) {
-                          setState(() {
-                            item['location'] = l;
-                            item['expiry_date'] = d == null ? null : isoDay(d);
-                            item['expiry_kind'] = d == null
-                                ? 'unknown'
-                                : k == 'unknown'
-                                ? 'estimated'
-                                : k;
-                          });
-                        }
-                      },
-                    ),
-                    CheckboxListTile(
-                      contentPadding: EdgeInsets.zero,
-                      value: item['confirmed'] == true,
-                      onChanged: item['food_id'] == null
-                          ? null
-                          : (value) => setState(
-                              () => item['confirmed'] = value == true,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            FoodImage(
+                              id: food?.id ?? '',
+                              imageUrl: food?.imageUrl,
+                              photoId: food?.photoId,
+                              height: 52,
+                              width: 52,
+                              radius: 12,
                             ),
-                      title: Text(
-                        context.t('confirm_identification_and_family'),
-                      ),
-                      controlAffinity: ListTileControlAffinity.leading,
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    food == null
+                                        ? context.t('choose_food')
+                                        : localized(
+                                            food.name,
+                                            context.language,
+                                          ),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
+                                  ),
+                                  if (attention)
+                                    Text(
+                                      context.t('review_attention'),
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.error,
+                                      ),
+                                    ),
+                                  if (item['expiry_date'] != null)
+                                    Text(
+                                      '${context.t(item['expiry_kind'] == 'estimated' ? 'expiry_estimated' : 'expiry_date')}: ${context.displayDate(item['expiry_date'])}',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall,
+                                    ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: context.t('delete'),
+                              icon: const Icon(Icons.close),
+                              onPressed: () => setState(() {
+                                items.remove(item);
+                                reviewed = false;
+                              }),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                key: ValueKey(
+                                  '${item['food_id']}:${item['unit']}',
+                                ),
+                                initialValue: '${item['quantity'] ?? ''}',
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
+                                decoration: InputDecoration(
+                                  labelText: context.t('quantity'),
+                                  suffixText: food?.unit ?? '',
+                                  helperText: context.t(
+                                    'quantity_estimate_review',
+                                  ),
+                                  isDense: true,
+                                ),
+                                onChanged: (v) => setState(() {
+                                  item['quantity'] = v.replaceAll(',', '.');
+                                  reviewed = false;
+                                }),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton.filledTonal(
+                              tooltip: context.t('choose_food'),
+                              icon: const Icon(Icons.swap_horiz),
+                              onPressed: () async {
+                                final chosen = await chooseFood(
+                                  context,
+                                  foods
+                                      .where((f) => f.group != 'packaged')
+                                      .toList(),
+                                );
+                                if (chosen != null && mounted) {
+                                  setState(() {
+                                    item['food_id'] = chosen.id;
+                                    item['unit'] = chosen.unit;
+                                    item['quantity'] = null;
+                                    item['confidence'] = 1.0;
+                                    item['automatic_expiry'] = true;
+                                    reviewed = false;
+                                    estimate(item);
+                                  });
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                        ExpansionTile(
+                          tilePadding: EdgeInsets.zero,
+                          dense: true,
+                          title: Text(
+                            context.t(item['location'] as String? ?? 'fridge'),
+                          ),
+                          subtitle: Text(context.t('storage_and_date')),
+                          children: [
+                            StorageDateFields(
+                              location: item['location'] as String? ?? 'fridge',
+                              date: DateTime.tryParse(
+                                item['expiry_date'] as String? ?? '',
+                              ),
+                              kind: item['expiry_kind'] as String? ?? 'unknown',
+                              onChanged: (l, d, k) => setState(() {
+                                final changedLocation = item['location'] != l;
+                                item['location'] = l;
+                                reviewed = false;
+                                if (changedLocation &&
+                                    item['automatic_expiry'] == true) {
+                                  estimate(item);
+                                } else {
+                                  item['expiry_date'] = d == null
+                                      ? null
+                                      : isoDay(d);
+                                  item['expiry_kind'] = d == null
+                                      ? 'unknown'
+                                      : k;
+                                  item['automatic_expiry'] = false;
+                                }
+                              }),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    if (item['food_id'] == null)
-                      StatusNote(
-                        text: context.t('choose_food_before_confirming'),
-                        warning: true,
-                      ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             ),
+          CheckboxListTile(
+            value: reviewed,
+            onChanged: items.isNotEmpty && items.every(valid)
+                ? (v) => setState(() => reviewed = v == true)
+                : null,
+            title: Text(context.t('confirm_identification_and_family')),
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
           AsyncAction(
             label: context.t('add_confirmed_to_fridge'),
-            enabled:
-                items.isNotEmpty && items.every((i) => i['confirmed'] == true),
+            enabled: items.isNotEmpty && reviewed && items.every(valid),
             action: () async {
               await mutation.send(ref.read(apiProvider), 'POST', '/jobs', {
                 'action': 'confirm',
                 'id': widget.job['id'],
-                'items': items,
+                'items': items
+                    .map((item) => {...item, 'confirmed': true})
+                    .toList(),
               });
               await ref.read(appProvider.notifier).refresh();
               if (context.mounted) Navigator.pop(context);

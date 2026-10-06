@@ -23,10 +23,14 @@ class AsyncAction extends StatefulWidget {
     this.enabled = true,
     this.secondary = false,
     this.destructive = false,
+    this.icon,
+    this.iconOnly = false,
   });
   final String label;
   final Future<void> Function() action;
   final bool enabled, secondary, destructive;
+  final IconData? icon;
+  final bool iconOnly;
   @override
   State<AsyncAction> createState() => _AsyncActionState();
 }
@@ -65,7 +69,25 @@ class _AsyncActionState extends State<AsyncAction> {
               color: Theme.of(context).colorScheme.onPrimary,
             ),
           )
-        : Text(widget.label);
+        : widget.icon == null
+        ? Text(widget.label)
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(widget.icon, size: 20),
+              if (!widget.iconOnly) ...[
+                const SizedBox(width: 8),
+                Flexible(child: Text(widget.label)),
+              ],
+            ],
+          );
+    if (widget.iconOnly) {
+      return IconButton.filledTonal(
+        tooltip: widget.label,
+        onPressed: busy || !widget.enabled ? null : run,
+        icon: busy ? label : Icon(widget.icon),
+      );
+    }
     return widget.secondary
         ? OutlinedButton(
             style: widget.destructive

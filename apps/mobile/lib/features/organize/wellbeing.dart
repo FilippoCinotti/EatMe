@@ -59,7 +59,11 @@ class _WellbeingState extends ResourceState<WellbeingPage> {
         ),
         StatusNote(text: context.t('self_reported_habits')),
         if (data != null)
-          Text(context.t('week_starting', {'date': '${data!['week_start']}'})),
+          Text(
+            context.t('week_starting', {
+              'date': context.displayDate(data!['week_start']),
+            }),
+          ),
         if (goals.isEmpty)
           EmptyMessage(
             title: context.t('no_habits'),
@@ -89,25 +93,32 @@ class _WellbeingState extends ResourceState<WellbeingPage> {
                       'target': goal['target'] as int,
                     }),
                   ),
-                  AsyncAction(
-                    label: context.t(
-                      goal['done_today'] == true ? 'undo_today' : 'done_today',
-                    ),
-                    action: () async {
-                      await command({
-                        'action': 'check_in',
-                        'goal': goal['id'],
-                        'completed': goal['done_today'] != true,
-                        'expected_version': data!['version'],
-                      });
-                    },
-                  ),
-                  Wrap(
-                    spacing: 8,
+                  const SizedBox(height: 12),
+                  Row(
                     children: [
+                      Expanded(
+                        child: AsyncAction(
+                          label: context.t(
+                            goal['done_today'] == true
+                                ? 'undo_today'
+                                : 'done_today',
+                          ),
+                          icon: goal['done_today'] == true
+                              ? Icons.check_circle
+                              : Icons.check_circle_outline,
+                          secondary: goal['done_today'] != true,
+                          action: () => command({
+                            'action': 'check_in',
+                            'goal': goal['id'],
+                            'completed': goal['done_today'] != true,
+                            'expected_version': data!['version'],
+                          }),
+                        ),
+                      ),
                       AsyncAction(
                         label: context.t('edit'),
-                        secondary: true,
+                        icon: Icons.edit_outlined,
+                        iconOnly: true,
                         action: () => editTarget(
                           goal['id'] as String,
                           goal['target'] as int,
@@ -115,14 +126,13 @@ class _WellbeingState extends ResourceState<WellbeingPage> {
                       ),
                       AsyncAction(
                         label: context.t('delete'),
-                        secondary: true,
-                        action: () async {
-                          await command({
-                            'action': 'remove',
-                            'goal': goal['id'],
-                            'expected_version': data!['version'],
-                          });
-                        },
+                        icon: Icons.delete_outline,
+                        iconOnly: true,
+                        action: () => command({
+                          'action': 'remove',
+                          'goal': goal['id'],
+                          'expected_version': data!['version'],
+                        }),
                       ),
                     ],
                   ),
@@ -131,18 +141,62 @@ class _WellbeingState extends ResourceState<WellbeingPage> {
             ),
           ),
         const SizedBox(height: 16),
-        for (final goal in habitGoals.where(
-          (id) => !goals.any((g) => g['id'] == id),
-        ))
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: AsyncAction(
-              label: context.t('goal_$goal'),
-              secondary: true,
-              enabled: data != null,
-              action: () => editTarget(goal, 5),
-            ),
+        LayoutBuilder(
+          builder: (context, constraints) => Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              for (final goal in habitGoals.where(
+                (id) => !goals.any((g) => g['id'] == id),
+              ))
+                SizedBox(
+                  width: constraints.maxWidth < 300
+                      ? constraints.maxWidth
+                      : (constraints.maxWidth - 12) / 2,
+                  child: Card(
+                    color: ColorScheme.fromSeed(
+                      seedColor: [
+                        Colors.teal,
+                        Colors.amber,
+                        Colors.indigo,
+                        Colors.green,
+                        Colors.deepOrange,
+                        Colors.purple,
+                      ][habitGoals.indexOf(goal)],
+                      brightness: Theme.of(context).brightness,
+                    ).primaryContainer,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            [
+                              Icons.restaurant_outlined,
+                              Icons.recycling,
+                              Icons.favorite_outline,
+                              Icons.eco_outlined,
+                              Icons.shopping_basket_outlined,
+                              Icons.balance,
+                            ][habitGoals.indexOf(goal)],
+                            size: 30,
+                          ),
+                          const SizedBox(height: 12),
+                          AsyncAction(
+                            label: context.t('goal_$goal'),
+                            secondary: true,
+                            enabled: data != null,
+                            action: () => editTarget(goal, 5),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
+        ),
       ]),
     );
   }

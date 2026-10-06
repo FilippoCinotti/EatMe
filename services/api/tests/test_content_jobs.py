@@ -11,7 +11,7 @@ from eatme.errors import DomainError
 from eatme.intelligence import OpenAIProvider, normalize_image
 from eatme.providers import barcode, nutrition
 from eatme.service import Service, new_id
-from eatme.storage import Database
+from eatme.storage import Database, decode
 
 
 class ContentCase(unittest.TestCase):
@@ -94,10 +94,14 @@ class ContentCase(unittest.TestCase):
         items = result['result']['items']
         self.assertCode('detection_confirmation_required', lambda: self.app.job_action(self.owner, {'action': 'confirm', 'id': job['id'], 'items': items}, new_id()))
         items[0]['confirmed'] = True
+        items[0]['purchase_date'] = '2026-09-09'
         key, body = new_id(), {'action': 'confirm', 'id': job['id'], 'items': items}
         first = self.app.job_action(self.owner, body, key)
         self.assertEqual(first, self.app.job_action(self.owner, body, key))
         self.assertEqual(len(self.app.inventory(self.owner)['items']), 1)
+        with self.app.db.transaction() as tx:
+            metadata = tx.one('SELECT data FROM inventory_metadata WHERE batch_id=?', (first['ids'][0],))
+        self.assertEqual(decode(metadata['data'])['purchase_date'], '2026-09-09')
 
     def test_auto_scan_classifies_the_image_without_a_frontend_mode_choice(self):
         self.app.preferences(self.owner, {'expected_version': 0, 'data': {'ai_consent': True}}, new_id())

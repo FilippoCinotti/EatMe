@@ -471,7 +471,12 @@ class EatMeCase(unittest.TestCase):
         remaining = self.service.inventory(self.user)["items"]
         self.assertEqual(len(remaining),1)
         self.assertEqual(remaining[0]["quantity"],"100")
-        self.assertIsNone(self.service.leftovers(self.user)["items"][0]["user_use_date"])
+        leftover = self.service.leftovers(self.user)["items"][0]
+        self.assertEqual(leftover["user_use_date"], "2026-09-13")
+        self.service.leftover_action(self.user, {
+            "action": "move", "id": leftover["id"], "expected_version": 1, "location": "freezer",
+        }, new_id())
+        self.assertEqual(self.service.leftovers(self.user)["items"][0]["user_use_date"], "2026-09-13")
 
     def test_confirmation_retry_cannot_double_consume(self):
         data = self.confirmation(self.prepare_bowl())

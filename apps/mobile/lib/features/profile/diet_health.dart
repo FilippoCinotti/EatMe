@@ -194,18 +194,40 @@ class DietHealthPage extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 22),
-          SettingsGroup(
-            children: [
-              for (final section in sections)
-                SettingRow(
-                  key: ValueKey('diet-section-${section.$1}'),
-                  title: section.$2,
-                  subtitle: '${description(section.$1)}\n${section.$3}',
-                  icon: section.$4,
-                  onTap: () => edit(section.$1),
+          for (final section in sections) ...[
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SettingRow(
+                      key: ValueKey('diet-section-${section.$1}'),
+                      title: section.$2,
+                      subtitle: description(section.$1),
+                      icon: section.$4,
+                      onTap: () => edit(section.$1),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final value in section.$3.split(' · '))
+                          _ActionPill(
+                            label: value,
+                            icon: section.$4,
+                            selected: true,
+                            onTap: () => edit(section.$1),
+                          ),
+                      ],
+                    ),
+                  ],
                 ),
-            ],
-          ),
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
           const SizedBox(height: 14),
           SettingRow(
             title: context.t('wellbeing'),
@@ -916,7 +938,20 @@ class _ActionPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final seeds = [
+      Colors.teal,
+      Colors.indigo,
+      Colors.amber,
+      Colors.purple,
+      Colors.deepOrange,
+    ];
+    final index = label.runes.fold<int>(0, (a, b) => a + b) % seeds.length;
+    final scheme = selected
+        ? ColorScheme.fromSeed(
+            seedColor: seeds[index],
+            brightness: Theme.of(context).brightness,
+          )
+        : Theme.of(context).colorScheme;
     return Semantics(
       button: true,
       selected: selected,
@@ -935,13 +970,23 @@ class _ActionPill extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  EatMeIcon(icon, size: 17, color: scheme.primary),
+                  EatMeIcon(
+                    icon,
+                    size: 17,
+                    color: selected
+                        ? scheme.onPrimaryContainer
+                        : scheme.primary,
+                  ),
                   const SizedBox(width: 7),
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 230),
                     child: Text(
                       label,
-                      style: Theme.of(context).textTheme.labelLarge,
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: selected
+                            ? scheme.onPrimaryContainer
+                            : scheme.onSurface,
+                      ),
                     ),
                   ),
                 ],
