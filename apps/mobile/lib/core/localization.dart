@@ -46,5 +46,12 @@ class _EatMeStringsDelegate extends LocalizationsDelegate<EatMeStrings> {
 extension EatMeLocalization on BuildContext {
   String t(String key, [Map<String, Object> variables = const {}]) =>
       Localizations.of<EatMeStrings>(this, EatMeStrings)!.text(key, variables);
+  String displayDate(Object? value) {
+    final date = value is DateTime ? value : DateTime.tryParse('$value');
+    return date == null
+        ? '—'
+        : MaterialLocalizations.of(this).formatCompactDate(date);
+  }
+
   String get language => Localizations.localeOf(this).languageCode;
 }

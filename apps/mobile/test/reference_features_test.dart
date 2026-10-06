@@ -183,6 +183,7 @@ void main() {
         isFalse,
       );
       expect(find.text('Tomatoes'), findsNWidgets(2));
+      expect(find.byType(CheckboxListTile), findsOneWidget);
       await tester.tap(find.byTooltip('Delete').first);
       await tester.pumpAndSettle();
       expect(find.text('First item'), findsNothing);

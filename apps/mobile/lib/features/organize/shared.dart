@@ -64,9 +64,8 @@ abstract class ResourceState<T extends ConsumerStatefulWidget>
       );
       await load();
       if (mounted && value['queued'] == true) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.t('queued_offline'))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.t('queued_offline'))));
       }
       return value;
     } finally {
@@ -189,7 +188,8 @@ Future<List<String>?> chooseDiners(
   final home = await api.request('GET', '/households');
   if (!context.mounted) return null;
   final members = records(home['members']);
-  final selected = (initial ?? [api.userId!]).toSet();
+  final selected =
+      (initial ?? members.map((m) => m['user_id'] as String).toList()).toSet();
   return showDialog<List<String>>(
     context: context,
     builder: (context) => StatefulBuilder(
@@ -223,7 +223,7 @@ Future<List<String>?> chooseDiners(
                       borderRadius: BorderRadius.circular(22),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(22),
-                        onTap: blocked
+                        onTap: blocked && !active
                             ? null
                             : () => update(() {
                                 if (active) {
@@ -251,16 +251,16 @@ Future<List<String>?> chooseDiners(
                                   children: [
                                     Text(
                                       name,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
                                     ),
                                     if (blocked)
                                       Text(
                                         context.t('sharing_not_enabled'),
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.bodySmall,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall,
                                       ),
                                   ],
                                 ),
@@ -277,18 +277,18 @@ Future<List<String>?> chooseDiners(
                                   border: Border.all(
                                     color: active
                                         ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(
-                                            context,
-                                          ).colorScheme.outlineVariant,
+                                        : Theme.of(context)
+                                              .colorScheme
+                                              .outlineVariant,
                                   ),
                                 ),
                                 child: active
                                     ? Icon(
                                         Icons.check,
                                         size: 18,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onPrimary,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary,
                                       )
                                     : null,
                               ),

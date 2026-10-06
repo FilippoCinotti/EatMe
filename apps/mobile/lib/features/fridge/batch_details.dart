@@ -50,7 +50,9 @@ class _BatchDetailsState extends ConsumerState<BatchDetailsPage> {
     lastDate: DateTime(2100),
   );
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => RecipeEditorial(builder: _build);
+
+  Widget _build(BuildContext context) => Scaffold(
     appBar: EatMeAppBar(title: Text(context.t('edit_batch_details'))),
     body: PageBody(
       children: [
@@ -78,7 +80,10 @@ class _BatchDetailsState extends ConsumerState<BatchDetailsPage> {
         ),
         const SizedBox(height: 12),
         AsyncAction(
-          label: expiry == null ? context.t('expiry_date') : isoDay(expiry!),
+          label: expiry == null
+              ? context.t('expiry_date')
+              : context.displayDate(expiry),
+          icon: Icons.calendar_today_outlined,
           secondary: true,
           enabled: kind != 'unknown',
           action: () async {
@@ -100,7 +105,8 @@ class _BatchDetailsState extends ConsumerState<BatchDetailsPage> {
         ),
         AsyncAction(
           label:
-              '${context.t('purchase_date')}: ${purchased == null ? '—' : isoDay(purchased!)}',
+              '${context.t('purchase_date')}: ${context.displayDate(purchased)}',
+          icon: Icons.shopping_bag_outlined,
           secondary: true,
           action: () async {
             final value = await date(purchased);
@@ -118,7 +124,9 @@ class _BatchDetailsState extends ConsumerState<BatchDetailsPage> {
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(labelText: context.t('purchase_cost')),
         ),
+        const SizedBox(height: 12),
         DropdownButtonFormField<String>(
+          decoration: InputDecoration(labelText: context.t('currency')),
           isExpanded: true,
           initialValue: currency,
           items: ['EUR', 'USD', 'GBP', 'CHF']

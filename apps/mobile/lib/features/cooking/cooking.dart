@@ -117,9 +117,8 @@ class _CookingPageState extends ConsumerState<CookingPage> {
       );
       if (remaining == 0) {
         t.cancel();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.t('timer_done'))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.t('timer_done'))));
       }
     });
   }
@@ -380,9 +379,8 @@ class _CookingPageState extends ConsumerState<CookingPage> {
               const SizedBox(height: 14),
               Text(
                 steps[step],
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(fontSize: 17, height: 1.55),
+                style: Theme.of(context).textTheme.bodyLarge
+                    ?.copyWith(fontSize: 17, height: 1.55),
               ),
               if (currentIngredients.isNotEmpty) ...[
                 const SizedBox(height: 22),
@@ -393,9 +391,8 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                     children: [
                       Text(
                         context.t('needed_now').toUpperCase(),
-                        style: Theme.of(
-                          context,
-                        ).textTheme.labelMedium?.copyWith(letterSpacing: 1.5),
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(letterSpacing: 1.5),
                       ),
                       const SizedBox(height: 12),
                       Wrap(
@@ -477,9 +474,9 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                                 if (suggestedTimer != null)
                                   Text(
                                     '${suggestedTimer.toString().padLeft(2, '0')}:00',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.headlineMedium,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineMedium,
                                   ),
                               ],
                             ),
@@ -677,9 +674,9 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
                                     ),
                                     context.language,
                                   ),
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
                                 ),
                                 Text(
                                   '${raw['quantity']} ${raw['food']['unit']}',
@@ -716,7 +713,13 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
               onChanged: (n) => setState(() => leftovers = n!),
             ),
             if (leftovers > 0)
-              StatusNote(text: context.t('leftover_date_unknown')),
+              StatusNote(
+                text: context.t('leftover_date_suggested', {
+                  'date': context.displayDate(
+                    DateTime.now().add(const Duration(days: 3)),
+                  ),
+                }),
+              ),
             const SizedBox(height: 28),
             AsyncAction(
               label: context.t('confirm_update'),

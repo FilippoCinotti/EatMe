@@ -23,10 +23,14 @@ class AsyncAction extends StatefulWidget {
     this.enabled = true,
     this.secondary = false,
     this.destructive = false,
+    this.icon,
+    this.iconOnly = false,
   });
   final String label;
   final Future<void> Function() action;
   final bool enabled, secondary, destructive;
+  final IconData? icon;
+  final bool iconOnly;
   @override
   State<AsyncAction> createState() => _AsyncActionState();
 }
@@ -45,9 +49,8 @@ class _AsyncActionState extends State<AsyncAction> {
             : error is AuthException
             ? 'authentication_failed'
             : 'unknown_error';
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.t(code))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.t(code))));
       }
     } finally {
       if (mounted) setState(() => busy = false);
@@ -65,19 +68,37 @@ class _AsyncActionState extends State<AsyncAction> {
               color: Theme.of(context).colorScheme.onPrimary,
             ),
           )
-        : Text(widget.label);
+        : widget.icon == null
+        ? Text(widget.label)
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(widget.icon, size: 20),
+              if (!widget.iconOnly) ...[
+                const SizedBox(width: 8),
+                Flexible(child: Text(widget.label)),
+              ],
+            ],
+          );
+    if (widget.iconOnly) {
+      return IconButton.filledTonal(
+        tooltip: widget.label,
+        onPressed: busy || !widget.enabled ? null : run,
+        icon: busy ? label : Icon(widget.icon),
+      );
+    }
     return widget.secondary
         ? OutlinedButton(
             style: widget.destructive
                 ? OutlinedButton.styleFrom(
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.errorContainer,
+                    backgroundColor: Theme.of(context)
+                        .colorScheme
+                        .errorContainer,
                     // The container/on-container pair keeps the label legible
                     // in both themes.
-                    foregroundColor: Theme.of(
-                      context,
-                    ).colorScheme.onErrorContainer,
+                    foregroundColor: Theme.of(context)
+                        .colorScheme
+                        .onErrorContainer,
                   )
                 : null,
             onPressed: busy || !widget.enabled ? null : run,
@@ -324,9 +345,8 @@ Future<void> sheet(BuildContext context, Widget child) =>
 
 String expiryLabel(BuildContext context, Batch batch) {
   if (batch.expiryDate == null) return context.t('date_unknown');
-  final date = MaterialLocalizations.of(
-    context,
-  ).formatCompactDate(batch.expiryDate!);
+  final date = MaterialLocalizations.of(context)
+      .formatCompactDate(batch.expiryDate!);
   return context.t(batch.expiryKind, {'date': date});
 }
 

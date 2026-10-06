@@ -104,6 +104,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/plan',
             builder: (_, state) => PlannerPage(
+              key: ValueKey(state.uri.toString()),
               initialRecipeId: state.uri.queryParameters['recipe'],
             ),
           ),
@@ -350,9 +351,8 @@ class AppShell extends StatelessWidget {
     extendBody: true,
     body: MediaQuery(
       data: MediaQuery.of(context).copyWith(
-        padding: MediaQuery.paddingOf(
-          context,
-        ).copyWith(bottom: MediaQuery.paddingOf(context).bottom + 92),
+        padding: MediaQuery.paddingOf(context)
+            .copyWith(bottom: MediaQuery.paddingOf(context).bottom + 92),
       ),
       child: child,
     ),

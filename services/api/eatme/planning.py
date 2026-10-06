@@ -325,6 +325,8 @@ class PlanningService:
                     if not prepared or prepared > today or (use_date and use_date < prepared):
                         raise DomainError('invalid_date', 422)
                     location = choice(data.get('location', 'fridge'), {'fridge', 'freezer'})
+                    if not use_date and location == 'fridge':
+                        use_date = (date.fromisoformat(prepared) + timedelta(days=3)).isoformat()
                     cooking_id, identifier, stamp = new_id(), new_id(), now()
                     servings = data['servings']
                     snapshot = {'servings': servings, 'source': 'external-preparation', 'allocations': [],

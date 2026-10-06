@@ -287,6 +287,7 @@ class SavingsCase(unittest.TestCase):
             new_id(),
         )
         result = self.service.insights(self.user)
+        self.assertEqual(result["cooked_meals"], 0)  # First use is enough; there is no 100-meal gate.
         self.assertEqual(result["money_saved"]["amounts"], [{"currency": "EUR", "value": "1.00"}])
         self.assertEqual(result["carbon_saved"]["value"], "0.10")
         self.assertEqual(result["carbon_saved"]["factor_version"], "poore-nemecek-owid-2019-v1")

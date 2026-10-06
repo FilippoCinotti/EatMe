@@ -10,6 +10,7 @@ import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
 import '../organize/shared.dart';
+import '../organize/planner.dart';
 import '../../core/share_text.dart';
 
 class RecipePage extends ConsumerStatefulWidget {
@@ -56,12 +57,16 @@ class _RecipePageState extends ConsumerState<RecipePage> {
   );
 
   Future<Food?> chooseReplacement(Recipe recipe, Food original) async {
-    final response = await mutation
-        .send(ref.read(apiProvider), 'POST', '/recipes', {
-          'action': 'substitution_candidates',
-          'recipe_id': recipe.id,
-          'food_id': original.id,
-        });
+    final response = await mutation.send(
+      ref.read(apiProvider),
+      'POST',
+      '/recipes',
+      {
+        'action': 'substitution_candidates',
+        'recipe_id': recipe.id,
+        'food_id': original.id,
+      },
+    );
     if (!mounted) return null;
     final candidates = records(response['candidates']);
     final allFoods = ref
@@ -131,9 +136,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                     ),
                                     context.language,
                                   ),
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
                                 ),
                                 Text(
                                   context.t(
@@ -188,14 +193,18 @@ class _RecipePageState extends ConsumerState<RecipePage> {
       numeric: true,
     );
     if (amount == null) return;
-    final changed = await Mutation()
-        .send(ref.read(apiProvider), 'POST', '/recipes', {
-          'action': 'substitute',
-          'recipe_id': recipe.id,
-          'food_id': original.id,
-          'replacement_id': replacement.id,
-          'quantity': amount,
-        });
+    final changed = await Mutation().send(
+      ref.read(apiProvider),
+      'POST',
+      '/recipes',
+      {
+        'action': 'substitute',
+        'recipe_id': recipe.id,
+        'food_id': original.id,
+        'replacement_id': replacement.id,
+        'quantity': amount,
+      },
+    );
     if (mounted && context.mounted) {
       context.push('/recipe-editor', extra: changed);
     }
@@ -203,6 +212,20 @@ class _RecipePageState extends ConsumerState<RecipePage> {
 
   Future<(Recipe, Json)> load() async {
     final api = ref.read(apiProvider);
+    if (participants == null) {
+      try {
+        final home = await api.request('GET', '/households');
+        selectedDiners = records(home['members']);
+        participants = selectedDiners
+            .map((m) => m['user_id'] as String)
+            .toList();
+        if (participants!.isEmpty && api.userId != null)
+          participants = [api.userId!];
+        servings = participants!.length.clamp(1, 20);
+      } on ApiFailure catch (error) {
+        if (!error.offline) rethrow;
+      }
+    }
     final recipe = await api.request('GET', '/recipes/${widget.recipeId}');
     if (mounted) {
       setState(() {
@@ -227,7 +250,10 @@ class _RecipePageState extends ConsumerState<RecipePage> {
       );
       return (Recipe.fromJson(recipe), preview);
     } on ApiFailure catch (error) {
-      if (!error.offline && error.code != 'recipe_not_compatible') rethrow;
+      if (!error.offline &&
+          error.code != 'recipe_not_compatible' &&
+          error.code != 'participant_consent_required')
+        rethrow;
       final model = Recipe.fromJson(recipe),
           foods = ref.read(appProvider).foods;
       return (
@@ -333,7 +359,11 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               child: Text(context.t('cook_now')),
             ),
             secondary: OutlinedButton.icon(
-              onPressed: () => context.push('/plan?recipe=${recipe.id}'),
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => PlannerPage(initialRecipeId: recipe.id),
+                ),
+              ),
               icon: const EatMeIcon(EatMeGlyph.calendarDays, size: 20),
               label: Text(context.t('plan_this')),
             ),
@@ -370,9 +400,8 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                       foregroundColor: favorite
                           ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.onSurface,
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.surface.withValues(alpha: .92),
+                      backgroundColor: Theme.of(context).colorScheme.surface
+                          .withValues(alpha: .92),
                       onPressed: toggleFavorite,
                     ),
                   ),
@@ -520,6 +549,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                       final members = records(home['members']);
                       setState(() {
                         participants = value;
+                        servings = value.length.clamp(1, 20);
                         selectedDiners = members
                             .where(
                               (member) => value.contains(member['user_id']),
@@ -652,9 +682,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                               size: 20,
                               color: isAvailable
                                   ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
+                                  : Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -668,9 +698,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                       ),
                                       context.language,
                                     ),
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleMedium,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium,
                                   ),
                                   const SizedBox(height: 3),
                                   Text(
@@ -680,9 +710,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                           '${item['available'] ?? '—'}',
                                       'unit': '${item['food']['unit'] ?? ''}',
                                     }),
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall,
                                   ),
                                 ],
                               ),
@@ -773,22 +803,13 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               StatusNote(text: context.t('missing_ingredients_notice')),
             const SizedBox(height: 24),
             ExpansionTile(
-              tilePadding: EdgeInsets.zero,
-              title: Text(context.t('recipe_actions')),
-              children: [
-                AsyncAction(
-                  label: context.t('share_recipe'),
-                  secondary: true,
-                  action: () => shareRecipe(recipe),
-                ),
-              ],
-            ),
-            ExpansionTile(
+              initiallyExpanded: true,
               tilePadding: EdgeInsets.zero,
               title: Text(context.t('more_recipe_tools')),
               children: [
                 AsyncAction(
                   label: context.t('build_shopping_list'),
+                  icon: Icons.shopping_cart_outlined,
                   secondary: true,
                   action: () async {
                     final entitlement = await ref.read(
@@ -828,14 +849,21 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                         label: context.t(
                           rating == 1 ? 'like_recipe' : 'dislike_recipe',
                         ),
+                        icon: rating == 1
+                            ? Icons.thumb_up_outlined
+                            : Icons.thumb_down_outlined,
                         secondary: true,
                         action: () async {
-                          await Mutation()
-                              .send(ref.read(apiProvider), 'POST', '/recipes', {
-                                'action': 'feedback',
-                                'recipe_id': recipe.id,
-                                'rating': rating,
-                              });
+                          await Mutation().send(
+                            ref.read(apiProvider),
+                            'POST',
+                            '/recipes',
+                            {
+                              'action': 'feedback',
+                              'recipe_id': recipe.id,
+                              'rating': rating,
+                            },
+                          );
                         },
                       ),
                   ],
@@ -843,6 +871,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 const SizedBox(height: 8),
                 AsyncAction(
                   label: context.t('substitute_ingredient'),
+                  icon: Icons.swap_horiz,
                   secondary: true,
                   action: () async {
                     final foods = ref.read(appProvider).foods;
@@ -863,6 +892,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                 const SizedBox(height: 24),
                 AsyncAction(
                   label: context.t('report_problem'),
+                  icon: Icons.flag_outlined,
                   secondary: true,
                   action: () async {
                     final message = await askText(
