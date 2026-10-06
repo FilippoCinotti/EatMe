@@ -34,46 +34,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     final api = ref.read(apiProvider);
     if (welcome) {
-      return Scaffold(
-        body: PageBody(
-          children: [
-            const SizedBox(height: 32),
-            const Center(child: EatMeWordmark(large: true)),
-            const SizedBox(height: 24),
-            Text(
-              context.t('lifestyle_tagline'),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 28),
-            const FoodImage(
-              id: '913a438b-0805-543d-8719-c0253f8f103a',
-              height: 260,
-              radius: 28,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              context.t('welcome_promise'),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: () => setState(() {
-                welcome = false;
-                register = true;
-              }),
-              child: Text(context.t('start_now')),
-            ),
-            TextButton(
-              onPressed: () => setState(() {
-                welcome = false;
-                register = false;
-              }),
-              child: Text(context.t('already_account')),
-            ),
-          ],
-        ),
+      return _WelcomeLanding(
+        onStart: () => setState(() {
+          welcome = false;
+          register = true;
+        }),
+        onLogin: () => setState(() {
+          welcome = false;
+          register = false;
+        }),
       );
     }
     return Scaffold(
@@ -257,6 +226,107 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       ),
     );
   }
+}
+
+class _WelcomeLanding extends StatelessWidget {
+  const _WelcomeLanding({required this.onStart, required this.onLogin});
+
+  final VoidCallback onStart;
+  final VoidCallback onLogin;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    body: SafeArea(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final compact = constraints.maxHeight < 760;
+          return SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              20,
+              compact ? 10 : 18,
+              20,
+              20 + MediaQuery.paddingOf(context).bottom,
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: 620,
+                  minHeight:
+                      constraints.maxHeight -
+                      (compact ? 30 : 38) -
+                      MediaQuery.paddingOf(context).bottom,
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    children: [
+                      const EatMeWordmark(large: true),
+                      SizedBox(height: compact ? 12 : 16),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 360),
+                        child: Text(
+                          context.t('lifestyle_tagline'),
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                            height: 1.35,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: compact ? 18 : 24),
+                      FoodImage(
+                        id: '913a438b-0805-543d-8719-c0253f8f103a',
+                        height: compact ? 190 : 220,
+                        radius: 26,
+                      ),
+                      SizedBox(height: compact ? 18 : 22),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 430),
+                        child: Text(
+                          context.t('welcome_promise'),
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                height: 1.1,
+                              ),
+                        ),
+                      ),
+                      const Spacer(),
+                      const SizedBox(height: 22),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          style: FilledButton.styleFrom(
+                            minimumSize: const Size.fromHeight(56),
+                            textStyle: Theme.of(context).textTheme.labelLarge
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                          onPressed: onStart,
+                          child: Text(context.t('start_now')),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          minimumSize: const Size.fromHeight(44),
+                          textStyle: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        onPressed: onLogin,
+                        child: Text(context.t('already_account')),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    ),
+  );
 }
 
 class _SocialAuthBlock extends StatelessWidget {
