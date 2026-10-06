@@ -60,6 +60,13 @@ class FeatureApi extends support.TestApi {
 }
 
 void main() {
+  test('smart capture stores auto scans as photo media', () {
+    expect(mediaKindForScan('auto'), 'photo');
+    expect(mediaKindForScan('recipe'), 'photo');
+    expect(mediaKindForScan('photo'), 'photo');
+    expect(mediaKindForScan('receipt'), 'receipt');
+  });
+
   setUpAll(visual.loadFonts);
   for (final dark in [false, true]) {
     for (final page in [
