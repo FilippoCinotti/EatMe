@@ -139,10 +139,9 @@ class Recipe {
         .toList();
   }
 
-  List<String> instructions(String language) =>
-      instructionSteps(language)
-          .map((step) => '${step['text'] ?? ''}')
-          .toList();
+  List<String> instructions(String language) => instructionSteps(
+    language,
+  ).map((step) => '${step['text'] ?? ''}').toList();
 
   int? timerMinutes(String language, int index) {
     final rows = instructionSteps(language);

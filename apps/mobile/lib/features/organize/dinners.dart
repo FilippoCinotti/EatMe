@@ -99,8 +99,9 @@ class _DinnersPageState extends ResourceState<DinnersPage> {
         const SizedBox(height: 8),
         Text(
           context.t('dinner_planning_body'),
-          style: Theme.of(context).textTheme.bodyLarge
-              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 20),
         AsyncAction(label: context.t('create_dinner'), action: createDinner),
@@ -195,12 +196,12 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
   Future<void> addHouseholdMember() async {
     final home = await ref.read(apiProvider).request('GET', '/households');
     if (!mounted) return;
-    final existing = records(event?['participants'])
-        .map((item) => item['user_id'])
-        .toSet();
-    final candidates = records(home['members'])
-        .where((item) => !existing.contains(item['user_id']))
-        .toList();
+    final existing = records(
+      event?['participants'],
+    ).map((item) => item['user_id']).toSet();
+    final candidates = records(
+      home['members'],
+    ).where((item) => !existing.contains(item['user_id'])).toList();
     final selected = await showModalBottomSheet<Json>(
       context: context,
       useRootNavigator: true,
@@ -513,8 +514,9 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
     } catch (error) {
       if (!mounted) return;
       final code = error is ApiFailure ? error.code : 'unknown_error';
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(context.t(code))));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.t(code))));
     }
   }
 
@@ -1122,8 +1124,10 @@ class _DinnerCard extends StatelessWidget {
                     Text(
                       '${MaterialLocalizations.of(context).formatMediumDate(starts)} · ${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(starts))}'
                           .toUpperCase(),
-                      style: Theme.of(context).textTheme.labelSmall
-                          ?.copyWith(letterSpacing: 1.6, color: scheme.primary),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        letterSpacing: 1.6,
+                        color: scheme.primary,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(

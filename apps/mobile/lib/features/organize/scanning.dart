@@ -30,8 +30,9 @@ class _ScanningState extends ResourceState<ScanningPage> {
   void initState() {
     super.initState();
     timer = Timer.periodic(const Duration(seconds: 4), (_) {
-      if (records(data?['items'])
-          .any((j) => ['queued', 'processing'].contains(j['status']))) {
+      if (records(
+        data?['items'],
+      ).any((j) => ['queued', 'processing'].contains(j['status']))) {
         load();
       }
     });
@@ -131,8 +132,9 @@ class _ScanningState extends ResourceState<ScanningPage> {
       const SizedBox(height: 6),
       Text(
         context.t('smart_capture_body'),
-        style: Theme.of(context).textTheme.bodyLarge
-            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
       ),
       const SizedBox(height: 18),
       AsyncAction(
@@ -397,9 +399,9 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
   @override
   void initState() {
     super.initState();
-    items = records(widget.job['result']['items'])
-        .map((i) => {...i, 'confirmed': false})
-        .toList();
+    items = records(
+      widget.job['result']['items'],
+    ).map((i) => {...i, 'confirmed': false}).toList();
     purchased =
         DateTime.tryParse('${widget.job['created_at']}') ?? DateTime.now();
     for (final item in items) {
@@ -546,25 +548,25 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                                             food.name,
                                             context.language,
                                           ),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
                                   ),
                                   if (attention)
                                     Text(
                                       context.t('review_attention'),
                                       style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .error,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.error,
                                       ),
                                     ),
                                   if (item['expiry_date'] != null)
                                     Text(
                                       '${context.t(item['expiry_kind'] == 'estimated' ? 'expiry_estimated' : 'expiry_date')}: ${context.displayDate(item['expiry_date'])}',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall,
                                     ),
                                 ],
                               ),
@@ -872,17 +874,13 @@ class _BarcodeState extends ConsumerState<BarcodePage> {
                 numeric: true,
               );
               if (amount == null) return;
-              await Mutation().send(
-                ref.read(apiProvider),
-                'POST',
-                '/products/stock',
-                {
-                  'product_id': product!['id'],
-                  'food_id': classification!.id,
-                  'quantity': amount,
-                  'package_checked': true,
-                },
-              );
+              await Mutation()
+                  .send(ref.read(apiProvider), 'POST', '/products/stock', {
+                    'product_id': product!['id'],
+                    'food_id': classification!.id,
+                    'quantity': amount,
+                    'package_checked': true,
+                  });
               await ref.read(appProvider.notifier).refresh();
               if (context.mounted) context.pop();
             },

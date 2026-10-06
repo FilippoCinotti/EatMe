@@ -49,8 +49,9 @@ class _AsyncActionState extends State<AsyncAction> {
             : error is AuthException
             ? 'authentication_failed'
             : 'unknown_error';
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(context.t(code))));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.t(code))));
       }
     } finally {
       if (mounted) setState(() => busy = false);
@@ -91,14 +92,14 @@ class _AsyncActionState extends State<AsyncAction> {
         ? OutlinedButton(
             style: widget.destructive
                 ? OutlinedButton.styleFrom(
-                    backgroundColor: Theme.of(context)
-                        .colorScheme
-                        .errorContainer,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.errorContainer,
                     // The container/on-container pair keeps the label legible
                     // in both themes.
-                    foregroundColor: Theme.of(context)
-                        .colorScheme
-                        .onErrorContainer,
+                    foregroundColor: Theme.of(
+                      context,
+                    ).colorScheme.onErrorContainer,
                   )
                 : null,
             onPressed: busy || !widget.enabled ? null : run,
@@ -345,8 +346,9 @@ Future<void> sheet(BuildContext context, Widget child) =>
 
 String expiryLabel(BuildContext context, Batch batch) {
   if (batch.expiryDate == null) return context.t('date_unknown');
-  final date = MaterialLocalizations.of(context)
-      .formatCompactDate(batch.expiryDate!);
+  final date = MaterialLocalizations.of(
+    context,
+  ).formatCompactDate(batch.expiryDate!);
   return context.t(batch.expiryKind, {'date': date});
 }
 

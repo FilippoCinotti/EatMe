@@ -53,9 +53,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
       if (mounted && context.mounted) {
         setState(() {
           recipes = available;
-          selected = records(data?['items'])
-              .where((p) => p['start_date'] == isoDay(start))
-              .firstOrNull;
+          selected = records(
+            data?['items'],
+          ).where((p) => p['start_date'] == isoDay(start)).firstOrNull;
         });
       }
     } on ApiFailure catch (e) {
@@ -167,9 +167,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
       numeric: true,
     );
     if (servings == null) return;
-    final meals = records(selected?['data']?['meals'])
-        .where((m) => !(m['date'] == isoDay(day) && m['slot'] == slot))
-        .toList();
+    final meals = records(
+      selected?['data']?['meals'],
+    ).where((m) => !(m['date'] == isoDay(day) && m['slot'] == slot)).toList();
     meals.add({
       'date': isoDay(day),
       'slot': slot,
@@ -642,9 +642,9 @@ class _PlannerDinersBadge extends ConsumerWidget {
                   else
                     CircleAvatar(
                       radius: 22,
-                      backgroundColor: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainer,
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainer,
                       child: const EatMeIcon(EatMeGlyph.usersRound, size: 20),
                     ),
                   if (diners.length > 1)
@@ -654,9 +654,9 @@ class _PlannerDinersBadge extends ConsumerWidget {
                       child: CircleAvatar(
                         radius: 10,
                         backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Theme.of(context)
-                            .colorScheme
-                            .onPrimary,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimary,
                         child: Text(
                           '+${diners.length - 1}',
                           style: Theme.of(context).textTheme.labelSmall
@@ -751,9 +751,9 @@ class _WeekStrip extends StatelessWidget {
                                 context.t('today'),
                                 style: Theme.of(context).textTheme.labelSmall
                                     ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
                                     ),
                               )
                             : null,
@@ -886,9 +886,9 @@ class _PlannerMealCard extends StatelessWidget {
                   height: 52,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .surfaceContainerHighest,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: const EatMeIcon(EatMeGlyph.plus, size: 22),

@@ -75,8 +75,9 @@ class SocialImportHeader extends StatelessWidget {
       const SizedBox(height: 10),
       Text(
         subtitle,
-        style: Theme.of(context).textTheme.bodyLarge
-            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
       ),
       const SizedBox(height: 28),
     ],
@@ -402,8 +403,9 @@ class _ImportProcessingPageState extends ConsumerState<ImportProcessingPage> {
             error == null ? 'reading_recipe_support' : 'import_failure_support',
           ),
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyLarge
-              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 30),
         if (error == null)
@@ -493,9 +495,9 @@ class _ImportedRecipeReviewPageState extends State<ImportedRecipeReviewPage> {
     steps = TextEditingController(
       text: List<String>.from(draft['steps'] as List? ?? []).join('\n'),
     );
-    ingredients = records(draft['ingredient_rows'])
-        .map(_IngredientEdit.new)
-        .toList();
+    ingredients = records(
+      draft['ingredient_rows'],
+    ).map(_IngredientEdit.new).toList();
   }
 
   @override
@@ -1409,8 +1411,9 @@ class _CompatibilityHero extends StatelessWidget {
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: fit
-                  ? Theme.of(context).colorScheme.onPrimary
-                        .withValues(alpha: .82)
+                  ? Theme.of(
+                      context,
+                    ).colorScheme.onPrimary.withValues(alpha: .82)
                   : null,
             ),
           ),
@@ -1540,8 +1543,9 @@ class _InventoryPanel extends StatelessWidget {
             const SizedBox(height: 14),
             Text(
               context.t('close_to_date_count', {'count': soon.length}),
-              style: Theme.of(context).textTheme.bodySmall
-                  ?.copyWith(color: Theme.of(context).colorScheme.primary),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
           ],
           if ((inventory['unresolved_count'] ?? 0) > 0) ...[
@@ -1550,8 +1554,9 @@ class _InventoryPanel extends StatelessWidget {
               context.t('mapping_unresolved_count', {
                 'count': inventory['unresolved_count'] ?? 0,
               }),
-              style: Theme.of(context).textTheme.bodySmall
-                  ?.copyWith(color: Theme.of(context).colorScheme.error),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.error,
+              ),
             ),
           ],
         ],
@@ -1617,9 +1622,9 @@ class _SubstitutionSelectionPageState
   @override
   Widget build(BuildContext context) {
     final foods = ref.watch(appProvider).foods;
-    final suggestions = records(widget.result['substitutions'])
-        .where((item) => records(item['candidates']).isNotEmpty)
-        .toList();
+    final suggestions = records(
+      widget.result['substitutions'],
+    ).where((item) => records(item['candidates']).isNotEmpty).toList();
     return Scaffold(
       appBar: EatMeAppBar(title: Text(context.t('suggested_substitutions'))),
       body: PageBody(

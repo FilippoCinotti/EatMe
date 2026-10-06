@@ -35,8 +35,9 @@ class ProfilePage extends ConsumerWidget {
       ...state.diets
           .where((d) => ids.contains(d.id) && d.medical)
           .map((d) => localized(d.name, context.language)),
-      ...List<String>.from(settings['medical_awareness'] as List? ?? const [])
-          .map((value) => context.t('medical_$value')),
+      ...List<String>.from(
+        settings['medical_awareness'] as List? ?? const [],
+      ).map((value) => context.t('medical_$value')),
     ];
     final allergyNames = List<String>.from(
       settings['allergies'] as List? ?? const [],
@@ -243,8 +244,9 @@ class _ProfilePill extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
     decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.surfaceContainer
-          .withValues(alpha: .72),
+      color: Theme.of(
+        context,
+      ).colorScheme.surfaceContainer.withValues(alpha: .72),
       borderRadius: BorderRadius.circular(20),
     ),
     child: Row(
@@ -396,8 +398,9 @@ class PrivacyPage extends ConsumerWidget {
         ...[
           Text(
             context.t('danger_zone'),
-            style: Theme.of(context).textTheme.titleLarge
-                ?.copyWith(color: Theme.of(context).colorScheme.error),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: Theme.of(context).colorScheme.error,
+            ),
           ),
           const SizedBox(height: 12),
           AsyncAction(
@@ -548,8 +551,9 @@ class _ProfileAvatarState extends ConsumerState<_ProfileAvatar> {
       await saveAvatarBytes(cropped);
     } on ApiFailure catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(context.t(error.code))));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.t(error.code))));
       }
     } finally {
       if (mounted) setState(() => busy = false);
@@ -574,8 +578,9 @@ class _ProfileAvatarState extends ConsumerState<_ProfileAvatar> {
             )
           : Text(
               widget.initials,
-              style: Theme.of(context).textTheme.titleLarge
-                  ?.copyWith(color: Theme.of(context).colorScheme.onPrimary),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
             ),
     );
     return Semantics(
