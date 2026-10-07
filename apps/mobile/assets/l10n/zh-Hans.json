@@ -1138,5 +1138,8 @@
   "cuisine_mexican": "墨西哥菜",
   "cuisine_thai": "泰国菜",
   "cuisine_middle_eastern": "中东菜",
-  "cuisine_american": "美式菜"
+  "cuisine_american": "美式菜",
+  "welcome_more_taste": "更多美味。",
+  "welcome_less_waste": "更少浪费。",
+  "welcome_personal_recipes": "为你量身推荐食谱，\n用你已有的食材。"
 }
