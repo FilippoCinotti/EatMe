@@ -11,7 +11,7 @@ from .storage import decode, encode
 from .validation import choice, integer, new_id, text, valid_uuid
 
 CATEGORIES = {'expiry', 'plans', 'shopping', 'household', 'recalls'}
-PLUS_ENTITLEMENTS = {'eatme_plus', 'premium'}
+PLUS_ENTITLEMENTS = {'eatme_plus', 'premium', 'eatme_premium'}
 CAPABILITIES = {
     'canUseUnlimitedImports': False,
     'canUseAdvancedDietFit': False,
