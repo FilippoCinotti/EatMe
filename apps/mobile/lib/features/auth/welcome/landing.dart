@@ -189,15 +189,15 @@ class _WelcomeAction extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     button: true,
     label: label,
-    child: Material(
-      color: background,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16 * scale),
-        side: border == null ? BorderSide.none : BorderSide(color: border!),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onPressed,
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onPressed,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: background,
+          border: border == null ? null : Border.all(color: border!),
+          borderRadius: BorderRadius.circular(16 * scale),
+        ),
         child: SizedBox(
           height: (arrow ? 54 : 47) * scale,
           child: Padding(
