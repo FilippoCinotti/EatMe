@@ -107,10 +107,10 @@ class WelcomeLanding extends StatelessWidget {
                                 ),
                                 textAlign: TextAlign.center,
                                 style: sans.copyWith(
-                                  fontSize: 33 * scale,
+                                  fontSize: 28 * scale,
                                   fontWeight: FontWeight.w700,
-                                  height: 1.09,
-                                  letterSpacing: -0.7,
+                                  height: 1.12,
+                                  letterSpacing: -0.4,
                                 ),
                               ),
                               SizedBox(height: 15 * scale),
@@ -118,8 +118,8 @@ class WelcomeLanding extends StatelessWidget {
                                 context.t('welcome_personal_recipes'),
                                 textAlign: TextAlign.center,
                                 style: sans.copyWith(
-                                  fontSize: 17 * scale,
-                                  height: 1.26,
+                                  fontSize: 15 * scale,
+                                  height: 1.3,
                                   color: muted,
                                 ),
                               ),
@@ -222,7 +222,7 @@ class _WelcomeAction extends StatelessWidget {
                           style: TextStyle(
                             fontFamily: 'EatMeSans',
                             color: foreground,
-                            fontSize: (arrow ? 19 : 17) * scale,
+                            fontSize: (arrow ? 17 : 15) * scale,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -262,7 +262,7 @@ class _PrimaryActionPainter extends CustomPainter {
         style: TextStyle(
           fontFamily: 'EatMeSans',
           color: foreground,
-          fontSize: 19 * scale,
+          fontSize: 17 * scale,
           fontWeight: FontWeight.w700,
         ),
       ),
