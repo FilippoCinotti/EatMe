@@ -17,7 +17,10 @@ class WelcomeArtworkPainter extends CustomPainter {
     };
     final scale = (size.width / width).clamp(0.0, size.height / height);
     canvas.save();
-    canvas.translate((size.width - width * scale) / 2, (size.height - height * scale) / 2);
+    canvas.translate(
+      (size.width - width * scale) / 2,
+      (size.height - height * scale) / 2,
+    );
     canvas.scale(scale);
     final path = Path()..fillType = PathFillType.evenOdd;
     for (final contour in contours) {
@@ -30,6 +33,7 @@ class WelcomeArtworkPainter extends CustomPainter {
     canvas.drawPath(path, Paint()..color = color);
     canvas.restore();
   }
+
   @override
   bool shouldRepaint(WelcomeArtworkPainter oldDelegate) =>
       artwork != oldDelegate.artwork || color != oldDelegate.color;

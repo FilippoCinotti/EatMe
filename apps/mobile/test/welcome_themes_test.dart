@@ -27,9 +27,9 @@ void main() {
         support.harness(
           Builder(
             builder: (context) => MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                padding: const EdgeInsets.only(top: 44, bottom: 34),
-              ),
+              data: MediaQuery.of(
+                context,
+              ).copyWith(padding: const EdgeInsets.only(top: 44, bottom: 34)),
               child: RepaintBoundary(
                 key: boundary,
                 child: WelcomeLanding(
@@ -49,11 +49,15 @@ void main() {
       final start = find.byKey(const ValueKey('welcome-start'));
       final login = find.byKey(const ValueKey('welcome-login'));
       expect(tester.getBottomRight(login).dy, lessThan(810));
-      expect(find.text('Ricette su misura per te,\ncon quello che hai già.'), findsOneWidget);
+      expect(
+        find.text('Ricette su misura per te,\ncon quello che hai già.'),
+        findsOneWidget,
+      );
       await tester.runAsync(() async {
-        final image = await (boundary.currentContext!.findRenderObject()!
-                as RenderRepaintBoundary)
-            .toImage(pixelRatio: 2);
+        final image =
+            await (boundary.currentContext!.findRenderObject()!
+                    as RenderRepaintBoundary)
+                .toImage(pixelRatio: 2);
         final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
         final output = File(
           'build/screenshots/welcome-approved-${dark ? 'dark' : 'light'}.png',
@@ -78,10 +82,7 @@ void main() {
       var tapped = false;
       await tester.pumpWidget(
         support.harness(
-          WelcomeLanding(
-            onStart: () {},
-            onLogin: () => tapped = true,
-          ),
+          WelcomeLanding(onStart: () {}, onLogin: () => tapped = true),
           support.TestApi(),
           language: language,
           scale: 1.6,

@@ -21,7 +21,9 @@ class WelcomeLanding extends StatelessWidget {
     final logo = dark ? const Color(0xff9cddb2) : const Color(0xff34784f);
     final foreground = dark ? const Color(0xfff7f7f7) : const Color(0xff103323);
     final muted = dark ? const Color(0xffd2d6d5) : const Color(0xff515c59);
-    final overlay = dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark;
+    final overlay = dark
+        ? SystemUiOverlayStyle.light
+        : SystemUiOverlayStyle.dark;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: overlay.copyWith(
         statusBarColor: Colors.transparent,
@@ -51,23 +53,6 @@ class WelcomeLanding extends StatelessWidget {
                 final sans = TextStyle(
                   fontFamily: 'EatMeSans',
                   color: foreground,
-                );
-                final primaryStyle = FilledButton.styleFrom(
-                  foregroundColor: const Color(0xff0f3423),
-                  backgroundColor: const Color(0xffa0dfb4),
-                  elevation: 0,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16 * scale,
-                    vertical: 12 * scale,
-                  ),
-                  minimumSize: Size.fromHeight(54 * scale),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16 * scale),
-                  ),
-                  textStyle: sans.copyWith(
-                    fontSize: 19 * scale,
-                    fontWeight: FontWeight.w700,
-                  ),
                 );
                 return SingleChildScrollView(
                   child: Center(
@@ -103,7 +88,9 @@ class WelcomeLanding extends StatelessWidget {
                                   size: Size.square(254 * scale),
                                   painter: WelcomeArtworkPainter(
                                     WelcomeArtwork.ingredients,
-                                    dark ? Colors.white : const Color(0xff202020),
+                                    dark
+                                        ? Colors.white
+                                        : const Color(0xff202020),
                                   ),
                                 ),
                               ),
@@ -139,58 +126,26 @@ class WelcomeLanding extends StatelessWidget {
                               SizedBox(height: 32 * scale),
                               SizedBox(
                                 width: double.infinity,
-                                child: FilledButton(
+                                child: _WelcomeAction(
                                   key: const ValueKey('welcome-start'),
-                                  style: primaryStyle,
                                   onPressed: onStart,
-                                  child: Row(
-                                    children: [
-                                      SizedBox(width: 24 * scale),
-                                      Expanded(
-                                        child: Text(
-                                          context.t('start_now'),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                      ExcludeSemantics(
-                                        child: Icon(
-                                          Icons.arrow_forward,
-                                          size: 24 * scale,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                  label: context.t('start_now'),
+                                  scale: scale,
+                                  foreground: const Color(0xff0f3423),
+                                  background: const Color(0xffa0dfb4),
+                                  arrow: true,
                                 ),
                               ),
                               SizedBox(height: 11 * scale),
                               SizedBox(
                                 width: double.infinity,
-                                child: OutlinedButton(
+                                child: _WelcomeAction(
                                   key: const ValueKey('welcome-login'),
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: logo,
-                                    backgroundColor: Colors.transparent,
-                                    minimumSize: Size.fromHeight(47 * scale),
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 16 * scale,
-                                      vertical: 12 * scale,
-                                    ),
-                                    side: BorderSide(color: logo),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        16 * scale,
-                                      ),
-                                    ),
-                                    textStyle: sans.copyWith(
-                                      fontSize: 17 * scale,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
                                   onPressed: onLogin,
-                                  child: Text(
-                                    context.t('already_account'),
-                                    textAlign: TextAlign.center,
-                                  ),
+                                  label: context.t('already_account'),
+                                  scale: scale,
+                                  foreground: logo,
+                                  border: logo,
                                 ),
                               ),
                               SizedBox(height: 40 * scale),
@@ -208,4 +163,97 @@ class WelcomeLanding extends StatelessWidget {
       ),
     );
   }
+}
+
+class _WelcomeAction extends StatelessWidget {
+  const _WelcomeAction({
+    super.key,
+    required this.onPressed,
+    required this.label,
+    required this.scale,
+    required this.foreground,
+    this.background = Colors.transparent,
+    this.border,
+    this.arrow = false,
+  });
+
+  final VoidCallback onPressed;
+  final String label;
+  final double scale;
+  final Color foreground;
+  final Color background;
+  final Color? border;
+  final bool arrow;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    label: label,
+    child: Material(
+      color: background,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16 * scale),
+        side: border == null ? BorderSide.none : BorderSide(color: border!),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onPressed,
+        child: SizedBox(
+          height: (arrow ? 54 : 47) * scale,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16 * scale),
+            child: Row(
+              children: [
+                SizedBox(width: 24 * scale),
+                Expanded(
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'EatMeSans',
+                      color: foreground,
+                      fontSize: (arrow ? 19 : 17) * scale,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 24 * scale,
+                  height: 24 * scale,
+                  child: arrow
+                      ? CustomPaint(painter: _ArrowPainter(foreground))
+                      : null,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+class _ArrowPainter extends CustomPainter {
+  const _ArrowPainter(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.8
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    final path = Path()
+      ..moveTo(size.width * .12, size.height * .5)
+      ..lineTo(size.width * .86, size.height * .5)
+      ..moveTo(size.width * .58, size.height * .22)
+      ..lineTo(size.width * .86, size.height * .5)
+      ..lineTo(size.width * .58, size.height * .78);
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(_ArrowPainter oldDelegate) => color != oldDelegate.color;
 }

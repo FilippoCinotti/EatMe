@@ -240,9 +240,8 @@ class _SocialAuthBlock extends StatelessWidget {
       Text(
         context.t('social_first_support'),
         textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-        ),
+        style: Theme.of(context).textTheme.bodyMedium
+            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
       ),
       const SizedBox(height: 14),
       _SocialSignInButton(
@@ -293,9 +292,8 @@ class _SocialSignInButtonState extends State<_SocialSignInButton> {
           : error is AuthException
           ? 'authentication_failed'
           : 'unknown_error';
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t(code))));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.t(code))));
     } finally {
       if (mounted) setState(() => busy = false);
     }
