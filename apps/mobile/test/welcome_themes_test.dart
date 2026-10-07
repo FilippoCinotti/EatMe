@@ -55,8 +55,9 @@ void main() {
         findsOneWidget,
       );
       await tester.runAsync(() async {
-        final renderObject = boundary.currentContext!.findRenderObject()!
-            as RenderRepaintBoundary;
+        final renderObject =
+            boundary.currentContext!.findRenderObject()!
+                as RenderRepaintBoundary;
         // Warm the first off-screen raster. Without this, Flutter's Linux test
         // renderer can omit the first button's foreground layer in the PNG.
         final warmup = await renderObject.toImage(pixelRatio: 2);
