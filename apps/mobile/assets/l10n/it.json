@@ -1138,5 +1138,8 @@
   "cuisine_mexican": "Messicana",
   "cuisine_thai": "Thailandese",
   "cuisine_middle_eastern": "Mediorientale",
-  "cuisine_american": "Americana"
+  "cuisine_american": "Americana",
+  "welcome_more_taste": "Più gusto.",
+  "welcome_less_waste": "Meno sprechi.",
+  "welcome_personal_recipes": "Ricette su misura per te,\ncon quello che hai già."
 }

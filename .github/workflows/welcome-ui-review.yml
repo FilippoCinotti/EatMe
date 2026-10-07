@@ -1,0 +1,38 @@
+name: Welcome UI review
+on:
+  pull_request:
+    paths:
+      - 'apps/mobile/lib/features/auth/**'
+      - 'apps/mobile/assets/brand/welcome-*.svg'
+      - 'apps/mobile/test/welcome_themes_test.dart'
+      - '.github/workflows/welcome-ui-review.yml'
+permissions:
+  contents: read
+concurrency:
+  group: welcome-ui-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with: {channel: stable, flutter-version: '3.47.2', cache: true}
+      - run: python3 scripts/bootstrap_mobile.py
+      - run: dart format lib/features/auth test/welcome_themes_test.dart
+        working-directory: apps/mobile
+      - run: flutter analyze lib/features/auth test/welcome_themes_test.dart
+        working-directory: apps/mobile
+      - run: flutter test test/welcome_themes_test.dart --reporter expanded
+        working-directory: apps/mobile
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: welcome-ui-review
+          path: |
+            apps/mobile/build/screenshots/welcome-approved-*.png
+            apps/mobile/lib/features/auth/welcome/*.dart
+            apps/mobile/test/welcome_themes_test.dart
+          retention-days: 7
+      - run: git diff --exit-code -- apps/mobile/lib/features/auth apps/mobile/test/welcome_themes_test.dart
