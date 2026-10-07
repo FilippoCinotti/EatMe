@@ -1,48 +1,69 @@
 # EatMe+
 
-EatMe+ is a Flutter food decision engine for Android and iOS: **your recipes, your fridge, your diet, one decision**. ChefTable decides, Fridge tracks what is available, Plan organizes what comes next, and Profile controls how EatMe+ adapts. A Python API owns dietary validation, entitlements and inventory transactions. Separate Next.js apps provide Guest RSVP, the public/legal site and the protected editorial studio.
+**Smarter meals, less effort.** EatMe+ is a Flutter app for iOS and Android that helps people decide what to eat using their recipes, household inventory, dietary profile and weekly plans.
+
+The product is built around four connected areas: **ChefTable** recommends what fits now, **Fridge** tracks what is available, **Plan** organizes meals and shopping, and **Profile** controls household, dietary and safety preferences.
+
+## Product highlights
+
+- **Personalized recommendations** — recipe suggestions consider tastes, meal context, household inventory and dietary constraints.
+- **Smart recipe import** — import from supported public sources, review normalized ingredients, run Diet-Fit checks and approve substitutions before saving.
+- **Fridge, freezer and pantry** — track batches, quantities, locations and dates; add food by barcode, photo, receipt or manual entry.
+- **Weekly planning and shopping** — build a meal plan, generate a category-grouped shopping list and move purchased items into Fridge.
+- **Dinner and guests** — plan shared meals, collect private guest preferences and adapt servings without exposing health data.
+- **Diet and safety** — model eating styles, allergies, intolerances, sensitivities, ethical or religious preferences and reviewed health protocols. Unknown ingredients fail closed.
+- **Flexible eating** — support flexible meals, personal goals, weekly check-ins and Guilty Pleasure mode without weakening hard safety rules.
+- **EatMe Premium** — unlimited supported imports, advanced mapping and adaptations, advanced weekly planning and shopping generation, plus receipt and photo tools.
 
 ## Screenshots
 
-ChefTable, Fridge, Plan and Profile in light and dark themes. These are actual Flutter widget-test renders of the premium UI with isolated demonstration data, captured at 390 × 844 with bundled EatMe fonts. The food images are AI-generated illustrations bundled with the demo catalog; they do not represent a user's food or recognition results.
-
-| Light theme | Dark theme |
+| ChefTable | Fridge |
 | :---: | :---: |
-| <img src="docs/screenshots/mobile/en/light/chef-light.png" width="280" alt="ChefTable with nearby recorded food dates and a zucchini and spinach pasta suggestion." /> | <img src="docs/screenshots/mobile/en/dark/chef-dark.png" width="280" alt="ChefTable in the dark theme." /> |
-| <img src="docs/screenshots/mobile/en/light/fridge-light.png" width="280" alt="Fridge with storage filters, search and photographed inventory cards." /> | <img src="docs/screenshots/mobile/en/dark/fridge-dark.png" width="280" alt="Fridge in the dark theme." /> |
-| <img src="docs/screenshots/mobile/en/light/plan-light.png" width="280" alt="Plan week with meal slots and Smart Plan controls." /> | <img src="docs/screenshots/mobile/en/dark/plan-dark.png" width="280" alt="Plan in the dark theme." /> |
-| <img src="docs/screenshots/mobile/en/light/profile-light.png" width="280" alt="Profile with dietary settings and kitchen tools." /> | <img src="docs/screenshots/mobile/en/dark/profile-dark.png" width="280" alt="Profile in the dark theme." /> |
+| <img src="docs/screenshots/mobile/en/light/chef-light.png" width="280" alt="ChefTable personalized recommendation." /> | <img src="docs/screenshots/mobile/en/light/fridge-light.png" width="280" alt="Fridge inventory and storage filters." /> |
 
-The images are stored in this repository, so they remain available after CI artifacts expire. To regenerate them, run `flutter test test/visual_reference_test.dart test/premium_journeys_test.dart test/reference_features_test.dart test/social_recipe_import_test.dart` from `apps/mobile` with `FLUTTER_ROOT` pointing to the Flutter SDK; PNG renders are written to `build/screenshots/`. The committed copies are the original PNG renders without resizing. The tests also exercise 1.6× text scaling, compact Italian layouts, secondary journeys and persistent allergy warnings. See the [visual design notes](docs/product/visual-design.md) for the reference direction and asset provenance.
-
-The [functional reconciliation CI](https://github.com/FilippoCinotti/EatMe/actions/runs/34776802964) passed API, database, studio and Flutter checks, both native debug builds, and the real API Android emulator workflow before the premium presentation changes. PR #15 delivered the validated functional and premium baseline; the final visual-fidelity pass is tracked in [PR #16](https://github.com/FilippoCinotti/EatMe/pull/16). See the [verification report](docs/product/verification.md) for precise tested commits and external store-release gates.
-
-### Connected journeys
-
-| Welcome | Recipe detail |
+| Plan | Profile |
 | :---: | :---: |
-| <img src="docs/screenshots/mobile/en/light/welcome-light.png" width="280" alt="EatMe+ welcome screen rendered by Flutter." /> | <img src="docs/screenshots/mobile/en/light/recipe-light.png" width="280" alt="Recipe photograph, servings and ingredient sections rendered by Flutter." /> |
+| <img src="docs/screenshots/mobile/en/light/plan-light.png" width="280" alt="Weekly meal plan and Smart Plan controls." /> | <img src="docs/screenshots/mobile/en/light/profile-light.png" width="280" alt="Profile, dietary settings and kitchen tools." /> |
 
-See the [complete screenshot gallery](docs/screenshots/README.md) for login, sign-up, diet and health, preferences, notifications, household, privacy, filters and both add-food stages in both themes.
+The committed screenshots are real Flutter widget-test renders with isolated fixture data. See the [complete gallery](docs/screenshots/README.md) for light and dark themes, onboarding, recipe import, Diet-Fit, shopping, household and accessibility states.
 
-## Reference feature additions
+## Architecture
 
-| New light-theme flows | New dark-theme flows |
-| :---: | :---: |
-| <img src="docs/screenshots/mobile/en/light/wellbeing-light.png" width="280" alt="Personal goals with weekly self-reported check-ins." /> | <img src="docs/screenshots/mobile/en/dark/wellbeing-dark.png" width="280" alt="Weekly goals in dark theme." /> |
-| <img src="docs/screenshots/mobile/en/light/custom-food-light.png" width="280" alt="Custom household food entry with optional photo and package date." /> | <img src="docs/screenshots/mobile/en/dark/custom-food-dark.png" width="280" alt="Custom food entry in dark theme." /> |
-| <img src="docs/screenshots/mobile/en/light/import-review-light.png" width="280" alt="Mandatory imported recipe review before compatibility." /> | <img src="docs/screenshots/mobile/en/dark/compatibility-conflict-dark.png" width="280" alt="Diet compatibility conflict in dark theme." /> |
-| <img src="docs/screenshots/mobile/en/light/adapted-success-light.png" width="280" alt="Adapted recipe after a full compatibility re-check." /> | <img src="docs/screenshots/mobile/en/dark/estimated-savings-dark.png" width="280" alt="Conservative estimated savings in dark theme." /> |
+| Path | Responsibility |
+| --- | --- |
+| `apps/mobile` | Flutter mobile app and device integrations |
+| `services/api/eatme` | Python API, authentication boundary, recommendation engine and domain services |
+| `services/worker` | Durable processing jobs and media retention |
+| `apps/admin` | Protected editorial studio |
+| `apps/public` | Public website, legal pages, support and account deletion |
+| `apps/guest` | Localized, no-login Dinner RSVP experience |
+| `supabase/migrations` | Versioned PostgreSQL schema and access policies |
+| `docs` | Product, architecture, setup, verification and release documentation |
 
-These images are real Flutter test renders with fixture data, generated by the reference and social-import suites at 390 × 844. They have also passed layout checks at 1.6× text scaling and in compact Italian layouts.
+Production uses **Supabase** for PostgreSQL and authentication, a **Render** API and worker, **RevenueCat** for mobile entitlements, and **Firebase Crashlytics** for crash reporting. The mobile client never contains server secrets.
 
-The current feature branch adds custom household foods with private photos, food favorites, weekly habit check-ins, photo acquisition, reviewed public YouTube/Instagram recipe import, canonical ingredient mapping, full diet/safety assessment, curated user-selected substitutions with complete re-check, deterministic estimated savings, an expiry browser, pantry sorting, category-grouped shopping and sharing, complete scan date/storage review, external leftover entry, configurable cooking timers, a completion screen and recent household activity. See the [feature coverage and API contracts](docs/product/reference-feature-parity.md) for implementation details and explicit provider/data limitations.
+## Languages
 
-The valid feature work was preserved on the same branch before redesigning its presentation. The [Phase 0 record](docs/product/premium-redesign-reconciliation.md) explains branch reconciliation and verification.
+The mobile app and Guest RSVP support:
 
-## Run on a simulator
+- English (United States)
+- Italian
+- Spanish (Spain)
+- French
+- German
+- Simplified Chinese
 
-Install **Flutter 3.47.2**, **Python 3.12**, and Git. Android development also needs Android Studio, an Android SDK/emulator and JDK 17. iOS development needs a Mac with Xcode, its simulator runtimes and CocoaPods where required by Flutter plugins.
+`scripts/check_localizations.py` runs in CI and enforces full key and placeholder parity. Recipe and food catalog content is currently authored in English and Italian; other locales may display English catalog content.
+
+## Run locally
+
+Requirements:
+
+- Flutter 3.47.2 and its bundled Dart SDK
+- Python 3.12
+- Git
+- Android Studio, Android SDK/emulator and JDK 17 for Android
+- macOS, Xcode and CocoaPods where required for iOS
 
 ```bash
 git clone https://github.com/FilippoCinotti/EatMe.git
@@ -51,53 +72,81 @@ python -m pip install -e 'services/api[dev]'
 python scripts/dev.py
 ```
 
-In a second terminal, resolve the locked dependencies and start an emulator:
+In a second terminal:
 
 ```bash
 python scripts/bootstrap_mobile.py
 cd apps/mobile
 flutter doctor -v
 flutter devices
-# Android emulator: 10.0.2.2 reaches the host computer.
+
+# Android emulator
 flutter run -d YOUR_ANDROID_DEVICE_ID --dart-define=API_URL=http://10.0.2.2:8000/api/v1
-# iOS simulator on macOS:
+
+# iOS simulator
 flutter run -d YOUR_IOS_SIMULATOR_ID --dart-define=API_URL=http://127.0.0.1:8000/api/v1
 ```
 
-Register a development account in the app. Local authentication and demonstration catalog content are isolated from production. Press `r` in the Flutter terminal for hot reload or use the Flutter extension in VS Code/Android Studio.
+Register a development account in the app. Local authentication and demonstration catalog data are isolated from production.
 
-## Application workflows
+## Configuration
 
-- **ChefTable:** decision-first, constraint-aware suggestions, recipe detail, social import, favorites, feedback and guided cooking.
-- **Fridge:** individual batches, quantities, locations, dates, stock events, barcode products, confirmed photo/receipt imports and leftovers.
-- **Plan:** week and meal slots, Dinner events with private guest RSVP and group Diet-Fit, Smart Plan, Shopping and purchase-to-Fridge reconciliation.
-- **Profile:** dietary consent, household membership, preferences, reminders, export, deletion and offline synchronization.
-- **Diet & Health:** structured eating styles, allergies, intolerances, sensitivities, medical awareness, reviewed protocols, ethical/religious preferences, meal timing and explicit uncertainty.
-- **Editorial studio:** drafts, independent review, publication, deprecation, reports, feature flags and audit history.
+Copy `.env.example` and provide only the values needed by the services you run. Important settings include:
 
-The canonical catalog is deliberately small in development. Unknown ingredients and unavailable scientific rules fail closed. RAD and other uncurated clinical profiles cannot be activated by a language-model answer.
+- `AUTH_MODE` and `API_URL`
+- `SUPABASE_URL` and `SUPABASE_ANON_KEY`
+- `OAUTH_ENABLED`
+- `PRIVACY_URL` and `TERMS_URL`
+- RevenueCat public mobile SDK keys for the relevant platform
 
-## Repository
+Never commit private keys, service-role tokens, App Store credentials or signing material.
 
-| Path | Responsibility |
-| --- | --- |
-| `apps/mobile` | Flutter UI and device integrations |
-| `services/api/eatme` | Authentication boundary, domain services, recommendation engine and persistence |
-| `services/worker` | Durable processing jobs and media retention |
-| `apps/admin` | Protected editorial studio |
-| `apps/public` | Public EatMe+ site, legal, support and account deletion |
-| `apps/guest` | No-login, localized Dinner RSVP web app |
-| `supabase/migrations` | Versioned PostgreSQL schema and access policies |
-| `services/api/tests` | Domain, HTTP, privacy, concurrency and processing tests |
-| `docs` | Product, architecture, setup, verification and release documentation |
+## Verification
 
-## Configuration and release
+The repository contains API, database, worker, web and Flutter test suites, localization checks, native debug builds and device-level journeys. Useful entry points:
 
-Copy `.env.example` to a local environment file and load it with your process manager. The scripts do not silently load arbitrary environment files. Configure external providers only when you intend to use them. No secret key belongs in the mobile app.
+```bash
+# API and domain tests
+pytest services/api/tests
 
-Read [local development](docs/development/local-setup.md), [provider setup](docs/development/providers.md), [release process](docs/releases/release-process.md), and [verification](docs/product/verification.md). Store publication requires live backend configuration, signing accounts, public legal/support resources and device validation; source delivery alone does not satisfy those gates.
+# Mobile analysis and tests
+cd apps/mobile
+flutter analyze
+flutter test
 
-Product architecture and commercial boundaries are documented in [Food Decision Engine](docs/product/food-decision-engine.md), [Free vs EatMe Premium](docs/product/free-vs-eatme-plus.md), and [Diet & Health safety](docs/product/diet-health-safety.md).
-The frozen Dinner/Guest contract, privacy boundaries and release checks are documented in [Dinner and guest RSVP](docs/product/dinner-guests.md).
+# Localization parity
+python scripts/check_localizations.py
+```
 
-All documentation, source comments and new GitHub review text are maintained in English. The mobile app and the Guest RSVP are fully translated into English, Italian, Spanish, French, German and Simplified Chinese. `scripts/check_localizations.py` (run in CI) fails if any mobile locale misses a key of `en.json` or changes its `{placeholders}`. Recipe and food catalog content is currently authored in English and Italian; other languages show the English catalog text.
+For the validated release flow and external gates, see [verification](docs/product/verification.md), [release process](docs/development/release.md), [provider setup](docs/development/providers.md) and [local development](docs/development/local-development.md).
+
+## Release status
+
+EatMe+ is distributed through TestFlight while the App Store 1.0 listing is prepared. The public app is free, with optional monthly and annual EatMe Premium subscriptions managed through RevenueCat and Apple StoreKit.
+
+App Store product identifiers:
+
+- `com.filippocinotti.eatme.premium.monthly`
+- `com.filippocinotti.eatme.premium.annual`
+
+Store submission still requires a selected build, final screenshots, App Review contact and demo access, age-rating answers, App Privacy declarations and export-compliance confirmation. Those values must be verified against the shipping build before submission.
+
+## Public resources
+
+- [Website](https://eatmeapplication.com)
+- [Privacy](https://eatmeapplication.com/privacy)
+- [Terms](https://eatmeapplication.com/terms)
+- [Support](https://eatmeapplication.com/support)
+- [Delete account](https://eatmeapplication.com/delete-account)
+
+## Documentation
+
+- [Food Decision Engine](docs/product/food-decision-engine.md)
+- [Free vs EatMe Premium](docs/product/free-vs-premium.md)
+- [Diet and Health safety](docs/product/diet-and-health.md)
+- [Dinner and guest RSVP](docs/product/dinner-and-guest-rsvp.md)
+- [Visual design](docs/product/visual-design.md)
+
+## License
+
+See [LICENSE](LICENSE).
