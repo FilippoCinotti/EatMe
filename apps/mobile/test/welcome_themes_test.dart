@@ -16,68 +16,69 @@ void main() {
   // Render light once more after both palettes have warmed the Linux rasterizer.
   // The final light pass overwrites the first capture with the stable frame.
   for (final (pass, dark) in [false, true, false].indexed) {
-    testWidgets('approved Italian welcome ${dark ? 'dark' : 'light'} pass $pass', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      final boundary = GlobalKey();
-      var action = '';
-      await tester.pumpWidget(
-        support.harness(
-          Builder(
-            builder: (context) => MediaQuery(
-              data: MediaQuery.of(
-                context,
-              ).copyWith(padding: const EdgeInsets.only(top: 44, bottom: 34)),
-              child: RepaintBoundary(
-                key: boundary,
-                child: WelcomeLanding(
-                  onStart: () => action = 'register',
-                  onLogin: () => action = 'login',
+    testWidgets(
+      'approved Italian welcome ${dark ? 'dark' : 'light'} pass $pass',
+      (tester) async {
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final boundary = GlobalKey();
+        var action = '';
+        await tester.pumpWidget(
+          support.harness(
+            Builder(
+              builder: (context) => MediaQuery(
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(padding: const EdgeInsets.only(top: 44, bottom: 34)),
+                child: RepaintBoundary(
+                  key: boundary,
+                  child: WelcomeLanding(
+                    onStart: () => action = 'register',
+                    onLogin: () => action = 'login',
+                  ),
                 ),
               ),
             ),
+            support.TestApi(),
+            language: 'it',
+            dark: dark,
           ),
-          support.TestApi(),
-          language: 'it',
-          dark: dark,
-        ),
-      );
-      await tester.pumpAndSettle();
-      await tester.pump(const Duration(milliseconds: 100));
-      expect(tester.takeException(), isNull);
-      final start = find.byKey(const ValueKey('welcome-start'));
-      final login = find.byKey(const ValueKey('welcome-login'));
-      expect(tester.getBottomRight(login).dy, lessThan(810));
-      expect(
-        find.text('Ricette su misura per te,\ncon quello che hai già.'),
-        findsOneWidget,
-      );
-      await tester.runAsync(() async {
-        final renderObject =
-            boundary.currentContext!.findRenderObject()!
-                as RenderRepaintBoundary;
-        // Warm the first off-screen raster. Without this, Flutter's Linux test
-        // renderer can omit the first button's foreground layer in the PNG.
-        final warmup = await renderObject.toImage(pixelRatio: 2);
-        warmup.dispose();
-        final image = await renderObject.toImage(pixelRatio: 2);
-        final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-        final output = File(
-          'build/screenshots/welcome-approved-${dark ? 'dark' : 'light'}.png',
         );
-        await output.parent.create(recursive: true);
-        await output.writeAsBytes(bytes!.buffer.asUint8List());
-        image.dispose();
-      });
-      await tester.tap(start);
-      expect(action, 'register');
-      await tester.tap(login);
-      expect(action, 'login');
-    });
+        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(tester.takeException(), isNull);
+        final start = find.byKey(const ValueKey('welcome-start'));
+        final login = find.byKey(const ValueKey('welcome-login'));
+        expect(tester.getBottomRight(login).dy, lessThan(810));
+        expect(
+          find.text('Ricette su misura per te,\ncon quello che hai già.'),
+          findsOneWidget,
+        );
+        await tester.runAsync(() async {
+          final renderObject =
+              boundary.currentContext!.findRenderObject()!
+                  as RenderRepaintBoundary;
+          // Warm the first off-screen raster. Without this, Flutter's Linux test
+          // renderer can omit the first button's foreground layer in the PNG.
+          final warmup = await renderObject.toImage(pixelRatio: 2);
+          warmup.dispose();
+          final image = await renderObject.toImage(pixelRatio: 2);
+          final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+          final output = File(
+            'build/screenshots/welcome-approved-${dark ? 'dark' : 'light'}.png',
+          );
+          await output.parent.create(recursive: true);
+          await output.writeAsBytes(bytes!.buffer.asUint8List());
+          image.dispose();
+        });
+        await tester.tap(start);
+        expect(action, 'register');
+        await tester.tap(login);
+        expect(action, 'login');
+      },
+    );
   }
 
   for (final language in ['en', 'it', 'es', 'fr', 'de', 'zh']) {

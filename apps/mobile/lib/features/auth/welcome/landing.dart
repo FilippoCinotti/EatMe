@@ -192,68 +192,112 @@ class _WelcomeAction extends StatelessWidget {
     child: GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onPressed,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: background,
-          border: border == null ? null : Border.all(color: border!),
-          borderRadius: BorderRadius.circular(16 * scale),
-        ),
-        child: SizedBox(
-          height: (arrow ? 54 : 47) * scale,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16 * scale),
-            child: Row(
-              children: [
-                SizedBox(width: 24 * scale),
-                Expanded(
-                  child: Text(
-                    label,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'EatMeSans',
-                      color: foreground,
-                      fontSize: (arrow ? 19 : 17) * scale,
-                      fontWeight: FontWeight.w700,
-                    ),
+      child: arrow
+          ? CustomPaint(
+              painter: _PrimaryActionPainter(
+                label: label,
+                foreground: foreground,
+                background: background,
+                scale: scale,
+              ),
+              child: SizedBox(height: 54 * scale),
+            )
+          : DecoratedBox(
+              decoration: BoxDecoration(
+                color: background,
+                border: border == null ? null : Border.all(color: border!),
+                borderRadius: BorderRadius.circular(16 * scale),
+              ),
+              child: SizedBox(
+                height: (arrow ? 54 : 47) * scale,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16 * scale),
+                  child: Row(
+                    children: [
+                      SizedBox(width: 24 * scale),
+                      Expanded(
+                        child: Text(
+                          label,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'EatMeSans',
+                            color: foreground,
+                            fontSize: (arrow ? 19 : 17) * scale,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 24 * scale),
+                    ],
                   ),
                 ),
-                SizedBox(
-                  width: 24 * scale,
-                  height: 24 * scale,
-                  child: arrow
-                      ? CustomPaint(painter: _ArrowPainter(foreground))
-                      : null,
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
     ),
   );
 }
 
-class _ArrowPainter extends CustomPainter {
-  const _ArrowPainter(this.color);
-  final Color color;
+class _PrimaryActionPainter extends CustomPainter {
+  const _PrimaryActionPainter({
+    required this.label,
+    required this.foreground,
+    required this.background,
+    required this.scale,
+  });
+
+  final String label;
+  final Color foreground;
+  final Color background;
+  final double scale;
 
   @override
   void paint(Canvas canvas, Size size) {
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(Offset.zero & size, Radius.circular(16 * scale)),
+      Paint()..color = background,
+    );
+    final text = TextPainter(
+      text: TextSpan(
+        text: label,
+        style: TextStyle(
+          fontFamily: 'EatMeSans',
+          color: foreground,
+          fontSize: 19 * scale,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+    )..layout(maxWidth: size.width - 96 * scale);
+    text.paint(
+      canvas,
+      Offset((size.width - text.width) / 2, (size.height - text.height) / 2),
+    );
+
     final paint = Paint()
-      ..color = color
+      ..color = foreground
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.8
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
+    final arrowSize = 24 * scale;
+    canvas.save();
+    canvas.translate(size.width - 40 * scale, (size.height - arrowSize) / 2);
     final path = Path()
-      ..moveTo(size.width * .12, size.height * .5)
-      ..lineTo(size.width * .86, size.height * .5)
-      ..moveTo(size.width * .58, size.height * .22)
-      ..lineTo(size.width * .86, size.height * .5)
-      ..lineTo(size.width * .58, size.height * .78);
+      ..moveTo(arrowSize * .12, arrowSize * .5)
+      ..lineTo(arrowSize * .86, arrowSize * .5)
+      ..moveTo(arrowSize * .58, arrowSize * .22)
+      ..lineTo(arrowSize * .86, arrowSize * .5)
+      ..lineTo(arrowSize * .58, arrowSize * .78);
     canvas.drawPath(path, paint);
+    canvas.restore();
   }
 
   @override
-  bool shouldRepaint(_ArrowPainter oldDelegate) => color != oldDelegate.color;
+  bool shouldRepaint(_PrimaryActionPainter oldDelegate) =>
+      label != oldDelegate.label ||
+      foreground != oldDelegate.foreground ||
+      background != oldDelegate.background ||
+      scale != oldDelegate.scale;
 }
