@@ -45,6 +45,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
       expect(tester.takeException(), isNull);
       final start = find.byKey(const ValueKey('welcome-start'));
       final login = find.byKey(const ValueKey('welcome-login'));
@@ -54,10 +55,13 @@ void main() {
         findsOneWidget,
       );
       await tester.runAsync(() async {
-        final image =
-            await (boundary.currentContext!.findRenderObject()!
-                    as RenderRepaintBoundary)
-                .toImage(pixelRatio: 2);
+        final renderObject = boundary.currentContext!.findRenderObject()!
+            as RenderRepaintBoundary;
+        // Warm the first off-screen raster. Without this, Flutter's Linux test
+        // renderer can omit the first button's foreground layer in the PNG.
+        final warmup = await renderObject.toImage(pixelRatio: 2);
+        warmup.dispose();
+        final image = await renderObject.toImage(pixelRatio: 2);
         final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
         final output = File(
           'build/screenshots/welcome-approved-${dark ? 'dark' : 'light'}.png',
