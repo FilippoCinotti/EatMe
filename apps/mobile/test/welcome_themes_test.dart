@@ -13,8 +13,10 @@ import 'premium_fonts.dart';
 void main() {
   setUpAll(loadEatMeFonts);
 
-  for (final dark in [false, true]) {
-    testWidgets('approved Italian welcome ${dark ? 'dark' : 'light'}', (
+  // Render light once more after both palettes have warmed the Linux rasterizer.
+  // The final light pass overwrites the first capture with the stable frame.
+  for (final (pass, dark) in [false, true, false].indexed) {
+    testWidgets('approved Italian welcome ${dark ? 'dark' : 'light'} pass $pass', (
       tester,
     ) async {
       tester.view.physicalSize = const Size(390, 844);
