@@ -90,18 +90,20 @@ class ShoppingApi extends support.TestApi {
         'key': operationKey,
       });
       final i = rows.indexWhere((r) => r['id'] == body?['id']);
-      if (body?['action'] == 'check')
+      if (body?['action'] == 'check') {
         rows[i] = {
           ...rows[i],
           'checked': body!['checked'],
           'version': (rows[i]['version'] as int) + 1,
         };
-      if (body?['action'] == 'edit')
+      }
+      if (body?['action'] == 'edit') {
         rows[i] = {
           ...rows[i],
           'quantity': body!['quantity'],
           'version': (rows[i]['version'] as int) + 1,
         };
+      }
       if (body?['action'] == 'delete') rows.removeAt(i);
       return {'updated': true};
     }

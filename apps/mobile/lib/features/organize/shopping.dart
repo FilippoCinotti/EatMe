@@ -177,6 +177,43 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
     return '€ ${(cents ~/ 100)}$separator${(cents % 100).toString().padLeft(2, '0')}';
   }
 
+  String exportList(List<Json> items) {
+    final categories = items.map(categoryOf).toSet().toList()..sort();
+    final known = items.map(estimate).whereType<ShoppingEstimate>().toList();
+    final total = known.fold<int>(0, (sum, price) => sum + price.cents);
+    final lines = <String>[];
+    for (final category in categories) {
+      lines.add(context.t('food_group_$category'));
+      for (final item in items.where((i) => categoryOf(i) == category)) {
+        final price = estimate(item);
+        final label = price == null
+            ? context.t('shopping_price_unavailable')
+            : context.t('shopping_line_estimate', {
+                'price': money(price.cents),
+              });
+        lines.add(
+          "${item['checked'] == true ? '✓' : '☐'} ${itemLabel(item)} — ${item['quantity']} ${item['unit']} · $label",
+        );
+      }
+      lines.add('');
+    }
+    final totalLabel = context.t(
+      known.length == items.length
+          ? 'shopping_total_estimated'
+          : 'shopping_total_partial',
+    );
+    lines.add('$totalLabel: ${known.isEmpty ? '—' : money(total)}');
+    if (known.length < items.length) {
+      lines.add(
+        context.t('shopping_unpriced_count', {
+          'count': items.length - known.length,
+        }),
+      );
+    }
+    lines.add(context.t('shopping_estimate_basis'));
+    return lines.join('\n');
+  }
+
   Widget _build(BuildContext context) {
     ref.watch(appProvider);
     final items = records(data?['items']);
@@ -199,13 +236,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                 : () => shareText(
                     context,
                     context.t('shopping_list'),
-                    categories
-                            .map(
-                              (category) =>
-                                  "${context.t('food_group_$category')}\n${items.where((i) => categoryOf(i) == category).map((i) => "${i['checked'] == true ? '✓' : '☐'} ${itemLabel(i)} — ${i['quantity']} ${i['unit']}${estimate(i) == null ? '' : ' · ≈ ${money(estimate(i)!.cents)}'}").join('\n')}",
-                            )
-                            .join('\n\n') +
-                        '\n\n${context.t(known.length == items.length ? 'shopping_total_estimated' : 'shopping_total_partial')}: ${known.isEmpty ? '—' : money(total)}\n${context.t('shopping_estimate_basis')}',
+                    exportList(items),
                   ),
           ),
         ],
@@ -423,10 +454,11 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                               'checked': value,
                             });
                           } catch (_) {
-                            if (mounted && context.mounted)
+                            if (mounted && context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text(context.t('retry'))),
                               );
+                            }
                           }
                         },
                 ),
@@ -458,13 +490,14 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                       initial: '${item['quantity']}',
                       numeric: true,
                     );
-                    if (amount != null)
+                    if (amount != null) {
                       await command({
                         'action': 'edit',
                         'id': item['id'],
                         'expected_version': item['version'],
                         'quantity': amount,
                       });
+                    }
                   },
                 ),
                 AsyncAction(
