@@ -124,7 +124,7 @@ class Recipe {
         .toList(),
     Map<String, dynamic>.from((j['timed_steps'] ?? j['steps']) as Map),
     imageUrl:
-        (j['hero_image_url'] ?? j['image_url'] ?? j['thumbnail_url'])
+        (j['image_url'] ?? j['hero_image_url'] ?? j['thumbnail_url'])
             as String?,
   );
 
