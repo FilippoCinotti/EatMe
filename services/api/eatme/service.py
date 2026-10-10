@@ -129,7 +129,7 @@ class Service(
                     "intolerances":INTOLERANCES,"sensitivities":SENSITIVITIES,
                     "medical_awareness":MEDICAL_AWARENESS,"ethical_preferences":ETHICAL_PREFERENCES,
                     "meal_timing":{"modes":["standard","custom","time_restricted"],
-                                   "presets":["12:12","14:10","16:8","18:6"]},
+                                   "presets":["12:12","14:10","16:8","18:6","23:23"]},
                     "health_consent_version":HEALTH_CONSENT,
                     "medical_consent_version":MEDICAL_CONSENT,
                     "unknown_ingredient_policies":["strict","review"],
@@ -242,7 +242,7 @@ class Service(
                 if not 0 <= hour <= 23 or not 0 <= minute <= 59 or value != f"{hour:02d}:{minute:02d}":
                     raise DomainError("invalid_meal_timing", 422)
             preset = meal_timing.get("preset", "custom")
-            if preset not in {"12:12", "14:10", "16:8", "18:6", "custom"}:
+            if preset not in {"12:12", "14:10", "16:8", "18:6", "23:23", "custom"}:
                 raise DomainError("invalid_meal_timing", 422)
             slots = meal_timing.get(
                 "slots",

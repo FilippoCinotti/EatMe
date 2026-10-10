@@ -434,20 +434,23 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  for (final value in ['12:12', '14:10', '16:8', '18:6'])
+                  for (final value in ['12:12', '14:10', '16:8', '18:6', '23:23'])
                     ChoiceChip(
                       label: Text(value),
                       selected: mealPreset == value,
                       onSelected: (_) => setState(() {
                         mealPreset = value;
+                        // The 23:23 dedication keeps the user's current window.
                         final window = {
                           '12:12': ('08:00', '20:00'),
                           '14:10': ('10:00', '20:00'),
                           '16:8': ('12:00', '20:00'),
                           '18:6': ('14:00', '20:00'),
-                        }[value]!;
-                        mealStart = window.$1;
-                        mealEnd = window.$2;
+                        }[value];
+                        if (window != null) {
+                          mealStart = window.$1;
+                          mealEnd = window.$2;
+                        }
                       }),
                     ),
                 ],

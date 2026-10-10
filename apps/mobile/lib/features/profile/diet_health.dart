@@ -682,7 +682,14 @@ class _DietHealthPageState extends ConsumerState<_DietHealthEditorPage> {
             if (mealTimingMode != 'standard') ...[
               const SizedBox(height: 10),
               _ChoiceWrap(
-                values: const ['12:12', '14:10', '16:8', '18:6', 'custom'],
+                values: const [
+                  '12:12',
+                  '14:10',
+                  '16:8',
+                  '18:6',
+                  '23:23',
+                  'custom',
+                ],
                 selected: {mealPreset},
                 label: (value) =>
                     value == 'custom' ? context.t('custom_schedule') : value,
@@ -691,6 +698,7 @@ class _DietHealthPageState extends ConsumerState<_DietHealthEditorPage> {
                   if (!selected) return;
                   setState(() {
                     mealPreset = value;
+                    // The 23:23 dedication keeps the user's current window.
                     final window = {
                       '12:12': ('08:00', '20:00'),
                       '14:10': ('10:00', '20:00'),
