@@ -235,7 +235,7 @@ class _RecipeLibraryRow extends StatelessWidget {
             FoodImage(
               id: '${recipe['id']}',
               imageUrl:
-                  '${recipe['hero_image_url'] ?? recipe['image_url'] ?? recipe['thumbnail_url'] ?? ''}',
+                  '${recipe['image_url'] ?? recipe['hero_image_url'] ?? recipe['thumbnail_url'] ?? ''}',
               ingredientIds: (recipe['ingredients'] as List? ?? const [])
                   .map((item) => '${(item as Map)['food_id'] ?? ''}')
                   .where((id) => id.isNotEmpty)
