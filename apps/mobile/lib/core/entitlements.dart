@@ -62,9 +62,17 @@ final entitlementsProvider = FutureProvider<EntitlementSnapshot>((ref) async {
   return EntitlementSnapshot.fromJson(value);
 });
 
-Future<void> refreshEntitlements(WidgetRef ref) async {
-  await ref.read(apiProvider).request('POST', '/entitlements/refresh');
-  ref.invalidate(entitlementsProvider);
+Future<Json> refreshEntitlements(WidgetRef ref) async {
+  final api = ref.read(apiProvider);
+  final user = api.userId;
+  final value = await api.request(
+    'POST',
+    '/entitlements/refresh',
+    body: const {},
+    allowCache: false,
+  );
+  if (api.userId == user) ref.invalidate(entitlementsProvider);
+  return value;
 }
 
 Future<void> showContextualPlusPrompt(
