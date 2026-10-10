@@ -6,6 +6,18 @@ import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
+import 'onboarding_tag.dart';
+
+const _treeNuts = {
+  'almond',
+  'hazelnut',
+  'walnut',
+  'cashew',
+  'pecan',
+  'brazil_nut',
+  'pistachio',
+  'macadamia',
+};
 
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key, this.edit = false});
@@ -18,6 +30,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   final name = TextEditingController(),
       timezone = TextEditingController(text: 'Europe/Rome');
   final mutation = Mutation();
+  final scroll = ScrollController();
   int step = 0, size = 1;
   bool adult = false, consent = false, medicalConsent = false;
   String strictness = 'standard', primaryGoal = 'eat_better';
@@ -99,9 +112,19 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
 
   @override
   void dispose() {
+    scroll.dispose();
     name.dispose();
     timezone.dispose();
     super.dispose();
+  }
+
+  void moveStep(int value) {
+    FocusScope.of(context).unfocus();
+    if (scroll.hasClients) scroll.jumpTo(0);
+    setState(() => step = value);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && scroll.hasClients) scroll.jumpTo(0);
+    });
   }
 
   Future<void> chooseMealTime({required bool start}) async {
@@ -122,23 +145,109 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final text = theme.textTheme;
+    return Theme(
+      data: theme.copyWith(
+        textTheme: text.copyWith(
+          displaySmall: text.displaySmall?.copyWith(fontSize: 22, height: 1.15),
+          headlineMedium: text.headlineMedium?.copyWith(fontSize: 22),
+          titleLarge: text.titleLarge?.copyWith(fontSize: 14),
+          titleMedium: text.titleMedium?.copyWith(fontSize: 14),
+          bodyLarge: text.bodyLarge?.copyWith(fontSize: 13),
+          bodyMedium: text.bodyMedium?.copyWith(fontSize: 13),
+          bodySmall: text.bodySmall?.copyWith(fontSize: 13),
+          labelLarge: text.labelLarge?.copyWith(fontSize: 14),
+          labelMedium: text.labelMedium?.copyWith(fontSize: 12),
+          labelSmall: text.labelSmall?.copyWith(fontSize: 11),
+        ),
+        appBarTheme: theme.appBarTheme.copyWith(
+          titleTextStyle: text.titleMedium?.copyWith(fontSize: 14),
+        ),
+        inputDecorationTheme: theme.inputDecorationTheme.copyWith(
+          labelStyle: text.bodyMedium?.copyWith(fontSize: 13),
+          hintStyle: text.bodyMedium?.copyWith(fontSize: 13),
+        ),
+        filledButtonTheme: FilledButtonThemeData(
+          style: theme.filledButtonTheme.style?.copyWith(
+            textStyle: WidgetStatePropertyAll(
+              text.labelLarge?.copyWith(fontSize: 14),
+            ),
+            minimumSize: const WidgetStatePropertyAll(Size(44, 48)),
+          ),
+        ),
+      ),
+      child: Builder(builder: _buildContent),
+    );
+  }
+
+  Widget panel({String? title, required List<Widget> children}) =>
+      InformationPanel(
+        tinted: false,
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (title != null) ...[
+              Text(
+                title,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontSize: 14),
+              ),
+              const SizedBox(height: 12),
+            ],
+            ...children,
+          ],
+        ),
+      );
+
+  Widget _buildContent(BuildContext context) {
     final state = ref.watch(appProvider);
     return Scaffold(
       appBar: EatMeAppBar(
-        title: Text(context.t(widget.edit ? 'edit_profile' : 'make_it_yours')),
+        title: Text(
+          context.t(widget.edit ? 'edit_profile' : 'make_it_yours'),
+          maxLines: 2,
+          overflow: TextOverflow.visible,
+        ),
         leading: step > 0
             ? IconButton(
                 tooltip: context.t('back'),
                 icon: const EatMeIcon(EatMeGlyph.chevronLeft),
-                onPressed: () => setState(() => step--),
+                onPressed: () => moveStep(step - 1),
               )
             : null,
       ),
       body: PageBody(
+        key: ValueKey('onboarding-step-$step'),
+        controller: scroll,
         children: [
           Text(
             context.t('step_count', {'current': step + 1, 'total': 6}),
-            style: Theme.of(context).textTheme.labelLarge,
+            style: Theme.of(context).textTheme.labelSmall,
+          ),
+          const SizedBox(height: 8),
+          Semantics(
+            label: context.t('step_count', {'current': step + 1, 'total': 6}),
+            child: Row(
+              children: [
+                for (var segment = 0; segment < 6; segment++) ...[
+                  if (segment > 0) const SizedBox(width: 6),
+                  Expanded(
+                    child: Container(
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: segment <= step
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.outlineVariant,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
           const SizedBox(height: 24),
           if (step == 0) ...[
@@ -146,50 +255,71 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               context.t('welcome_title'),
               style: Theme.of(context).textTheme.displaySmall,
             ),
-            const SizedBox(height: 28),
-            Text(
-              context.t('primary_goal'),
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            Wrap(
-              spacing: 8,
+            const SizedBox(height: 24),
+            panel(
+              title: context.t('primary_goal'),
               children: [
-                for (final goal in ['eat_better', 'waste_less', 'follow_diet'])
-                  ChoiceChip(
-                    label: Text(context.t('goal_$goal')),
-                    selected: primaryGoal == goal,
-                    onSelected: (_) => setState(() => primaryGoal = goal),
-                  ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final goal in [
+                      'eat_better',
+                      'waste_less',
+                      'follow_diet',
+                    ])
+                      OnboardingTag(
+                        key: ValueKey('onboarding-goal-$goal'),
+                        label: Text(context.t('goal_$goal')),
+                        selected: primaryGoal == goal,
+                        onSelected: (_) => setState(() => primaryGoal = goal),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            panel(
+              title: context.t('name'),
+              children: [
+                TextField(
+                  controller: name,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  decoration: InputDecoration(labelText: context.t('name')),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            panel(
+              title: context.t('household_question'),
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      tooltip: context.t('fewer'),
+                      onPressed: size > 1 ? () => setState(() => size--) : null,
+                      icon: const Icon(Icons.remove),
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          '$size',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: context.t('more'),
+                      onPressed: size < 20
+                          ? () => setState(() => size++)
+                          : null,
+                      icon: const Icon(Icons.add),
+                    ),
+                  ],
+                ),
               ],
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: name,
-              decoration: InputDecoration(labelText: context.t('name')),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              context.t('household_question'),
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            Row(
-              children: [
-                IconButton(
-                  tooltip: context.t('fewer'),
-                  onPressed: size > 1 ? () => setState(() => size--) : null,
-                  icon: const Icon(Icons.remove),
-                ),
-                Text(
-                  '$size',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                IconButton(
-                  tooltip: context.t('more'),
-                  onPressed: size < 20 ? () => setState(() => size++) : null,
-                  icon: const Icon(Icons.add),
-                ),
-              ],
-            ),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(context.t('adult_confirmation')),
@@ -205,24 +335,35 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             const SizedBox(height: 12),
             Text(context.t('diet_hint')),
             const SizedBox(height: 24),
-            for (final diet in state.diets.where(
-              (d) => d.selectable && !d.medical,
-            ))
-              CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(localized(diet.name, context.language)),
-                value: selected.contains(diet.id),
-                onChanged: (v) => setState(() {
-                  if (v == true) {
-                    selected.add(diet.id);
-                  } else {
-                    selected.remove(diet.id);
-                    if (primaryDiet == diet.id) {
-                      primaryDiet = selected.firstOrNull;
-                    }
-                  }
-                }),
-              ),
+            panel(
+              children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final diet in state.diets.where(
+                      (d) => d.selectable && !d.medical,
+                    ))
+                      OnboardingTag(
+                        key: ValueKey('onboarding-diet-${diet.slug}'),
+                        label: Text(localized(diet.name, context.language)),
+                        selected: selected.contains(diet.id),
+                        onSelected: (enabled) => setState(() {
+                          if (enabled) {
+                            selected.add(diet.id);
+                          } else {
+                            selected.remove(diet.id);
+                            if (primaryDiet == diet.id) {
+                              primaryDiet = selected.firstOrNull;
+                            }
+                          }
+                        }),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
             if (selected.isNotEmpty)
               DropdownButtonFormField<String>(
                 isExpanded: true,
@@ -266,22 +407,39 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             const SizedBox(height: 12),
             Text(context.t('onboarding_allergies_body')),
             const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: state.allergens
-                  .map(
-                    (a) => FilterChip(
-                      label: Text(context.t('allergen_$a')),
-                      selected: allergies.contains(a),
-                      onSelected: (v) => setState(() {
-                        v ? allergies.add(a) : allergies.remove(a);
-                        if (v) consent = false;
-                      }),
+            for (final values in [
+              state.allergens.where((a) => !_treeNuts.contains(a)).toList(),
+              state.allergens.where(_treeNuts.contains).toList(),
+            ])
+              if (values.isNotEmpty) ...[
+                panel(
+                  title: context.t(
+                    _treeNuts.contains(values.first)
+                        ? 'allergen_nuts'
+                        : 'allergies',
+                  ),
+                  children: [
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: values
+                          .map(
+                            (a) => OnboardingTag(
+                              key: ValueKey('onboarding-allergen-$a'),
+                              label: Text(context.t('allergen_$a')),
+                              selected: allergies.contains(a),
+                              onSelected: (v) => setState(() {
+                                v ? allergies.add(a) : allergies.remove(a);
+                                if (v) consent = false;
+                              }),
+                            ),
+                          )
+                          .toList(),
                     ),
-                  )
-                  .toList(),
-            ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+              ],
             if (allergies.isNotEmpty) ...[
               const SizedBox(height: 18),
               CheckboxListTile(
@@ -300,46 +458,56 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             const SizedBox(height: 12),
             Text(context.t('onboarding_sensitivities_body')),
             const SizedBox(height: 18),
-            SectionHeading(title: context.t('intolerances')),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: state.intolerances
-                  .map(
-                    (value) => FilterChip(
-                      label: Text(context.t('intolerance_$value')),
-                      selected: intolerances.contains(value),
-                      onSelected: (enabled) => setState(() {
-                        enabled
-                            ? intolerances.add(value)
-                            : intolerances.remove(value);
-                        if (enabled) consent = false;
-                      }),
-                    ),
-                  )
-                  .toList(),
+            panel(
+              title: context.t('intolerances'),
+              children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: state.intolerances
+                      .map(
+                        (value) => OnboardingTag(
+                          key: ValueKey('onboarding-intolerance-$value'),
+                          label: Text(context.t('intolerance_$value')),
+                          selected: intolerances.contains(value),
+                          onSelected: (enabled) => setState(() {
+                            enabled
+                                ? intolerances.add(value)
+                                : intolerances.remove(value);
+                            if (enabled) consent = false;
+                          }),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
             ),
-            const SizedBox(height: 18),
-            SectionHeading(title: context.t('sensitivities')),
-            Text(context.t('sensitivities_help')),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: state.sensitivities
-                  .map(
-                    (value) => FilterChip(
-                      label: Text(context.t('sensitivity_$value')),
-                      selected: sensitivities.contains(value),
-                      onSelected: (enabled) => setState(() {
-                        enabled
-                            ? sensitivities.add(value)
-                            : sensitivities.remove(value);
-                        if (enabled) consent = false;
-                      }),
-                    ),
-                  )
-                  .toList(),
+            const SizedBox(height: 24),
+            panel(
+              title: context.t('sensitivities'),
+              children: [
+                Text(context.t('sensitivities_help')),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: state.sensitivities
+                      .map(
+                        (value) => OnboardingTag(
+                          key: ValueKey('onboarding-sensitivity-$value'),
+                          label: Text(context.t('sensitivity_$value')),
+                          selected: sensitivities.contains(value),
+                          onSelected: (enabled) => setState(() {
+                            enabled
+                                ? sensitivities.add(value)
+                                : sensitivities.remove(value);
+                            if (enabled) consent = false;
+                          }),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
             ),
             if (intolerances.isNotEmpty || sensitivities.isNotEmpty) ...[
               const SizedBox(height: 18),
@@ -359,38 +527,51 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             const SizedBox(height: 12),
             Text(context.t('onboarding_medical_body')),
             const SizedBox(height: 18),
-            for (final diet in state.diets.where(
-              (d) => d.selectable && d.medical,
-            ))
-              CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(localized(diet.name, context.language)),
-                subtitle: Text(context.t('self_declared_health_profile')),
-                value: selected.contains(diet.id),
-                onChanged: (enabled) => setState(() {
-                  enabled == true
-                      ? selected.add(diet.id)
-                      : selected.remove(diet.id);
-                  if (enabled == true) medicalConsent = false;
-                }),
-              ),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: state.medicalAwareness
-                  .map(
-                    (value) => FilterChip(
-                      label: Text(context.t('medical_$value')),
-                      selected: medicalAwareness.contains(value),
-                      onSelected: (enabled) => setState(() {
-                        enabled
-                            ? medicalAwareness.add(value)
-                            : medicalAwareness.remove(value);
-                        if (enabled) medicalConsent = false;
-                      }),
-                    ),
-                  )
-                  .toList(),
+            panel(
+              children: [
+                Text(context.t('self_declared_health_profile')),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final diet in state.diets.where(
+                      (d) => d.selectable && d.medical,
+                    ))
+                      OnboardingTag(
+                        key: ValueKey('onboarding-diet-${diet.slug}'),
+                        label: Text(localized(diet.name, context.language)),
+                        selected: selected.contains(diet.id),
+                        onSelected: (enabled) => setState(() {
+                          enabled
+                              ? selected.add(diet.id)
+                              : selected.remove(diet.id);
+                          if (enabled) medicalConsent = false;
+                        }),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: state.medicalAwareness
+                      .map(
+                        (value) => OnboardingTag(
+                          key: ValueKey('onboarding-medical-$value'),
+                          label: Text(context.t('medical_$value')),
+                          selected: medicalAwareness.contains(value),
+                          onSelected: (enabled) => setState(() {
+                            enabled
+                                ? medicalAwareness.add(value)
+                                : medicalAwareness.remove(value);
+                            if (enabled) medicalConsent = false;
+                          }),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
             ),
             if (medicalAwareness.isNotEmpty ||
                 state.diets.any(
@@ -413,20 +594,32 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             const SizedBox(height: 12),
             Text(context.t('meal_timing_help')),
             const SizedBox(height: 18),
-            EatMeSelectionRow(
-              icon: EatMeGlyph.clock,
-              title: context.t('meal_timing_standard'),
-              subtitle: context.t('meal_timing_standard_body'),
-              selected: mealTimingMode == 'standard',
-              onTap: () => setState(() => mealTimingMode = 'standard'),
-            ),
-            const SizedBox(height: 10),
-            EatMeSelectionRow(
-              icon: EatMeGlyph.timer,
-              title: context.t('meal_timing_window'),
-              subtitle: context.t('meal_timing_window_body'),
-              selected: mealTimingMode != 'standard',
-              onTap: () => setState(() => mealTimingMode = 'time_restricted'),
+            panel(
+              children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    OnboardingTag(
+                      label: Text(context.t('meal_timing_standard')),
+                      selected: mealTimingMode == 'standard',
+                      onSelected: (_) =>
+                          setState(() => mealTimingMode = 'standard'),
+                    ),
+                    OnboardingTag(
+                      key: const ValueKey('onboarding-timing-window'),
+                      label: Text(context.t('meal_timing_window')),
+                      selected: mealTimingMode != 'standard',
+                      onSelected: (_) =>
+                          setState(() => mealTimingMode = 'time_restricted'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(context.t('meal_timing_standard_body')),
+                const SizedBox(height: 8),
+                Text(context.t('meal_timing_window_body')),
+              ],
             ),
             if (mealTimingMode != 'standard') ...[
               const SizedBox(height: 14),
@@ -434,8 +627,14 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  for (final value in ['12:12', '14:10', '16:8', '18:6', '23:23'])
-                    ChoiceChip(
+                  for (final value in [
+                    '12:12',
+                    '14:10',
+                    '16:8',
+                    '18:6',
+                    '23:23',
+                  ])
+                    OnboardingTag(
                       label: Text(value),
                       selected: mealPreset == value,
                       onSelected: (_) => setState(() {
@@ -456,22 +655,17 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 ],
               ),
               const SizedBox(height: 12),
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => chooseMealTime(start: true),
-                      child: Text(
-                        context.t('window_start', {'time': mealStart}),
-                      ),
-                    ),
+                  OutlinedButton(
+                    onPressed: () => chooseMealTime(start: true),
+                    child: Text(context.t('window_start', {'time': mealStart})),
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => chooseMealTime(start: false),
-                      child: Text(context.t('window_end', {'time': mealEnd})),
-                    ),
+                  const SizedBox(height: 10),
+                  OutlinedButton(
+                    onPressed: () => chooseMealTime(start: false),
+                    child: Text(context.t('window_end', {'time': mealEnd})),
                   ),
                 ],
               ),
@@ -507,12 +701,13 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
           const SizedBox(height: 32),
           if (step < 5) ...[
             FilledButton(
-              onPressed: () => setState(() => step++),
+              key: const ValueKey('onboarding-continue'),
+              onPressed: () => moveStep(step + 1),
               child: Text(context.t('continue')),
             ),
             if (step > 0)
               TextButton(
-                onPressed: () => setState(() => step++),
+                onPressed: () => moveStep(step + 1),
                 child: Text(context.t('skip_for_now')),
               ),
           ] else
@@ -520,7 +715,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               label: context.t(widget.edit ? 'save' : 'start_eatme'),
               action: () async {
                 if (!adult || name.text.trim().isEmpty) {
-                  setState(() => step = 0);
+                  moveStep(0);
                   throw const ApiFailure('invalid_profile');
                 }
                 if ((allergies.isNotEmpty ||
