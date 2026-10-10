@@ -359,6 +359,12 @@ void main() {
     await tester.ensureVisible(find.text('Purchased · add to fridge'));
     await tester.tap(find.text('Purchased · add to fridge'));
     await tester.pumpAndSettle();
+    expect(
+      api.calls.where((c) => c['body']?['action'] == 'purchase').length,
+      1,
+      reason: 'The visible purchase action must submit exactly once',
+    );
+    expect(api.item, isEmpty);
     await tester.scrollUntilVisible(
       find.text('Everything is in order'),
       300,
