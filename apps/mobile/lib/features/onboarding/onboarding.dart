@@ -434,7 +434,13 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  for (final value in ['12:12', '14:10', '16:8', '18:6', '23:23'])
+                  for (final value in [
+                    '12:12',
+                    '14:10',
+                    '16:8',
+                    '18:6',
+                    '23:23',
+                  ])
                     ChoiceChip(
                       label: Text(value),
                       selected: mealPreset == value,
