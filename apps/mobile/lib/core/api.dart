@@ -88,6 +88,9 @@ class EatMeApi {
   );
   static const redirect = 'com.filippocinotti.eatme://login-callback';
   static const secure = FlutterSecureStorage();
+  // GoogleSignIn.initialize must run exactly once for the process.
+  static Future<void>? _googleInitialization;
+  static String? _googleRawNonce;
   final Dio dio;
   bool offline = false;
   bool syncing = false;
@@ -373,10 +376,14 @@ class EatMeApi {
           '424607790676-sdcpv2u9papfbrogq4d0skorr8edvfg7.apps.googleusercontent.com';
       const scopes = <String>['email', 'profile'];
       final google = GoogleSignIn.instance;
-      await google.initialize(
+      final auth = Supabase.instance.client.auth;
+      _googleRawNonce ??= auth.generateRawNonce();
+      _googleInitialization ??= google.initialize(
         clientId: iosClientId,
         serverClientId: webClientId,
+        nonce: sha256.convert(utf8.encode(_googleRawNonce!)).toString(),
       );
+      await _googleInitialization;
       final account = await google.authenticate(scopeHint: scopes);
       final idToken = account.authentication.idToken;
       final authorization =
@@ -387,6 +394,7 @@ class EatMeApi {
         provider: OAuthProvider.google,
         idToken: idToken,
         accessToken: authorization.accessToken,
+        nonce: _googleRawNonce,
       );
       return;
     }
