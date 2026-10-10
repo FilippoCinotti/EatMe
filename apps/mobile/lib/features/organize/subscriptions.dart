@@ -9,6 +9,7 @@ import '../../core/api.dart';
 import '../../core/entitlements.dart';
 import '../../core/localization.dart';
 import '../../core/state.dart';
+import '../../core/subscription_catalog.dart';
 import '../../design_system/widgets.dart';
 import 'shared.dart';
 
@@ -45,52 +46,96 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
   List<Package> packages = [];
   String? managementUrl;
   bool storeReady = false;
-  static bool configured = false;
+  bool catalogLoading = false;
+  int loadGeneration = 0;
   @override
   Future<void> load() async {
+    final generation = ++loadGeneration;
+    final user = ref.read(apiProvider).userId;
+    bool current() =>
+        mounted &&
+        generation == loadGeneration &&
+        ref.read(apiProvider).userId == user;
     if (mounted) {
       setState(() {
         storeReady = false;
+        catalogLoading = true;
         packages = [];
         managementUrl = null;
       });
     }
     await super.load();
-    final key = defaultTargetPlatform == TargetPlatform.iOS
+    if (!current()) return;
+    if (error != null || EatMeApi.development) {
+      setState(() => catalogLoading = false);
+      return;
+    }
+    final ios = defaultTargetPlatform == TargetPlatform.iOS;
+    final android = defaultTargetPlatform == TargetPlatform.android;
+    final key = ios
         ? const String.fromEnvironment('REVENUECAT_IOS_KEY')
         : const String.fromEnvironment('REVENUECAT_ANDROID_KEY');
-    if (data?['configured'] != true || key.isEmpty || EatMeApi.development) {
+    if (kIsWeb ||
+        (!ios && !android) ||
+        user == null ||
+        !key.startsWith(ios ? 'appl_' : 'goog_') ||
+        data?['configured'] != true) {
+      setState(() {
+        catalogLoading = false;
+        error = 'subscriptions_unavailable';
+      });
       return;
     }
     try {
-      final user = ref.read(apiProvider).userId!;
-      if (!configured) {
+      if (!await Purchases.isConfigured) {
         await Purchases.configure(
           PurchasesConfiguration(key)..appUserID = user,
         );
-        configured = true;
-      } else {
+      } else if (await Purchases.appUserID != user) {
         await Purchases.logIn(user);
       }
-      // Restore must remain available even when the offering fails to load.
-      if (mounted && ref.read(apiProvider).userId == user) {
-        setState(() => storeReady = true);
-      }
-      final customer = await Purchases.getCustomerInfo();
-      if (mounted && ref.read(apiProvider).userId == user) {
-        setState(() => managementUrl = customer.managementURL);
-      }
-      final offerings = await Purchases.getOfferings();
-      if (mounted && ref.read(apiProvider).userId == user) {
-        setState(() {
-          storeReady = true;
-          packages = offerings.current?.availablePackages ?? [];
-          if (packages.isEmpty) error = 'store_unavailable';
-        });
-      }
+      // Restore remains available even when the store cannot return products.
+      if (!current()) return;
+      setState(() => storeReady = true);
+      await loadSubscriptionCatalog<Package>(
+        fetchProducts: () async =>
+            (await Purchases.getOfferings()).current?.availablePackages ?? [],
+        fetchManagementUrl: () async =>
+            (await Purchases.getCustomerInfo()).managementURL,
+        isCurrent: current,
+        onProducts: (value) => setState(() {
+          catalogLoading = false;
+          packages = value;
+          if (packages.isEmpty) error = 'subscription_products_unavailable';
+        }),
+        onManagementUrl: (url) => setState(() => managementUrl = url),
+      );
+    } on PlatformException catch (failure) {
+      if (!current()) return;
+      final index = int.tryParse(failure.code);
+      final code =
+          index != null &&
+              index >= 0 &&
+              index < PurchasesErrorCode.values.length
+          ? PurchasesErrorCode.values[index]
+          : PurchasesErrorCode.unknownError;
+      setState(() {
+        catalogLoading = false;
+        error = switch (code) {
+          PurchasesErrorCode.configurationError ||
+          PurchasesErrorCode.productNotAvailableForPurchaseError =>
+            'subscription_products_unavailable',
+          PurchasesErrorCode.invalidCredentialsError =>
+            'subscriptions_unavailable',
+          _ => 'store_unavailable',
+        };
+      });
     } catch (_) {
-      if (mounted && context.mounted) {
-        setState(() => error = 'store_unavailable');
+      if (current()) {
+        setState(() {
+          catalogLoading = false;
+          error = 'store_unavailable';
+        });
       }
     }
   }
@@ -185,7 +230,15 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
       ])
         _BenefitRow(label: context.t(benefit.$1), icon: benefit.$2),
       const SizedBox(height: 20),
-      if (packages.isEmpty && widget.illustrativePrices.isEmpty)
+      if (catalogLoading)
+        Semantics(
+          label: context.t('loading'),
+          child: const LinearProgressIndicator(),
+        ),
+      if (!catalogLoading &&
+          error == null &&
+          packages.isEmpty &&
+          widget.illustrativePrices.isEmpty)
         StatusNote(text: context.t('no_offerings')),
       for (final price in widget.illustrativePrices)
         Padding(

@@ -1164,5 +1164,7 @@
   "biometric_unlock_body": "Entsperre dein Konto, um fortzufahren.",
   "biometric_unlock": "Biometrisch entsperren",
   "biometric_normal_login": "Anders anmelden",
-  "biometric_failed": "Entsperren nicht möglich. Versuche es erneut oder melde dich anders an."
+  "biometric_failed": "Entsperren nicht möglich. Versuche es erneut oder melde dich anders an.",
+  "subscriptions_unavailable": "Abonnements sind auf diesem Gerät derzeit nicht verfügbar.",
+  "subscription_products_unavailable": "Abonnementangebote sind im Store nicht verfügbar. Versuche es später erneut."
 }

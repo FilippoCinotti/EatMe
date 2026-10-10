@@ -1164,5 +1164,7 @@
   "biometric_unlock_body": "解锁账户以继续。",
   "biometric_unlock": "使用生物识别解锁",
   "biometric_normal_login": "使用其他方式登录",
-  "biometric_failed": "无法解锁。请重试或使用其他方式登录。"
+  "biometric_failed": "无法解锁。请重试或使用其他方式登录。",
+  "subscriptions_unavailable": "此设备目前无法使用订阅。",
+  "subscription_products_unavailable": "商店暂时未提供订阅方案，请稍后重试。"
 }

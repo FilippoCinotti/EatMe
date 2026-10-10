@@ -1164,5 +1164,7 @@
   "biometric_unlock_body": "Sblocca il tuo account per continuare.",
   "biometric_unlock": "Sblocca con biometria",
   "biometric_normal_login": "Accedi in un altro modo",
-  "biometric_failed": "Sblocco non disponibile. Riprova o accedi in un altro modo."
+  "biometric_failed": "Sblocco non disponibile. Riprova o accedi in un altro modo.",
+  "subscriptions_unavailable": "Gli abbonamenti non sono disponibili su questo dispositivo al momento.",
+  "subscription_products_unavailable": "I piani di abbonamento non sono disponibili nello store. Riprova più tardi."
 }

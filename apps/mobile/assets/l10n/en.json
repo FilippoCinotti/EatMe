@@ -1164,5 +1164,7 @@
   "biometric_unlock_body": "Unlock your account to continue.",
   "biometric_unlock": "Unlock with biometrics",
   "biometric_normal_login": "Use another login method",
-  "biometric_failed": "Unable to unlock. Try again or use another login method."
+  "biometric_failed": "Unable to unlock. Try again or use another login method.",
+  "subscriptions_unavailable": "Subscriptions are currently unavailable on this device.",
+  "subscription_products_unavailable": "Subscription plans are unavailable in the store. Please try again later."
 }

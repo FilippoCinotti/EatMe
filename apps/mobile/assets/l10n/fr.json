@@ -1164,5 +1164,7 @@
   "biometric_unlock_body": "Déverrouillez votre compte pour continuer.",
   "biometric_unlock": "Déverrouiller par biométrie",
   "biometric_normal_login": "Se connecter autrement",
-  "biometric_failed": "Déverrouillage indisponible. Réessayez ou connectez-vous autrement."
+  "biometric_failed": "Déverrouillage indisponible. Réessayez ou connectez-vous autrement.",
+  "subscriptions_unavailable": "Les abonnements sont actuellement indisponibles sur cet appareil.",
+  "subscription_products_unavailable": "Les offres d’abonnement sont indisponibles dans la boutique. Réessayez plus tard."
 }
