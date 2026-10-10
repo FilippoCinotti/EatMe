@@ -7,6 +7,7 @@ import '../../core/api.dart';
 import '../../core/biometric_access.dart';
 import '../../core/localization.dart';
 import '../../core/state.dart';
+import '../../design_system/widgets.dart';
 
 final biometricProvider = Provider<BiometricAccess>((ref) {
   final auth = LocalAuthentication();
@@ -205,7 +206,7 @@ class BiometricPreference extends ConsumerWidget {
         if (!access.supported && !access.enabled) {
           return const SizedBox.shrink();
         }
-        return Column(
+        return SettingsGroup(
           children: [
             SwitchListTile.adaptive(
               contentPadding: EdgeInsets.zero,

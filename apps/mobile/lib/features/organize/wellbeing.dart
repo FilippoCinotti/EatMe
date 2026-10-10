@@ -97,24 +97,47 @@ class _WellbeingState extends ResourceState<WellbeingPage> {
                   Row(
                     children: [
                       Expanded(
-                        child: AsyncAction(
-                          label: context.t(
-                            goal['done_today'] == true
-                                ? 'undo_today'
-                                : 'done_today',
+                        child: OutlinedButtonTheme(
+                          data: OutlinedButtonThemeData(
+                            style: OutlinedButton.styleFrom(
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onPrimaryContainer,
+                              side: BorderSide(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withValues(alpha: 0.55),
+                              ),
+                              minimumSize: const Size(44, 44),
+                              textStyle: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
-                          icon: goal['done_today'] == true
-                              ? Icons.check_circle
-                              : Icons.check_circle_outline,
-                          secondary: goal['done_today'] != true,
-                          action: () => command({
-                            'action': 'check_in',
-                            'goal': goal['id'],
-                            'completed': goal['done_today'] != true,
-                            'expected_version': data!['version'],
-                          }),
+                          child: AsyncAction(
+                            label: context.t(
+                              goal['done_today'] == true
+                                  ? 'undo_today'
+                                  : 'done_today',
+                            ),
+                            icon: goal['done_today'] == true
+                                ? Icons.check_circle
+                                : Icons.check_circle_outline,
+                            secondary: goal['done_today'] != true,
+                            action: () => command({
+                              'action': 'check_in',
+                              'goal': goal['id'],
+                              'completed': goal['done_today'] != true,
+                              'expected_version': data!['version'],
+                            }),
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 8),
                       AsyncAction(
                         label: context.t('edit'),
                         icon: Icons.edit_outlined,
@@ -142,74 +165,99 @@ class _WellbeingState extends ResourceState<WellbeingPage> {
           ),
         const SizedBox(height: 16),
         LayoutBuilder(
-          builder: (context, constraints) => Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              for (final goal in habitGoals.where(
-                (id) => !goals.any((g) => g['id'] == id),
-              ))
-                SizedBox(
-                  width: constraints.maxWidth < 300
-                      ? constraints.maxWidth
-                      : (constraints.maxWidth - 12) / 2,
-                  child: Builder(
-                    builder: (context) {
-                      final scheme = ColorScheme.fromSeed(
-                        seedColor: [
-                          Colors.teal,
-                          Colors.amber,
-                          Colors.indigo,
-                          Colors.green,
-                          Colors.deepOrange,
-                          Colors.purple,
-                        ][habitGoals.indexOf(goal)],
-                        brightness: Theme.of(context).brightness,
-                      );
-                      return Card(
-                        color: scheme.primaryContainer,
-                        clipBehavior: Clip.antiAlias,
-                        child: InkWell(
-                          onTap: data == null
-                              ? null
-                              : () => editTarget(goal, 5),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Icon(
-                                  [
-                                    Icons.restaurant_outlined,
-                                    Icons.recycling,
-                                    Icons.favorite_outline,
-                                    Icons.eco_outlined,
-                                    Icons.shopping_basket_outlined,
-                                    Icons.balance,
-                                  ][habitGoals.indexOf(goal)],
-                                  size: 30,
-                                  color: scheme.onPrimaryContainer,
-                                ),
-                                const SizedBox(height: 18),
-                                Text(
-                                  context.t('goal_$goal'),
-                                  style: Theme.of(context).textTheme.titleMedium
-                                      ?.copyWith(
-                                        color: scheme.onPrimaryContainer,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                ),
-                              ],
+          builder: (context, constraints) {
+            final availableGoals = habitGoals
+                .where((id) => !goals.any((g) => g['id'] == id))
+                .toList();
+            final cardWidth = constraints.maxWidth < 300
+                ? constraints.maxWidth
+                : (constraints.maxWidth - 12) / 2;
+            final titleStyle = Theme.of(context).textTheme.titleMedium!
+                .copyWith(
+                  fontSize: 13,
+                  height: 1.35,
+                  fontWeight: FontWeight.w700,
+                );
+            // Every card accommodates the tallest localized/scaled label.
+            var cardHeight = 132.0;
+            for (final goal in availableGoals) {
+              final label = TextPainter(
+                text: TextSpan(
+                  text: context.t('goal_$goal'),
+                  style: titleStyle,
+                ),
+                textDirection: Directionality.of(context),
+                textScaler: MediaQuery.textScalerOf(context),
+              )..layout(maxWidth: (cardWidth - 32).clamp(1.0, double.infinity));
+              final requiredHeight = 32 + 24 + 14 + label.height;
+              if (requiredHeight > cardHeight) cardHeight = requiredHeight;
+              label.dispose();
+            }
+            return Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                for (final goal in availableGoals)
+                  SizedBox(
+                    width: cardWidth,
+                    height: cardHeight,
+                    child: Builder(
+                      builder: (context) {
+                        final scheme = ColorScheme.fromSeed(
+                          seedColor: [
+                            Colors.teal,
+                            Colors.amber,
+                            Colors.indigo,
+                            Colors.green,
+                            Colors.deepOrange,
+                            Colors.purple,
+                          ][habitGoals.indexOf(goal)],
+                          brightness: Theme.of(context).brightness,
+                        );
+                        return Card(
+                          margin: EdgeInsets.zero,
+                          color: scheme.primaryContainer,
+                          clipBehavior: Clip.antiAlias,
+                          child: InkWell(
+                            onTap: data == null
+                                ? null
+                                : () => editTarget(goal, 5),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.max,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    [
+                                      Icons.restaurant_outlined,
+                                      Icons.recycling,
+                                      Icons.favorite_outline,
+                                      Icons.eco_outlined,
+                                      Icons.shopping_basket_outlined,
+                                      Icons.balance,
+                                    ][habitGoals.indexOf(goal)],
+                                    size: 24,
+                                    color: scheme.onPrimaryContainer,
+                                  ),
+                                  const SizedBox(height: 14),
+                                  Text(
+                                    context.t('goal_$goal'),
+                                    style: titleStyle.copyWith(
+                                      color: scheme.onPrimaryContainer,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
-                ),
-            ],
-          ),
+              ],
+            );
+          },
         ),
       ]),
     );
