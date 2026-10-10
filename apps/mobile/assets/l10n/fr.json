@@ -1141,5 +1141,20 @@
   "cuisine_american": "Américaine",
   "welcome_more_taste": "Plus de goût.",
   "welcome_less_waste": "Moins de gaspillage.",
-  "welcome_personal_recipes": "Des recettes adaptées à toi,\navec ce que tu as déjà."
+  "welcome_personal_recipes": "Des recettes adaptées à toi,\navec ce que tu as déjà.",
+  "auth_register_title": "Tout commence par vous.",
+  "auth_register_subtitle": "Un compte, une cuisine à votre image.",
+  "auth_login_subtitle": "Vos idées en cuisine vous attendent.",
+  "auth_email_hint": "nom@email.com",
+  "auth_create_password": "Créez un mot de passe",
+  "auth_password_hint": "Votre mot de passe",
+  "auth_repeat_password": "Répétez le mot de passe",
+  "auth_accept_prefix": "J’accepte les",
+  "auth_terms_short": "Conditions",
+  "auth_privacy_prefix": "et j’ai lu la",
+  "auth_privacy_short": "Politique de confidentialité",
+  "auth_create_account": "Créer un compte",
+  "auth_have_account": "Vous avez déjà un compte ?",
+  "auth_new_account": "Vous n’avez pas de compte ?",
+  "auth_register": "S’inscrire"
 }

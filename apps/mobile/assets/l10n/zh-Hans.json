@@ -1141,5 +1141,20 @@
   "cuisine_american": "美式菜",
   "welcome_more_taste": "更多美味。",
   "welcome_less_waste": "更少浪费。",
-  "welcome_personal_recipes": "为你量身推荐食谱，\n用你已有的食材。"
+  "welcome_personal_recipes": "为你量身推荐食谱，\n用你已有的食材。",
+  "auth_register_title": "从你开始。",
+  "auth_register_subtitle": "一个账户，让厨房更懂你。",
+  "auth_login_subtitle": "你的烹饪灵感在等你。",
+  "auth_email_hint": "name@email.com",
+  "auth_create_password": "创建密码",
+  "auth_password_hint": "你的密码",
+  "auth_repeat_password": "再次输入密码",
+  "auth_accept_prefix": "我接受",
+  "auth_terms_short": "服务条款",
+  "auth_privacy_prefix": "并已阅读",
+  "auth_privacy_short": "隐私政策",
+  "auth_create_account": "创建账户",
+  "auth_have_account": "已有账户？",
+  "auth_new_account": "还没有账户？",
+  "auth_register": "注册"
 }

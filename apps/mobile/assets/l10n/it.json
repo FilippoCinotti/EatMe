@@ -1141,5 +1141,20 @@
   "cuisine_american": "Americana",
   "welcome_more_taste": "Più gusto.",
   "welcome_less_waste": "Meno sprechi.",
-  "welcome_personal_recipes": "Ricette su misura per te,\ncon quello che hai già."
+  "welcome_personal_recipes": "Ricette su misura per te,\ncon quello che hai già.",
+  "auth_register_title": "Inizia da te.",
+  "auth_register_subtitle": "Un account, una cucina più tua.",
+  "auth_login_subtitle": "Le tue idee in cucina ti aspettano.",
+  "auth_email_hint": "nome@email.com",
+  "auth_create_password": "Crea una password",
+  "auth_password_hint": "La tua password",
+  "auth_repeat_password": "Ripeti la password",
+  "auth_accept_prefix": "Accetto i",
+  "auth_terms_short": "Termini",
+  "auth_privacy_prefix": "e ho letto la",
+  "auth_privacy_short": "Privacy",
+  "auth_create_account": "Crea account",
+  "auth_have_account": "Hai già un account?",
+  "auth_new_account": "Non hai un account?",
+  "auth_register": "Registrati"
 }
