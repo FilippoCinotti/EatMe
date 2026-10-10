@@ -158,8 +158,14 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
   }
 
   Future<void> verify() async {
-    await refreshEntitlements(ref);
-    await load();
+    final user = ref.read(apiProvider).userId;
+    final value = await refreshEntitlements(ref);
+    if (!mounted || ref.read(apiProvider).userId != user) return;
+    // Apply the server-verified result without clearing the visible catalog.
+    setState(() {
+      data = value;
+      error = null;
+    });
   }
 
   int? annualSavings(Package annual) {
