@@ -1166,5 +1166,17 @@
   "biometric_normal_login": "Accedi in un altro modo",
   "biometric_failed": "Sblocco non disponibile. Riprova o accedi in un altro modo.",
   "subscriptions_unavailable": "Gli abbonamenti non sono disponibili su questo dispositivo al momento.",
-  "subscription_products_unavailable": "I piani di abbonamento non sono disponibili nello store. Riprova più tardi."
+  "subscription_products_unavailable": "I piani di abbonamento non sono disponibili nello store. Riprova più tardi.",
+  "food_group_condiment": "Salse e condimenti",
+  "food_group_spice": "Spezie",
+  "food_group_sweetener": "Dolcificanti",
+  "food_group_beverage": "Bevande",
+  "shopping_total_estimated": "Totale stimato",
+  "shopping_total_partial": "Totale parziale stimato",
+  "shopping_estimate_basis": "Stime generiche in euro per categoria e quantità, non prezzi del negozio. Le confezioni possono costare di più.",
+  "shopping_unpriced_count": "{count} alimenti senza prezzo esclusi dal totale.",
+  "shopping_price_unavailable": "Stima non disponibile",
+  "shopping_line_estimate": "≈ {price} stimati",
+  "shopping_unit_reference": "Riferimento: {price} / {unit}",
+  "shopping_each": "pezzo"
 }

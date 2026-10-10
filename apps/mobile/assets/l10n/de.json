@@ -1166,5 +1166,17 @@
   "biometric_normal_login": "Anders anmelden",
   "biometric_failed": "Entsperren nicht möglich. Versuche es erneut oder melde dich anders an.",
   "subscriptions_unavailable": "Abonnements sind auf diesem Gerät derzeit nicht verfügbar.",
-  "subscription_products_unavailable": "Abonnementangebote sind im Store nicht verfügbar. Versuche es später erneut."
+  "subscription_products_unavailable": "Abonnementangebote sind im Store nicht verfügbar. Versuche es später erneut.",
+  "food_group_condiment": "Saucen und Würzmittel",
+  "food_group_spice": "Gewürze",
+  "food_group_sweetener": "Süßungsmittel",
+  "food_group_beverage": "Getränke",
+  "shopping_total_estimated": "Geschätzte Gesamtsumme",
+  "shopping_total_partial": "Geschätzte Teilsumme",
+  "shopping_estimate_basis": "Allgemeine Euro-Schätzungen nach Kategorie und Menge, keine Ladenpreise. Ganze Packungen können mehr kosten.",
+  "shopping_unpriced_count": "{count} Lebensmittel ohne Preis sind nicht enthalten.",
+  "shopping_price_unavailable": "Schätzung nicht verfügbar",
+  "shopping_line_estimate": "≈ {price} geschätzt",
+  "shopping_unit_reference": "Richtwert: {price} / {unit}",
+  "shopping_each": "Stück"
 }
