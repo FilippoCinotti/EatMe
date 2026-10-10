@@ -356,8 +356,13 @@ void main() {
     expect(find.text('Tomatoes'), findsOneWidget);
     await tester.tap(find.byType(Checkbox));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Purchased · add to fridge'));
-    await tester.tap(find.text('Purchased · add to fridge'));
+    final purchaseButton = find.widgetWithText(
+      OutlinedButton,
+      'Purchased · add to fridge',
+    );
+    await tester.ensureVisible(purchaseButton);
+    await tester.pumpAndSettle();
+    await tester.tap(purchaseButton);
     await tester.pumpAndSettle();
     expect(
       api.calls.where((c) => c['body']?['action'] == 'purchase').length,
