@@ -34,3 +34,13 @@ class ReleaseConfigTests(unittest.TestCase):
         self.assertTrue(module.validate(config))
         config['APPLE_ANDROID_CALLBACK_URL'] = config['API_URL'] + '/auth/apple/callback'
         self.assertEqual(module.validate(config), [])
+
+    def test_testflight_requires_apple_sdk_key(self):
+        config = self.config()
+        self.assertTrue(module.validate(config, require_ios=True))
+        for key in ('', 'test_not_an_apple_key', 'goog_wrong_platform'):
+            with self.subTest(key=key):
+                config['REVENUECAT_IOS_KEY'] = key
+                self.assertTrue(module.validate(config, require_ios=True))
+        config['REVENUECAT_IOS_KEY'] = 'appl_public_sdk_fixture'
+        self.assertEqual(module.validate(config, require_ios=True), [])
