@@ -170,15 +170,19 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('€ 3.27'), findsOneWidget);
       await tester.ensureVisible(find.text('Barbecue sauce'));
-      await tester.tap(find.byType(Checkbox).first);
-      await tester.pumpAndSettle();
-      await tester.ensureVisible(find.byKey(const ValueKey('shopping-total')));
-      expect(find.text('€ 3.27'), findsOneWidget);
-      expect(api.calls.last['body']['expected_version'], 1);
       final sauceImage = tester
           .widgetList<FoodImage>(find.byType(FoodImage))
           .firstWhere((image) => image.id == 'sauce');
       expect(sauceImage.width, 56);
+      await tester.tap(find.byType(Checkbox).first);
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey('shopping-total')),
+        -300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('€ 3.27'), findsOneWidget);
+      expect(api.calls.last['body']['expected_version'], 1);
       expect(tester.takeException(), isNull);
     },
   );
@@ -200,7 +204,8 @@ void main() {
     );
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Edit').first);
-    await tester.pumpAndSettle();
+    // The action remains busy while its edit dialog is open.
+    await tester.pump(const Duration(milliseconds: 600));
     await tester.enterText(find.byType(TextFormField), '180');
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();

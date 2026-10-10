@@ -356,14 +356,14 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
           for (final item in items.where((i) => categoryOf(i) == category))
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: _itemCard(item),
+              child: _itemCard(context, item),
             ),
         ],
       ]),
     );
   }
 
-  Widget _itemCard(Json item) {
+  Widget _itemCard(BuildContext context, Json item) {
     final food = itemFood(item);
     final price = estimate(item);
     final text = Theme.of(context).textTheme;

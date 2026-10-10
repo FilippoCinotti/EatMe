@@ -359,6 +359,11 @@ void main() {
     await tester.ensureVisible(find.text('Purchased · add to fridge'));
     await tester.tap(find.text('Purchased · add to fridge'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Everything is in order'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('Everything is in order'), findsOneWidget);
     expect(
       api.calls.where((c) => c['body']?['action'] == 'purchase').length,
