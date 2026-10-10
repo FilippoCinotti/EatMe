@@ -3,6 +3,16 @@ typedef Json = Map<String, dynamic>;
 String localized(Json text, String language) =>
     (text[language] ?? text['en'] ?? '') as String;
 
+/// Prefer the approved catalog image over legacy hero/thumbnail fields.
+/// Blank values must not hide a usable fallback image.
+String? recipeImageUrl(Json recipe) {
+  for (final key in const ['image_url', 'hero_image_url', 'thumbnail_url']) {
+    final value = recipe[key];
+    if (value is String && value.trim().isNotEmpty) return value;
+  }
+  return null;
+}
+
 class Food {
   const Food({
     required this.id,
@@ -123,9 +133,7 @@ class Recipe {
         .map((i) => Map<String, dynamic>.from(i as Map))
         .toList(),
     Map<String, dynamic>.from((j['timed_steps'] ?? j['steps']) as Map),
-    imageUrl:
-        (j['image_url'] ?? j['hero_image_url'] ?? j['thumbnail_url'])
-            as String?,
+    imageUrl: recipeImageUrl(j),
   );
 
   List<Json> instructionSteps(String language) {
