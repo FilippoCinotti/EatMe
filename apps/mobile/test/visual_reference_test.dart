@@ -384,7 +384,7 @@ void main() {
 
     expect(find.textContaining('Eating style:'), findsOneWidget);
     expect(find.textContaining('Allergies:'), findsOneWidget);
-    expect(find.textContaining('Medical dietary settings:'), findsOneWidget);
+    expect(find.textContaining('Medical nutrition and protocols:'), findsOneWidget);
     expect(find.text('System'), findsNothing);
     expect(find.text('EN'), findsNothing);
     expect(tester.takeException(), isNull);
