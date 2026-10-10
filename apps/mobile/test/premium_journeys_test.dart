@@ -543,6 +543,9 @@ void main() {
     );
     await tester.tap(save);
     await tester.pumpAndSettle();
+    // Let the save confirmation disappear before tapping the hub's last row.
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
     final unknownSection = find.byKey(const ValueKey('diet-section-unknown'));
     await tester.scrollUntilVisible(
       unknownSection,
