@@ -10,6 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import 'models.dart';
+import 'biometric_access.dart';
 import 'offline.dart';
 import 'reminders.dart';
 import 'data_export.dart';
@@ -413,16 +414,24 @@ class EatMeApi {
   }
 
   Future<void> logout() async {
+    final account = userId;
     await cache?.clear();
     if (development && token != null) {
       await request('POST', '/auth/logout');
     } else if (!development) {
       await Supabase.instance.client.auth.signOut();
     }
+    if (account != null) {
+      await secure.delete(key: BiometricAccess.preferenceKey(account));
+    }
     await clearSession();
   }
 
   Future<void> clearSession() async {
+    final account = userId;
+    if (account != null) {
+      await secure.delete(key: BiometricAccess.preferenceKey(account));
+    }
     await _queueWrite;
     _cacheEpoch++;
     await Reminders.clear();

@@ -1156,5 +1156,13 @@
   "auth_create_account": "Crea account",
   "auth_have_account": "Hai già un account?",
   "auth_new_account": "Non hai un account?",
-  "auth_register": "Registrati"
+  "auth_register": "Registrati",
+  "biometric_title": "Accesso biometrico",
+  "biometric_body": "Sblocca EatMe+ con Face ID, Touch ID o impronta su questo dispositivo.",
+  "biometric_reason": "Conferma la tua identità per accedere a EatMe+.",
+  "biometric_unlock_title": "Bentornato",
+  "biometric_unlock_body": "Sblocca il tuo account per continuare.",
+  "biometric_unlock": "Sblocca con biometria",
+  "biometric_normal_login": "Accedi in un altro modo",
+  "biometric_failed": "Sblocco non disponibile. Riprova o accedi in un altro modo."
 }

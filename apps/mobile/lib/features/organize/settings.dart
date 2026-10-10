@@ -9,6 +9,7 @@ import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
 import 'shared.dart';
+import '../auth/biometric.dart';
 
 class PreferencesPage extends ConsumerStatefulWidget {
   const PreferencesPage({super.key});
@@ -87,6 +88,7 @@ class _PreferencesState extends ResourceState<PreferencesPage> {
             ),
           ],
         ),
+        const BiometricPreference(),
         Text(
           context.t('make_it_yours'),
           style: Theme.of(context).textTheme.headlineMedium,

@@ -1156,5 +1156,13 @@
   "auth_create_account": "创建账户",
   "auth_have_account": "已有账户？",
   "auth_new_account": "还没有账户？",
-  "auth_register": "注册"
+  "auth_register": "注册",
+  "biometric_title": "生物识别登录",
+  "biometric_body": "在此设备上使用面容 ID、触控 ID 或指纹解锁 EatMe+。",
+  "biometric_reason": "请验证身份以访问 EatMe+。",
+  "biometric_unlock_title": "欢迎回来",
+  "biometric_unlock_body": "解锁账户以继续。",
+  "biometric_unlock": "使用生物识别解锁",
+  "biometric_normal_login": "使用其他方式登录",
+  "biometric_failed": "无法解锁。请重试或使用其他方式登录。"
 }

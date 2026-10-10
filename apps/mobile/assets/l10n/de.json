@@ -1156,5 +1156,13 @@
   "auth_create_account": "Konto erstellen",
   "auth_have_account": "Schon ein Konto?",
   "auth_new_account": "Noch kein Konto?",
-  "auth_register": "Registrieren"
+  "auth_register": "Registrieren",
+  "biometric_title": "Biometrischer Zugang",
+  "biometric_body": "Entsperre EatMe+ mit Face ID, Touch ID oder Fingerabdruck auf diesem Gerät.",
+  "biometric_reason": "Bestätige deine Identität, um auf EatMe+ zuzugreifen.",
+  "biometric_unlock_title": "Willkommen zurück",
+  "biometric_unlock_body": "Entsperre dein Konto, um fortzufahren.",
+  "biometric_unlock": "Biometrisch entsperren",
+  "biometric_normal_login": "Anders anmelden",
+  "biometric_failed": "Entsperren nicht möglich. Versuche es erneut oder melde dich anders an."
 }
