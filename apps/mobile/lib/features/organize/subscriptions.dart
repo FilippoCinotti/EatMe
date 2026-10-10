@@ -62,9 +62,22 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
         catalogLoading = true;
         packages = [];
         managementUrl = null;
+        data = null;
+        error = null;
       });
     }
-    await super.load();
+    try {
+      final value = await ref.read(apiProvider).request('GET', path);
+      if (!current()) return;
+      setState(() => data = value);
+    } on ApiFailure catch (failure) {
+      if (!current()) return;
+      setState(() {
+        error = failure.code;
+        catalogLoading = false;
+      });
+      return;
+    }
     if (!current()) return;
     if (error != null || EatMeApi.development) {
       setState(() => catalogLoading = false);
@@ -87,12 +100,16 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
       return;
     }
     try {
-      if (!await Purchases.isConfigured) {
+      final configured = await Purchases.isConfigured;
+      if (!current()) return;
+      if (!configured) {
         await Purchases.configure(
           PurchasesConfiguration(key)..appUserID = user,
         );
-      } else if (await Purchases.appUserID != user) {
-        await Purchases.logIn(user);
+      } else {
+        final storeUser = await Purchases.appUserID;
+        if (!current()) return;
+        if (storeUser != user) await Purchases.logIn(user);
       }
       // Restore remains available even when the store cannot return products.
       if (!current()) return;

@@ -35,6 +35,9 @@ links even when offerings fail. Restore remains available after SDK connection.
 Use the SDK's actual configuration/account state instead of a local static
 boolean and avoid logging in again when the SDK already has the same account.
 Reject stale callbacks after another load, account change or page disposal.
+Apply the same guard to server entitlement responses and check it before native
+SDK configuration/account changes. Clear previous account data at reload start
+so a delayed server response cannot repopulate an obsolete subscription view.
 Distinguish missing purchase setup from unavailable native products and
 temporary store errors. Show a loading indicator while native products are
 being fetched instead of prematurely claiming no plans are available. Prices and purchasable packages still come exclusively
