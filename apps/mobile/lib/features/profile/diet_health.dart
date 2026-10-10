@@ -8,6 +8,9 @@ import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
 
+bool _isMedicalOrTherapeuticDiet(Diet diet) =>
+    diet.medical || {'gluten-free', 'rad'}.contains(diet.slug);
+
 /// Direct, self-service control centre for every rule consumed by EatMe's
 /// compatibility and recommendation engine.
 class DietHealthPage extends ConsumerWidget {
@@ -35,7 +38,8 @@ class DietHealthPage extends ConsumerWidget {
           .map((value) => value['diet_id'] as String)
           .where(
             (id) => state.diets.any(
-              (diet) => diet.id == id && diet.medical == medical,
+              (diet) =>
+                  diet.id == id && _isMedicalOrTherapeuticDiet(diet) == medical,
             ),
           )
           .toList(),
@@ -103,12 +107,6 @@ class DietHealthPage extends ConsumerWidget {
           ).map((value) => context.t('medical_$value')),
         ], (value) => value),
         EatMeGlyph.shieldCheck,
-      ),
-      (
-        'therapeutic',
-        context.t('therapeutic_protocols'),
-        context.t('reviewed_rules_only'),
-        EatMeGlyph.badgeCheck,
       ),
       (
         'ethics',
@@ -428,11 +426,7 @@ class _DietHealthPageState extends ConsumerState<_DietHealthEditorPage> {
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
-          if ({
-            'eating',
-            'medical',
-            'therapeutic',
-          }.contains(widget.section)) ...[
+          if ({'eating', 'medical'}.contains(widget.section)) ...[
             const SizedBox(height: 22),
             Text(
               context.t('diet_profiles_help'),
@@ -442,12 +436,8 @@ class _DietHealthPageState extends ConsumerState<_DietHealthEditorPage> {
             ),
             const SizedBox(height: 14),
             for (final diet in selectable.where((diet) {
-              if (widget.section == 'medical') return diet.medical;
-              if (widget.section == 'therapeutic') {
-                return {'gluten-free', 'rad'}.contains(diet.slug);
-              }
-              return !diet.medical &&
-                  !{'gluten-free', 'rad'}.contains(diet.slug);
+              return _isMedicalOrTherapeuticDiet(diet) ==
+                  (widget.section == 'medical');
             })) ...[
               EatMeSelectionRow(
                 key: ValueKey('diet-${diet.slug}'),
