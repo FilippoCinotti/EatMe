@@ -45,7 +45,7 @@ The runner refuses unset or fixture providers. For each image it uses the produc
 
 ## Subscriptions
 
-`REVENUECAT_SECRET_KEY` remains server-only. The customer-facing tier is EatMe Premium; existing internal identifiers such as `eatme_plus`, `eatme_plus_monthly` and `eatme_plus_annual` remain unchanged for compatibility. Configure native SDK publishable keys separately, product offerings in RevenueCat and products in each store. The API verifies entitlements against RevenueCat instead of trusting device purchase assertions. No price is hardcoded. Decide and document the actual paid capability policy before enabling a paywall; the basic manual workflows remain available by default.
+`REVENUECAT_SECRET_KEY` remains server-only. The customer-facing tier is EatMe Premium; the production RevenueCat entitlement is `eatme_premium`. The API also accepts legacy `eatme_plus` and `premium` entitlements and keeps `eatme_plus` as the response tier for client compatibility. Apple products are `com.filippocinotti.eatme.premium.monthly` and `com.filippocinotti.eatme.premium.annual`, linked to the `default` offering. Configure native SDK publishable keys separately, product offerings in RevenueCat and products in each store. The API verifies entitlements against RevenueCat instead of trusting device purchase assertions. No price is hardcoded. Decide and document the actual paid capability policy before enabling a paywall; the basic manual workflows remain available by default.
 
 ## Availability controls
 

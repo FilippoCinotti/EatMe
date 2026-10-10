@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -71,13 +72,20 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
       } else {
         await Purchases.logIn(user);
       }
-      final offerings = await Purchases.getOfferings();
+      // Restore must remain available even when the offering fails to load.
+      if (mounted && ref.read(apiProvider).userId == user) {
+        setState(() => storeReady = true);
+      }
       final customer = await Purchases.getCustomerInfo();
+      if (mounted && ref.read(apiProvider).userId == user) {
+        setState(() => managementUrl = customer.managementURL);
+      }
+      final offerings = await Purchases.getOfferings();
       if (mounted && ref.read(apiProvider).userId == user) {
         setState(() {
           storeReady = true;
           packages = offerings.current?.availablePackages ?? [];
-          managementUrl = customer.managementURL;
+          if (packages.isEmpty) error = 'store_unavailable';
         });
       }
     } catch (_) {
@@ -249,7 +257,15 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
                 AsyncAction(
                   label: context.t('try_eatme_plus'),
                   action: () async {
-                    await Purchases.purchase(PurchaseParams.package(package));
+                    try {
+                      await Purchases.purchase(PurchaseParams.package(package));
+                    } on PlatformException catch (failure) {
+                      if (PurchasesErrorHelper.getErrorCode(failure) ==
+                          PurchasesErrorCode.purchaseCancelledError) {
+                        return;
+                      }
+                      throw const ApiFailure('store_unavailable');
+                    }
                     await verify();
                   },
                 ),
@@ -262,7 +278,11 @@ class _SubscriptionsState extends ResourceState<SubscriptionsPage> {
           label: context.t('restore_purchases'),
           secondary: true,
           action: () async {
-            await Purchases.restorePurchases();
+            try {
+              await Purchases.restorePurchases();
+            } on PlatformException {
+              throw const ApiFailure('store_unavailable');
+            }
             await verify();
           },
         ),

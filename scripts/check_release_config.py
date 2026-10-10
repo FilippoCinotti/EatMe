@@ -69,6 +69,8 @@ def validate(config, expected_project_ref=None, require_ios=False):
         prefix = 'goog_' if name.endswith('ANDROID_KEY') else 'appl_'
         if not isinstance(value, str) or (value and not value.startswith(prefix)):
             errors.append(f'{name} must be an empty value or the platform public SDK key.')
+    if require_ios and not config.get('REVENUECAT_IOS_KEY'):
+        errors.append('REVENUECAT_IOS_KEY is required for TestFlight Premium purchases.')
     return errors
 
 

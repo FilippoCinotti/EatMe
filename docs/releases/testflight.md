@@ -78,3 +78,9 @@ An uploaded build number is immutable. For a release defect, fix only code, safe
 ## Beta notes
 
 English and Italian beta notes are stored in `docs/releases/testflight-beta-notes.md`. App Store localized descriptions may be added only after their translations are reviewed; English fallback is preferable to an unsafe or misleading translation.
+
+### Premium purchase regression
+
+Deploy the API containing the `eatme_premium` entitlement mapping before validating this mobile release. The TestFlight configuration check requires an Apple public SDK key (`appl_…`); an empty key or RevenueCat Test Store key is rejected. In RevenueCat, the `default` offering must contain the Apple monthly and annual products linked to `eatme_premium`. Confirm product availability and Apple agreements in App Store Connect if StoreKit still returns no products.
+
+On a physical TestFlight device, verify localized monthly/annual prices, purchase and server-confirmed Premium capabilities, cancellation without an error, restore after reinstallation/sign-in, and return to Free after sandbox expiry. Restore remains available if loading offerings fails. Python regression tests cover server refresh, persisted paid access, expiry/revocation, legacy identifiers and unrelated entitlements; they do not replace a real sandbox transaction.
