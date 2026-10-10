@@ -1,6 +1,8 @@
 import importlib.util
+import os
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from eatme.auth import DevelopmentAuth
 from eatme.catalog import seed_catalog
@@ -98,3 +100,46 @@ class FastAPITests(unittest.TestCase):
     def test_body_limit_and_unknown_input(self):
         self.assertEqual(self.client.post('/api/v1/auth/login',content=b'x'*262145).status_code,413)
         self.assertEqual(self.client.post('/api/v1/auth/login',json={'email':'a','password':'b','user_id':'spoof'}).status_code,422)
+
+    def test_purchase_refresh_without_body_activates_verified_premium(self):
+        account=self.client.post('/api/v1/auth/register',json={
+            'email':'premium@example.invalid','password':'boundary-test-long',
+        }).json()
+        auth={'Authorization':'Bearer '+account['access_token']}
+        self.client.put('/api/v1/profile',headers={**auth,'Idempotency-Key':new_id()},
+                        json={'name':'Alex','adult_confirmed':True})
+        self.assertEqual(self.client.get('/api/v1/entitlements',headers=auth).json()['tier'],'free')
+        verified={'subscriber':{'entitlements':{'eatme_premium':{'expires_date':'2099-01-01T00:00:00Z'}}}}
+        with patch.dict(os.environ,{'REVENUECAT_SECRET_KEY':'test-server-only'}), patch(
+            'eatme.lifecycle.json_request',return_value=verified,
+        ) as provider:
+            # Reproduce the bodyless POST used by installed TestFlight builds,
+            # then the explicit empty JSON sent by the corrected mobile client.
+            for payload in ({}, {'json':{}}):
+                response=self.client.post('/api/v1/entitlements/refresh',headers=auth,**payload)
+                self.assertEqual(response.status_code,200,response.text)
+                self.assertEqual(response.json()['tier'],'eatme_plus')
+                self.assertTrue(response.json()['capabilities']['canUseSmartPlanning'])
+                self.assertTrue(provider.call_args.args[0].endswith('/'+account['user_id']))
+            cached=self.client.get('/api/v1/entitlements',headers=auth)
+            self.assertEqual(cached.json()['tier'],'eatme_plus')
+            self.assertEqual(provider.call_count,2)
+        self.assertEqual(self.client.post('/api/v1/entitlements/refresh').status_code,401)
+
+    def test_refresh_cannot_grant_premium_from_device_assertions(self):
+        account=self.client.post('/api/v1/auth/register',json={
+            'email':'free@example.invalid','password':'boundary-test-long',
+        }).json()
+        auth={'Authorization':'Bearer '+account['access_token']}
+        self.client.put('/api/v1/profile',headers={**auth,'Idempotency-Key':new_id()},
+                        json={'name':'Alex','adult_confirmed':True})
+        with patch.dict(os.environ,{'REVENUECAT_SECRET_KEY':'test-server-only'}), patch(
+            'eatme.lifecycle.json_request',return_value={'subscriber':{'entitlements':{}}},
+        ) as provider:
+            response=self.client.post('/api/v1/entitlements/refresh',headers=auth,
+                json={'user_id':new_id(),'tier':'eatme_plus','active':True})
+            self.assertEqual(response.status_code,200,response.text)
+            self.assertEqual(response.json()['tier'],'free')
+            self.assertFalse(response.json()['capabilities']['canUseSmartPlanning'])
+            self.assertTrue(provider.call_args.args[0].endswith('/'+account['user_id']))
+

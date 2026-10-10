@@ -543,6 +543,9 @@ void main() {
     );
     await tester.tap(save);
     await tester.pumpAndSettle();
+    // Let the save confirmation disappear before tapping the hub's last row.
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
     final unknownSection = find.byKey(const ValueKey('diet-section-unknown'));
     await tester.scrollUntilVisible(
       unknownSection,
@@ -552,6 +555,11 @@ void main() {
     await tester.tap(unknownSection);
     await tester.pumpAndSettle();
     final strictUnknown = find.byKey(const ValueKey('unknown-strict'));
+    await tester.scrollUntilVisible(
+      strictUnknown,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     tester
         .widget<InkWell>(
           find.descendant(of: strictUnknown, matching: find.byType(InkWell)),
@@ -626,7 +634,7 @@ void main() {
           'diet-health-medical',
         ),
         (
-          const ValueKey('diet-section-therapeutic'),
+          const ValueKey('diet-section-medical'),
           const ValueKey('diet-gluten-free'),
           'diet-health-therapeutic',
         ),

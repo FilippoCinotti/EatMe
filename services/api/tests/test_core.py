@@ -212,6 +212,18 @@ class EatMeCase(unittest.TestCase):
             {"medical_profile_requires_review", "certification_unknown"},
         )
 
+    def test_dedication_preset_preserves_personal_meal_window(self):
+        timing = {
+            "mode": "time_restricted",
+            "preset": "23:23",
+            "start": "12:00",
+            "end": "20:00",
+            "slots": {"breakfast": False, "lunch": True, "dinner": True, "snack": False},
+        }
+        self.update_profile(meal_timing=timing)
+        self.assertEqual(self.service.get_profile(self.user)["settings"]["meal_timing"], timing)
+        self.assertIn("23:23", self.service.catalog(self.user)["meal_timing"]["presets"])
+
     def test_invalid_meal_window_and_unacknowledged_medical_awareness_fail(self):
         self.assertCode(
             "invalid_meal_timing",
