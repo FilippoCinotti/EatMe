@@ -117,6 +117,7 @@ void main() {
     await tester.tap(start);
     await tester.pumpAndSettle();
     expect(find.byType(AutofillGroup), findsOneWidget);
-    expect(find.text('Crea il tuo account'), findsWidgets);
+    expect(find.text('Inizia da te.'), findsOneWidget);
+    expect(find.text('Crea account'), findsOneWidget);
   });
 }

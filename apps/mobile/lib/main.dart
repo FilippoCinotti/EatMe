@@ -28,6 +28,7 @@ import 'features/organize/settings.dart';
 import 'features/organize/subscriptions.dart';
 import 'core/models.dart';
 import 'features/auth/login.dart';
+import 'features/auth/biometric.dart';
 import 'features/auth/reauthenticate.dart';
 import 'features/onboarding/onboarding.dart';
 import 'features/chef_table/chef_table.dart';
@@ -263,7 +264,7 @@ class _EatMeAppState extends ConsumerState<EatMeApp> {
       builder: (context, child) => GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: AdaptiveAppFrame(child: child!),
+        child: AdaptiveAppFrame(child: BiometricGate(child: child!)),
       ),
       theme: Tokens.theme(Brightness.light),
       darkTheme: Tokens.theme(Brightness.dark),

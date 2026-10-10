@@ -124,8 +124,8 @@ class WelcomeLanding extends StatelessWidget {
                                 ),
                               ),
                               SizedBox(height: 32 * scale),
-                              SizedBox(
-                                width: double.infinity,
+                              FractionallySizedBox(
+                                widthFactor: .82,
                                 child: _WelcomeAction(
                                   key: const ValueKey('welcome-start'),
                                   onPressed: onStart,
@@ -137,8 +137,8 @@ class WelcomeLanding extends StatelessWidget {
                                 ),
                               ),
                               SizedBox(height: 11 * scale),
-                              SizedBox(
-                                width: double.infinity,
+                              FractionallySizedBox(
+                                widthFactor: .82,
                                 child: _WelcomeAction(
                                   key: const ValueKey('welcome-login'),
                                   onPressed: onLogin,
@@ -200,16 +200,16 @@ class _WelcomeAction extends StatelessWidget {
                 background: background,
                 scale: scale,
               ),
-              child: SizedBox(height: 54 * scale),
+              child: SizedBox(height: (44 * scale).clamp(44.0, 48.0)),
             )
           : DecoratedBox(
               decoration: BoxDecoration(
                 color: background,
                 border: border == null ? null : Border.all(color: border!),
-                borderRadius: BorderRadius.circular(16 * scale),
+                borderRadius: BorderRadius.circular(12 * scale),
               ),
               child: SizedBox(
-                height: (arrow ? 54 : 47) * scale,
+                height: (44 * scale).clamp(44.0, 48.0),
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16 * scale),
                   child: Row(
@@ -222,8 +222,8 @@ class _WelcomeAction extends StatelessWidget {
                           style: TextStyle(
                             fontFamily: 'EatMeSans',
                             color: foreground,
-                            fontSize: (arrow ? 17 : 15) * scale,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 12 * scale,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -253,7 +253,7 @@ class _PrimaryActionPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     canvas.drawRRect(
-      RRect.fromRectAndRadius(Offset.zero & size, Radius.circular(16 * scale)),
+      RRect.fromRectAndRadius(Offset.zero & size, Radius.circular(12 * scale)),
       Paint()..color = background,
     );
     final text = TextPainter(
@@ -262,8 +262,8 @@ class _PrimaryActionPainter extends CustomPainter {
         style: TextStyle(
           fontFamily: 'EatMeSans',
           color: foreground,
-          fontSize: 17 * scale,
-          fontWeight: FontWeight.w700,
+          fontSize: 12 * scale,
+          fontWeight: FontWeight.w600,
         ),
       ),
       textAlign: TextAlign.center,
@@ -281,9 +281,9 @@ class _PrimaryActionPainter extends CustomPainter {
       ..strokeWidth = 1.8
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
-    final arrowSize = 24 * scale;
+    final arrowSize = 18 * scale;
     canvas.save();
-    canvas.translate(size.width - 40 * scale, (size.height - arrowSize) / 2);
+    canvas.translate(size.width - 32 * scale, (size.height - arrowSize) / 2);
     final path = Path()
       ..moveTo(arrowSize * .12, arrowSize * .5)
       ..lineTo(arrowSize * .86, arrowSize * .5)

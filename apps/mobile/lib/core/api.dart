@@ -10,6 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 import 'models.dart';
+import 'biometric_access.dart';
 import 'offline.dart';
 import 'reminders.dart';
 import 'data_export.dart';
@@ -88,6 +89,9 @@ class EatMeApi {
   );
   static const redirect = 'com.filippocinotti.eatme://login-callback';
   static const secure = FlutterSecureStorage();
+  // GoogleSignIn.initialize must run exactly once for the process.
+  static Future<void>? _googleInitialization;
+  static String? _googleRawNonce;
   final Dio dio;
   bool offline = false;
   bool syncing = false;
@@ -373,10 +377,14 @@ class EatMeApi {
           '424607790676-sdcpv2u9papfbrogq4d0skorr8edvfg7.apps.googleusercontent.com';
       const scopes = <String>['email', 'profile'];
       final google = GoogleSignIn.instance;
-      await google.initialize(
+      final auth = Supabase.instance.client.auth;
+      _googleRawNonce ??= auth.generateRawNonce();
+      _googleInitialization ??= google.initialize(
         clientId: iosClientId,
         serverClientId: webClientId,
+        nonce: sha256.convert(utf8.encode(_googleRawNonce!)).toString(),
       );
+      await _googleInitialization;
       final account = await google.authenticate(scopeHint: scopes);
       final idToken = account.authentication.idToken;
       final authorization =
@@ -387,6 +395,7 @@ class EatMeApi {
         provider: OAuthProvider.google,
         idToken: idToken,
         accessToken: authorization.accessToken,
+        nonce: _googleRawNonce,
       );
       return;
     }
@@ -405,16 +414,24 @@ class EatMeApi {
   }
 
   Future<void> logout() async {
+    final account = userId;
     await cache?.clear();
     if (development && token != null) {
       await request('POST', '/auth/logout');
     } else if (!development) {
       await Supabase.instance.client.auth.signOut();
     }
+    if (account != null) {
+      await secure.delete(key: BiometricAccess.preferenceKey(account));
+    }
     await clearSession();
   }
 
   Future<void> clearSession() async {
+    final account = userId;
+    if (account != null) {
+      await secure.delete(key: BiometricAccess.preferenceKey(account));
+    }
     await _queueWrite;
     _cacheEpoch++;
     await Reminders.clear();

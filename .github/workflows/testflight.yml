@@ -243,13 +243,17 @@ jobs:
               plistlib.dump(options, output)
           PY
 
+      - name: Configure manual archive signing with app capabilities
+        run: |
+          python3 scripts/configure_ios_signing.py apps/mobile/ios/Runner.xcodeproj/project.pbxproj
+
       - name: Build signed release IPA
         working-directory: apps/mobile
         env:
           BUILD_NUMBER: ${{ inputs.build_number }}
         run: |
           flutter build ipa --release \
-            --no-codesign \
+            --export-options-plist="$GITHUB_WORKSPACE/build/ExportOptions.plist" \
             --build-name="$MARKETING_VERSION" \
             --build-number="$BUILD_NUMBER" \
             --dart-define="AUTH_MODE=supabase" \
@@ -261,10 +265,6 @@ jobs:
             --dart-define="TERMS_URL=$TERMS_URL" \
             --dart-define="REVENUECAT_IOS_KEY=$REVENUECAT_IOS_KEY" \
             --dart-define="FIREBASE_CRASHLYTICS_ENABLED=true"
-          xcodebuild -exportArchive \
-            -archivePath "$GITHUB_WORKSPACE/apps/mobile/build/ios/archive/Runner.xcarchive" \
-            -exportPath "$GITHUB_WORKSPACE/apps/mobile/build/ios/ipa" \
-            -exportOptionsPlist "$GITHUB_WORKSPACE/build/ExportOptions.plist"
           ipa=$(find build/ios/ipa -maxdepth 1 -name '*.ipa' -print -quit)
           test -n "$ipa"
           destination="build/ios/ipa/EatMe-$MARKETING_VERSION-$BUILD_NUMBER.ipa"
@@ -298,6 +298,7 @@ jobs:
           codesign --verify --deep --strict --verbose=2 "$app"
           codesign -d --entitlements :- "$app" > build/release-evidence/entitlements.plist
           security cms -D -i "$app/embedded.mobileprovision" > build/release-evidence/provisioning.plist
+          python3 scripts/check_ios_auth_entitlements.py build/release-evidence/entitlements.plist build/release-evidence/provisioning.plist --bundle-id "$BUNDLE_ID"
           shasum -a 256 "$EATME_IPA" | tee build/release-evidence/ipa-sha256.txt
 
       - name: Upload signed IPA artifact

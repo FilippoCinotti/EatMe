@@ -48,6 +48,8 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Use Face ID to securely unlock your EatMe+ account on this device.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Scan product barcodes and photograph food you choose to add.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
@@ -94,3 +96,4 @@
 	</array>
 </dict>
 </plist>
+
