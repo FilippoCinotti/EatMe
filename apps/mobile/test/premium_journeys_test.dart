@@ -552,6 +552,11 @@ void main() {
     await tester.tap(unknownSection);
     await tester.pumpAndSettle();
     final strictUnknown = find.byKey(const ValueKey('unknown-strict'));
+    await tester.scrollUntilVisible(
+      strictUnknown,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     tester
         .widget<InkWell>(
           find.descendant(of: strictUnknown, matching: find.byType(InkWell)),
@@ -626,7 +631,7 @@ void main() {
           'diet-health-medical',
         ),
         (
-          const ValueKey('diet-section-therapeutic'),
+          const ValueKey('diet-section-medical'),
           const ValueKey('diet-gluten-free'),
           'diet-health-therapeutic',
         ),
