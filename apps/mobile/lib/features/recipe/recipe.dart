@@ -810,6 +810,15 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                       _RecipeToolAction(
                         label: context.t('build_shopping_list'),
                         icon: Icons.shopping_cart_outlined,
+                        premiumUnlocked:
+                            ref
+                                .watch(entitlementsProvider)
+                                .asData
+                                ?.value
+                                .can(
+                                  EntitlementCapability.generatedShopping,
+                                ) ??
+                            false,
                         action: () async {
                           final entitlement = await ref.read(
                             entitlementsProvider.future,
@@ -960,11 +969,13 @@ class _RecipeToolAction extends StatefulWidget {
     required this.label,
     required this.icon,
     required this.action,
+    this.premiumUnlocked,
   });
 
   final String label;
   final IconData icon;
   final Future<void> Function() action;
+  final bool? premiumUnlocked;
 
   @override
   State<_RecipeToolAction> createState() => _RecipeToolActionState();
@@ -1024,6 +1035,10 @@ class _RecipeToolActionState extends State<_RecipeToolAction> {
                 fontWeight: FontWeight.w700,
               ),
             ),
+            if (widget.premiumUnlocked != null) ...[
+              const SizedBox(width: 7),
+              PremiumBadge(unlocked: widget.premiumUnlocked!),
+            ],
           ],
         ),
       ),

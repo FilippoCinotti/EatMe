@@ -6,24 +6,23 @@ The product is built around four connected areas: **ChefTable** recommends what 
 
 ## Product highlights
 
-- **Personalized recommendations** — recipe suggestions consider tastes, meal context, household inventory and dietary constraints.
+- **Personalized recommendations** — ChefTable adapts recipe suggestions to breakfast, lunch, snack or dinner, alongside tastes, household inventory and dietary constraints.
 - **Smart recipe import** — import from supported public sources, review normalized ingredients, run Diet-Fit checks and approve substitutions before saving.
 - **Fridge, freezer and pantry** — track batches, quantities, locations and dates; add food by barcode, photo, receipt or manual entry.
-- **Weekly planning and shopping** — build a meal plan, generate a category-grouped shopping list and move purchased items into Fridge.
+- **Weekly planning and shopping** — Premium can propose the full week across compatible meal slots, generate a category-grouped shopping list and move purchased items into Fridge.
 - **Dinner and guests** — plan shared meals, collect private guest preferences and adapt servings without exposing health data.
 - **Diet and safety** — model eating styles, allergies, intolerances, sensitivities, ethical or religious preferences and reviewed health protocols. Unknown ingredients fail closed.
 - **Flexible eating** — support flexible meals, personal goals, weekly check-ins and Guilty Pleasure mode without weakening hard safety rules.
-- **EatMe Premium** — unlimited supported imports, advanced mapping and adaptations, advanced weekly planning and shopping generation, plus receipt and photo tools.
+- **EatMe Premium** — clearly marked controls unlock from the server-verified subscription for unlimited supported imports, advanced mapping and adaptations, weekly planning and shopping generation, plus receipt and photo tools.
 
 ## Screenshots
 
-| ChefTable | Fridge |
-| :---: | :---: |
-| <img src="docs/screenshots/mobile/en/light/chef-light.png" width="280" alt="ChefTable personalized recommendation." /> | <img src="docs/screenshots/mobile/en/light/fridge-light.png" width="280" alt="Fridge inventory and storage filters." /> |
-
-| Plan | Profile |
-| :---: | :---: |
-| <img src="docs/screenshots/mobile/en/light/plan-light.png" width="280" alt="Weekly meal plan and Smart Plan controls." /> | <img src="docs/screenshots/mobile/en/light/profile-light.png" width="280" alt="Profile, dietary settings and kitchen tools." /> |
+| Area | Light | Dark |
+| --- | :---: | :---: |
+| ChefTable | <img src="docs/screenshots/mobile/en/light/chef-light.png" width="220" alt="ChefTable in the light theme." /> | <img src="docs/screenshots/mobile/en/dark/chef-dark.png" width="220" alt="ChefTable in the dark theme." /> |
+| Fridge | <img src="docs/screenshots/mobile/en/light/fridge-light.png" width="220" alt="Fridge in the light theme." /> | <img src="docs/screenshots/mobile/en/dark/fridge-dark.png" width="220" alt="Fridge in the dark theme." /> |
+| Plan | <img src="docs/screenshots/mobile/en/light/plan-light.png" width="220" alt="Weekly plan in the light theme." /> | <img src="docs/screenshots/mobile/en/dark/plan-dark.png" width="220" alt="Weekly plan in the dark theme." /> |
+| Profile | <img src="docs/screenshots/mobile/en/light/profile-light.png" width="220" alt="Profile in the light theme." /> | <img src="docs/screenshots/mobile/en/dark/profile-dark.png" width="220" alt="Profile in the dark theme." /> |
 
 The committed screenshots are real Flutter widget-test renders with isolated fixture data. See the [complete gallery](docs/screenshots/README.md) for light and dark themes, onboarding, recipe import, Diet-Fit, shopping, household and accessibility states.
 
@@ -146,6 +145,7 @@ Store submission still requires a selected build, final screenshots, App Review 
 - [Diet and Health safety](docs/product/diet-and-health.md)
 - [Dinner and guest RSVP](docs/product/dinner-and-guest-rsvp.md)
 - [Visual design](docs/product/visual-design.md)
+- [Authentication email templates](docs/development/auth-email-templates.md)
 
 ## License
 

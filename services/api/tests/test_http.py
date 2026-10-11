@@ -71,6 +71,17 @@ class HttpTests(unittest.TestCase):
         self.assertEqual(self.request('POST','/auth/logout')[0],200)
         self.assertEqual(self.request('GET','/inventory')[0],401)
 
+    def test_recommendations_respect_current_meal_slot(self):
+        status,session=self.request('POST','/auth/register',{'email':'slot@example.invalid','password':'test-password-long'})
+        self.assertEqual(status,200)
+        self.token=session['access_token']
+        self.assertEqual(self.request('PUT','/profile',{'name':'Alex','adult_confirmed':True})[0],200)
+        status,recs=self.request('GET','/recommendations?mode=for_you&slot=lunch')
+        self.assertEqual(status,200)
+        self.assertTrue(recs['items'])
+        self.assertTrue(all('lunch' in item['recipe']['meal_types'] for item in recs['items']))
+        self.assertEqual(self.request('GET','/recommendations?mode=for_you&slot=brunch')[0],422)
+
     def test_unknown_and_unauthenticated_requests(self):
         self.assertEqual(self.request('GET','/health')[0],200)
         self.assertEqual(self.request('GET','/inventory')[0],401)

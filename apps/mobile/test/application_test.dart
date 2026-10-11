@@ -300,6 +300,12 @@ void main() {
       'for_you',
     );
   });
+  test('ChefTable meal context follows the current time of day', () {
+    expect(mealSlotAt(DateTime(2026, 9, 19, 9, 59)), 'breakfast');
+    expect(mealSlotAt(DateTime(2026, 9, 19, 10)), 'lunch');
+    expect(mealSlotAt(DateTime(2026, 9, 19, 15)), 'snack');
+    expect(mealSlotAt(DateTime(2026, 9, 19, 18)), 'dinner');
+  });
   for (final language in ['en', 'it', 'es', 'fr', 'de', 'zh-Hans']) {
     testWidgets('Guilty Pleasure safety copy renders in $language', (
       tester,

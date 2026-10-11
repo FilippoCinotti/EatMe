@@ -171,7 +171,12 @@ class Router:
         if match and method=="PATCH":
             return self.service.change_inventory(user_id,match[1],body,operation_key)
         if route=="/api/v1/recommendations" and method=="GET":
-            return self.service.recommendations(user_id,query.get("mode",["for_you"])[0],query.get("food_id",[None])[0])
+            return self.service.recommendations(
+                user_id,
+                query.get("mode",["for_you"])[0],
+                query.get("food_id",[None])[0],
+                query.get("slot",[None])[0],
+            )
         match = re.fullmatch(r"/api/v1/recipes/([a-f0-9-]{36})",route)
         if match and method=="GET":
             return self.service.recipe(user_id,match[1])

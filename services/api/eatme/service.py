@@ -20,6 +20,7 @@ from .engine import active_rules, amount_milli, batch_usable, compatibility, qua
 from .errors import DomainError
 from .shelf_life import estimate_expiry, shelf_life_days
 from .storage import Database, Transaction, decode, encode
+from .validation import choice
 
 HEALTH_CONSENT = "nutrition-profile-1"
 MEDICAL_CONSENT = "medical-nutrition-1"
@@ -452,7 +453,7 @@ class Service(
         rules,rule_versions = active_rules(profile["settings"]["diets"],versions,today)
         return profile,foods,recipes,rules,rule_versions,today
 
-    def recommendations(self,user_id,mode="for_you",food_id=None):
+    def recommendations(self,user_id,mode="for_you",food_id=None,slot=None):
         household_id = self._household(user_id)
         with self.db.transaction() as tx:
             profile,foods,recipes,rules,versions,today = self._context(tx,user_id)
@@ -475,6 +476,13 @@ class Service(
                     batch["canonical_food_id"] = canonical_food_id
             if food_id:
                 recipes = [r for r in recipes if food_id in {i["food_id"] for i in r["ingredients"]}]
+            if slot:
+                slot = choice(slot, {"breakfast", "lunch", "snack", "dinner"})
+                meal_types = {"snack", "merenda"} if slot == "snack" else {slot}
+                recipes = [
+                    recipe for recipe in recipes
+                    if meal_types & set(recipe.get("meal_types", []))
+                ]
             prefs_row = tx.one("SELECT data FROM user_preferences WHERE user_id=?",(user_id,))
             preferences = decode(prefs_row["data"]) if prefs_row else {}
             relax_soft = mode == "guilty_pleasure"
