@@ -7,6 +7,7 @@ import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
 import 'shared.dart';
+import 'shopping_estimate.dart';
 import '../../core/share_text.dart';
 
 class ShoppingPage extends ConsumerStatefulWidget {
@@ -151,12 +152,78 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
   @override
   Widget build(BuildContext context) => RecipeEditorial(builder: _build);
 
+  Food? itemFood(Json item) => ref
+      .read(appProvider)
+      .foods
+      .where((food) => food.id == item['food_id'])
+      .firstOrNull;
+
+  String categoryOf(Json item) {
+    final category = '${item['category'] ?? itemFood(item)?.group ?? 'other'}';
+    final strings = Localizations.of<EatMeStrings>(context, EatMeStrings)!;
+    return strings.values.containsKey('food_group_$category')
+        ? category
+        : 'other';
+  }
+
+  ShoppingEstimate? estimate(Json item) => ShoppingEstimate.forQuantity(
+    itemFood(item)?.group ?? '${item['category'] ?? 'other'}',
+    '${item['unit']}',
+    item['quantity'],
+  );
+
+  String money(int cents) {
+    final separator = const {'en', 'zh'}.contains(context.language) ? '.' : ',';
+    return '€ ${(cents ~/ 100)}$separator${(cents % 100).toString().padLeft(2, '0')}';
+  }
+
+  String exportList(List<Json> items) {
+    final categories = items.map(categoryOf).toSet().toList()..sort();
+    final known = items.map(estimate).whereType<ShoppingEstimate>().toList();
+    final total = known.fold<int>(0, (sum, price) => sum + price.cents);
+    final lines = <String>[];
+    for (final category in categories) {
+      lines.add(context.t('food_group_$category'));
+      for (final item in items.where((i) => categoryOf(i) == category)) {
+        final price = estimate(item);
+        final label = price == null
+            ? context.t('shopping_price_unavailable')
+            : context.t('shopping_line_estimate', {
+                'price': money(price.cents),
+              });
+        lines.add(
+          "${item['checked'] == true ? '✓' : '☐'} ${itemLabel(item)} — ${item['quantity']} ${item['unit']} · $label",
+        );
+      }
+      lines.add('');
+    }
+    final totalLabel = context.t(
+      known.length == items.length
+          ? 'shopping_total_estimated'
+          : 'shopping_total_partial',
+    );
+    lines.add('$totalLabel: ${known.isEmpty ? '—' : money(total)}');
+    if (known.length < items.length) {
+      lines.add(
+        context.t('shopping_unpriced_count', {
+          'count': items.length - known.length,
+        }),
+      );
+    }
+    lines.add(context.t('shopping_estimate_basis'));
+    return lines.join('\n');
+  }
+
   Widget _build(BuildContext context) {
+    ref.watch(appProvider);
     final items = records(data?['items']);
-    final categories =
-        items.map((i) => i['category'] as String? ?? 'other').toSet().toList()
-          ..sort();
+    final categories = items.map(categoryOf).toSet().toList()..sort();
     final checked = items.where((i) => i['checked'] == true).length;
+    final estimates = items.map(estimate).toList();
+    final known = estimates.whereType<ShoppingEstimate>().toList();
+    final total = known.fold<int>(0, (sum, price) => sum + price.cents);
+    final scheme = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
     return Scaffold(
       appBar: EatMeAppBar(
         title: Text(context.t('shopping_list')),
@@ -169,12 +236,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                 : () => shareText(
                     context,
                     context.t('shopping_list'),
-                    categories
-                        .map(
-                          (category) =>
-                              '${context.t('food_group_$category')}\n${items.where((i) => (i['category'] ?? 'other') == category).map((i) => "${i['checked'] == true ? '✓' : '☐'} ${itemLabel(i)} — ${i['quantity']} ${i['unit']}").join('\n')}',
-                        )
-                        .join('\n\n'),
+                    exportList(items),
                   ),
           ),
         ],
@@ -192,35 +254,71 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
             if (value == 'dinners') context.go('/plan/dinners');
           },
         ),
-        const SizedBox(height: 14),
-        const KitchenLoopBanner(),
-        const SizedBox(height: 24),
-        Text(
-          context.t('shopping_intro'),
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 16),
-        Text(
-          context.t('shopping_progress', {
-            'done': checked,
-            'total': items.length,
-          }),
-        ),
-        const SizedBox(height: 10),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: LinearProgressIndicator(
-            value: items.isEmpty ? 0 : checked / items.length,
-            minHeight: 5,
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        const SizedBox(height: 20),
+        InformationPanel(
+          tinted: false,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(context.t('shopping_intro'), style: text.titleMedium),
+              const SizedBox(height: 16),
+              Text(
+                context.t(
+                  known.length == items.length
+                      ? 'shopping_total_estimated'
+                      : 'shopping_total_partial',
+                ),
+                style: text.bodySmall,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                known.isEmpty ? '—' : money(total),
+                key: const ValueKey('shopping-total'),
+                style: text.headlineSmall?.copyWith(
+                  fontFamily: 'EatMeDisplay',
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                context.t('shopping_estimate_basis'),
+                style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+              ),
+              if (known.length < items.length) ...[
+                const SizedBox(height: 6),
+                Text(
+                  context.t('shopping_unpriced_count', {
+                    'count': items.length - known.length,
+                  }),
+                  style: text.bodySmall,
+                ),
+              ],
+              const SizedBox(height: 16),
+              Text(
+                context.t('shopping_progress', {
+                  'done': checked,
+                  'total': items.length,
+                }),
+                style: text.bodySmall,
+              ),
+              const SizedBox(height: 8),
+              LinearProgressIndicator(
+                value: items.isEmpty ? 0 : checked / items.length,
+                minHeight: 4,
+                borderRadius: BorderRadius.circular(4),
+                backgroundColor: scheme.surfaceContainerHighest,
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 20),
-        AsyncAction(label: context.t('add_food'), action: add),
+        const SizedBox(height: 12),
+        AsyncAction(label: context.t('add_food'), icon: Icons.add, action: add),
         if (items.any(
           (item) => item['checked'] == true && item['food_id'] != null,
         )) ...[
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           AsyncAction(
             key: const ValueKey('did-the-shopping'),
             label: context.t('did_the_shopping'),
@@ -240,44 +338,200 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
             body: context.t('shopping_empty_body'),
           ),
         for (final category in categories) ...[
-          SectionHeading(title: context.t('food_group_$category')),
+          const SizedBox(height: 24),
+          Text(context.t('food_group_$category'), style: text.titleSmall),
+          const SizedBox(height: 4),
           Text(
             context.t('shopping_progress', {
               'done': items
                   .where(
-                    (i) =>
-                        (i['category'] ?? 'other') == category &&
-                        i['checked'] == true,
+                    (i) => categoryOf(i) == category && i['checked'] == true,
                   )
                   .length,
-              'total': items
-                  .where((i) => (i['category'] ?? 'other') == category)
-                  .length,
+              'total': items.where((i) => categoryOf(i) == category).length,
             }),
+            style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
           ),
-          for (final item in items.where(
-            (i) => (i['category'] ?? 'other') == category,
-          ))
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: InformationPanel(
-                tinted: false,
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  children: [
-                    CheckboxListTile(
-                      contentPadding: EdgeInsets.zero,
-                      secondary: FoodImage(
-                        id: '${item['food_id'] ?? ''}',
-                        width: 48,
-                        height: 48,
-                        radius: 12,
-                        fallback: Icons.shopping_bag_outlined,
+          const SizedBox(height: 10),
+          _itemGrid(
+            context,
+            items.where((i) => categoryOf(i) == category).toList(),
+          ),
+        ],
+      ]),
+    );
+  }
+
+  Widget _itemGrid(BuildContext context, List<Json> items) => LayoutBuilder(
+    builder: (context, constraints) {
+      final scaledBody = MediaQuery.textScalerOf(context).scale(13);
+      final columns = scaledBody > 20
+          ? 1
+          : constraints.maxWidth >= 300 && scaledBody <= 18
+          ? 3
+          : 2;
+      const gap = 8.0;
+      final extent = (constraints.maxWidth - gap * (columns - 1)) / columns;
+      return Wrap(
+        spacing: gap,
+        runSpacing: gap,
+        children: [
+          for (final item in items)
+            SizedBox(
+              key: ValueKey('shopping-item-${item['id']}'),
+              width: extent,
+              height: extent,
+              child: _itemCard(context, item),
+            ),
+        ],
+      );
+    },
+  );
+
+  Widget _itemCard(BuildContext context, Json item) {
+    final food = itemFood(item);
+    final price = estimate(item);
+    final text = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    return InformationPanel(
+      tinted: false,
+      padding: EdgeInsets.zero,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Column(
+            children: [
+              Expanded(
+                flex: 4,
+                child: FoodImage(
+                  id: '${item['food_id'] ?? ''}',
+                  photoId: food?.photoId,
+                  imageUrl: food?.imageUrl,
+                  width: double.infinity,
+                  height: 72,
+                  radius: 0,
+                  fallback: Icons.shopping_bag_outlined,
+                ),
+              ),
+              Expanded(
+                flex: 6,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 4, 10, 6),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        itemLabel(item),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          decoration: item['checked'] == true
+                              ? TextDecoration.lineThrough
+                              : null,
+                        ),
                       ),
-                      value: item['checked'] == true,
-                      title: Text(itemLabel(item)),
-                      subtitle: Text('${item['quantity']} ${item['unit']}'),
-                      onChanged: (value) async {
+                      const SizedBox(height: 2),
+                      Text(
+                        '${item['quantity']} ${item['unit']}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.bodySmall?.copyWith(
+                          fontSize: 11,
+                          color: scheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        price == null
+                            ? context.t('shopping_price_unavailable')
+                            : context.t('shopping_line_estimate', {
+                                'price': money(price.cents),
+                              }),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.bodySmall?.copyWith(
+                          fontSize: 11,
+                          color: price == null
+                              ? scheme.onSurfaceVariant
+                              : scheme.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          PositionedDirectional(
+            top: 2,
+            start: 2,
+            child: PopupMenuButton<String>(
+              tooltip: context.t('more'),
+              icon: const Icon(Icons.more_horiz),
+              enabled: !updating,
+              onSelected: (action) async {
+                try {
+                  if (action == 'edit') {
+                    final amount = await askText(
+                      context,
+                      context.t('quantity'),
+                      initial: '${item['quantity']}',
+                      numeric: true,
+                    );
+                    if (amount != null) {
+                      await command({
+                        'action': 'edit',
+                        'id': item['id'],
+                        'expected_version': item['version'],
+                        'quantity': amount,
+                      });
+                    }
+                  }
+                  if (action == 'delete') {
+                    await command({
+                      'action': 'delete',
+                      'id': item['id'],
+                      'expected_version': item['version'],
+                    });
+                  }
+                  if (action == 'purchase') await purchase(item);
+                } catch (_) {
+                  if (mounted && context.mounted) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(context.t('retry'))));
+                  }
+                }
+              },
+              itemBuilder: (context) => [
+                if (item['checked'] == true)
+                  PopupMenuItem(
+                    value: 'purchase',
+                    child: Text(context.t('put_in_fridge')),
+                  ),
+                PopupMenuItem(value: 'edit', child: Text(context.t('edit'))),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Text(context.t('delete')),
+                ),
+              ],
+            ),
+          ),
+          PositionedDirectional(
+            top: 2,
+            end: 2,
+            child: SizedBox(
+              width: 44,
+              height: 44,
+              child: Checkbox(
+                semanticLabel: itemLabel(item),
+                value: item['checked'] == true,
+                onChanged: updating
+                    ? null
+                    : (value) async {
                         try {
                           await command({
                             'action': 'check',
@@ -293,54 +547,11 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                           }
                         }
                       },
-                    ),
-                    Wrap(
-                      spacing: 8,
-                      children: [
-                        if (item['checked'] == true)
-                          AsyncAction(
-                            label: context.t('put_in_fridge'),
-                            action: () => purchase(item),
-                          ),
-                        AsyncAction(
-                          label: context.t('edit'),
-                          secondary: true,
-                          action: () async {
-                            final amount = await askText(
-                              context,
-                              context.t('quantity'),
-                              initial: item['quantity'] as String,
-                              numeric: true,
-                            );
-                            if (amount != null) {
-                              await command({
-                                'action': 'edit',
-                                'id': item['id'],
-                                'expected_version': item['version'],
-                                'quantity': amount,
-                              });
-                            }
-                          },
-                        ),
-                        AsyncAction(
-                          label: context.t('delete'),
-                          secondary: true,
-                          action: () async {
-                            await command({
-                              'action': 'delete',
-                              'id': item['id'],
-                              'expected_version': item['version'],
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
               ),
             ),
+          ),
         ],
-      ]),
+      ),
     );
   }
 }

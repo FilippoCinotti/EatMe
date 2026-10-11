@@ -362,9 +362,24 @@ void main() {
     expect(find.text('Tomatoes'), findsOneWidget);
     await tester.tap(find.byType(Checkbox));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Purchased · add to fridge'));
+    final itemMenu = find.byTooltip('More');
+    await tester.ensureVisible(itemMenu);
+    await tester.pumpAndSettle();
+    await tester.tap(itemMenu);
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Purchased · add to fridge'));
     await tester.pumpAndSettle();
+    expect(
+      api.calls.where((c) => c['body']?['action'] == 'purchase').length,
+      1,
+      reason: 'The visible purchase action must submit exactly once',
+    );
+    expect(api.item, isEmpty);
+    await tester.scrollUntilVisible(
+      find.text('Everything is in order'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('Everything is in order'), findsOneWidget);
     expect(
       api.calls.where((c) => c['body']?['action'] == 'purchase').length,

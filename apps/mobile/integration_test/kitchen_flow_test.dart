@@ -78,8 +78,16 @@ void main() {
     await tester.pumpAndSettle();
     await waitFor(tester, find.byType(Checkbox));
     await tester.tap(find.byType(Checkbox));
+    final checkedDeadline = DateTime.now().add(const Duration(seconds: 30));
+    while (DateTime.now().isBefore(checkedDeadline)) {
+      await tester.pump(const Duration(milliseconds: 100));
+      if (tester.widget<Checkbox>(find.byType(Checkbox)).value == true) break;
+    }
+    expect(tester.widget<Checkbox>(find.byType(Checkbox)).value, isTrue);
+    await waitFor(tester, find.byTooltip('More'));
+    await tester.ensureVisible(find.byTooltip('More'));
+    await tester.tap(find.byTooltip('More'));
     await waitFor(tester, find.text('Purchased · add to fridge'));
-    await tester.ensureVisible(find.text('Purchased · add to fridge'));
     await tester.tap(find.text('Purchased · add to fridge'));
     await waitFor(tester, find.text('Everything is in order'));
     await tester.pumpAndSettle();

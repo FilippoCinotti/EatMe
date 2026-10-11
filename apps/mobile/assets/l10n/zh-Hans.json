@@ -1169,5 +1169,17 @@
   "biometric_normal_login": "使用其他方式登录",
   "biometric_failed": "无法解锁。请重试或使用其他方式登录。",
   "subscriptions_unavailable": "此设备目前无法使用订阅。",
-  "subscription_products_unavailable": "商店暂时未提供订阅方案，请稍后重试。"
+  "subscription_products_unavailable": "商店暂时未提供订阅方案，请稍后重试。",
+  "food_group_condiment": "酱汁和调味品",
+  "food_group_spice": "香料",
+  "food_group_sweetener": "甜味剂",
+  "food_group_beverage": "饮料",
+  "shopping_total_estimated": "预计总额",
+  "shopping_total_partial": "预计部分总额",
+  "shopping_estimate_basis": "按类别和数量计算的通用欧元估算，并非商店价格。整包购买可能更贵。",
+  "shopping_unpriced_count": "总额不含 {count} 种无价格食材。",
+  "shopping_price_unavailable": "暂无估算",
+  "shopping_line_estimate": "约 {price}",
+  "shopping_unit_reference": "参考价：{price} / {unit}",
+  "shopping_each": "个"
 }

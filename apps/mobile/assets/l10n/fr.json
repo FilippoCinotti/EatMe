@@ -1169,5 +1169,17 @@
   "biometric_normal_login": "Se connecter autrement",
   "biometric_failed": "Déverrouillage indisponible. Réessayez ou connectez-vous autrement.",
   "subscriptions_unavailable": "Les abonnements sont actuellement indisponibles sur cet appareil.",
-  "subscription_products_unavailable": "Les offres d’abonnement sont indisponibles dans la boutique. Réessayez plus tard."
+  "subscription_products_unavailable": "Les offres d’abonnement sont indisponibles dans la boutique. Réessayez plus tard.",
+  "food_group_condiment": "Sauces et condiments",
+  "food_group_spice": "Épices",
+  "food_group_sweetener": "Édulcorants",
+  "food_group_beverage": "Boissons",
+  "shopping_total_estimated": "Total estimé",
+  "shopping_total_partial": "Total partiel estimé",
+  "shopping_estimate_basis": "Estimations génériques en euros par catégorie et quantité, pas des prix en magasin. Les emballages peuvent coûter plus cher.",
+  "shopping_unpriced_count": "{count} aliments sans prix exclus du total.",
+  "shopping_price_unavailable": "Estimation indisponible",
+  "shopping_line_estimate": "≈ {price} estimés",
+  "shopping_unit_reference": "Référence : {price} / {unit}",
+  "shopping_each": "pièce"
 }

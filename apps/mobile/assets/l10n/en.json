@@ -1169,5 +1169,17 @@
   "biometric_normal_login": "Use another login method",
   "biometric_failed": "Unable to unlock. Try again or use another login method.",
   "subscriptions_unavailable": "Subscriptions are currently unavailable on this device.",
-  "subscription_products_unavailable": "Subscription plans are unavailable in the store. Please try again later."
+  "subscription_products_unavailable": "Subscription plans are unavailable in the store. Please try again later.",
+  "food_group_condiment": "Sauces and condiments",
+  "food_group_spice": "Spices",
+  "food_group_sweetener": "Sweeteners",
+  "food_group_beverage": "Drinks",
+  "shopping_total_estimated": "Estimated grand total",
+  "shopping_total_partial": "Estimated partial total",
+  "shopping_estimate_basis": "Generic euro estimates by category and quantity, not shop prices. Retail packs may cost more.",
+  "shopping_unpriced_count": "{count} items without a price are excluded.",
+  "shopping_price_unavailable": "Estimate unavailable",
+  "shopping_line_estimate": "≈ {price} estimated",
+  "shopping_unit_reference": "Reference: {price} / {unit}",
+  "shopping_each": "each"
 }
