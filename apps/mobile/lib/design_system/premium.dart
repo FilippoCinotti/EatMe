@@ -1265,10 +1265,7 @@ class EatMeActionTile extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  if (badge != null) ...[
-                    const SizedBox(height: 6),
-                    badge!,
-                  ],
+                  if (badge != null) ...[const SizedBox(height: 6), badge!],
                 ],
               ),
             ),

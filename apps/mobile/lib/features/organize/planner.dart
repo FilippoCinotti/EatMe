@@ -429,7 +429,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
                       ? EatMeGlyph.sparkles
                       : EatMeGlyph.badgeCheck,
                   label: context.t('generate_week'),
-                  badge: PremiumBadge(unlocked: canSmartPlan),
+                  badge: PremiumBadge(unlocked: canSmartPlan, compact: true),
                   emphasized: true,
                   onTap: () => generatePlan(canSmartPlan),
                 ),

@@ -681,7 +681,7 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
                         ? EatMeGlyph.shoppingBasket
                         : EatMeGlyph.badgeCheck,
                     label: context.t('dinner_shopping_short'),
-                    badge: PremiumBadge(unlocked: canShop),
+                    badge: PremiumBadge(unlocked: canShop, compact: true),
                     emphasized: true,
                     onTap: menu.isEmpty
                         ? null

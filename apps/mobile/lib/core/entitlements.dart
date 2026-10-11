@@ -63,9 +63,10 @@ final entitlementsProvider = FutureProvider<EntitlementSnapshot>((ref) async {
 });
 
 class PremiumBadge extends StatelessWidget {
-  const PremiumBadge({super.key, required this.unlocked});
+  const PremiumBadge({super.key, required this.unlocked, this.compact = false});
 
   final bool unlocked;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -89,14 +90,16 @@ class PremiumBadge extends StatelessWidget {
               size: 12,
               color: unlocked ? scheme.primary : scheme.onSurfaceVariant,
             ),
-            const SizedBox(width: 4),
-            Text(
-              context.t('premium_badge'),
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: unlocked ? scheme.primary : scheme.onSurfaceVariant,
-                fontWeight: FontWeight.w700,
+            if (!compact) ...[
+              const SizedBox(width: 4),
+              Text(
+                context.t('premium_badge'),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: unlocked ? scheme.primary : scheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),

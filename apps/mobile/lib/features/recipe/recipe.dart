@@ -815,9 +815,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                 .watch(entitlementsProvider)
                                 .asData
                                 ?.value
-                                .can(
-                                  EntitlementCapability.generatedShopping,
-                                ) ??
+                                .can(EntitlementCapability.generatedShopping) ??
                             false,
                         action: () async {
                           final entitlement = await ref.read(
