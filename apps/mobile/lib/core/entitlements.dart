@@ -62,6 +62,51 @@ final entitlementsProvider = FutureProvider<EntitlementSnapshot>((ref) async {
   return EntitlementSnapshot.fromJson(value);
 });
 
+class PremiumBadge extends StatelessWidget {
+  const PremiumBadge({super.key, required this.unlocked, this.compact = false});
+
+  final bool unlocked;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      label: context.t(unlocked ? 'premium_unlocked' : 'premium_locked'),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+        decoration: BoxDecoration(
+          color: unlocked ? scheme.primaryContainer : scheme.surface,
+          border: Border.all(
+            color: unlocked ? scheme.primary : scheme.outlineVariant,
+          ),
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              unlocked ? Icons.verified_outlined : Icons.lock_outline,
+              size: 12,
+              color: unlocked ? scheme.primary : scheme.onSurfaceVariant,
+            ),
+            if (!compact) ...[
+              const SizedBox(width: 4),
+              Text(
+                context.t('premium_badge'),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: unlocked ? scheme.primary : scheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 Future<Json> refreshEntitlements(WidgetRef ref) async {
   final api = ref.read(apiProvider);
   final user = api.userId;

@@ -220,7 +220,7 @@ class AppController extends Notifier<AppState> {
       );
       final recommendations = await api.request(
         'GET',
-        '/recommendations?mode=$chosenMode',
+        '/recommendations?mode=$chosenMode&slot=${mealSlotAt(DateTime.now())}',
       );
       state = state.copy(
         recommendations: (recommendations['items'] as List)

@@ -1,0 +1,7 @@
+[auth.email.template.confirmation]
+subject = "Conferma il tuo account EatMe+"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "Reimposta la password EatMe+"
+content_path = "./supabase/templates/recovery.html"

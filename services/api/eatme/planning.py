@@ -8,6 +8,49 @@ from .storage import decode, encode
 from .validation import choice, integer, new_id, text, valid_date, valid_uuid
 
 
+PLAN_SLOTS = ("breakfast", "lunch", "snack", "dinner")
+RECIPE_MEAL_TYPES = {
+    "breakfast": {"breakfast"},
+    "lunch": {"lunch"},
+    "snack": {"snack", "merenda"},
+    "dinner": {"dinner"},
+}
+
+
+def weekly_meals(ranked, start, servings, participants, enabled_slots):
+    """Build a week using only recipes classified for each enabled meal slot.
+
+    Some catalogs may not cover every slot. Those slots are deliberately left
+    empty instead of assigning a semantically wrong recipe.
+    """
+    pools = {
+        slot: [
+            item["recipe"]
+            for item in ranked
+            if RECIPE_MEAL_TYPES[slot] & set(item["recipe"].get("meal_types", []))
+        ]
+        for slot in enabled_slots
+    }
+    counters = {slot: 0 for slot in enabled_slots}
+    meals = []
+    week = date.fromisoformat(start)
+    for day_offset in range(7):
+        for slot in enabled_slots:
+            pool = pools[slot]
+            if not pool:
+                continue
+            recipe = pool[counters[slot] % len(pool)]
+            counters[slot] += 1
+            meals.append({
+                "date": (week + timedelta(days=day_offset)).isoformat(),
+                "slot": slot,
+                "recipe_id": recipe["id"],
+                "servings": servings,
+                "participants": participants,
+            })
+    return meals
+
+
 def preference_mode(overrides, day, slot):
     """Resolve a temporary ranking context without changing a profile."""
     for override in overrides or []:
@@ -243,7 +286,16 @@ class PlanningService:
                                      staples=self._staples(tx, home))
                     if not ranked:
                         raise DomainError("no_compatible_recipes", 409)
-                    meals = [{"date": (date.fromisoformat(start) + timedelta(days=i)).isoformat(), "slot": "dinner", "recipe_id": ranked[i % len(ranked)]["recipe"]["id"], "servings": servings, "participants": participants} for i in range(7)]
+                    timing = profile["settings"].get("meal_timing", {})
+                    configured = timing.get("slots", {}) if isinstance(timing, dict) else {}
+                    enabled_slots = [
+                        slot for slot in PLAN_SLOTS if configured.get(slot, True) is True
+                    ]
+                    meals = weekly_meals(
+                        ranked, start, servings, participants, enabled_slots
+                    )
+                    if not meals:
+                        raise DomainError("no_compatible_recipes", 409)
                 if not isinstance(meals, list) or len(meals) > 28:
                     raise DomainError("invalid_meals", 422)
                 slots = set()

@@ -1215,12 +1215,14 @@ class EatMeActionTile extends StatelessWidget {
     required this.label,
     required this.onTap,
     this.emphasized = false,
+    this.badge,
   });
 
   final EatMeGlyph icon;
   final String label;
   final VoidCallback? onTap;
   final bool emphasized;
+  final Widget? badge;
 
   @override
   Widget build(BuildContext context) {
@@ -1263,6 +1265,7 @@ class EatMeActionTile extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                  if (badge != null) ...[const SizedBox(height: 6), badge!],
                 ],
               ),
             ),

@@ -38,19 +38,19 @@ def seed_catalog(db: Database):
         ("milk", "Latte", "Milk", "dairy", ["milk"], ["lactose"], "ml"),
     ]
     recipes = [
-        ("sunny-bowl", "Bowl di ceci e pomodori", "Chickpea & tomato bowl", 15,
+        ("sunny-bowl", "Bowl di ceci e pomodori", "Chickpea & tomato bowl", 15, ["lunch", "dinner"],
          [("chickpea", 300), ("tomato", 200), ("olive-oil", 20)],
          ["Sciacqua e scola i ceci già cotti.", "Taglia i pomodori e uniscili ai ceci.", "Condisci con l’olio, mescola e servi."],
          ["Rinse and drain the cooked chickpeas.", "Chop the tomatoes and combine with the chickpeas.", "Dress with olive oil, toss and serve."]),
-        ("green-pasta", "Pasta verde alle zucchine", "Zucchini & spinach pasta", 25,
+        ("green-pasta", "Pasta verde alle zucchine", "Zucchini & spinach pasta", 25, ["lunch", "dinner"],
          [("pasta", 160), ("zucchini", 250), ("spinach", 100), ("olive-oil", 20)],
          ["Porta a bollore l’acqua e cuoci la pasta seguendo la confezione.", "Affetta le zucchine e cuocile in padella con l’olio finché tenere.", "Unisci gli spinaci e lasciali appassire.", "Scola la pasta, mescola con le verdure e servi."],
          ["Bring water to a boil and cook the pasta following the package instructions.", "Slice the zucchini and sauté in olive oil until tender.", "Add the spinach and cook until wilted.", "Drain the pasta, combine with the vegetables and serve."]),
-        ("tomato-feta", "Pomodori, ceci e feta", "Tomato, chickpea & feta salad", 10,
+        ("tomato-feta", "Pomodori, ceci e feta", "Tomato, chickpea & feta salad", 10, ["lunch", "dinner"],
          [("tomato", 300), ("chickpea", 200), ("feta", 100), ("olive-oil", 15)],
          ["Lava e taglia i pomodori.", "Scola i ceci già cotti e taglia la feta.", "Unisci gli ingredienti, condisci con l’olio e servi."],
          ["Wash and chop the tomatoes.", "Drain the cooked chickpeas and crumble the feta.", "Combine the ingredients, dress with olive oil and serve."]),
-        ("spinach-rice", "Riso con spinaci e ceci", "Spinach & chickpea rice", 30,
+        ("spinach-rice", "Riso con spinaci e ceci", "Spinach & chickpea rice", 30, ["lunch", "dinner"],
          [("rice", 160), ("spinach", 200), ("chickpea", 200), ("olive-oil", 20)],
          ["Cuoci il riso seguendo le istruzioni sulla confezione.", "Cuoci gli spinaci con l’olio, poi aggiungi i ceci già cotti.", "Unisci il riso alle verdure e servi appena pronto."],
          ["Cook the rice following the package instructions.", "Cook the spinach in olive oil, then add the cooked chickpeas.", "Combine the rice with the vegetables and serve immediately."]),
@@ -110,9 +110,10 @@ def seed_catalog(db: Database):
                         allergens=allergens, may_contain=[], intolerances=intolerances, unit=unit,
                         ingredient_status="known", nutrition=None, provenance="demo", is_demo=True)
             tx.execute("INSERT INTO foods(id,data) VALUES (?,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data", (data["id"], encode(data)))
-        for slug, it, en, minutes, ingredients, steps_it, steps_en in recipes:
+        for slug, it, en, minutes, meal_types, ingredients, steps_it, steps_en in recipes:
             data = dict(id=identifier("recipe",slug), slug=slug, title={"it":it,"en":en}, minutes=minutes,
-                        servings=2, cuisine="mediterranean", is_demo=True, provenance="eatme-original-demo",
+                        servings=2, cuisine="mediterranean", meal_types=meal_types,
+                        is_demo=True, provenance="eatme-original-demo",
                         ingredients=[{"food_id":identifier("food",f),"quantity":str(q)} for f,q in ingredients],
                         steps={"it":steps_it,"en":steps_en}, nutrition=None)
             tx.execute("INSERT INTO recipes(id,data) VALUES (?,?) ON CONFLICT(id) DO UPDATE SET data=excluded.data", (data["id"], encode(data)))

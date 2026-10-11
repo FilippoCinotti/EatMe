@@ -4,6 +4,7 @@ from datetime import date
 
 from eatme.catalog import identifier, seed_catalog
 from eatme.errors import DomainError
+from eatme.planning import weekly_meals
 from eatme.service import HEALTH_CONSENT, Service, new_id
 from eatme.storage import Database, encode
 
@@ -122,9 +123,30 @@ class DomainCase(unittest.TestCase):
         )
         self.enable_plus()
         plan = self.app.plan_action(self.owner, {'action': 'generate', 'start_date': '2026-09-11'}, new_id())
-        self.assertEqual(len(plan['data']['meals']), 7)
+        # The development catalog contains classified lunch and dinner recipes;
+        # uncovered breakfast/snack slots stay empty rather than receiving a
+        # semantically wrong dish.
+        self.assertEqual(len(plan['data']['meals']), 14)
+        self.assertEqual({m['slot'] for m in plan['data']['meals']}, {'lunch', 'dinner'})
         self.assertGreater(len({m['recipe_id'] for m in plan['data']['meals']}), 1)
         self.assertCode('plan_not_found', lambda: self.app.plan_action(self.guest, {'action': 'delete', 'id': plan['id']}, new_id()))
+
+    def test_weekly_generation_matches_recipes_to_every_supported_slot(self):
+        ranked = [
+            {'recipe': {'id': 'breakfast', 'meal_types': ['breakfast']}},
+            {'recipe': {'id': 'lunch', 'meal_types': ['lunch']}},
+            {'recipe': {'id': 'snack', 'meal_types': ['merenda']}},
+            {'recipe': {'id': 'dinner', 'meal_types': ['dinner']}},
+        ]
+        meals = weekly_meals(
+            ranked,
+            '2026-09-11',
+            2,
+            [self.owner],
+            ['breakfast', 'lunch', 'snack', 'dinner'],
+        )
+        self.assertEqual(len(meals), 28)
+        self.assertTrue(all(meal['recipe_id'] == meal['slot'] for meal in meals))
 
     def test_leftover_remix_consumes_only_additions_and_is_idempotent(self):
         for name in ('chickpea', 'tomato', 'olive-oil'):

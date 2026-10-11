@@ -599,7 +599,7 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
             .asData
             ?.value
             .can(EntitlementCapability.generatedShopping) ??
-        true;
+        false;
     final starts = DateTime.parse(event!['starts_at'] as String).toLocal();
     final kicker =
         '${MaterialLocalizations.of(context).formatMediumDate(starts)} · '
@@ -680,9 +680,8 @@ class _DinnerDetailPageState extends ConsumerState<DinnerDetailPage> {
                     icon: canShop
                         ? EatMeGlyph.shoppingBasket
                         : EatMeGlyph.badgeCheck,
-                    label: context.t(
-                      canShop ? 'dinner_shopping_short' : 'eatme_plus',
-                    ),
+                    label: context.t('dinner_shopping_short'),
+                    badge: PremiumBadge(unlocked: canShop, compact: true),
                     emphasized: true,
                     onTap: menu.isEmpty
                         ? null

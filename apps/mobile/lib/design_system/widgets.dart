@@ -25,12 +25,14 @@ class AsyncAction extends StatefulWidget {
     this.destructive = false,
     this.icon,
     this.iconOnly = false,
+    this.badge,
   });
   final String label;
   final Future<void> Function() action;
   final bool enabled, secondary, destructive;
   final IconData? icon;
   final bool iconOnly;
+  final Widget? badge;
   @override
   State<AsyncAction> createState() => _AsyncActionState();
 }
@@ -70,7 +72,16 @@ class _AsyncActionState extends State<AsyncAction> {
             ),
           )
         : widget.icon == null
-        ? Text(widget.label)
+        ? widget.badge == null
+              ? Text(widget.label)
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(child: Text(widget.label)),
+                    const SizedBox(width: 8),
+                    widget.badge!,
+                  ],
+                )
         : Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -78,6 +89,10 @@ class _AsyncActionState extends State<AsyncAction> {
               if (!widget.iconOnly) ...[
                 const SizedBox(width: 8),
                 Flexible(child: Text(widget.label)),
+                if (widget.badge != null) ...[
+                  const SizedBox(width: 8),
+                  widget.badge!,
+                ],
               ],
             ],
           );

@@ -428,9 +428,8 @@ class _PlannerState extends ResourceState<PlannerPage> {
                   icon: canSmartPlan
                       ? EatMeGlyph.sparkles
                       : EatMeGlyph.badgeCheck,
-                  label: context.t(
-                    canSmartPlan ? 'generate_week' : 'eatme_plus',
-                  ),
+                  label: context.t('generate_week'),
+                  badge: PremiumBadge(unlocked: canSmartPlan, compact: true),
                   emphasized: true,
                   onTap: () => generatePlan(canSmartPlan),
                 ),
@@ -559,11 +558,8 @@ class _PlannerState extends ResourceState<PlannerPage> {
         if (selected != null) ...[
           const SizedBox(height: 20),
           AsyncAction(
-            label: context.t(
-              canGenerateShopping
-                  ? 'build_shopping_list'
-                  : 'generated_shopping_with_plus',
-            ),
+            label: context.t('build_shopping_list'),
+            badge: PremiumBadge(unlocked: canGenerateShopping),
             secondary: true,
             action: () async {
               if (!canGenerateShopping) {
