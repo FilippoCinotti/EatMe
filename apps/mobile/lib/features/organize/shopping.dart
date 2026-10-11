@@ -353,15 +353,40 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
             style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 10),
-          for (final item in items.where((i) => categoryOf(i) == category))
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: _itemCard(context, item),
-            ),
+          _itemGrid(
+            context,
+            items.where((i) => categoryOf(i) == category).toList(),
+          ),
         ],
       ]),
     );
   }
+
+  Widget _itemGrid(BuildContext context, List<Json> items) => LayoutBuilder(
+    builder: (context, constraints) {
+      final scaledBody = MediaQuery.textScalerOf(context).scale(13);
+      final columns = scaledBody > 20
+          ? 1
+          : constraints.maxWidth >= 300 && scaledBody <= 18
+          ? 3
+          : 2;
+      const gap = 8.0;
+      final extent = (constraints.maxWidth - gap * (columns - 1)) / columns;
+      return Wrap(
+        spacing: gap,
+        runSpacing: gap,
+        children: [
+          for (final item in items)
+            SizedBox(
+              key: ValueKey('shopping-item-${item['id']}'),
+              width: extent,
+              height: extent,
+              child: _itemCard(context, item),
+            ),
+        ],
+      );
+    },
+  );
 
   Widget _itemCard(BuildContext context, Json item) {
     final food = itemFood(item);
@@ -370,120 +395,87 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
     final scheme = Theme.of(context).colorScheme;
     return InformationPanel(
       tinted: false,
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: EdgeInsets.zero,
+      child: Stack(
+        fit: StackFit.expand,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Column(
             children: [
-              FoodImage(
-                id: '${item['food_id'] ?? ''}',
-                photoId: food?.photoId,
-                imageUrl: food?.imageUrl,
-                width: 56,
-                height: 56,
-                radius: 12,
-                fallback: Icons.shopping_bag_outlined,
-              ),
-              const SizedBox(width: 12),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      itemLabel(item),
-                      style: text.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        decoration: item['checked'] == true
-                            ? TextDecoration.lineThrough
-                            : null,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      '${item['quantity']} ${item['unit']}',
-                      style: text.bodySmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      price == null
-                          ? context.t('shopping_price_unavailable')
-                          : context.t('shopping_line_estimate', {
-                              'price': money(price.cents),
-                            }),
-                      style: text.bodySmall?.copyWith(
-                        color: price == null
-                            ? scheme.onSurfaceVariant
-                            : scheme.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    if (price != null)
+                flex: 5,
+                child: FoodImage(
+                  id: '${item['food_id'] ?? ''}',
+                  photoId: food?.photoId,
+                  imageUrl: food?.imageUrl,
+                  width: double.infinity,
+                  height: double.infinity,
+                  radius: 0,
+                  fallback: Icons.shopping_bag_outlined,
+                ),
+              ),
+              Expanded(
+                flex: 5,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 7, 10, 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
                       Text(
-                        context.t('shopping_unit_reference', {
-                          'price': money(price.referenceCents),
-                          'unit': price.referenceUnit == 'pcs'
-                              ? context.t('shopping_each')
-                              : price.referenceUnit,
-                        }),
+                        itemLabel(item),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: text.bodySmall?.copyWith(
-                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          decoration: item['checked'] == true
+                              ? TextDecoration.lineThrough
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${item['quantity']} ${item['unit']}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.bodySmall?.copyWith(
+                          fontSize: 11,
                           color: scheme.onSurfaceVariant,
                         ),
                       ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: 44,
-                height: 44,
-                child: Checkbox(
-                  semanticLabel: itemLabel(item),
-                  value: item['checked'] == true,
-                  onChanged: updating
-                      ? null
-                      : (value) async {
-                          try {
-                            await command({
-                              'action': 'check',
-                              'id': item['id'],
-                              'expected_version': item['version'],
-                              'checked': value,
-                            });
-                          } catch (_) {
-                            if (mounted && context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(context.t('retry'))),
-                              );
-                            }
-                          }
-                        },
+                      const SizedBox(height: 2),
+                      Text(
+                        price == null
+                            ? context.t('shopping_price_unavailable')
+                            : context.t('shopping_line_estimate', {
+                                'price': money(price.cents),
+                              }),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.bodySmall?.copyWith(
+                          fontSize: 11,
+                          color: price == null
+                              ? scheme.onSurfaceVariant
+                              : scheme.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: Wrap(
-              spacing: 8,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                if (item['checked'] == true)
-                  AsyncAction(
-                    label: context.t('put_in_fridge'),
-                    secondary: true,
-                    action: () => purchase(item),
-                  ),
-                AsyncAction(
-                  label: context.t('edit'),
-                  icon: Icons.edit_outlined,
-                  iconOnly: true,
-                  secondary: true,
-                  action: () async {
+          PositionedDirectional(
+            top: 2,
+            start: 2,
+            child: PopupMenuButton<String>(
+              tooltip: context.t('more'),
+              icon: const Icon(Icons.more_horiz),
+              enabled: !updating,
+              onSelected: (action) async {
+                try {
+                  if (action == 'purchase') await purchase(item);
+                  if (action == 'edit') {
                     final amount = await askText(
                       context,
                       context.t('quantity'),
@@ -498,22 +490,67 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                         'quantity': amount,
                       });
                     }
-                  },
-                ),
-                AsyncAction(
-                  label: context.t('delete'),
-                  icon: Icons.delete_outline,
-                  iconOnly: true,
-                  secondary: true,
-                  action: () async {
+                  }
+                  if (action == 'delete') {
                     await command({
                       'action': 'delete',
                       'id': item['id'],
                       'expected_version': item['version'],
                     });
-                  },
+                  }
+                } catch (_) {
+                  if (mounted && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(context.t('retry'))),
+                    );
+                  }
+                }
+              },
+              itemBuilder: (context) => [
+                if (item['checked'] == true)
+                  PopupMenuItem(
+                    value: 'purchase',
+                    child: Text(context.t('put_in_fridge')),
+                  ),
+                PopupMenuItem(
+                  value: 'edit',
+                  child: Text(context.t('edit')),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Text(context.t('delete')),
                 ),
               ],
+            ),
+          ),
+          PositionedDirectional(
+            top: 2,
+            end: 2,
+            child: SizedBox(
+              width: 44,
+              height: 44,
+              child: Checkbox(
+                semanticLabel: itemLabel(item),
+                value: item['checked'] == true,
+                onChanged: updating
+                    ? null
+                    : (value) async {
+                        try {
+                          await command({
+                            'action': 'check',
+                            'id': item['id'],
+                            'expected_version': item['version'],
+                            'checked': value,
+                          });
+                        } catch (_) {
+                          if (mounted && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(context.t('retry'))),
+                            );
+                          }
+                        }
+                      },
+              ),
             ),
           ),
         ],

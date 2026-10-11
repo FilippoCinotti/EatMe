@@ -9,9 +9,12 @@ Actual request errors retain the existing ResourceState retry behavior.
 
 Shopping rows resolve FoodImage using the catalog's exact food ID, image URL and
 private photo ID, as Fridge already does. Missing images keep the existing icon
-fallback. Neutral compact cards, small editorial headings, 56 px images and
-44 px checkbox/icon targets reuse the design system in both themes. The list
-retains AppShell's navigation inset, scrolling, text scaling and mutation logic.
+fallback. Neutral square cards use a three-column grid at standard text sizes,
+with photography, name, quantity and estimate kept compact. Selection remains
+direct; edit, delete and Fridge transfer live in each card's overflow menu.
+Checkbox and menu targets remain at least 44 px. The grid adapts to two or one
+column when text scaling needs more room. Both themes retain AppShell's navigation
+inset, scrolling and mutation logic.
 
 ## Estimate assumptions
 
@@ -21,8 +24,9 @@ regional average, or quote. The interface and export explicitly state this.
 No payment, cost, nutrition or backend records are changed.
 
 All references are in EUR. They are applied to the required quantity, not rounded
-up to whole supermarket packs; this distinction is shown in the UI. The reference
-price per kg/l/piece is visible on every estimated line. No currency conversion.
+up to whole supermarket packs; this distinction is shown in the summary. Each
+square card shows the estimate for its listed quantity; reference €/kg, €/l and
+€/piece assumptions remain versioned here. No currency conversion.
 
 Per kg: vegetables 3, fruit 3.50, grains 2.50, legumes 3.50, meat 12, fish 18,
 dairy 9, oil 8, nuts 18, seeds 12, herbs 20, eggs 5, honey 12, packaged food 6,

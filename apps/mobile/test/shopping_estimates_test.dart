@@ -173,7 +173,7 @@ void main() {
       final sauceImage = tester
           .widgetList<FoodImage>(find.byType(FoodImage))
           .firstWhere((image) => image.id == 'sauce');
-      expect(sauceImage.width, 56);
+      expect(sauceImage.width, double.infinity);
       await tester.tap(find.byType(Checkbox).first);
       await tester.pumpAndSettle();
       await tester.scrollUntilVisible(
@@ -186,6 +186,42 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets('ingredient tiles are square and use three columns', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final api = ShoppingApi();
+    api.rows = [
+      for (var index = 0; index < 3; index++)
+        {
+          ...api.rows[1],
+          'id': 'vegetable-$index',
+          'label': 'Vegetable $index',
+        },
+    ];
+    await tester.pumpWidget(
+      support.harness(
+        const ShoppingPage(),
+        api,
+        controller: ShoppingController.new,
+      ),
+    );
+    await tester.pumpAndSettle();
+    final tiles = [
+      for (var index = 0; index < 3; index++)
+        find.byKey(ValueKey('shopping-item-vegetable-$index')),
+    ];
+    for (final tile in tiles) {
+      expect(tester.getSize(tile).aspectRatio, closeTo(1, .001));
+    }
+    expect(tester.getTopLeft(tiles[0]).dy, tester.getTopLeft(tiles[1]).dy);
+    expect(tester.getTopLeft(tiles[1]).dy, tester.getTopLeft(tiles[2]).dy);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('editing and deleting update the displayed grand total', (
     tester,
@@ -203,14 +239,18 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Edit').first);
+    await tester.tap(find.byTooltip('More').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Edit').last);
     // The action remains busy while its edit dialog is open.
     await tester.pump(const Duration(milliseconds: 600));
     await tester.enterText(find.byType(TextFormField), '180');
     await tester.tap(find.text('Save'));
     await tester.pumpAndSettle();
     expect(find.text('€ 3.99'), findsOneWidget);
-    await tester.tap(find.byTooltip('Delete').first);
+    await tester.tap(find.byTooltip('More').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete').last);
     await tester.pumpAndSettle();
     expect(find.text('€ 2.55'), findsOneWidget);
     expect(api.calls.last['body']['expected_version'], 2);

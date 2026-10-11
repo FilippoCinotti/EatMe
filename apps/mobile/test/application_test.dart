@@ -356,13 +356,12 @@ void main() {
     expect(find.text('Tomatoes'), findsOneWidget);
     await tester.tap(find.byType(Checkbox));
     await tester.pumpAndSettle();
-    final purchaseButton = find.widgetWithText(
-      OutlinedButton,
-      'Purchased · add to fridge',
-    );
-    await tester.ensureVisible(purchaseButton);
+    final itemMenu = find.byTooltip('More');
+    await tester.ensureVisible(itemMenu);
     await tester.pumpAndSettle();
-    await tester.tap(purchaseButton);
+    await tester.tap(itemMenu);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Purchased · add to fridge'));
     await tester.pumpAndSettle();
     expect(
       api.calls.where((c) => c['body']?['action'] == 'purchase').length,
