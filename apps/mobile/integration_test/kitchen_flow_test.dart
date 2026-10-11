@@ -78,8 +78,10 @@ void main() {
     await tester.pumpAndSettle();
     await waitFor(tester, find.byType(Checkbox));
     await tester.tap(find.byType(Checkbox));
+    await waitFor(tester, find.byTooltip('More'));
+    await tester.ensureVisible(find.byTooltip('More'));
+    await tester.tap(find.byTooltip('More'));
     await waitFor(tester, find.text('Purchased · add to fridge'));
-    await tester.ensureVisible(find.text('Purchased · add to fridge'));
     await tester.tap(find.text('Purchased · add to fridge'));
     await waitFor(tester, find.text('Everything is in order'));
     await tester.pumpAndSettle();
