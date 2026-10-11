@@ -408,7 +408,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                   photoId: food?.photoId,
                   imageUrl: food?.imageUrl,
                   width: double.infinity,
-                  height: double.infinity,
+                  height: 72,
                   radius: 0,
                   fallback: Icons.shopping_bag_outlined,
                 ),
