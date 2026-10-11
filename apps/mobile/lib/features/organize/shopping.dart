@@ -474,7 +474,6 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
               enabled: !updating,
               onSelected: (action) async {
                 try {
-                  if (action == 'purchase') await purchase(item);
                   if (action == 'edit') {
                     final amount = await askText(
                       context,
@@ -498,6 +497,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                       'expected_version': item['version'],
                     });
                   }
+                  if (action == 'purchase') await purchase(item);
                 } catch (_) {
                   if (mounted && context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
