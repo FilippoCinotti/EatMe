@@ -402,7 +402,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
           Column(
             children: [
               Expanded(
-                flex: 5,
+                flex: 4,
                 child: FoodImage(
                   id: '${item['food_id'] ?? ''}',
                   photoId: food?.photoId,
@@ -414,9 +414,9 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                 ),
               ),
               Expanded(
-                flex: 5,
+                flex: 6,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 7, 10, 8),
+                  padding: const EdgeInsets.fromLTRB(10, 4, 10, 6),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
