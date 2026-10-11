@@ -197,11 +197,7 @@ void main() {
     final api = ShoppingApi();
     api.rows = [
       for (var index = 0; index < 3; index++)
-        {
-          ...api.rows[1],
-          'id': 'vegetable-$index',
-          'label': 'Vegetable $index',
-        },
+        {...api.rows[1], 'id': 'vegetable-$index', 'label': 'Vegetable $index'},
     ];
     await tester.pumpWidget(
       support.harness(

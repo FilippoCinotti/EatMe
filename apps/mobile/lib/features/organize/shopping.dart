@@ -500,9 +500,9 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                   if (action == 'purchase') await purchase(item);
                 } catch (_) {
                   if (mounted && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(context.t('retry'))),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(context.t('retry'))));
                   }
                 }
               },
@@ -512,10 +512,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                     value: 'purchase',
                     child: Text(context.t('put_in_fridge')),
                   ),
-                PopupMenuItem(
-                  value: 'edit',
-                  child: Text(context.t('edit')),
-                ),
+                PopupMenuItem(value: 'edit', child: Text(context.t('edit'))),
                 PopupMenuItem(
                   value: 'delete',
                   child: Text(context.t('delete')),
