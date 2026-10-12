@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'recipe_favorite.dart';
@@ -13,6 +14,7 @@ import '../../core/state.dart';
 import '../../design_system/widgets.dart';
 import '../fridge/fridge.dart';
 import '../organize/guilty_pleasure.dart';
+import '../onboarding/first_access_tour.dart';
 
 class ChefTablePage extends ConsumerStatefulWidget {
   const ChefTablePage({super.key});
@@ -22,6 +24,78 @@ class ChefTablePage extends ConsumerStatefulWidget {
 
 class _ChefTablePageState extends ConsumerState<ChefTablePage> {
   String query = '';
+  Timer? searchDebounce;
+  List<Recommendation>? searchResults;
+  String? searchError;
+  bool searchLoading = false;
+  int searchGeneration = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => openTourIfPending());
+  }
+
+  Future<void> openTourIfPending() async {
+    final userId = ref.read(apiProvider).userId;
+    if (userId == null || !await FirstAccessTour.isPending(userId)) return;
+    if (mounted) context.push('/tour');
+  }
+
+  @override
+  void dispose() {
+    searchDebounce?.cancel();
+    super.dispose();
+  }
+
+  void updateSearch(String value) {
+    searchDebounce?.cancel();
+    final normalized = value.trim();
+    final generation = ++searchGeneration;
+    setState(() {
+      query = value;
+      searchError = null;
+      searchLoading = normalized.isNotEmpty;
+      if (normalized.isEmpty) searchResults = null;
+    });
+    if (normalized.isEmpty) return;
+    searchDebounce = Timer(
+      const Duration(milliseconds: 320),
+      () => runSearch(normalized, generation),
+    );
+  }
+
+  Future<void> runSearch(String value, int generation) async {
+    try {
+      final mode = ref.read(appProvider).mode;
+      final uri = Uri(
+        path: '/recommendations',
+        queryParameters: {'mode': mode, 'query': value},
+      );
+      final response = await ref.read(apiProvider).request('GET', '$uri');
+      final results = (response['items'] as List? ?? const [])
+          .map(
+            (item) => Recommendation.fromJson(
+              Map<String, dynamic>.from(item as Map),
+            ),
+          )
+          .toList();
+      if (!mounted || generation != searchGeneration) return;
+      setState(() {
+        searchResults = results;
+        searchLoading = false;
+        searchError = null;
+      });
+    } on ApiFailure catch (error) {
+      if (!mounted || generation != searchGeneration) return;
+      setState(() {
+        searchResults = const [];
+        searchLoading = false;
+        searchError = error.code;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) => RecipeEditorial(builder: _build);
 
@@ -73,34 +147,14 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
     final normalizedQuery = query.trim().toLowerCase();
     final matchingRecommendations = normalizedQuery.isEmpty
         ? state.recommendations
-        : state.recommendations
-              .where(
-                (r) =>
-                    localized(
-                      r.recipe.title,
-                      context.language,
-                    ).toLowerCase().contains(normalizedQuery) ||
-                    r.recipe.ingredients.any(
-                      (i) => state.foods.any(
-                        (f) =>
-                            f.id == i['food_id'] &&
-                            localized(
-                              f.name,
-                              context.language,
-                            ).toLowerCase().contains(normalizedQuery),
-                      ),
-                    ),
-              )
-              .toList();
-    final basePick = state.recommendations.firstOrNull;
-    final pick = normalizedQuery.isEmpty
-        ? basePick
-        : matchingRecommendations.firstOrNull ?? basePick;
+        : searchResults ?? const <Recommendation>[];
+    final pick = matchingRecommendations.firstOrNull;
     final hasNoSearchMatch =
-        normalizedQuery.isNotEmpty && matchingRecommendations.isEmpty;
-    final visibleRecommendations = normalizedQuery.isEmpty
-        ? state.recommendations
-        : matchingRecommendations;
+        normalizedQuery.isNotEmpty &&
+        !searchLoading &&
+        searchError == null &&
+        matchingRecommendations.isEmpty;
+    final visibleRecommendations = matchingRecommendations;
     return Scaffold(
       body: PageBody(
         onRefresh: () => ref.read(appProvider.notifier).refresh(),
@@ -127,9 +181,13 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
           ),
           SearchPill(
             hint: context.t('recipe_search_hint'),
-            onChanged: (value) => setState(() => query = value),
+            onChanged: updateSearch,
             onFilter: () => sheet(context, const ChefFilters()),
           ),
+          if (searchLoading) ...[
+            const SizedBox(height: 8),
+            const LinearProgressIndicator(minHeight: 2),
+          ],
           const SizedBox(height: 16),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -211,6 +269,10 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
             const SizedBox(height: 10),
             StatusNote(text: context.t('try_another_search')),
           ],
+          if (searchError != null) ...[
+            const SizedBox(height: 10),
+            StatusNote(text: context.t(searchError!), warning: true),
+          ],
           const SizedBox(height: 22),
           if (state.error != null)
             StatusNote(
@@ -219,7 +281,7 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
               ),
               warning: true,
             ),
-          if (state.inventory.isEmpty)
+          if (state.inventory.isEmpty && normalizedQuery.isEmpty)
             EmptyMessage(
               title: context.t('start_with_fridge'),
               body: context.t('empty_fridge_body'),
@@ -230,7 +292,7 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                 child: Text(context.t('add_food')),
               ),
             )
-          else if (pick == null)
+          else if (pick == null && normalizedQuery.isEmpty)
             EmptyMessage(
               title: context.t('no_recipes'),
               body: context.t('no_recipes_body'),
@@ -251,7 +313,7 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
               ),
             ),
           ],
-          if (soon.isNotEmpty) ...[
+          if (normalizedQuery.isEmpty && soon.isNotEmpty) ...[
             SectionHeading(
               title: context.t('use_these_first'),
               actionLabel: context.t('view_all'),
@@ -281,41 +343,43 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
             for (final recommendation in visibleRecommendations.skip(1))
               RecipeCard(recommendation: recommendation),
           ],
-          SectionHeading(
-            title: context.t('your_kitchen'),
-            actionLabel: context.t('view_all'),
-            onAction: () => sheet(context, const _KitchenToolsSheet()),
-          ),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (final item in [
-                    (
-                      'favorites',
-                      '/recipe-library?favorites=true',
-                      EatMeGlyph.heart,
-                    ),
-                    ('leftovers', '/leftovers', EatMeGlyph.packageOpen),
-                    ('meal_planner', '/plan', EatMeGlyph.calendarDays),
-                  ]) ...[
-                    CompactShortcut(
-                      width:
-                          132 *
-                          (MediaQuery.textScalerOf(context).scale(15) / 15)
-                              .clamp(1, 3),
-                      title: context.t(item.$1),
-                      icon: item.$3,
-                      onTap: () => context.push(item.$2),
-                    ),
-                    const SizedBox(width: 12),
+          if (normalizedQuery.isEmpty) ...[
+            SectionHeading(
+              title: context.t('your_kitchen'),
+              actionLabel: context.t('view_all'),
+              onAction: () => sheet(context, const _KitchenToolsSheet()),
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final item in [
+                      (
+                        'favorites',
+                        '/recipe-library?favorites=true',
+                        EatMeGlyph.heart,
+                      ),
+                      ('leftovers', '/leftovers', EatMeGlyph.packageOpen),
+                      ('meal_planner', '/plan', EatMeGlyph.calendarDays),
+                    ]) ...[
+                      CompactShortcut(
+                        width:
+                            132 *
+                            (MediaQuery.textScalerOf(context).scale(15) / 15)
+                                .clamp(1, 3),
+                        title: context.t(item.$1),
+                        icon: item.$3,
+                        onTap: () => context.push(item.$2),
+                      ),
+                      const SizedBox(width: 12),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     );

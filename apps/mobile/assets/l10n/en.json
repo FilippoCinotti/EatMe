@@ -1181,5 +1181,20 @@
   "shopping_price_unavailable": "Estimate unavailable",
   "shopping_line_estimate": "≈ {price} estimated",
   "shopping_unit_reference": "Reference: {price} / {unit}",
-  "shopping_each": "each"
+  "shopping_each": "each",
+  "recipe_shopping_nothing_missing": "You already have everything needed for this recipe.",
+  "recipe_shopping_added": "Added {count} missing ingredients to your shopping list.",
+  "first_tour_skip": "Skip tutorial",
+  "first_tour_progress": "Step {current} of {total}",
+  "first_tour_chef_title": "Start from ChefTable",
+  "first_tour_chef_body": "Find ideas suited to the time of day, or search the whole catalog by recipe or ingredient name.",
+  "first_tour_fridge_title": "Keep your food in view",
+  "first_tour_fridge_body": "Add what you have at home and EatMe+ can prioritize food to use soon.",
+  "first_tour_plan_title": "Plan without the busywork",
+  "first_tour_plan_body": "Organize the week and turn missing ingredients into one practical shopping list.",
+  "first_tour_profile_title": "Your rules always travel with you",
+  "first_tour_profile_body": "Manage dietary preferences, allergies and health settings from your Profile at any time.",
+  "first_tour_next": "Next",
+  "first_tour_back": "Back",
+  "first_tour_start": "Start using EatMe+"
 }

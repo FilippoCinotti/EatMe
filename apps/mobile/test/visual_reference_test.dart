@@ -189,6 +189,33 @@ class VisualApi extends support.TestApi {
     if (method == 'GET' && path.startsWith('/recipes/')) {
       return {'favorite': false};
     }
+    if (method == 'GET' && path.startsWith('/recommendations?')) {
+      if (Uri.parse(path).queryParameters['query'] == 'spinach') {
+        return {
+          'items': [
+            {
+              'recipe': {
+                'id': '50773917-c954-51f2-a53b-1cf4b3c00690',
+                'title': {'en': 'Zucchini & spinach pasta'},
+                'minutes': 25,
+                'servings': 2,
+                'ingredients': [
+                  {'food_id': spinach.id, 'quantity': '100'},
+                ],
+                'steps': {
+                  'en': ['Cook and serve.'],
+                },
+              },
+              'available_count': 1,
+              'ingredient_count': 1,
+              'use_soon_food_ids': <String>[],
+              'warnings': <Json>[],
+            },
+          ],
+        };
+      }
+      return {'items': <Json>[]};
+    }
     if (method == 'GET' && path == '/preferences') {
       return {
         'version': 1,
@@ -336,9 +363,9 @@ void main() {
       });
     }
   }
-  testWidgets(
-    'ChefTable renders avatar and keeps the suggestion visible for an unmatched search',
-    (tester) async {
+  testWidgets('ChefTable searches the full catalog without stale fallback', (
+    tester,
+  ) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
@@ -365,10 +392,14 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Try another name or category.'), findsOneWidget);
+      expect(find.text('Zucchini & spinach pasta'), findsNothing);
+
+      await tester.enterText(find.byType(TextField).first, 'spinach');
+      await tester.pumpAndSettle();
+
       expect(find.text('Zucchini & spinach pasta'), findsOneWidget);
       expect(tester.takeException(), isNull);
-    },
-  );
+    });
 
   testWidgets('Profile preview prioritizes dietary and medical context', (
     tester,

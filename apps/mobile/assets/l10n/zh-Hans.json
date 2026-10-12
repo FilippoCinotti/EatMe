@@ -1181,5 +1181,20 @@
   "shopping_price_unavailable": "暂无估算",
   "shopping_line_estimate": "约 {price}",
   "shopping_unit_reference": "参考价：{price} / {unit}",
-  "shopping_each": "个"
+  "shopping_each": "个",
+  "recipe_shopping_nothing_missing": "这道食谱所需的食材你已经都有了。",
+  "recipe_shopping_added": "已将 {count} 种缺少的食材加入购物清单。",
+  "first_tour_skip": "跳过教程",
+  "first_tour_progress": "第 {current} 步，共 {total} 步",
+  "first_tour_chef_title": "从 ChefTable 开始",
+  "first_tour_chef_body": "获取适合当前时段的灵感，或按食谱名和食材名搜索整个目录。",
+  "first_tour_fridge_title": "随时掌握家中食材",
+  "first_tour_fridge_body": "添加家中现有食材，EatMe+ 会优先推荐需要尽快食用的食物。",
+  "first_tour_plan_title": "轻松安排每周饮食",
+  "first_tour_plan_body": "规划一周餐食，并将缺少的食材汇总成一份实用购物清单。",
+  "first_tour_profile_title": "你的饮食规则始终随行",
+  "first_tour_profile_body": "你可以随时在个人资料中管理饮食偏好、过敏和健康设置。",
+  "first_tour_next": "下一步",
+  "first_tour_back": "返回",
+  "first_tour_start": "开始使用 EatMe+"
 }

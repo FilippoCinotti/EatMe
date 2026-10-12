@@ -19,6 +19,7 @@ ROUTES = {
     "onboarding-meal-timing": "/onboarding#meal-timing",
     "onboarding-medical": "/onboarding#medical",
     "onboarding-sensitivities": "/onboarding#sensitivities",
+    "first-access-tour": "/tour",
     "chef": "/chef",
     "guilty-pleasure-active": "/chef?mode=guilty_pleasure",
     "guilty-pleasure-sheet": "/chef#GuiltyPleasureSheet",

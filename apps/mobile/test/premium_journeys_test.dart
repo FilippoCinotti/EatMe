@@ -12,6 +12,7 @@ import 'package:eatme/core/state.dart';
 import 'package:eatme/design_system/widgets.dart';
 import 'package:eatme/features/auth/login.dart';
 import 'package:eatme/features/onboarding/onboarding.dart';
+import 'package:eatme/features/onboarding/first_access_tour.dart';
 import 'package:eatme/features/chef_table/chef_table.dart';
 import 'package:eatme/features/fridge/fridge.dart';
 import 'package:eatme/features/fridge/expiry.dart';
@@ -384,6 +385,7 @@ void main() {
     for (final scale in [1.0, 1.6]) {
       for (final page in <(String, Widget)>[
         ('welcome', const LoginPage()),
+        ('first-access-tour', const FirstAccessTourPage()),
         ('preferences', const PreferencesPage()),
         ('notifications', const NotificationsPage()),
         ('household', const HouseholdPage()),

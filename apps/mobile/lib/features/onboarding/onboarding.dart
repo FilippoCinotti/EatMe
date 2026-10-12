@@ -6,6 +6,7 @@ import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
+import 'first_access_tour.dart';
 import 'onboarding_tag.dart';
 
 const _treeNuts = {
@@ -760,6 +761,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     'medical_consent_version': 'medical-nutrition-1',
                   if (widget.edit) 'expected_version': state.profile['version'],
                 };
+                if (!widget.edit) {
+                  final userId = ref.read(apiProvider).userId;
+                  if (userId != null) await FirstAccessTour.markPending(userId);
+                }
                 await mutation.send(
                   ref.read(apiProvider),
                   'PUT',

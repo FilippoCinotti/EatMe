@@ -27,6 +27,7 @@ import 'package:eatme/features/organize/pantry.dart';
 import 'package:eatme/features/organize/household.dart';
 import 'package:eatme/features/organize/recipe_library.dart';
 import 'package:eatme/features/organize/guilty_pleasure.dart';
+import 'package:eatme/features/onboarding/first_access_tour.dart';
 
 const uid = '00000000-0000-4000-8000-000000000001';
 const home = '00000000-0000-4000-8000-000000000002';
@@ -265,6 +266,13 @@ void main() {
     expect(free.can('canSeeSafetyWarnings'), isTrue);
     expect(free.can(EntitlementCapability.smartPlanning), isFalse);
     expect(free.remainingFor('smart_import'), 2);
+  });
+  test('first access tutorial is pending only until skip or completion', () async {
+    FlutterSecureStorage.setMockInitialValues({});
+    await FirstAccessTour.markPending(uid);
+    expect(await FirstAccessTour.isPending(uid), isTrue);
+    await FirstAccessTour.complete(uid);
+    expect(await FirstAccessTour.isPending(uid), isFalse);
   });
   test('Guilty Pleasure expires and scheduled meal scope stays isolated', () {
     final now = DateTime(2026, 9, 19, 19);
