@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/api.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
@@ -75,9 +76,8 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
       final response = await ref.read(apiProvider).request('GET', '$uri');
       final results = (response['items'] as List? ?? const [])
           .map(
-            (item) => Recommendation.fromJson(
-              Map<String, dynamic>.from(item as Map),
-            ),
+            (item) =>
+                Recommendation.fromJson(Map<String, dynamic>.from(item as Map)),
           )
           .toList();
       if (!mounted || generation != searchGeneration) return;
@@ -299,9 +299,9 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
             )
           else ...[
             RecipeCard(
-              recommendation: pick,
+              recommendation: pick!,
               featured: true,
-              actions: _ChefRecipeActions(recipeId: pick.recipe.id),
+              actions: _ChefRecipeActions(recipeId: pick!.recipe.id),
               profileContext: _ProfileContext(
                 diets: activeDiets,
                 primaryDiet: settings['primary_diet'] as String?,
