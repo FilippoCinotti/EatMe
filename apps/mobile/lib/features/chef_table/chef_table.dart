@@ -301,7 +301,7 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
             RecipeCard(
               recommendation: pick!,
               featured: true,
-              actions: _ChefRecipeActions(recipeId: pick!.recipe.id),
+              actions: _ChefRecipeActions(recipeId: pick.recipe.id),
               profileContext: _ProfileContext(
                 diets: activeDiets,
                 primaryDiet: settings['primary_diet'] as String?,
