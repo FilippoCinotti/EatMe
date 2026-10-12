@@ -123,33 +123,27 @@ class _FridgePageState extends ConsumerState<FridgePage> {
             ),
           ),
           const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final value in ['all', 'fridge', 'freezer', 'pantry'])
+                ChoiceChip(
+                  showCheckmark: false,
+                  label: Text(
+                    context.t(value == 'all' ? 'food_group_all' : value),
+                  ),
+                  selected: location == value,
+                  onSelected: (_) => setState(() => location = value),
+                ),
+            ],
+          ),
+          if (state.offline)
+            StatusNote(text: context.t('offline_inventory'), warning: true),
+          const SizedBox(height: 12),
           KeyedSubtree(
             key: FirstAccessTourTargets.fridgeFilters,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    for (final value in ['all', 'fridge', 'freezer', 'pantry'])
-                      ChoiceChip(
-                        showCheckmark: false,
-                        label: Text(
-                          context.t(value == 'all' ? 'food_group_all' : value),
-                        ),
-                        selected: location == value,
-                        onSelected: (_) => setState(() => location = value),
-                      ),
-                  ],
-                ),
-                if (state.offline)
-                  StatusNote(
-                    text: context.t('offline_inventory'),
-                    warning: true,
-                  ),
-                const SizedBox(height: 12),
-                RecipeActionRow(
+            child: RecipeActionRow(
                   primary: OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
                       side: expiryFilter == 'soon'
@@ -183,7 +177,6 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                     label: Text('${context.t('expiry_expired')} · $expired'),
                   ),
                 ),
-              ],
             ),
           ),
           SectionHeading(
