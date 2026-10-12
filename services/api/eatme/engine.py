@@ -137,6 +137,72 @@ DEFAULT_WEIGHTS = {
 }
 
 
+SUBSTANTIAL_PROTEIN_GROUPS = {"meat", "fish", "egg", "legume", "dairy"}
+SUBSTANTIAL_STARCH_GROUPS = {"grain", "legume", "tuber", "potato"}
+SUBSTANTIAL_GARNISH_GROUPS = {
+    "oil", "herb", "spice", "condiment", "sweetener", "other"
+}
+
+
+def primary_food_id(recipe: dict, foods: dict) -> str:
+    """Choose the first meaningful ingredient for culinary diversification."""
+    ingredients = recipe.get("ingredients", [])
+    for item in ingredients:
+        food_id = item.get("food_id", "")
+        group = foods.get(food_id, {}).get("group")
+        if group and group not in SUBSTANTIAL_GARNISH_GROUPS:
+            return food_id
+    return ingredients[0].get("food_id", "") if ingredients else ""
+
+
+def substantiality(recipe: dict, foods: dict) -> float:
+    """Return a culinary meal-substance proxy for lunch/dinner ranking.
+
+    This is deliberately not a nutrition or health score. It uses only catalog
+    structure (main food groups, meaningful components and recipe quantity)
+    plus the reviewed ``high_protein`` recipe tag when present. Missing data is
+    neutral, so no nutrient values are invented.
+    """
+    ingredients = recipe.get("ingredients", [])
+    groups = [
+        foods.get(item.get("food_id"), {}).get("group")
+        for item in ingredients
+    ]
+    meaningful = [
+        group
+        for group in groups
+        if group and group not in SUBSTANTIAL_GARNISH_GROUPS
+    ]
+    protein = any(group in SUBSTANTIAL_PROTEIN_GROUPS for group in meaningful)
+    starch = any(group in SUBSTANTIAL_STARCH_GROUPS for group in meaningful)
+
+    quantity = 0.0
+    for item in ingredients:
+        grams = item.get("grams")
+        if isinstance(grams, (int, float)) and grams > 0:
+            quantity += float(grams)
+            continue
+        food = foods.get(item.get("food_id"), {})
+        if food.get("unit") not in {"g", "ml"}:
+            continue
+        try:
+            quantity += max(float(item.get("quantity", 0)), 0)
+        except (TypeError, ValueError):
+            continue
+    servings = max(int(recipe.get("servings") or 1), 1)
+    quantity_per_serving = quantity / servings
+    high_protein = "high_protein" in set(recipe.get("diet_tags", []))
+
+    score = (
+        0.30 * protein
+        + 0.25 * starch
+        + 0.20 * min(len(meaningful) / 4, 1)
+        + 0.15 * min(quantity_per_serving / 350, 1)
+        + 0.10 * high_protein
+    )
+    return round(score, 6)
+
+
 def rank(recipes: list[dict], foods: dict, inventory: list[dict], profile: dict, rules: list[dict],
          today: date, mode: str, servings: int, weights: dict | None = None,
          staples: frozenset | set = frozenset()) -> tuple[list[dict],list[dict]]:
@@ -218,7 +284,7 @@ def rank(recipes: list[dict], foods: dict, inventory: list[dict], profile: dict,
     # Greedy diversification of the primary ingredient; preserve all filtered candidates.
     diverse, repeated, seen = [], [], set()
     for candidate in ranked:
-        primary = candidate["recipe"]["ingredients"][0]["food_id"]
+        primary = primary_food_id(candidate["recipe"], foods)
         (repeated if primary in seen else diverse).append(candidate)
         seen.add(primary)
     return diverse+repeated,rejected

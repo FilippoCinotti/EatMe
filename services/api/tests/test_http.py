@@ -80,6 +80,11 @@ class HttpTests(unittest.TestCase):
         self.assertEqual(status,200)
         self.assertTrue(recs['items'])
         self.assertTrue(all('lunch' in item['recipe']['meal_types'] for item in recs['items']))
+        self.assertTrue(all(item['meal_adjustment'] > 0 for item in recs['items']))
+        self.assertTrue(all(
+            'substantiality' in item['component_scores']
+            for item in recs['items']
+        ))
         self.assertEqual(self.request('GET','/recommendations?mode=for_you&slot=brunch')[0],422)
 
     def test_unknown_and_unauthenticated_requests(self):

@@ -3,6 +3,7 @@ import unittest
 from datetime import date
 
 from eatme.catalog import identifier, seed_catalog
+from eatme.engine import primary_food_id, substantiality
 from eatme.errors import DomainError
 from eatme.planning import weekly_meals
 from eatme.service import HEALTH_CONSENT, Service, new_id
@@ -129,6 +130,10 @@ class DomainCase(unittest.TestCase):
         self.assertEqual(len(plan['data']['meals']), 14)
         self.assertEqual({m['slot'] for m in plan['data']['meals']}, {'lunch', 'dinner'})
         self.assertGreater(len({m['recipe_id'] for m in plan['data']['meals']}), 1)
+        self.assertEqual(
+            len({m['recipe_id'] for m in plan['data']['meals'][:4]}),
+            4,
+        )
         self.assertCode('plan_not_found', lambda: self.app.plan_action(self.guest, {'action': 'delete', 'id': plan['id']}, new_id()))
 
     def test_weekly_generation_matches_recipes_to_every_supported_slot(self):
@@ -147,6 +152,74 @@ class DomainCase(unittest.TestCase):
         )
         self.assertEqual(len(meals), 28)
         self.assertTrue(all(meal['recipe_id'] == meal['slot'] for meal in meals))
+
+    def test_weekly_generation_avoids_recipe_repeats_and_prefers_substantial_mains(self):
+        ranked = [
+            {
+                'recipe': {
+                    'id': f'recipe-{index:02d}',
+                    'meal_types': ['lunch', 'dinner'],
+                    'ingredients': [{'food_id': 'shared-primary'}],
+                    'cuisine': 'shared-cuisine',
+                },
+                'score': 1 - index / 100,
+                'component_scores': {'substantiality': index / 14},
+            }
+            for index in range(14)
+        ]
+        meals = weekly_meals(
+            ranked,
+            '2026-09-11',
+            2,
+            [self.owner],
+            ['lunch', 'dinner'],
+        )
+
+        self.assertEqual(len(meals), 14)
+        self.assertEqual(len({meal['recipe_id'] for meal in meals}), 14)
+        self.assertEqual(meals[0]['recipe_id'], 'recipe-13')
+
+    def test_substantiality_is_a_culinary_proxy_not_invented_nutrition(self):
+        foods = {
+            'tomato': {'group': 'vegetable', 'unit': 'g'},
+            'chickpea': {'group': 'legume', 'unit': 'g'},
+            'rice': {'group': 'grain', 'unit': 'g'},
+        }
+        light = {
+            'servings': 2,
+            'ingredients': [{'food_id': 'tomato', 'quantity': '100'}],
+        }
+        substantial = {
+            'servings': 2,
+            'diet_tags': ['high_protein'],
+            'ingredients': [
+                {'food_id': 'chickpea', 'quantity': '300'},
+                {'food_id': 'rice', 'quantity': '200'},
+                {'food_id': 'tomato', 'quantity': '150'},
+            ],
+        }
+
+        self.assertGreater(
+            substantiality(substantial, foods),
+            substantiality(light, foods),
+        )
+        self.assertNotIn('nutrition', substantial)
+
+    def test_primary_component_ignores_oil_and_condiments(self):
+        recipe = {
+            'ingredients': [
+                {'food_id': 'oil'},
+                {'food_id': 'sauce'},
+                {'food_id': 'chickpea'},
+            ],
+        }
+        foods = {
+            'oil': {'group': 'oil'},
+            'sauce': {'group': 'condiment'},
+            'chickpea': {'group': 'legume'},
+        }
+
+        self.assertEqual(primary_food_id(recipe, foods), 'chickpea')
 
     def test_leftover_remix_consumes_only_additions_and_is_idempotent(self):
         for name in ('chickpea', 'tomato', 'olive-oil'):
