@@ -40,7 +40,7 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
   Future<void> openTourIfPending() async {
     final userId = ref.read(apiProvider).userId;
     if (userId == null || !await FirstAccessTour.isPending(userId)) return;
-    if (mounted) context.push('/tour');
+    if (mounted) ref.read(firstAccessTourControllerProvider).start();
   }
 
   @override
@@ -159,40 +159,48 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
       body: PageBody(
         onRefresh: () => ref.read(appProvider.notifier).refresh(),
         children: [
-          EditorialHeader(
-            eyebrow: '',
-            title: name.isEmpty
-                ? context.t(greetingKey)
-                : context.t('${greetingKey}_name', {'name': name}),
-            subtitle: context.t('cooking_your_way'),
-            actions: [
-              RoundAction(
-                icon: EatMeGlyph.bell,
-                label: context.t('notifications'),
-                onPressed: () => context.push('/notifications'),
-              ),
-              _ChefAvatarAction(
-                mediaId: avatarMediaId,
-                initials: initials,
-                label: context.t('profile'),
-                onPressed: () => context.go('/profile'),
-              ),
-            ],
+          KeyedSubtree(
+            key: FirstAccessTourTargets.chefHeader,
+            child: EditorialHeader(
+              eyebrow: '',
+              title: name.isEmpty
+                  ? context.t(greetingKey)
+                  : context.t('${greetingKey}_name', {'name': name}),
+              subtitle: context.t('cooking_your_way'),
+              actions: [
+                RoundAction(
+                  icon: EatMeGlyph.bell,
+                  label: context.t('notifications'),
+                  onPressed: () => context.push('/notifications'),
+                ),
+                _ChefAvatarAction(
+                  mediaId: avatarMediaId,
+                  initials: initials,
+                  label: context.t('profile'),
+                  onPressed: () => context.go('/profile'),
+                ),
+              ],
+            ),
           ),
-          SearchPill(
-            hint: context.t('recipe_search_hint'),
-            onChanged: updateSearch,
-            onFilter: () => sheet(context, const ChefFilters()),
+          KeyedSubtree(
+            key: FirstAccessTourTargets.chefSearch,
+            child: SearchPill(
+              hint: context.t('recipe_search_hint'),
+              onChanged: updateSearch,
+              onFilter: () => sheet(context, const ChefFilters()),
+            ),
           ),
           if (searchLoading) ...[
             const SizedBox(height: 8),
             const LinearProgressIndicator(minHeight: 2),
           ],
           const SizedBox(height: 16),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
+          KeyedSubtree(
+            key: FirstAccessTourTargets.chefModes,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
                 for (final value in [
                   'for_you',
                   'use_soon',
@@ -230,7 +238,8 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                   ),
                   const SizedBox(width: 8),
                 ],
-              ],
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -344,17 +353,22 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
               RecipeCard(recommendation: recommendation),
           ],
           if (normalizedQuery.isEmpty) ...[
-            SectionHeading(
-              title: context.t('your_kitchen'),
-              actionLabel: context.t('view_all'),
-              onAction: () => sheet(context, const _KitchenToolsSheet()),
-            ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+            KeyedSubtree(
+              key: FirstAccessTourTargets.chefTools,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SectionHeading(
+                    title: context.t('your_kitchen'),
+                    actionLabel: context.t('view_all'),
+                    onAction: () => sheet(context, const _KitchenToolsSheet()),
+                  ),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
                     for (final item in [
                       (
                         'favorites',
@@ -375,8 +389,11 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                       ),
                       const SizedBox(width: 12),
                     ],
-                  ],
-                ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

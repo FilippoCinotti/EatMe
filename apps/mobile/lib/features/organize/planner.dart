@@ -8,6 +8,7 @@ import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
+import '../onboarding/first_access_tour.dart';
 import 'shared.dart';
 import 'guilty_pleasure.dart';
 
@@ -305,17 +306,20 @@ class _PlannerState extends ResourceState<PlannerPage> {
     return Scaffold(
       appBar: EatMeAppBar(title: Text(context.t('plan'))),
       body: content([
-        EatMeTabStrip(
-          values: [
-            ('plan', context.t('my_plan')),
-            ('dinners', context.t('with_friends')),
-            ('shopping', context.t('shopping_list')),
-          ],
-          selected: 'plan',
-          onSelected: (value) {
-            if (value == 'dinners') context.go('/plan/dinners');
-            if (value == 'shopping') context.go('/plan/shopping');
-          },
+        KeyedSubtree(
+          key: FirstAccessTourTargets.planTabs,
+          child: EatMeTabStrip(
+            values: [
+              ('plan', context.t('my_plan')),
+              ('dinners', context.t('with_friends')),
+              ('shopping', context.t('shopping_list')),
+            ],
+            selected: 'plan',
+            onSelected: (value) {
+              if (value == 'dinners') context.go('/plan/dinners');
+              if (value == 'shopping') context.go('/plan/shopping');
+            },
+          ),
         ),
         const SizedBox(height: 24),
         Text(
@@ -332,19 +336,28 @@ class _PlannerState extends ResourceState<PlannerPage> {
           style: Theme.of(context).textTheme.displaySmall,
         ),
         const SizedBox(height: 20),
-        _WeekStrip(
-          start: start,
-          selected: focusedDay,
-          onSelected: (value) => setState(() => focusedDay = value),
-        ),
-        const SizedBox(height: 18),
-        _WeekSummary(
-          planned: meals.length,
-          emptyDays: emptyDays,
-          progress: slots.isEmpty
-              ? 0
-              : (meals.length / (slots.length * 7)).clamp(0.0, 1.0).toDouble(),
-          onComplete: () => generatePlan(canSmartPlan),
+        KeyedSubtree(
+          key: FirstAccessTourTargets.planWeek,
+          child: Column(
+            children: [
+              _WeekStrip(
+                start: start,
+                selected: focusedDay,
+                onSelected: (value) => setState(() => focusedDay = value),
+              ),
+              const SizedBox(height: 18),
+              _WeekSummary(
+                planned: meals.length,
+                emptyDays: emptyDays,
+                progress: slots.isEmpty
+                    ? 0
+                    : (meals.length / (slots.length * 7))
+                          .clamp(0.0, 1.0)
+                          .toDouble(),
+                onComplete: () => generatePlan(canSmartPlan),
+              ),
+            ],
+          ),
         ),
         if (mealTiming['mode'] != 'standard') ...[
           const SizedBox(height: 12),
@@ -385,8 +398,10 @@ class _PlannerState extends ResourceState<PlannerPage> {
           ),
         ],
         const SizedBox(height: 14),
-        IntrinsicHeight(
-          child: Row(
+        KeyedSubtree(
+          key: FirstAccessTourTargets.planActions,
+          child: IntrinsicHeight(
+            child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
@@ -435,6 +450,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
                 ),
               ),
             ],
+            ),
           ),
         ),
         if (draftMeals != null) ...[
@@ -466,20 +482,23 @@ class _PlannerState extends ResourceState<PlannerPage> {
           ),
         ],
         const SizedBox(height: 26),
-        Row(
-          children: [
-            Text(
-              DateUtils.isSameDay(day, DateTime.now())
-                  ? context.t('today')
-                  : context.t('day_plan'),
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const Spacer(),
-            Text(
-              MaterialLocalizations.of(context).formatMediumDate(day),
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ],
+        KeyedSubtree(
+          key: FirstAccessTourTargets.planMeals,
+          child: Row(
+            children: [
+              Text(
+                DateUtils.isSameDay(day, DateTime.now())
+                    ? context.t('today')
+                    : context.t('day_plan'),
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const Spacer(),
+              Text(
+                MaterialLocalizations.of(context).formatMediumDate(day),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 12),
         if (featured != null)

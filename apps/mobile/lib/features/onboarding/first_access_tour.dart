@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
@@ -6,7 +8,6 @@ import 'package:go_router/go_router.dart';
 import '../../core/api.dart';
 import '../../core/localization.dart';
 import '../../core/state.dart';
-import '../../design_system/widgets.dart';
 
 abstract final class FirstAccessTour {
   static String _key(String userId) => 'eatme.$userId.first_access_tour';
@@ -32,212 +33,338 @@ abstract final class FirstAccessTour {
   }
 }
 
-class FirstAccessTourPage extends ConsumerStatefulWidget {
-  const FirstAccessTourPage({super.key});
-
-  @override
-  ConsumerState<FirstAccessTourPage> createState() =>
-      _FirstAccessTourPageState();
+abstract final class FirstAccessTourTargets {
+  static final navigation = GlobalKey(debugLabel: 'tour-navigation');
+  static final chefHeader = GlobalKey(debugLabel: 'tour-chef-header');
+  static final chefSearch = GlobalKey(debugLabel: 'tour-chef-search');
+  static final chefModes = GlobalKey(debugLabel: 'tour-chef-modes');
+  static final chefTools = GlobalKey(debugLabel: 'tour-chef-tools');
+  static final fridgeHeader = GlobalKey(debugLabel: 'tour-fridge-header');
+  static final fridgeSearch = GlobalKey(debugLabel: 'tour-fridge-search');
+  static final fridgeFilters = GlobalKey(debugLabel: 'tour-fridge-filters');
+  static final fridgeTools = GlobalKey(debugLabel: 'tour-fridge-tools');
+  static final planTabs = GlobalKey(debugLabel: 'tour-plan-tabs');
+  static final planWeek = GlobalKey(debugLabel: 'tour-plan-week');
+  static final planActions = GlobalKey(debugLabel: 'tour-plan-actions');
+  static final planMeals = GlobalKey(debugLabel: 'tour-plan-meals');
+  static final profileSummary = GlobalKey(debugLabel: 'tour-profile-summary');
+  static final profileSettings = GlobalKey(debugLabel: 'tour-profile-settings');
+  static final profileTools = GlobalKey(debugLabel: 'tour-profile-tools');
+  static final profileMore = GlobalKey(debugLabel: 'tour-profile-more');
 }
 
-class _FirstAccessTourPageState extends ConsumerState<FirstAccessTourPage> {
-  final controller = PageController();
-  int step = 0;
+class FirstAccessTourStep {
+  const FirstAccessTourStep({
+    required this.route,
+    required this.target,
+    required this.titleKey,
+    required this.bodyKey,
+  });
 
-  static const steps = <(String, String, EatMeGlyph)>[
-    ('first_tour_chef_title', 'first_tour_chef_body', EatMeGlyph.chefHat),
-    (
-      'first_tour_fridge_title',
-      'first_tour_fridge_body',
-      EatMeGlyph.refrigerator,
-    ),
-    ('first_tour_plan_title', 'first_tour_plan_body', EatMeGlyph.calendarDays),
-    (
-      'first_tour_profile_title',
-      'first_tour_profile_body',
-      EatMeGlyph.shieldCheck,
-    ),
-  ];
+  final String route;
+  final GlobalKey target;
+  final String titleKey;
+  final String bodyKey;
+}
+
+final firstAccessTourControllerProvider =
+    ChangeNotifierProvider<FirstAccessTourController>(
+      (ref) => FirstAccessTourController(),
+    );
+
+class FirstAccessTourController extends ChangeNotifier {
+  int? _index;
+
+  int? get index => _index;
+
+  void start() {
+    _index = 0;
+    notifyListeners();
+  }
+
+  void next(int total) {
+    if (_index == null || _index! >= total - 1) return;
+    _index = _index! + 1;
+    notifyListeners();
+  }
+
+  void back() {
+    if (_index == null || _index == 0) return;
+    _index = _index! - 1;
+    notifyListeners();
+  }
+
+  void stop() {
+    _index = null;
+    notifyListeners();
+  }
+}
+
+class FirstAccessTourOverlay extends ConsumerStatefulWidget {
+  const FirstAccessTourOverlay({
+    super.key,
+    required this.router,
+    required this.child,
+  });
+
+  final GoRouter router;
+  final Widget child;
 
   @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
+  ConsumerState<FirstAccessTourOverlay> createState() =>
+      _FirstAccessTourOverlayState();
+}
+
+class _FirstAccessTourOverlayState
+    extends ConsumerState<FirstAccessTourOverlay> {
+  static final steps = <FirstAccessTourStep>[
+    FirstAccessTourStep(route: '/chef', target: FirstAccessTourTargets.chefHeader, titleKey: 'chef_table', bodyKey: 'tour_chef_header_body'),
+    FirstAccessTourStep(route: '/chef', target: FirstAccessTourTargets.chefSearch, titleKey: 'recipe_search_hint', bodyKey: 'tour_chef_search_body'),
+    FirstAccessTourStep(route: '/chef', target: FirstAccessTourTargets.chefModes, titleKey: 'for_you', bodyKey: 'tour_chef_modes_body'),
+    FirstAccessTourStep(route: '/chef', target: FirstAccessTourTargets.chefTools, titleKey: 'your_kitchen', bodyKey: 'tour_chef_tools_body'),
+    FirstAccessTourStep(route: '/chef', target: FirstAccessTourTargets.navigation, titleKey: 'eatme', bodyKey: 'tour_navigation_body'),
+    FirstAccessTourStep(route: '/fridge', target: FirstAccessTourTargets.fridgeHeader, titleKey: 'add_food', bodyKey: 'tour_fridge_add_body'),
+    FirstAccessTourStep(route: '/fridge', target: FirstAccessTourTargets.fridgeSearch, titleKey: 'inventory_search_hint', bodyKey: 'tour_fridge_search_body'),
+    FirstAccessTourStep(route: '/fridge', target: FirstAccessTourTargets.fridgeFilters, titleKey: 'fridge', bodyKey: 'tour_fridge_filters_body'),
+    FirstAccessTourStep(route: '/fridge', target: FirstAccessTourTargets.fridgeTools, titleKey: 'scan_and_import', bodyKey: 'tour_fridge_tools_body'),
+    FirstAccessTourStep(route: '/plan', target: FirstAccessTourTargets.planTabs, titleKey: 'plan', bodyKey: 'tour_plan_tabs_body'),
+    FirstAccessTourStep(route: '/plan', target: FirstAccessTourTargets.planWeek, titleKey: 'change_week', bodyKey: 'tour_plan_week_body'),
+    FirstAccessTourStep(route: '/plan', target: FirstAccessTourTargets.planActions, titleKey: 'generate_week', bodyKey: 'tour_plan_actions_body'),
+    FirstAccessTourStep(route: '/plan', target: FirstAccessTourTargets.planMeals, titleKey: 'day_plan', bodyKey: 'tour_plan_meals_body'),
+    FirstAccessTourStep(route: '/profile', target: FirstAccessTourTargets.profileSummary, titleKey: 'profile', bodyKey: 'tour_profile_summary_body'),
+    FirstAccessTourStep(route: '/profile', target: FirstAccessTourTargets.profileSettings, titleKey: 'preferences', bodyKey: 'tour_profile_settings_body'),
+    FirstAccessTourStep(route: '/profile', target: FirstAccessTourTargets.profileTools, titleKey: 'your_kitchen', bodyKey: 'tour_profile_tools_body'),
+    FirstAccessTourStep(route: '/profile', target: FirstAccessTourTargets.profileMore, titleKey: 'more', bodyKey: 'tour_profile_more_body'),
+  ];
+
+  Rect? targetRect;
+  int? preparedIndex;
+
+  Future<void> prepare(FirstAccessTourStep step, int index) async {
+    if (preparedIndex == index) return;
+    preparedIndex = index;
+    targetRect = null;
+    final currentPath = widget.router.routerDelegate.currentConfiguration.uri.path;
+    if (currentPath != step.route) {
+      widget.router.go(step.route);
+      await Future<void>.delayed(const Duration(milliseconds: 240));
+    }
+    if (!mounted || ref.read(firstAccessTourControllerProvider).index != index) return;
+    var targetContext = step.target.currentContext;
+    for (var attempt = 0; targetContext == null && attempt < 8; attempt++) {
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+      targetContext = step.target.currentContext;
+    }
+    if (targetContext == null || !mounted) return;
+    await Scrollable.ensureVisible(
+      targetContext,
+      alignment: .42,
+      duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 320),
+      curve: Curves.easeOutCubic,
+    );
+    await Future<void>.delayed(const Duration(milliseconds: 40));
+    final box = step.target.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.hasSize || !mounted) return;
+    final origin = box.localToGlobal(Offset.zero);
+    setState(() => targetRect = (origin & box.size).inflate(8));
   }
 
   Future<void> finish() async {
     final userId = ref.read(apiProvider).userId;
     if (userId != null) await FirstAccessTour.complete(userId);
-    if (mounted) context.go('/chef');
+    ref.read(firstAccessTourControllerProvider).stop();
+    widget.router.go('/chef');
   }
 
   @override
   Widget build(BuildContext context) {
+    final controller = ref.watch(firstAccessTourControllerProvider);
+    final index = controller.index;
+    if (index == null) {
+      preparedIndex = null;
+      targetRect = null;
+      return widget.child;
+    }
+    final step = steps[index];
+    WidgetsBinding.instance.addPostFrameCallback((_) => prepare(step, index));
+    final size = MediaQuery.sizeOf(context);
+    final safeTop = MediaQuery.paddingOf(context).top + 12;
+    final safeBottom = MediaQuery.paddingOf(context).bottom + 12;
+    final rect = targetRect;
+    const cardHeight = 230.0;
+    final placeBelow = rect == null || rect.center.dy < size.height * .46;
+    final cardTop = placeBelow
+        ? math.min((rect?.bottom ?? safeTop) + 24, size.height - cardHeight - safeBottom)
+        : math.max(safeTop, (rect?.top ?? size.height) - cardHeight - 24);
+    final cardRect = Rect.fromLTWH(20, cardTop, size.width - 40, cardHeight);
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        widget.child,
+        Semantics(
+          scopesRoute: true,
+          namesRoute: true,
+          label: '${context.t('first_tour_progress', {'current': index + 1, 'total': steps.length})}. ${context.t(step.titleKey)}. ${context.t(step.bodyKey)}',
+          child: Material(
+            color: Colors.transparent,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: _TourScrimPainter(
+                      target: rect,
+                      card: cardRect,
+                      color: Colors.black.withValues(alpha: .68),
+                      accent: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+                Positioned.fromRect(
+                  rect: cardRect,
+                  child: _TourCard(
+                    title: context.t(step.titleKey),
+                    body: context.t(step.bodyKey),
+                    progress: context.t('first_tour_progress', {'current': index + 1, 'total': steps.length}),
+                    canGoBack: index > 0,
+                    isLast: index == steps.length - 1,
+                    onBack: () {
+                      targetRect = null;
+                      preparedIndex = null;
+                      controller.back();
+                    },
+                    onNext: index == steps.length - 1
+                        ? finish
+                        : () {
+                            targetRect = null;
+                            preparedIndex = null;
+                            controller.next(steps.length);
+                          },
+                    onSkip: finish,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TourCard extends StatelessWidget {
+  const _TourCard({required this.title, required this.body, required this.progress, required this.canGoBack, required this.isLast, required this.onBack, required this.onNext, required this.onSkip});
+
+  final String title;
+  final String body;
+  final String progress;
+  final bool canGoBack;
+  final bool isLast;
+  final VoidCallback onBack;
+  final VoidCallback onNext;
+  final VoidCallback onSkip;
+
+  @override
+  Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final last = step == steps.length - 1;
-    return Scaffold(
-      appBar: EatMeAppBar(
-        leading: const SizedBox(width: 48),
-        title: const EatMeWordmark(),
-        actions: [
-          TextButton(
-            key: const ValueKey('first-tour-skip'),
-            onPressed: finish,
-            child: Text(context.t('first_tour_skip')),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-          child: Column(
-            children: [
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Text(
-                  context.t('first_tour_progress', {
-                    'current': step + 1,
-                    'total': steps.length,
-                  }),
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  for (var index = 0; index < steps.length; index++) ...[
-                    Expanded(
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: index <= step
-                              ? scheme.primary
-                              : scheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(99),
-                        ),
-                      ),
-                    ),
-                    if (index < steps.length - 1) const SizedBox(width: 7),
-                  ],
-                ],
-              ),
-              const SizedBox(height: 22),
-              Expanded(
-                child: PageView.builder(
-                  key: const ValueKey('first-access-tour'),
-                  controller: controller,
-                  itemCount: steps.length,
-                  onPageChanged: (value) => setState(() => step = value),
-                  itemBuilder: (context, index) => _TourStep(
-                    icon: steps[index].$3,
-                    title: context.t(steps[index].$1),
-                    body: context.t(steps[index].$2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 18),
-              Row(
-                children: [
-                  if (step > 0) ...[
-                    Expanded(
-                      child: OutlinedButton(
-                        key: const ValueKey('first-tour-back'),
-                        onPressed: () => controller.previousPage(
-                          duration: const Duration(milliseconds: 220),
-                          curve: Curves.easeOut,
-                        ),
-                        child: Text(context.t('first_tour_back')),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                  ],
-                  Expanded(
-                    flex: step > 0 ? 2 : 1,
-                    child: FilledButton(
-                      key: ValueKey(
-                        last ? 'first-tour-finish' : 'first-tour-next',
-                      ),
-                      onPressed: last
-                          ? finish
-                          : () => controller.nextPage(
-                              duration: const Duration(milliseconds: 220),
-                              curve: Curves.easeOut,
-                            ),
-                      child: Text(
-                        context.t(
-                          last ? 'first_tour_start' : 'first_tour_next',
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+    return Material(
+      elevation: 12,
+      color: scheme.surface,
+      borderRadius: BorderRadius.circular(26),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(child: Text(progress, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: scheme.primary, fontWeight: FontWeight.w700))),
+                TextButton(key: const ValueKey('first-tour-skip'), onPressed: onSkip, child: Text(context.t('first_tour_skip'))),
+              ],
+            ),
+            Text(title, style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(height: 8),
+            Expanded(child: SingleChildScrollView(child: Text(body, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant, height: 1.35)))),
+            Row(
+              children: [
+                if (canGoBack) TextButton(key: const ValueKey('first-tour-back'), onPressed: onBack, child: Text(context.t('first_tour_back'))),
+                const Spacer(),
+                FilledButton(key: ValueKey(isLast ? 'first-tour-finish' : 'first-tour-next'), onPressed: onNext, child: Text(context.t(isLast ? 'first_tour_start' : 'first_tour_next'))),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _TourStep extends StatelessWidget {
-  const _TourStep({
-    required this.icon,
-    required this.title,
-    required this.body,
-  });
+class _TourScrimPainter extends CustomPainter {
+  const _TourScrimPainter({required this.target, required this.card, required this.color, required this.accent});
 
-  final EatMeGlyph icon;
-  final String title, body;
+  final Rect? target;
+  final Rect card;
+  final Color color;
+  final Color accent;
 
   @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Semantics(
-      namesRoute: true,
-      label: '$title. $body',
-      child: SingleChildScrollView(
-        child: Container(
-          width: double.infinity,
-          constraints: const BoxConstraints(minHeight: 360),
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: scheme.surfaceContainer,
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: scheme.outlineVariant),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: scheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Center(
-                  child: EatMeIcon(icon, size: 30, color: scheme.primary),
-                ),
-              ),
-              const SizedBox(height: 38),
-              Text(title, style: Theme.of(context).textTheme.headlineMedium),
-              const SizedBox(height: 12),
-              Text(
-                body,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                  height: 1.45,
-                ),
-              ),
-            ],
-          ),
+  void paint(Canvas canvas, Size size) {
+    final hole = target;
+    final scrim = Path()..addRect(Offset.zero & size);
+    if (hole != null) {
+      scrim.addRRect(RRect.fromRectAndRadius(hole, const Radius.circular(20)));
+      scrim.fillType = PathFillType.evenOdd;
+    }
+    canvas.drawPath(scrim, Paint()..color = color);
+    if (hole == null) return;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(hole, const Radius.circular(20)),
+      Paint()..color = accent..style = PaintingStyle.stroke..strokeWidth = 3,
+    );
+    final from = card.center.dy > hole.center.dy ? Offset(hole.center.dx, hole.bottom + 4) : Offset(hole.center.dx, hole.top - 4);
+    final to = card.center.dy > hole.center.dy ? Offset(card.center.dx, card.top - 8) : Offset(card.center.dx, card.bottom + 8);
+    final path = Path()..moveTo(from.dx, from.dy)..quadraticBezierTo(from.dx, (from.dy + to.dy) / 2, to.dx, to.dy);
+    canvas.drawPath(path, Paint()..color = accent..style = PaintingStyle.stroke..strokeWidth = 3..strokeCap = StrokeCap.round);
+    final angle = math.atan2(to.dy - from.dy, to.dx - from.dx);
+    const arrow = 10.0;
+    final arrowPath = Path()
+      ..moveTo(to.dx, to.dy)
+      ..lineTo(to.dx - arrow * math.cos(angle - math.pi / 6), to.dy - arrow * math.sin(angle - math.pi / 6))
+      ..moveTo(to.dx, to.dy)
+      ..lineTo(to.dx - arrow * math.cos(angle + math.pi / 6), to.dy - arrow * math.sin(angle + math.pi / 6));
+    canvas.drawPath(arrowPath, Paint()..color = accent..style = PaintingStyle.stroke..strokeWidth = 3..strokeCap = StrokeCap.round);
+  }
+
+  @override
+  bool shouldRepaint(covariant _TourScrimPainter oldDelegate) => oldDelegate.target != target || oldDelegate.card != card || oldDelegate.color != color || oldDelegate.accent != accent;
+}
+
+class FirstAccessTourPage extends ConsumerStatefulWidget {
+  const FirstAccessTourPage({super.key});
+
+  @override
+  ConsumerState<FirstAccessTourPage> createState() => _FirstAccessTourPageState();
+}
+
+class _FirstAccessTourPageState extends ConsumerState<FirstAccessTourPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(firstAccessTourControllerProvider).start();
+      if (mounted) GoRouter.maybeOf(context)?.go('/chef');
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    body: Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text(
+          context.t('first_tour_chef_body'),
+          textAlign: TextAlign.center,
         ),
       ),
-    );
-  }
+    ),
+  );
 }

@@ -15,6 +15,7 @@ import '../../core/data_export.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
+import '../onboarding/first_access_tour.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -63,8 +64,10 @@ class ProfilePage extends ConsumerWidget {
             title: context.t('profile_editorial'),
             subtitle: context.t('profile_support'),
           ),
-          InformationPanel(
-            child: Column(
+          KeyedSubtree(
+            key: FirstAccessTourTargets.profileSummary,
+            child: InformationPanel(
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -113,11 +116,14 @@ class ProfilePage extends ConsumerWidget {
                   ],
                 ),
               ],
+              ),
             ),
           ),
           const SizedBox(height: 24),
-          SettingsGroup(
-            children: [
+          KeyedSubtree(
+            key: FirstAccessTourTargets.profileSettings,
+            child: SettingsGroup(
+              children: [
               SettingRow(
                 title: context.t('diet_health'),
                 subtitle: context.t('allergies_intolerances'),
@@ -146,15 +152,21 @@ class ProfilePage extends ConsumerWidget {
                 icon: EatMeGlyph.bell,
                 onTap: () => context.push('/notifications'),
               ),
-            ],
+              ],
+            ),
           ),
-          SectionHeading(
-            title: context.t('your_kitchen'),
-            actionLabel: context.t('view_all'),
-            onAction: () => sheet(context, const _ProfileToolsSheet()),
-          ),
-          LayoutBuilder(
-            builder: (context, constraints) {
+          KeyedSubtree(
+            key: FirstAccessTourTargets.profileTools,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SectionHeading(
+                  title: context.t('your_kitchen'),
+                  actionLabel: context.t('view_all'),
+                  onAction: () => sheet(context, const _ProfileToolsSheet()),
+                ),
+                LayoutBuilder(
+                  builder: (context, constraints) {
               final tools = [
                 ('meal_planner', '/plan', EatMeGlyph.calendarDays),
                 ('shopping_list', '/shopping', EatMeGlyph.shoppingBasket),
@@ -191,36 +203,46 @@ class ProfilePage extends ConsumerWidget {
                   ],
                 ),
               );
-            },
+                  },
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 28),
-          SettingsGroup(
-            title: context.t('privacy_and_data'),
-            children: [
-              SettingRow(
-                title: context.t('privacy'),
-                subtitle: context.t('privacy_profile_hint'),
-                icon: EatMeGlyph.shieldCheck,
-                onTap: () => context.push('/privacy'),
-              ),
-            ],
-          ),
-          SettingsGroup(
-            title: context.t('more'),
-            children: [
-              for (final item in [
-                ('subscriptions', '/subscriptions', EatMeGlyph.badgeCheck),
-                ('offline_sync', '/sync', EatMeGlyph.refreshCw),
-                ('recent_activity', '/household-activity', EatMeGlyph.history),
-                ('insights', '/insights', EatMeGlyph.chartSpline),
-                ('evidence_library', '/evidence', EatMeGlyph.libraryBig),
-              ])
-                SettingRow(
-                  title: context.t(item.$1),
-                  icon: item.$3,
-                  onTap: () => context.push(item.$2),
+          KeyedSubtree(
+            key: FirstAccessTourTargets.profileMore,
+            child: Column(
+              children: [
+                SettingsGroup(
+                  title: context.t('privacy_and_data'),
+                  children: [
+                    SettingRow(
+                      title: context.t('privacy'),
+                      subtitle: context.t('privacy_profile_hint'),
+                      icon: EatMeGlyph.shieldCheck,
+                      onTap: () => context.push('/privacy'),
+                    ),
+                  ],
                 ),
-            ],
+                SettingsGroup(
+                  title: context.t('more'),
+                  children: [
+                    for (final item in [
+                      ('subscriptions', '/subscriptions', EatMeGlyph.badgeCheck),
+                      ('offline_sync', '/sync', EatMeGlyph.refreshCw),
+                      ('recent_activity', '/household-activity', EatMeGlyph.history),
+                      ('insights', '/insights', EatMeGlyph.chartSpline),
+                      ('evidence_library', '/evidence', EatMeGlyph.libraryBig),
+                    ])
+                      SettingRow(
+                        title: context.t(item.$1),
+                        icon: item.$3,
+                        onTap: () => context.push(item.$2),
+                      ),
+                  ],
+                ),
+              ],
+            ),
           ),
           AsyncAction(
             label: context.t('logout'),
