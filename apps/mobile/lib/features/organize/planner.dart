@@ -402,54 +402,54 @@ class _PlannerState extends ResourceState<PlannerPage> {
           key: FirstAccessTourTargets.planActions,
           child: IntrinsicHeight(
             child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: EatMeActionTile(
-                  key: const ValueKey('planner-date-action'),
-                  icon: EatMeGlyph.calendar,
-                  label: context.t('change_week'),
-                  onTap: () async {
-                    final date = await showDatePicker(
-                      context: context,
-                      initialDate: start,
-                      firstDate: DateTime.now().subtract(
-                        const Duration(days: 365),
-                      ),
-                      lastDate: DateTime.now().add(const Duration(days: 730)),
-                    );
-                    if (date != null) {
-                      setState(() {
-                        start = DateUtils.dateOnly(date);
-                        focusedDay = 0;
-                      });
-                      await load();
-                    }
-                  },
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: EatMeActionTile(
+                    key: const ValueKey('planner-date-action'),
+                    icon: EatMeGlyph.calendar,
+                    label: context.t('change_week'),
+                    onTap: () async {
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: start,
+                        firstDate: DateTime.now().subtract(
+                          const Duration(days: 365),
+                        ),
+                        lastDate: DateTime.now().add(const Duration(days: 730)),
+                      );
+                      if (date != null) {
+                        setState(() {
+                          start = DateUtils.dateOnly(date);
+                          focusedDay = 0;
+                        });
+                        await load();
+                      }
+                    },
+                  ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _PlannerDinersActionTile(
-                  key: const ValueKey('planner-diners-action'),
-                  diners: selectedDiners,
-                  onTap: selectDiners,
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _PlannerDinersActionTile(
+                    key: const ValueKey('planner-diners-action'),
+                    diners: selectedDiners,
+                    onTap: selectDiners,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: EatMeActionTile(
-                  key: const ValueKey('planner-smart-action'),
-                  icon: canSmartPlan
-                      ? EatMeGlyph.sparkles
-                      : EatMeGlyph.badgeCheck,
-                  label: context.t('generate_week'),
-                  badge: PremiumBadge(unlocked: canSmartPlan, compact: true),
-                  emphasized: true,
-                  onTap: () => generatePlan(canSmartPlan),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: EatMeActionTile(
+                    key: const ValueKey('planner-smart-action'),
+                    icon: canSmartPlan
+                        ? EatMeGlyph.sparkles
+                        : EatMeGlyph.badgeCheck,
+                    label: context.t('generate_week'),
+                    badge: PremiumBadge(unlocked: canSmartPlan, compact: true),
+                    emphasized: true,
+                    onTap: () => generatePlan(canSmartPlan),
+                  ),
                 ),
-              ),
-            ],
+              ],
             ),
           ),
         ),

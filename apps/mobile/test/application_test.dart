@@ -278,7 +278,11 @@ void main() {
     },
   );
   test('first access tutorial controller moves, returns and stops', () {
-    final controller = FirstAccessTourController();
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final controller = container.read(
+      firstAccessTourControllerProvider.notifier,
+    );
     expect(controller.index, isNull);
 
     controller.start();

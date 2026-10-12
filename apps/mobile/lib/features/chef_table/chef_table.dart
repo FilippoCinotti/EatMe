@@ -40,7 +40,9 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
   Future<void> openTourIfPending() async {
     final userId = ref.read(apiProvider).userId;
     if (userId == null || !await FirstAccessTour.isPending(userId)) return;
-    if (mounted) ref.read(firstAccessTourControllerProvider).start();
+    if (mounted) {
+      ref.read(firstAccessTourControllerProvider.notifier).start();
+    }
   }
 
   @override
@@ -201,43 +203,46 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                for (final value in [
-                  'for_you',
-                  'use_soon',
-                  'quick',
-                  'no_shopping',
-                  'health_first',
-                  'guilty_pleasure',
-                ]) ...[
-                  _ModePill(
-                    label: context.t(value),
-                    selected: state.mode == value,
-                    onTap:
-                        state.offline &&
-                            !(value == 'guilty_pleasure' &&
-                                state.guiltyPleasureActive)
-                        ? null
-                        : () async {
-                            HapticFeedback.selectionClick();
-                            final controller = ref.read(appProvider.notifier);
-                            if (value == 'guilty_pleasure') {
-                              final choice = await showGuiltyPleasureSheet(
-                                context,
-                                active: state.guiltyPleasureActive,
-                              );
-                              if (!mounted) return;
-                              if (choice == 'off') {
-                                await controller.disableGuiltyPleasure();
-                              } else if (choice == 'meal' || choice == 'day') {
-                                await controller.enableGuiltyPleasure(choice!);
+                  for (final value in [
+                    'for_you',
+                    'use_soon',
+                    'quick',
+                    'no_shopping',
+                    'health_first',
+                    'guilty_pleasure',
+                  ]) ...[
+                    _ModePill(
+                      label: context.t(value),
+                      selected: state.mode == value,
+                      onTap:
+                          state.offline &&
+                              !(value == 'guilty_pleasure' &&
+                                  state.guiltyPleasureActive)
+                          ? null
+                          : () async {
+                              HapticFeedback.selectionClick();
+                              final controller = ref.read(appProvider.notifier);
+                              if (value == 'guilty_pleasure') {
+                                final choice = await showGuiltyPleasureSheet(
+                                  context,
+                                  active: state.guiltyPleasureActive,
+                                );
+                                if (!mounted) return;
+                                if (choice == 'off') {
+                                  await controller.disableGuiltyPleasure();
+                                } else if (choice == 'meal' ||
+                                    choice == 'day') {
+                                  await controller.enableGuiltyPleasure(
+                                    choice!,
+                                  );
+                                }
+                              } else {
+                                await controller.setRecommendationMode(value);
                               }
-                            } else {
-                              await controller.setRecommendationMode(value);
-                            }
-                          },
-                  ),
-                  const SizedBox(width: 8),
-                ],
+                            },
+                    ),
+                    const SizedBox(width: 8),
+                  ],
                 ],
               ),
             ),
@@ -369,26 +374,27 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                    for (final item in [
-                      (
-                        'favorites',
-                        '/recipe-library?favorites=true',
-                        EatMeGlyph.heart,
-                      ),
-                      ('leftovers', '/leftovers', EatMeGlyph.packageOpen),
-                      ('meal_planner', '/plan', EatMeGlyph.calendarDays),
-                    ]) ...[
-                      CompactShortcut(
-                        width:
-                            132 *
-                            (MediaQuery.textScalerOf(context).scale(15) / 15)
-                                .clamp(1, 3),
-                        title: context.t(item.$1),
-                        icon: item.$3,
-                        onTap: () => context.push(item.$2),
-                      ),
-                      const SizedBox(width: 12),
-                    ],
+                          for (final item in [
+                            (
+                              'favorites',
+                              '/recipe-library?favorites=true',
+                              EatMeGlyph.heart,
+                            ),
+                            ('leftovers', '/leftovers', EatMeGlyph.packageOpen),
+                            ('meal_planner', '/plan', EatMeGlyph.calendarDays),
+                          ]) ...[
+                            CompactShortcut(
+                              width:
+                                  132 *
+                                  (MediaQuery.textScalerOf(context).scale(15) /
+                                          15)
+                                      .clamp(1, 3),
+                              title: context.t(item.$1),
+                              icon: item.$3,
+                              onTap: () => context.push(item.$2),
+                            ),
+                            const SizedBox(width: 12),
+                          ],
                         ],
                       ),
                     ),

@@ -68,54 +68,54 @@ class ProfilePage extends ConsumerWidget {
             key: FirstAccessTourTargets.profileSummary,
             child: InformationPanel(
               child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    _ProfileAvatar(
-                      name: name,
-                      initials: initials,
-                      mediaId: settings['avatar_media_id'] as String?,
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Text(
-                        name.isEmpty ? context.t('profile') : name,
-                        style: Theme.of(context).textTheme.headlineMedium,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      _ProfileAvatar(
+                        name: name,
+                        initials: initials,
+                        mediaId: settings['avatar_media_id'] as String?,
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 18),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _ProfilePill(
-                      icon: EatMeGlyph.leaf,
-                      label:
-                          '${context.t('eating_style')}: ${preview(eatingNames)}',
-                    ),
-                    _ProfilePill(
-                      icon: EatMeGlyph.shield,
-                      label:
-                          '${context.t('allergies')}: ${preview(allergyNames)}',
-                    ),
-                    _ProfilePill(
-                      icon: EatMeGlyph.shieldCheck,
-                      label:
-                          '${context.t('medical_restrictions')}: ${preview(medicalNames)}',
-                    ),
-                    if (state.profile['household_size'] is int)
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          name.isEmpty ? context.t('profile') : name,
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
                       _ProfilePill(
-                        icon: EatMeGlyph.usersRound,
-                        label: context.t('household_members_count', {
-                          'count': state.profile['household_size'] as int,
-                        }),
+                        icon: EatMeGlyph.leaf,
+                        label:
+                            '${context.t('eating_style')}: ${preview(eatingNames)}',
                       ),
-                  ],
-                ),
-              ],
+                      _ProfilePill(
+                        icon: EatMeGlyph.shield,
+                        label:
+                            '${context.t('allergies')}: ${preview(allergyNames)}',
+                      ),
+                      _ProfilePill(
+                        icon: EatMeGlyph.shieldCheck,
+                        label:
+                            '${context.t('medical_restrictions')}: ${preview(medicalNames)}',
+                      ),
+                      if (state.profile['household_size'] is int)
+                        _ProfilePill(
+                          icon: EatMeGlyph.usersRound,
+                          label: context.t('household_members_count', {
+                            'count': state.profile['household_size'] as int,
+                          }),
+                        ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
@@ -124,34 +124,34 @@ class ProfilePage extends ConsumerWidget {
             key: FirstAccessTourTargets.profileSettings,
             child: SettingsGroup(
               children: [
-              SettingRow(
-                title: context.t('diet_health'),
-                subtitle: context.t('allergies_intolerances'),
-                icon: EatMeGlyph.shieldCheck,
-                onTap: () => context.push('/diet-health'),
-              ),
-              SettingRow(
-                title: context.t('household'),
-                icon: EatMeGlyph.usersRound,
-                onTap: () => context.push('/household'),
-              ),
-              SettingRow(
-                key: const ValueKey('profile-pantry'),
-                title: context.t('pantry_staples'),
-                subtitle: context.t('pantry_row_subtitle'),
-                icon: EatMeGlyph.packageOpen,
-                onTap: () => context.push('/pantry'),
-              ),
-              SettingRow(
-                title: context.t('preferences'),
-                icon: EatMeGlyph.slidersHorizontal,
-                onTap: () => context.push('/preferences'),
-              ),
-              SettingRow(
-                title: context.t('notifications'),
-                icon: EatMeGlyph.bell,
-                onTap: () => context.push('/notifications'),
-              ),
+                SettingRow(
+                  title: context.t('diet_health'),
+                  subtitle: context.t('allergies_intolerances'),
+                  icon: EatMeGlyph.shieldCheck,
+                  onTap: () => context.push('/diet-health'),
+                ),
+                SettingRow(
+                  title: context.t('household'),
+                  icon: EatMeGlyph.usersRound,
+                  onTap: () => context.push('/household'),
+                ),
+                SettingRow(
+                  key: const ValueKey('profile-pantry'),
+                  title: context.t('pantry_staples'),
+                  subtitle: context.t('pantry_row_subtitle'),
+                  icon: EatMeGlyph.packageOpen,
+                  onTap: () => context.push('/pantry'),
+                ),
+                SettingRow(
+                  title: context.t('preferences'),
+                  icon: EatMeGlyph.slidersHorizontal,
+                  onTap: () => context.push('/preferences'),
+                ),
+                SettingRow(
+                  title: context.t('notifications'),
+                  icon: EatMeGlyph.bell,
+                  onTap: () => context.push('/notifications'),
+                ),
               ],
             ),
           ),
@@ -167,42 +167,51 @@ class ProfilePage extends ConsumerWidget {
                 ),
                 LayoutBuilder(
                   builder: (context, constraints) {
-              final tools = [
-                ('meal_planner', '/plan', EatMeGlyph.calendarDays),
-                ('shopping_list', '/shopping', EatMeGlyph.shoppingBasket),
-                ('recipe_library', '/recipe-library', EatMeGlyph.bookOpen),
-              ];
-              if (constraints.maxWidth < 330 ||
-                  MediaQuery.textScalerOf(context).scale(16) > 22) {
-                return Column(
-                  children: [
-                    for (final item in tools) ...[
-                      SettingRow(
-                        title: context.t(item.$1),
-                        icon: item.$3,
-                        onTap: () => context.push(item.$2),
+                    final tools = [
+                      ('meal_planner', '/plan', EatMeGlyph.calendarDays),
+                      ('shopping_list', '/shopping', EatMeGlyph.shoppingBasket),
+                      (
+                        'recipe_library',
+                        '/recipe-library',
+                        EatMeGlyph.bookOpen,
                       ),
-                    ],
-                  ],
-                );
-              }
-              return IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (var index = 0; index < tools.length; index++) ...[
-                      Expanded(
-                        child: ShortcutTile(
-                          title: context.t(tools[index].$1),
-                          icon: tools[index].$3,
-                          onTap: () => context.push(tools[index].$2),
-                        ),
+                    ];
+                    if (constraints.maxWidth < 330 ||
+                        MediaQuery.textScalerOf(context).scale(16) > 22) {
+                      return Column(
+                        children: [
+                          for (final item in tools) ...[
+                            SettingRow(
+                              title: context.t(item.$1),
+                              icon: item.$3,
+                              onTap: () => context.push(item.$2),
+                            ),
+                          ],
+                        ],
+                      );
+                    }
+                    return IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (
+                            var index = 0;
+                            index < tools.length;
+                            index++
+                          ) ...[
+                            Expanded(
+                              child: ShortcutTile(
+                                title: context.t(tools[index].$1),
+                                icon: tools[index].$3,
+                                onTap: () => context.push(tools[index].$2),
+                              ),
+                            ),
+                            if (index < tools.length - 1)
+                              const SizedBox(width: 10),
+                          ],
+                        ],
                       ),
-                      if (index < tools.length - 1) const SizedBox(width: 10),
-                    ],
-                  ],
-                ),
-              );
+                    );
                   },
                 ),
               ],
@@ -228,9 +237,17 @@ class ProfilePage extends ConsumerWidget {
                   title: context.t('more'),
                   children: [
                     for (final item in [
-                      ('subscriptions', '/subscriptions', EatMeGlyph.badgeCheck),
+                      (
+                        'subscriptions',
+                        '/subscriptions',
+                        EatMeGlyph.badgeCheck,
+                      ),
                       ('offline_sync', '/sync', EatMeGlyph.refreshCw),
-                      ('recent_activity', '/household-activity', EatMeGlyph.history),
+                      (
+                        'recent_activity',
+                        '/household-activity',
+                        EatMeGlyph.history,
+                      ),
                       ('insights', '/insights', EatMeGlyph.chartSpline),
                       ('evidence_library', '/evidence', EatMeGlyph.libraryBig),
                     ])
