@@ -260,13 +260,19 @@ class _EatMeAppState extends ConsumerState<EatMeApp> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(appProvider);
+    final router = ref.watch(routerProvider);
     return MaterialApp.router(
       title: 'EatMe+',
       debugShowCheckedModeBanner: false,
       builder: (context, child) => GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: AdaptiveAppFrame(child: BiometricGate(child: child!)),
+        child: AdaptiveAppFrame(
+          child: FirstAccessTourOverlay(
+            router: router,
+            child: BiometricGate(child: child!),
+          ),
+        ),
       ),
       theme: Tokens.theme(Brightness.light),
       darkTheme: Tokens.theme(Brightness.dark),
@@ -286,7 +292,7 @@ class _EatMeAppState extends ConsumerState<EatMeApp> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      routerConfig: ref.watch(routerProvider),
+      routerConfig: router,
     );
   }
 }
@@ -367,30 +373,33 @@ class AppShell extends StatelessWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 620),
           child: GlassSurface(
-            child: EatMeNavigationBar(
-              selectedIndex: selectedIndex(),
-              onDestinationSelected: (index) {
-                HapticFeedback.selectionClick();
-                context.go(paths[index]);
-              },
-              destinations: [
-                EatMeNavigationItem(
-                  icon: EatMeGlyph.chefHat,
-                  label: context.t('chef_table'),
-                ),
-                EatMeNavigationItem(
-                  icon: EatMeGlyph.refrigerator,
-                  label: context.t('fridge'),
-                ),
-                EatMeNavigationItem(
-                  icon: EatMeGlyph.calendarDays,
-                  label: context.t('plan'),
-                ),
-                EatMeNavigationItem(
-                  icon: EatMeGlyph.userRound,
-                  label: context.t('profile'),
-                ),
-              ],
+            child: KeyedSubtree(
+              key: FirstAccessTourTargets.navigation,
+              child: EatMeNavigationBar(
+                selectedIndex: selectedIndex(),
+                onDestinationSelected: (index) {
+                  HapticFeedback.selectionClick();
+                  context.go(paths[index]);
+                },
+                destinations: [
+                  EatMeNavigationItem(
+                    icon: EatMeGlyph.chefHat,
+                    label: context.t('chef_table'),
+                  ),
+                  EatMeNavigationItem(
+                    icon: EatMeGlyph.refrigerator,
+                    label: context.t('fridge'),
+                  ),
+                  EatMeNavigationItem(
+                    icon: EatMeGlyph.calendarDays,
+                    label: context.t('plan'),
+                  ),
+                  EatMeNavigationItem(
+                    icon: EatMeGlyph.userRound,
+                    label: context.t('profile'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -12,6 +12,7 @@ import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
+import '../onboarding/first_access_tour.dart';
 import '../organize/shared.dart';
 
 class FridgePage extends ConsumerStatefulWidget {
@@ -65,53 +66,59 @@ class _FridgePageState extends ConsumerState<FridgePage> {
       body: PageBody(
         onRefresh: () => ref.read(appProvider.notifier).refresh(),
         children: [
-          EditorialHeader(
-            eyebrow: context.t('fridge_eyebrow'),
-            title: context.t('fridge_editorial'),
-            subtitle: context.t('fridge_support'),
-            actions: [
-              RoundAction(
-                icon: EatMeGlyph.plus,
-                label: context.t('add_food'),
-                primary: true,
-                onPressed: state.offline
-                    ? null
-                    : () => showAddFoodMethods(context, location: location),
-              ),
-            ],
+          KeyedSubtree(
+            key: FirstAccessTourTargets.fridgeHeader,
+            child: EditorialHeader(
+              eyebrow: context.t('fridge_eyebrow'),
+              title: context.t('fridge_editorial'),
+              subtitle: context.t('fridge_support'),
+              actions: [
+                RoundAction(
+                  icon: EatMeGlyph.plus,
+                  label: context.t('add_food'),
+                  primary: true,
+                  onPressed: state.offline
+                      ? null
+                      : () => showAddFoodMethods(context, location: location),
+                ),
+              ],
+            ),
           ),
-          SearchPill(
-            hint: context.t('inventory_search_hint'),
-            onChanged: (s) => setState(() => search = s),
-            onFilter: () => sheet(
-              context,
-              ListView(
-                shrinkWrap: true,
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
-                children: [
-                  Text(
-                    context.t('sort'),
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  const SizedBox(height: 12),
-                  for (final value in ['expiry', 'name'])
-                    SettingRow(
-                      title: context.t('sort_$value'),
-                      icon: value == 'expiry'
-                          ? EatMeGlyph.clockAlert
-                          : EatMeGlyph.listFilter,
-                      trailing: sort == value
-                          ? EatMeIcon(
-                              EatMeGlyph.check,
-                              color: Theme.of(context).colorScheme.primary,
-                            )
-                          : null,
-                      onTap: () {
-                        setState(() => sort = value);
-                        Navigator.pop(context);
-                      },
+          KeyedSubtree(
+            key: FirstAccessTourTargets.fridgeSearch,
+            child: SearchPill(
+              hint: context.t('inventory_search_hint'),
+              onChanged: (s) => setState(() => search = s),
+              onFilter: () => sheet(
+                context,
+                ListView(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
+                  children: [
+                    Text(
+                      context.t('sort'),
+                      style: Theme.of(context).textTheme.headlineMedium,
                     ),
-                ],
+                    const SizedBox(height: 12),
+                    for (final value in ['expiry', 'name'])
+                      SettingRow(
+                        title: context.t('sort_$value'),
+                        icon: value == 'expiry'
+                            ? EatMeGlyph.clockAlert
+                            : EatMeGlyph.listFilter,
+                        trailing: sort == value
+                            ? EatMeIcon(
+                                EatMeGlyph.check,
+                                color: Theme.of(context).colorScheme.primary,
+                              )
+                            : null,
+                        onTap: () {
+                          setState(() => sort = value);
+                          Navigator.pop(context);
+                        },
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -134,32 +141,35 @@ class _FridgePageState extends ConsumerState<FridgePage> {
           if (state.offline)
             StatusNote(text: context.t('offline_inventory'), warning: true),
           const SizedBox(height: 12),
-          RecipeActionRow(
-            primary: OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                side: expiryFilter == 'soon'
-                    ? BorderSide(color: Theme.of(context).colorScheme.primary)
-                    : BorderSide.none,
+          KeyedSubtree(
+            key: FirstAccessTourTargets.fridgeFilters,
+            child: RecipeActionRow(
+              primary: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  side: expiryFilter == 'soon'
+                      ? BorderSide(color: Theme.of(context).colorScheme.primary)
+                      : BorderSide.none,
+                ),
+                onPressed: () => setState(
+                  () => expiryFilter = expiryFilter == 'soon' ? 'all' : 'soon',
+                ),
+                icon: const EatMeIcon(EatMeGlyph.clockAlert),
+                label: Text('${context.t('expiry_soon_short')} · $dueSoon'),
               ),
-              onPressed: () => setState(
-                () => expiryFilter = expiryFilter == 'soon' ? 'all' : 'soon',
+              secondary: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  side: expiryFilter == 'expired'
+                      ? BorderSide(color: Theme.of(context).colorScheme.primary)
+                      : BorderSide.none,
+                ),
+                onPressed: () => setState(
+                  () => expiryFilter = expiryFilter == 'expired'
+                      ? 'all'
+                      : 'expired',
+                ),
+                icon: const EatMeIcon(EatMeGlyph.triangleAlert),
+                label: Text('${context.t('expiry_expired')} · $expired'),
               ),
-              icon: const EatMeIcon(EatMeGlyph.clockAlert),
-              label: Text('${context.t('expiry_soon_short')} · $dueSoon'),
-            ),
-            secondary: OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                side: expiryFilter == 'expired'
-                    ? BorderSide(color: Theme.of(context).colorScheme.primary)
-                    : BorderSide.none,
-              ),
-              onPressed: () => setState(
-                () => expiryFilter = expiryFilter == 'expired'
-                    ? 'all'
-                    : 'expired',
-              ),
-              icon: const EatMeIcon(EatMeGlyph.triangleAlert),
-              label: Text('${context.t('expiry_expired')} · $expired'),
             ),
           ),
           SectionHeading(
@@ -193,25 +203,28 @@ class _FridgePageState extends ConsumerState<FridgePage> {
               onTap: () => sheet(context, BatchSheet(batch: batch)),
             ),
           const SizedBox(height: 24),
-          SettingsGroup(
-            children: [
-              SettingRow(
-                title: context.t('expiry_view'),
-                icon: EatMeGlyph.clockAlert,
-                onTap: () => context.push('/expiry'),
-              ),
-              if (['all', 'fridge'].contains(location) && !state.offline)
+          KeyedSubtree(
+            key: FirstAccessTourTargets.fridgeTools,
+            child: SettingsGroup(
+              children: [
                 SettingRow(
-                  title: context.t('leftovers'),
-                  icon: EatMeGlyph.packageOpen,
-                  onTap: () => context.push('/leftovers'),
+                  title: context.t('expiry_view'),
+                  icon: EatMeGlyph.clockAlert,
+                  onTap: () => context.push('/expiry'),
                 ),
-              SettingRow(
-                title: context.t('scan_and_import'),
-                icon: EatMeGlyph.scanLine,
-                onTap: () => context.push('/scanning'),
-              ),
-            ],
+                if (['all', 'fridge'].contains(location) && !state.offline)
+                  SettingRow(
+                    title: context.t('leftovers'),
+                    icon: EatMeGlyph.packageOpen,
+                    onTap: () => context.push('/leftovers'),
+                  ),
+                SettingRow(
+                  title: context.t('scan_and_import'),
+                  icon: EatMeGlyph.scanLine,
+                  onTap: () => context.push('/scanning'),
+                ),
+              ],
+            ),
           ),
         ],
       ),

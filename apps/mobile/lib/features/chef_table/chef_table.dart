@@ -40,7 +40,9 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
   Future<void> openTourIfPending() async {
     final userId = ref.read(apiProvider).userId;
     if (userId == null || !await FirstAccessTour.isPending(userId)) return;
-    if (mounted) context.push('/tour');
+    if (mounted) {
+      ref.read(firstAccessTourControllerProvider.notifier).start();
+    }
   }
 
   @override
@@ -159,78 +161,90 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
       body: PageBody(
         onRefresh: () => ref.read(appProvider.notifier).refresh(),
         children: [
-          EditorialHeader(
-            eyebrow: '',
-            title: name.isEmpty
-                ? context.t(greetingKey)
-                : context.t('${greetingKey}_name', {'name': name}),
-            subtitle: context.t('cooking_your_way'),
-            actions: [
-              RoundAction(
-                icon: EatMeGlyph.bell,
-                label: context.t('notifications'),
-                onPressed: () => context.push('/notifications'),
-              ),
-              _ChefAvatarAction(
-                mediaId: avatarMediaId,
-                initials: initials,
-                label: context.t('profile'),
-                onPressed: () => context.go('/profile'),
-              ),
-            ],
+          KeyedSubtree(
+            key: FirstAccessTourTargets.chefHeader,
+            child: EditorialHeader(
+              eyebrow: '',
+              title: name.isEmpty
+                  ? context.t(greetingKey)
+                  : context.t('${greetingKey}_name', {'name': name}),
+              subtitle: context.t('cooking_your_way'),
+              actions: [
+                RoundAction(
+                  icon: EatMeGlyph.bell,
+                  label: context.t('notifications'),
+                  onPressed: () => context.push('/notifications'),
+                ),
+                _ChefAvatarAction(
+                  mediaId: avatarMediaId,
+                  initials: initials,
+                  label: context.t('profile'),
+                  onPressed: () => context.go('/profile'),
+                ),
+              ],
+            ),
           ),
-          SearchPill(
-            hint: context.t('recipe_search_hint'),
-            onChanged: updateSearch,
-            onFilter: () => sheet(context, const ChefFilters()),
+          KeyedSubtree(
+            key: FirstAccessTourTargets.chefSearch,
+            child: SearchPill(
+              hint: context.t('recipe_search_hint'),
+              onChanged: updateSearch,
+              onFilter: () => sheet(context, const ChefFilters()),
+            ),
           ),
           if (searchLoading) ...[
             const SizedBox(height: 8),
             const LinearProgressIndicator(minHeight: 2),
           ],
           const SizedBox(height: 16),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                for (final value in [
-                  'for_you',
-                  'use_soon',
-                  'quick',
-                  'no_shopping',
-                  'health_first',
-                  'guilty_pleasure',
-                ]) ...[
-                  _ModePill(
-                    label: context.t(value),
-                    selected: state.mode == value,
-                    onTap:
-                        state.offline &&
-                            !(value == 'guilty_pleasure' &&
-                                state.guiltyPleasureActive)
-                        ? null
-                        : () async {
-                            HapticFeedback.selectionClick();
-                            final controller = ref.read(appProvider.notifier);
-                            if (value == 'guilty_pleasure') {
-                              final choice = await showGuiltyPleasureSheet(
-                                context,
-                                active: state.guiltyPleasureActive,
-                              );
-                              if (!mounted) return;
-                              if (choice == 'off') {
-                                await controller.disableGuiltyPleasure();
-                              } else if (choice == 'meal' || choice == 'day') {
-                                await controller.enableGuiltyPleasure(choice!);
+          KeyedSubtree(
+            key: FirstAccessTourTargets.chefModes,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (final value in [
+                    'for_you',
+                    'use_soon',
+                    'quick',
+                    'no_shopping',
+                    'health_first',
+                    'guilty_pleasure',
+                  ]) ...[
+                    _ModePill(
+                      label: context.t(value),
+                      selected: state.mode == value,
+                      onTap:
+                          state.offline &&
+                              !(value == 'guilty_pleasure' &&
+                                  state.guiltyPleasureActive)
+                          ? null
+                          : () async {
+                              HapticFeedback.selectionClick();
+                              final controller = ref.read(appProvider.notifier);
+                              if (value == 'guilty_pleasure') {
+                                final choice = await showGuiltyPleasureSheet(
+                                  context,
+                                  active: state.guiltyPleasureActive,
+                                );
+                                if (!mounted) return;
+                                if (choice == 'off') {
+                                  await controller.disableGuiltyPleasure();
+                                } else if (choice == 'meal' ||
+                                    choice == 'day') {
+                                  await controller.enableGuiltyPleasure(
+                                    choice!,
+                                  );
+                                }
+                              } else {
+                                await controller.setRecommendationMode(value);
                               }
-                            } else {
-                              await controller.setRecommendationMode(value);
-                            }
-                          },
-                  ),
-                  const SizedBox(width: 8),
+                            },
+                    ),
+                    const SizedBox(width: 8),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -344,39 +358,48 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
               RecipeCard(recommendation: recommendation),
           ],
           if (normalizedQuery.isEmpty) ...[
-            SectionHeading(
-              title: context.t('your_kitchen'),
-              actionLabel: context.t('view_all'),
-              onAction: () => sheet(context, const _KitchenToolsSheet()),
-            ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final item in [
-                      (
-                        'favorites',
-                        '/recipe-library?favorites=true',
-                        EatMeGlyph.heart,
+            KeyedSubtree(
+              key: FirstAccessTourTargets.chefTools,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SectionHeading(
+                    title: context.t('your_kitchen'),
+                    actionLabel: context.t('view_all'),
+                    onAction: () => sheet(context, const _KitchenToolsSheet()),
+                  ),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final item in [
+                            (
+                              'favorites',
+                              '/recipe-library?favorites=true',
+                              EatMeGlyph.heart,
+                            ),
+                            ('leftovers', '/leftovers', EatMeGlyph.packageOpen),
+                            ('meal_planner', '/plan', EatMeGlyph.calendarDays),
+                          ]) ...[
+                            CompactShortcut(
+                              width:
+                                  132 *
+                                  (MediaQuery.textScalerOf(context).scale(15) /
+                                          15)
+                                      .clamp(1, 3),
+                              title: context.t(item.$1),
+                              icon: item.$3,
+                              onTap: () => context.push(item.$2),
+                            ),
+                            const SizedBox(width: 12),
+                          ],
+                        ],
                       ),
-                      ('leftovers', '/leftovers', EatMeGlyph.packageOpen),
-                      ('meal_planner', '/plan', EatMeGlyph.calendarDays),
-                    ]) ...[
-                      CompactShortcut(
-                        width:
-                            132 *
-                            (MediaQuery.textScalerOf(context).scale(15) / 15)
-                                .clamp(1, 3),
-                        title: context.t(item.$1),
-                        icon: item.$3,
-                        onTap: () => context.push(item.$2),
-                      ),
-                      const SizedBox(width: 12),
-                    ],
-                  ],
-                ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

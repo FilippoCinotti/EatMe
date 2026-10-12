@@ -277,6 +277,28 @@ void main() {
       expect(await FirstAccessTour.isPending(uid), isFalse);
     },
   );
+  test('first access tutorial controller moves, returns and stops', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    final controller = container.read(
+      firstAccessTourControllerProvider.notifier,
+    );
+    expect(controller.index, isNull);
+
+    controller.start();
+    expect(controller.index, 0);
+
+    controller.next(3);
+    controller.next(3);
+    controller.next(3);
+    expect(controller.index, 2);
+
+    controller.back();
+    expect(controller.index, 1);
+
+    controller.stop();
+    expect(controller.index, isNull);
+  });
   test('Guilty Pleasure expires and scheduled meal scope stays isolated', () {
     final now = DateTime(2026, 9, 19, 19);
     expect(
