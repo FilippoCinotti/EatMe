@@ -267,13 +267,16 @@ void main() {
     expect(free.can(EntitlementCapability.smartPlanning), isFalse);
     expect(free.remainingFor('smart_import'), 2);
   });
-  test('first access tutorial is pending only until skip or completion', () async {
-    FlutterSecureStorage.setMockInitialValues({});
-    await FirstAccessTour.markPending(uid);
-    expect(await FirstAccessTour.isPending(uid), isTrue);
-    await FirstAccessTour.complete(uid);
-    expect(await FirstAccessTour.isPending(uid), isFalse);
-  });
+  test(
+    'first access tutorial is pending only until skip or completion',
+    () async {
+      FlutterSecureStorage.setMockInitialValues({});
+      await FirstAccessTour.markPending(uid);
+      expect(await FirstAccessTour.isPending(uid), isTrue);
+      await FirstAccessTour.complete(uid);
+      expect(await FirstAccessTour.isPending(uid), isFalse);
+    },
+  );
   test('Guilty Pleasure expires and scheduled meal scope stays isolated', () {
     final now = DateTime(2026, 9, 19, 19);
     expect(
