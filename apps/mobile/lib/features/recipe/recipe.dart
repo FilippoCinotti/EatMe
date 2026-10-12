@@ -844,8 +844,8 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                             },
                           );
                           if (!context.mounted) return;
-                          final added = (result['ids'] as List? ?? const [])
-                              .length;
+                          final added =
+                              (result['ids'] as List? ?? const []).length;
                           if (added == 0) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
