@@ -144,36 +144,30 @@ class _FridgePageState extends ConsumerState<FridgePage> {
           KeyedSubtree(
             key: FirstAccessTourTargets.fridgeFilters,
             child: RecipeActionRow(
-                  primary: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      side: expiryFilter == 'soon'
-                          ? BorderSide(
-                              color: Theme.of(context).colorScheme.primary,
-                            )
-                          : BorderSide.none,
-                    ),
-                    onPressed: () => setState(
-                      () => expiryFilter = expiryFilter == 'soon'
-                          ? 'all'
-                          : 'soon',
-                    ),
-                    icon: const EatMeIcon(EatMeGlyph.clockAlert),
-                    label: Text('${context.t('expiry_soon_short')} · $dueSoon'),
-                  ),
-                  secondary: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      side: expiryFilter == 'expired'
-                          ? BorderSide(
-                              color: Theme.of(context).colorScheme.primary,
-                            )
-                          : BorderSide.none,
-                    ),
-                    onPressed: () => setState(
-                      () => expiryFilter = expiryFilter == 'expired'
-                          ? 'all'
-                          : 'expired',
-                    ),
-                    icon: const EatMeIcon(EatMeGlyph.triangleAlert),
+              primary: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  side: expiryFilter == 'soon'
+                      ? BorderSide(color: Theme.of(context).colorScheme.primary)
+                      : BorderSide.none,
+                ),
+                onPressed: () => setState(
+                  () => expiryFilter = expiryFilter == 'soon' ? 'all' : 'soon',
+                ),
+                icon: const EatMeIcon(EatMeGlyph.clockAlert),
+                label: Text('${context.t('expiry_soon_short')} · $dueSoon'),
+              ),
+              secondary: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  side: expiryFilter == 'expired'
+                      ? BorderSide(color: Theme.of(context).colorScheme.primary)
+                      : BorderSide.none,
+                ),
+                onPressed: () => setState(
+                  () => expiryFilter = expiryFilter == 'expired'
+                      ? 'all'
+                      : 'expired',
+                ),
+                icon: const EatMeIcon(EatMeGlyph.triangleAlert),
                 label: Text('${context.t('expiry_expired')} · $expired'),
               ),
             ),
