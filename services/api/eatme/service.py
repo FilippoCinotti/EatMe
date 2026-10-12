@@ -30,7 +30,7 @@ from .engine import (
 from .errors import DomainError
 from .shelf_life import estimate_expiry, shelf_life_days
 from .storage import Database, Transaction, decode, encode
-from .validation import choice
+from .validation import choice, text
 
 HEALTH_CONSENT = "nutrition-profile-1"
 MEDICAL_CONSENT = "medical-nutrition-1"
@@ -463,7 +463,7 @@ class Service(
         rules,rule_versions = active_rules(profile["settings"]["diets"],versions,today)
         return profile,foods,recipes,rules,rule_versions,today
 
-    def recommendations(self,user_id,mode="for_you",food_id=None,slot=None):
+    def recommendations(self,user_id,mode="for_you",food_id=None,slot=None,query=None):
         household_id = self._household(user_id)
         with self.db.transaction() as tx:
             profile,foods,recipes,rules,versions,today = self._context(tx,user_id)
@@ -486,6 +486,17 @@ class Service(
                     batch["canonical_food_id"] = canonical_food_id
             if food_id:
                 recipes = [r for r in recipes if food_id in {i["food_id"] for i in r["ingredients"]}]
+            search = text(query, maximum=120).casefold() if query is not None else None
+            if search:
+                def matches(recipe):
+                    title_values = recipe.get("title", {}).values()
+                    ingredient_values = (
+                        value
+                        for ingredient in recipe.get("ingredients", [])
+                        for value in foods.get(ingredient.get("food_id"), {}).get("name", {}).values()
+                    )
+                    return any(search in str(value).casefold() for value in (*title_values, *ingredient_values))
+                recipes = [recipe for recipe in recipes if matches(recipe)]
             if slot:
                 slot = choice(slot, {"breakfast", "lunch", "snack", "dinner"})
                 meal_types = {"snack", "merenda"} if slot == "snack" else {slot}
@@ -502,7 +513,8 @@ class Service(
             if preferences.get('skill'):
                 recipes = [r for r in recipes if skill.get(r.get('difficulty', 'beginner'), 0) <= skill[preferences['skill']]]
             ranked,rejected = rank(recipes,foods,inventory,profile["settings"],rules,today,mode,size,self.weights,
-                                   staples=self._staples(tx,household_id))
+                                   staples=self._staples(tx,household_id),
+                                   require_inventory_match=search is None)
             feedback = {r["recipe_id"]:r["rating"] for r in tx.all("SELECT recipe_id,rating FROM recipe_feedback WHERE user_id=?",(user_id,))} if preferences.get("learning") else {}
             cuisines = {c.casefold() for c in preferences.get("cuisines",[])}
             for item in ranked:

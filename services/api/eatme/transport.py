@@ -176,6 +176,7 @@ class Router:
                 query.get("mode",["for_you"])[0],
                 query.get("food_id",[None])[0],
                 query.get("slot",[None])[0],
+                query.get("query",[None])[0],
             )
         match = re.fullmatch(r"/api/v1/recipes/([a-f0-9-]{36})",route)
         if match and method=="GET":

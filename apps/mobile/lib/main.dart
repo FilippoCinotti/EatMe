@@ -31,6 +31,7 @@ import 'features/auth/login.dart';
 import 'features/auth/biometric.dart';
 import 'features/auth/reauthenticate.dart';
 import 'features/onboarding/onboarding.dart';
+import 'features/onboarding/first_access_tour.dart';
 import 'features/chef_table/chef_table.dart';
 import 'features/fridge/fridge.dart';
 import 'features/fridge/custom_food.dart';
@@ -96,6 +97,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/login', builder: (_, _) => const LoginPage()),
       GoRoute(path: '/login-callback', builder: (_, _) => const LaunchPage()),
       GoRoute(path: '/onboarding', builder: (_, _) => const OnboardingPage()),
+      GoRoute(path: '/tour', builder: (_, _) => const FirstAccessTourPage()),
       ShellRoute(
         builder: (context, state, child) =>
             AppShell(path: state.uri.path, child: child),

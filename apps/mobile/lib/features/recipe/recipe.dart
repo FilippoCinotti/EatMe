@@ -832,7 +832,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                             }
                             return;
                           }
-                          await Mutation().send(
+                          final result = await Mutation().send(
                             ref.read(apiProvider),
                             'POST',
                             '/shopping',
@@ -843,7 +843,29 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                               ],
                             },
                           );
-                          if (context.mounted) context.push('/shopping');
+                          if (!context.mounted) return;
+                          final added =
+                              (result['ids'] as List? ?? const []).length;
+                          if (added == 0) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  context.t('recipe_shopping_nothing_missing'),
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                context.t('recipe_shopping_added', {
+                                  'count': added,
+                                }),
+                              ),
+                            ),
+                          );
+                          context.push('/shopping');
                         },
                       ),
                       const SizedBox(width: 8),

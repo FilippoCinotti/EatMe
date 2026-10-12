@@ -205,7 +205,8 @@ def substantiality(recipe: dict, foods: dict) -> float:
 
 def rank(recipes: list[dict], foods: dict, inventory: list[dict], profile: dict, rules: list[dict],
          today: date, mode: str, servings: int, weights: dict | None = None,
-         staples: frozenset | set = frozenset()) -> tuple[list[dict],list[dict]]:
+         staples: frozenset | set = frozenset(),
+         require_inventory_match: bool = True) -> tuple[list[dict],list[dict]]:
     """Rank recipes; staples are household pantry basics assumed available in any quantity."""
     profiles = {**DEFAULT_WEIGHTS, **(weights or {})}
     weight_mode = "for_you" if mode == "plant_based" else mode
@@ -253,7 +254,7 @@ def rank(recipes: list[dict], foods: dict, inventory: list[dict], profile: dict,
         # A recipe presented as a fridge-driven recommendation must actually
         # relate to a meaningful food the household has. Pantry-only overlap
         # (oil, herbs, condiments, etc.) is not enough.
-        if inventory and mode != "no_shopping" and not meaningful_matched:
+        if require_inventory_match and inventory and mode != "no_shopping" and not meaningful_matched:
             rejected.append({"recipe_id":recipe["id"],"filters_failed":[{"code":"no_inventory_match"}]})
             continue
         if mode == "no_shopping" and fully_available < len(needed):

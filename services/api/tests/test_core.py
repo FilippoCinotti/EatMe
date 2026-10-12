@@ -264,6 +264,23 @@ class EatMeCase(unittest.TestCase):
             self.assertEqual(recipes["profile_context"]["exclusion_count"], 1)
             self.assertEqual(recipes["profile_context"]["unknown_ingredient_policy"], "strict")
 
+    def test_recipe_search_matches_title_or_ingredient_across_full_catalog(self):
+        # Normal ChefTable recommendations stay related to the current fridge.
+        # An explicit search must still find compatible catalog recipes even
+        # when their principal ingredient is not at home.
+        self.add("tomato", 300)
+        by_title = self.service.recommendations(
+            self.user,
+            query="Zucchini & spinach pasta",
+        )["items"]
+        by_ingredient = self.service.recommendations(
+            self.user,
+            query="zucchini",
+        )["items"]
+        expected = identifier("recipe", "green-pasta")
+        self.assertIn(expected, [item["recipe"]["id"] for item in by_title])
+        self.assertIn(expected, [item["recipe"]["id"] for item in by_ingredient])
+
     def test_allergy_rejected_before_ranking_and_deep_link_cooking(self):
         self.update_profile(allergies=["milk"],health_consent_version=HEALTH_CONSENT)
         self.add("feta",1000,expiry_date="2026-09-10",expiry_kind="use_by")
