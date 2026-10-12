@@ -1,8 +1,18 @@
 """Transactional shopping, weekly plans, and leftover lifecycle."""
+from collections import Counter
 from datetime import date, timedelta
 
 from .auth import now
-from .engine import amount_milli, batch_usable, compatibility, quantity, rank, requirements
+from .engine import (
+    amount_milli,
+    batch_usable,
+    compatibility,
+    primary_food_id,
+    quantity,
+    rank,
+    requirements,
+    substantiality,
+)
 from .errors import DomainError
 from .storage import decode, encode
 from .validation import choice, integer, new_id, text, valid_date, valid_uuid
@@ -17,21 +27,28 @@ RECIPE_MEAL_TYPES = {
 }
 
 
-def weekly_meals(ranked, start, servings, participants, enabled_slots):
-    """Build a week using only recipes classified for each enabled meal slot.
+def weekly_meals(ranked, start, servings, participants, enabled_slots, foods=None):
+    """Build the most varied compatible week available for enabled meal slots.
 
     Some catalogs may not cover every slot. Those slots are deliberately left
-    empty instead of assigning a semantically wrong recipe.
+    empty instead of assigning a semantically wrong recipe. A recipe is not
+    repeated until every eligible alternative for that slot has been used.
+    Primary ingredients and cuisines are balanced before the base ranking is
+    used as a tie-breaker.
     """
     pools = {
         slot: [
-            item["recipe"]
+            item
             for item in ranked
             if RECIPE_MEAL_TYPES[slot] & set(item["recipe"].get("meal_types", []))
         ]
         for slot in enabled_slots
     }
-    counters = {slot: 0 for slot in enabled_slots}
+    foods = foods or {}
+    recipe_counts = Counter()
+    primary_counts = Counter()
+    cuisine_counts = Counter()
+    previous_by_slot = {}
     meals = []
     week = date.fromisoformat(start)
     for day_offset in range(7):
@@ -39,8 +56,38 @@ def weekly_meals(ranked, start, servings, participants, enabled_slots):
             pool = pools[slot]
             if not pool:
                 continue
-            recipe = pool[counters[slot] % len(pool)]
-            counters[slot] += 1
+            fresh = [item for item in pool if not recipe_counts[item["recipe"]["id"]]]
+            candidates = fresh or pool
+
+            def variety_key(item):
+                recipe = item["recipe"]
+                primary = primary_food_id(recipe, foods)
+                cuisine = recipe.get("cuisine", "")
+                previous_primary, previous_cuisine = previous_by_slot.get(slot, (None, None))
+                substance = (
+                    item.get("component_scores", {}).get("substantiality", 0)
+                    if slot in {"lunch", "dinner"}
+                    else 0
+                )
+                return (
+                    recipe_counts[recipe["id"]],
+                    primary_counts[primary],
+                    cuisine_counts[cuisine],
+                    primary == previous_primary,
+                    cuisine == previous_cuisine,
+                    -substance,
+                    -item.get("score", 0),
+                    recipe["id"],
+                )
+
+            selected = min(candidates, key=variety_key)
+            recipe = selected["recipe"]
+            primary = primary_food_id(recipe, foods)
+            cuisine = recipe.get("cuisine", "")
+            recipe_counts[recipe["id"]] += 1
+            primary_counts[primary] += 1
+            cuisine_counts[cuisine] += 1
+            previous_by_slot[slot] = (primary, cuisine)
             meals.append({
                 "date": (week + timedelta(days=day_offset)).isoformat(),
                 "slot": slot,
@@ -286,13 +333,22 @@ class PlanningService:
                                      staples=self._staples(tx, home))
                     if not ranked:
                         raise DomainError("no_compatible_recipes", 409)
+                    for item in ranked:
+                        item["component_scores"]["substantiality"] = substantiality(
+                            item["recipe"], foods
+                        )
                     timing = profile["settings"].get("meal_timing", {})
                     configured = timing.get("slots", {}) if isinstance(timing, dict) else {}
                     enabled_slots = [
                         slot for slot in PLAN_SLOTS if configured.get(slot, True) is True
                     ]
                     meals = weekly_meals(
-                        ranked, start, servings, participants, enabled_slots
+                        ranked,
+                        start,
+                        servings,
+                        participants,
+                        enabled_slots,
+                        foods,
                     )
                     if not meals:
                         raise DomainError("no_compatible_recipes", 409)

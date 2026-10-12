@@ -16,7 +16,17 @@ from .reference_features import ReferenceFeaturesService, GOALS
 from .pantry import PantryService
 from .auth import now
 from .catalog import ALLERGENS, ETHICAL_PREFERENCES, INTOLERANCES, MEDICAL_AWARENESS, SENSITIVITIES
-from .engine import active_rules, amount_milli, batch_usable, compatibility, quantity, rank, requirements
+from .engine import (
+    active_rules,
+    amount_milli,
+    batch_usable,
+    compatibility,
+    primary_food_id,
+    quantity,
+    rank,
+    requirements,
+    substantiality,
+)
 from .errors import DomainError
 from .shelf_life import estimate_expiry, shelf_life_days
 from .storage import Database, Transaction, decode, encode
@@ -502,13 +512,26 @@ class Service(
                 seasonal = [foods[i['food_id']] for i in item['recipe']['ingredients'] if foods[i['food_id']].get('season_months')]
                 if not relax_soft and preferences.get('seasonal') and seasonal:
                     item['preference_adjustment'] += .03 * sum(today.month in f['season_months'] for f in seasonal) / len(seasonal)
-                item["score"] = round(item["score"]+item["preference_adjustment"],6)
+                substance = substantiality(item["recipe"], foods)
+                item["component_scores"]["substantiality"] = substance
+                item["meal_adjustment"] = (
+                    0.18 * substance if slot in {"lunch", "dinner"} else 0
+                )
+                item["score"] = round(
+                    item["score"]
+                    + item["preference_adjustment"]
+                    + item["meal_adjustment"],
+                    6,
+                )
                 item["soft_preferences_relaxed"] = relax_soft
-            if any(item['preference_adjustment'] for item in ranked):
+            if any(
+                item['preference_adjustment'] or item['meal_adjustment']
+                for item in ranked
+            ):
                 ranked.sort(key=lambda item:(-item["score"],item["recipe"]["id"]))
                 diverse, repeated, seen = [], [], set()
                 for item in ranked:
-                    primary = item['recipe']['ingredients'][0]['food_id']
+                    primary = primary_food_id(item['recipe'], foods)
                     (repeated if primary in seen else diverse).append(item)
                     seen.add(primary)
                 ranked = diverse + repeated
