@@ -366,40 +366,40 @@ void main() {
   testWidgets('ChefTable searches the full catalog without stale fallback', (
     tester,
   ) async {
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      await tester.pumpWidget(
-        support.harness(
-          const AppShell(path: '/chef', child: ChefTablePage()),
-          VisualApi(),
-          controller: AvatarVisualController.new,
-        ),
-      );
-      await tester.pumpAndSettle();
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      support.harness(
+        const AppShell(path: '/chef', child: ChefTablePage()),
+        VisualApi(),
+        controller: AvatarVisualController.new,
+      ),
+    );
+    await tester.pumpAndSettle();
 
-      expect(
-        find.byKey(const ValueKey('chef-profile-avatar-image')),
-        findsOneWidget,
-      );
-      expect(find.text('Suggested by EatMe+'), findsOneWidget);
-      expect(find.text('4/4 ingredients at home'), findsOneWidget);
-      expect(find.text('Why EatMe+ picked this'), findsNothing);
-      expect(find.text('Checking against your profile'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('chef-profile-avatar-image')),
+      findsOneWidget,
+    );
+    expect(find.text('Suggested by EatMe+'), findsOneWidget);
+    expect(find.text('4/4 ingredients at home'), findsOneWidget);
+    expect(find.text('Why EatMe+ picked this'), findsNothing);
+    expect(find.text('Checking against your profile'), findsOneWidget);
 
-      await tester.enterText(find.byType(TextField).first, 'not-a-recipe');
-      await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, 'not-a-recipe');
+    await tester.pumpAndSettle();
 
-      expect(find.text('Try another name or category.'), findsOneWidget);
-      expect(find.text('Zucchini & spinach pasta'), findsNothing);
+    expect(find.text('Try another name or category.'), findsOneWidget);
+    expect(find.text('Zucchini & spinach pasta'), findsNothing);
 
-      await tester.enterText(find.byType(TextField).first, 'spinach');
-      await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, 'spinach');
+    await tester.pumpAndSettle();
 
-      expect(find.text('Zucchini & spinach pasta'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
+    expect(find.text('Zucchini & spinach pasta'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('Profile preview prioritizes dietary and medical context', (
     tester,
