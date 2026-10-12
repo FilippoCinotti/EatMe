@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/api.dart';
@@ -11,13 +12,25 @@ abstract final class FirstAccessTour {
   static String _key(String userId) => 'eatme.$userId.first_access_tour';
 
   static Future<void> markPending(String userId) =>
-      EatMeApi.secure.write(key: _key(userId), value: 'pending');
+      _write(userId, 'pending');
 
-  static Future<bool> isPending(String userId) async =>
-      await EatMeApi.secure.read(key: _key(userId)) == 'pending';
+  static Future<bool> isPending(String userId) async {
+    try {
+      return await EatMeApi.secure.read(key: _key(userId)) == 'pending';
+    } on MissingPluginException {
+      return false;
+    }
+  }
 
-  static Future<void> complete(String userId) =>
-      EatMeApi.secure.write(key: _key(userId), value: 'complete');
+  static Future<void> complete(String userId) => _write(userId, 'complete');
+
+  static Future<void> _write(String userId, String value) async {
+    try {
+      await EatMeApi.secure.write(key: _key(userId), value: value);
+    } on MissingPluginException {
+      // Secure storage is unavailable in widget tests and non-native previews.
+    }
+  }
 }
 
 class FirstAccessTourPage extends ConsumerStatefulWidget {
