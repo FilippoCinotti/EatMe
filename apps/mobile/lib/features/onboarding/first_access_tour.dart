@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/api.dart';
 import '../../core/localization.dart';
+import '../../core/state.dart';
 import '../../design_system/widgets.dart';
 
 abstract final class FirstAccessTour {
@@ -145,7 +146,9 @@ class _FirstAccessTourPageState extends ConsumerState<FirstAccessTourPage> {
                   Expanded(
                     flex: step > 0 ? 2 : 1,
                     child: FilledButton(
-                      key: ValueKey(last ? 'first-tour-finish' : 'first-tour-next'),
+                      key: ValueKey(
+                        last ? 'first-tour-finish' : 'first-tour-next',
+                      ),
                       onPressed: last
                           ? finish
                           : () => controller.nextPage(
@@ -153,7 +156,9 @@ class _FirstAccessTourPageState extends ConsumerState<FirstAccessTourPage> {
                               curve: Curves.easeOut,
                             ),
                       child: Text(
-                        context.t(last ? 'first_tour_start' : 'first_tour_next'),
+                        context.t(
+                          last ? 'first_tour_start' : 'first_tour_next',
+                        ),
                       ),
                     ),
                   ),
