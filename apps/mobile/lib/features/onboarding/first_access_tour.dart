@@ -11,8 +11,7 @@ import '../../design_system/widgets.dart';
 abstract final class FirstAccessTour {
   static String _key(String userId) => 'eatme.$userId.first_access_tour';
 
-  static Future<void> markPending(String userId) =>
-      _write(userId, 'pending');
+  static Future<void> markPending(String userId) => _write(userId, 'pending');
 
   static Future<bool> isPending(String userId) async {
     try {
