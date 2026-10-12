@@ -174,9 +174,8 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                           : 'expired',
                     ),
                     icon: const EatMeIcon(EatMeGlyph.triangleAlert),
-                    label: Text('${context.t('expiry_expired')} · $expired'),
-                  ),
-                ),
+                label: Text('${context.t('expiry_expired')} · $expired'),
+              ),
             ),
           ),
           SectionHeading(
