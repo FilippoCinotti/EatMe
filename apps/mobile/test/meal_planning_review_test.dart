@@ -200,7 +200,11 @@ void main() {
     );
     await tester.pumpAndSettle();
     final notice = find.textContaining('Selected medical tag:');
-    await tester.ensureVisible(notice);
+    await tester.scrollUntilVisible(
+      notice,
+      250,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.textContaining('Diabetes'), findsOneWidget);
     expect(find.textContaining('Kidney / renal restriction'), findsOneWidget);
     await tester.tap(notice);
