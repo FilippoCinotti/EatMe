@@ -283,20 +283,35 @@ class PlanningService:
         return identifier
 
     def _validate_meal(self, tx, user_id, meal):
-        if not isinstance(meal, dict):
-            raise DomainError("invalid_meal", 422)
-        integer(meal.get("servings"), minimum=1, maximum=20)
-        profile, foods, recipes, _, _, today = self._context(tx, user_id)
-        versions = self._catalog(tx, user_id, include_recipes=False)[3]
-        settings, rules, _, _ = self._diners(tx, user_id, meal.get("participants"), profile, versions, today)
-        recipe = next((r for r in recipes if r["id"] == meal.get("recipe_id")), None)
-        if not recipe:
-            raise DomainError("recipe_not_found", 404)
-        assessment = compatibility([i["food_id"] for i in recipe["ingredients"]], foods, settings, rules)
-        if assessment["reasons"]:
-            # Do not expose another participant's allergies through the rejection payload.
-            raise DomainError("recipe_not_compatible", 409)
-        return recipe, foods
+        recipes, foods = self._validate_meals(tx, user_id, [meal])
+        return recipes[0], foods
+
+    def _validate_meals(self, tx, user_id, meals):
+        profile = self._profile(tx, user_id)
+        foods, recipes, _, versions = self._catalog(tx, user_id)
+        today = self.today(profile["settings"])
+        by_id = {recipe["id"]: recipe for recipe in recipes}
+        diners, checked = {}, []
+        for meal in meals:
+            if not isinstance(meal, dict):
+                raise DomainError("invalid_meal", 422)
+            integer(meal.get("servings"), minimum=1, maximum=20)
+            participants = meal.get("participants")
+            # Validate before using the participant list as a cache key.
+            if participants is not None and (not isinstance(participants, list) or any(not isinstance(p, str) for p in participants)):
+                raise DomainError("invalid_participants", 422)
+            key = tuple(participants) if participants is not None else (user_id,)
+            if key not in diners:
+                diners[key] = self._diners(tx, user_id, participants, profile, versions, today)
+            settings, rules, _, _ = diners[key]
+            recipe = by_id.get(meal.get("recipe_id"))
+            if not recipe:
+                raise DomainError("recipe_not_found", 404)
+            assessment = compatibility([i["food_id"] for i in recipe["ingredients"]], foods, settings, rules)
+            if assessment["reasons"]:
+                raise DomainError("recipe_not_compatible", 409)
+            checked.append(recipe)
+        return checked, foods
 
     def plans(self, user_id):
         with self.db.transaction() as tx:
@@ -325,9 +340,11 @@ class PlanningService:
                     raise DomainError("invalid_date", 422)
                 meals = data.get("meals", [])
                 if data.get("action") in {"generate", "preview_generate"}:
-                    profile, foods, recipes, _, _, today = self._context(tx, user_id)
+                    profile = self._profile(tx, user_id)
+                    foods, recipes, _, versions = self._catalog(tx, user_id)
+                    today = self.today(profile["settings"])
                     participants = data.get("participants", [user_id])
-                    settings, rules, _, _ = self._diners(tx, user_id, participants, profile, self._catalog(tx, user_id, include_recipes=False)[3], today)
+                    settings, rules, _, _ = self._diners(tx, user_id, participants, profile, versions, today)
                     servings = integer(data.get("servings", len(participants)), minimum=1, maximum=20)
                     ranked, _ = rank(recipes, foods, self._inventory(tx, home), settings, rules, today, data.get("mode", "for_you"), servings, self.weights,
                                      staples=self._staples(tx, home))
@@ -355,8 +372,8 @@ class PlanningService:
                 if not isinstance(meals, list) or len(meals) > 28:
                     raise DomainError("invalid_meals", 422)
                 slots = set()
+                self._validate_meals(tx, user_id, meals)
                 for meal in meals:
-                    self._validate_meal(tx, user_id, meal)
                     day = valid_date(meal.get("date"))
                     slot = choice(meal.get("slot"), {"breakfast", "lunch", "dinner", "snack"})
                     if not day or not 0 <= (date.fromisoformat(day) - date.fromisoformat(start)).days < 7 or (day, slot) in slots:

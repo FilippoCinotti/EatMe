@@ -550,8 +550,12 @@ class Service(
             trace_id = new_id()
             snapshot = [{"id":b["id"],"version":b["version"],"quantity_milli":b["quantity_milli"],
                          "expiry_date":b["expiry_date"],"expiry_kind":b["expiry_kind"]} for b in inventory]
+            trace_ranked = [{key:item[key] for key in (
+                "score", "component_scores", "preference_adjustment", "meal_adjustment",
+                "warnings", "filters_passed", "soft_preferences_relaxed"
+            ) if key in item} | {"recipe_id":item["recipe"]["id"]} for item in ranked]
             trace = {"mode":mode,"diet_rules_version":versions,"profile_version":profile["version"],
-                     "inventory_snapshot":snapshot,"ranked":ranked,"rejected":rejected,"servings":size}
+                     "inventory_snapshot":snapshot,"ranked":trace_ranked,"rejected":rejected,"servings":size}
             tx.execute("INSERT INTO recommendation_traces VALUES (?,?,?,?,?)",(trace_id,user_id,household_id,encode(trace),now()))
             return {"trace_id":trace_id,"items":ranked[:4],"servings":size,"diet_rules_version":versions,
                     "preference_context":{"mode":mode,"soft_preferences_relaxed":relax_soft,

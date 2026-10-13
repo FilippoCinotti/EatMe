@@ -239,12 +239,24 @@ def _author_name(value):
 
 
 class ContentService:
-    def recipes(self, user_id):
+    def recipes(self, user_id, summary=False):
         with self.db.transaction() as tx:
             self._member(tx, user_id)
             _, recipes, _, _ = self._catalog(tx, user_id)
             recipes = [recipe for recipe in recipes if recipe.get("recommendation_eligible") is not False]
             favorites = {r["recipe_id"] for r in tx.all("SELECT recipe_id FROM recipe_favorites WHERE user_id=?", (user_id,))}
+            if summary:
+                recipes = [{
+                    "id": recipe["id"],
+                    "title": recipe["title"],
+                    "minutes": recipe["minutes"],
+                    "meal_types": recipe.get("meal_types", []),
+                    "image_url": recipe.get("image_url") or "",
+                    "ingredients": [
+                        {key: ingredient[key] for key in ("food_id", "name") if key in ingredient}
+                        for ingredient in recipe["ingredients"]
+                    ],
+                } for recipe in recipes]
             return {"items": [{**r, "favorite": r["id"] in favorites} for r in recipes]}
 
     def recipe_action(self, user_id, data, key):

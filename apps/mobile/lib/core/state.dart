@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -153,15 +155,16 @@ class AppController extends Notifier<AppState> {
   }
 
   Future<void> hydrate() async {
-    final config = await api.request('GET', '/config');
-    if ((config['auth_mode'] == 'development') != EatMeApi.development) {
-      throw const ApiFailure('auth_mode_mismatch');
-    }
-    final responses = await Future.wait([
+    final responses = await Future.wait<Json>([
+      api.request('GET', '/config'),
       api.request('GET', '/profile'),
       api.request('GET', '/catalog'),
     ]);
-    final profile = responses[0], catalog = responses[1];
+    final config = responses[0];
+    if ((config['auth_mode'] == 'development') != EatMeApi.development) {
+      throw const ApiFailure('auth_mode_mismatch');
+    }
+    final profile = responses[1], catalog = responses[2];
     final switchedUser =
         state.profile['user_id'] != profile['user_id'] ||
         state.profile['household_id'] != profile['household_id'];
@@ -196,33 +199,38 @@ class AppController extends Notifier<AppState> {
     state = state.copy(offline: api.offline);
   }
 
-  Future<void> refresh({String? mode}) async {
+  Future<void> refresh({String? mode, bool recommendationsOnly = false}) async {
     if (state.guiltyPleasure != null && !state.guiltyPleasureActive) {
       await _clearGuiltyPleasureStorage();
       state = state.copy(mode: 'for_you', clearGuiltyPleasure: true);
     }
     final chosenMode = mode ?? state.mode;
     try {
-      final inventory = await api.request('GET', '/inventory');
-      await api.cacheInventory(inventory);
+      final requests = await Future.wait<Json>([
+        if (!recommendationsOnly) api.request('GET', '/inventory'),
+        if (!recommendationsOnly) api.request('GET', '/leftovers'),
+        api.request(
+          'GET',
+          '/recommendations?mode=$chosenMode&slot=${mealSlotAt(DateTime.now())}',
+        ),
+      ]);
+      var index = 0;
+      if (!recommendationsOnly) {
+        final inventory = requests[index++];
+        final meals = requests[index++];
+        await api.cacheInventory(inventory);
+        state = state.copy(
+          inventory: (inventory['items'] as List)
+              .map((b) => Batch.fromJson(Map<String, dynamic>.from(b as Map)))
+              .toList(),
+          leftovers: (meals['items'] as List)
+              .map((v) => Map<String, dynamic>.from(v as Map))
+              .toList(),
+        );
+      }
+      final recommendations = requests[index];
       state = state.copy(
-        inventory: (inventory['items'] as List)
-            .map((b) => Batch.fromJson(Map<String, dynamic>.from(b as Map)))
-            .toList(),
-        offline: api.offline,
         mode: chosenMode,
-      );
-      final meals = await api.request('GET', '/leftovers');
-      state = state.copy(
-        leftovers: (meals['items'] as List)
-            .map((v) => Map<String, dynamic>.from(v as Map))
-            .toList(),
-      );
-      final recommendations = await api.request(
-        'GET',
-        '/recommendations?mode=$chosenMode&slot=${mealSlotAt(DateTime.now())}',
-      );
-      state = state.copy(
         recommendations: (recommendations['items'] as List)
             .map(
               (r) =>
@@ -231,7 +239,7 @@ class AppController extends Notifier<AppState> {
             .toList(),
       );
       state = state.copy(offline: api.offline);
-      if (!api.offline) await updateReminders();
+      if (!api.offline && !recommendationsOnly) unawaited(updateReminders());
     } on ApiFailure catch (error) {
       if (error.code == 'unauthorized' ||
           error.code == 'account_deletion_pending') {
@@ -317,7 +325,7 @@ class AppController extends Notifier<AppState> {
       value: expiresAt.toIso8601String(),
     );
     state = state.copy(mode: 'guilty_pleasure', guiltyPleasure: value);
-    await refresh(mode: 'guilty_pleasure');
+    await refresh(mode: 'guilty_pleasure', recommendationsOnly: true);
   }
 
   Future<void> setRecommendationMode(String value) async {
@@ -325,7 +333,7 @@ class AppController extends Notifier<AppState> {
       await _clearGuiltyPleasureStorage();
       state = state.copy(clearGuiltyPleasure: true);
     }
-    await refresh(mode: value);
+    await refresh(mode: value, recommendationsOnly: true);
   }
 
   Future<void> disableGuiltyPleasure({
@@ -333,7 +341,9 @@ class AppController extends Notifier<AppState> {
   }) async {
     await _clearGuiltyPleasureStorage();
     state = state.copy(mode: 'for_you', clearGuiltyPleasure: true);
-    if (refreshRecommendations) await refresh(mode: 'for_you');
+    if (refreshRecommendations) {
+      await refresh(mode: 'for_you', recommendationsOnly: true);
+    }
   }
 
   Future<void> completeGuiltyPleasureMeal() async {

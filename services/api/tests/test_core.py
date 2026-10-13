@@ -70,6 +70,24 @@ class EatMeCase(unittest.TestCase):
             self.assertTrue(self.service.recommendations(self.user)["items"])
         self.assertTrue(any("from recipes" in sql.lower() for sql in statements))
 
+    def test_planner_summary_keeps_search_fields_and_omits_details(self):
+        full = self.service.recipes(self.user)["items"]
+        summary = self.service.recipes(self.user, summary=True)["items"]
+        self.assertEqual([r["id"] for r in full], [r["id"] for r in summary])
+        self.assertTrue(summary)
+        self.assertLess(len(encode(summary)), len(encode(full)))
+        self.assertNotIn("instructions", summary[0])
+        self.assertEqual(summary[0]["meal_types"], full[0]["meal_types"])
+        self.assertEqual(summary[0]["ingredients"][0]["food_id"], full[0]["ingredients"][0]["food_id"])
+
+    def test_weekly_validation_reads_recipe_catalog_once(self):
+        meal = {"recipe_id": identifier("recipe", "sunny-bowl"), "servings": 1}
+        with patch.object(self.service, "_catalog", wraps=self.service._catalog) as catalog:
+            with self.db.transaction() as tx:
+                checked, _ = self.service._validate_meals(tx, self.user, [meal] * 28)
+        self.assertEqual(len(checked), 28)
+        self.assertEqual(catalog.call_count, 1)
+
     def test_quantities_are_exact_and_reject_invalid_input(self):
         self.assertEqual(amount_milli("0.001"),1)
         self.assertEqual(quantity(100010),"100.01")

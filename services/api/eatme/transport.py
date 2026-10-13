@@ -140,6 +140,9 @@ class Router:
         if resource.startswith("/products/") and method=="GET":
             self.limiter.check("product:"+user_id,12)
             return self.service.product(user_id,resource.split("/")[-1])
+        if resource=="/recipes" and method=="GET":
+            summary = query.get("summary", ["false"])[0].casefold() == "true"
+            return self.service.recipes(user_id, summary=summary)
         if resource in reads and method=="GET":
             return reads[resource](user_id)
         if resource in actions and method=="POST":

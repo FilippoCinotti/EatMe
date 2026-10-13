@@ -34,18 +34,22 @@ class _PlannerState extends ResourceState<PlannerPage> {
   int focusedDay = 0;
   @override
   Future<void> load() async {
-    await super.load();
     try {
       final api = ref.read(apiProvider);
+      final responses = await Future.wait<Json>([
+        api.request('GET', path),
+        api.request('GET', '/recipes?summary=true'),
+        if (participants == null) api.request('GET', '/households'),
+      ]);
+      final plans = responses[0];
+      final available = records(responses[1]['items']);
       if (participants == null) {
-        final home = await api.request('GET', '/households');
+        final home = responses[2];
         selectedDiners = records(home['members']);
         participants = selectedDiners
             .map((m) => m['user_id'] as String)
             .toList();
       }
-      final result = await api.request('GET', '/recipes');
-      final available = records(result['items']);
       if (widget.initialRecipeId != null &&
           !available.any((r) => r['id'] == widget.initialRecipeId)) {
         available.insert(
@@ -55,6 +59,8 @@ class _PlannerState extends ResourceState<PlannerPage> {
       }
       if (mounted && context.mounted) {
         setState(() {
+          data = plans;
+          error = null;
           recipes = available;
           selected = records(
             data?['items'],
@@ -92,15 +98,26 @@ class _PlannerState extends ResourceState<PlannerPage> {
               validTargets.contains('${item['date']}:${item['slot']}'),
         )
         .toList();
-    final result = await command({
-      'action': 'save',
-      'start_date': isoDay(start),
-      'meals': meals,
-      'preference_overrides': safeOverrides,
-      if (selected != null) 'id': selected!['id'],
-      if (selected != null) 'expected_version': selected!['version'],
-    });
-    if (mounted && result['id'] != null) setState(() => selected = result);
+    final result = await command(
+      {
+        'action': 'save',
+        'start_date': isoDay(start),
+        'meals': meals,
+        'preference_overrides': safeOverrides,
+        if (selected != null) 'id': selected!['id'],
+        if (selected != null) 'expected_version': selected!['version'],
+      },
+      reload: false,
+    );
+    if (mounted && result['id'] != null) {
+      setState(() {
+        selected = result;
+        final items = records(data?['items'])
+          ..removeWhere((plan) => plan['id'] == result['id'])
+          ..insert(0, result);
+        data = {...(data ?? <String, dynamic>{}), 'items': items};
+      });
+    }
   }
 
   bool hasGuiltyPleasure(Json meal, List<Json> overrides) => overrides.any(
@@ -250,12 +267,15 @@ class _PlannerState extends ResourceState<PlannerPage> {
       );
       return;
     }
-    final result = await command({
-      'action': 'preview_generate',
-      if (participants != null) 'participants': participants,
-      'start_date': isoDay(start),
-      'servings': 1,
-    });
+    final result = await command(
+      {
+        'action': 'preview_generate',
+        if (participants != null) 'participants': participants,
+        'start_date': isoDay(start),
+        'servings': 1,
+      },
+      reload: false,
+    );
     if (mounted && result['preview'] == true) {
       setState(() => draftMeals = records(result['data']?['meals']));
     }

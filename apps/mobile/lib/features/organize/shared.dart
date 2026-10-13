@@ -52,7 +52,7 @@ abstract class ResourceState<T extends ConsumerStatefulWidget>
     }
   }
 
-  Future<Json> command(Json body) async {
+  Future<Json> command(Json body, {bool reload = true}) async {
     if (updating) throw const ApiFailure('operation_in_progress');
     updating = true;
     try {
@@ -62,7 +62,7 @@ abstract class ResourceState<T extends ConsumerStatefulWidget>
         path,
         body,
       );
-      await load();
+      if (reload) await load();
       if (mounted && value['queued'] == true) {
         ScaffoldMessenger.of(
           context,
