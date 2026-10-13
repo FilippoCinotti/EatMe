@@ -27,8 +27,9 @@ List<Json> recipesForMeal(
             ? localized(Map<String, dynamic>.from(title), language)
             : '$title')
         .toLowerCase()
-        .contains(term))
+        .contains(term)) {
       return true;
+    }
     return records(recipe['ingredients']).any((ingredient) {
       final name =
           ingredient['name'] ??
