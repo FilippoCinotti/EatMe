@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -7,13 +8,28 @@ import 'package:eatme/core/localization.dart';
 import 'package:eatme/design_system/theme.dart';
 import 'package:eatme/design_system/widgets.dart';
 
-Widget harness(Widget child, {Brightness brightness = Brightness.light}) =>
-    MaterialApp(
+class SplashStringsDelegate extends LocalizationsDelegate<EatMeStrings> {
+  const SplashStringsDelegate();
+
+  @override
+  bool isSupported(Locale locale) => true;
+  @override
+  Future<EatMeStrings> load(Locale locale) =>
+      SynchronousFuture(EatMeStrings({'eatme': 'EatMe+'}));
+  @override
+  bool shouldReload(SplashStringsDelegate old) => false;
+}
+
+Widget harness(
+  Widget child, {
+  Brightness brightness = Brightness.light,
+  LocalizationsDelegate<EatMeStrings> stringsDelegate = EatMeStrings.delegate,
+}) => MaterialApp(
       theme: Tokens.theme(brightness),
       locale: const Locale('it'),
       supportedLocales: const [Locale('it'), Locale('en')],
-      localizationsDelegates: const [
-        EatMeStrings.delegate,
+      localizationsDelegates: [
+        stringsDelegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
@@ -37,11 +53,11 @@ void main() {
   });
 
   testWidgets('loading splash uses the two-leaf brand mark', (tester) async {
-    // Load localization before introducing the continuously animated splash.
-    await tester.pumpWidget(harness(const SizedBox.shrink()));
-    await tester.pumpAndSettle();
     await tester.pumpWidget(
-      harness(const EatMeLoadingSplash(label: 'Caricamento')),
+      harness(
+        const EatMeLoadingSplash(label: 'Caricamento'),
+        stringsDelegate: const SplashStringsDelegate(),
+      ),
     );
     await tester.pump(const Duration(milliseconds: 700));
 
