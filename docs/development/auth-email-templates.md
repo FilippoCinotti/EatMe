@@ -5,7 +5,7 @@ EatMe+ uses the branded templates in `supabase/templates` for the two email/pass
 - account confirmation (`confirmation.html`);
 - password recovery (`recovery.html`).
 
-The templates keep Supabase's `{{ .ConfirmationURL }}` variable and use the public EatMe+ application icon. They contain no tracking pixels or user profile data.
+The templates keep Supabase's `{{ .ConfirmationURL }}` variable and use the public full EatMe+ logo (`apps/public/public/eatme-plus-logo.png`). The raster asset is deliberately used instead of SVG for broad email-client compatibility. The `alt` text keeps the brand readable when remote images are blocked. The messages contain no tracking pixels or user profile data.
 
 ## Hosted project setup
 
