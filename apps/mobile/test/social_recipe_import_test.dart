@@ -181,7 +181,8 @@ class SocialApi extends support.TestApi {
       saved = true;
       return {'id': '50773917-c954-51f2-a53b-1cf4b3c00690'};
     }
-    if (path == '/recipes' && method == 'GET') {
+    if ((path == '/recipes' || path == '/recipes?summary=true') &&
+        method == 'GET') {
       return {
         'items': [
           {

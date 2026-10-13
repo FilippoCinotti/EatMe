@@ -86,7 +86,8 @@ class DinnerApi extends support.TestApi {
         'configured': true,
       };
     }
-    if (method == 'GET' && path == '/recipes') {
+    if (method == 'GET' &&
+        (path == '/recipes' || path == '/recipes?summary=true')) {
       return {
         'items': [
           {

@@ -44,7 +44,9 @@ class PlanningApi extends support.TestApi {
     String? operationKey,
     bool allowCache = true,
   }) async {
-    if (path == '/recipes') return {'items': recipes};
+    if (path == '/recipes' || path == '/recipes?summary=true') {
+      return {'items': recipes};
+    }
     if (path == '/plans') {
       calls.add({'method': method, 'path': path, 'body': body});
       if (method == 'POST') {
