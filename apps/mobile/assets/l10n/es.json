@@ -1213,5 +1213,14 @@
   "tour_profile_more_body": "Gestiona privacidad, Premium, sincronización sin conexión, actividad reciente, análisis y evidencias. Cerrar sesión está al final.",
   "first_tour_next": "Siguiente",
   "first_tour_back": "Atrás",
-  "first_tour_start": "Empezar a usar EatMe+"
+  "first_tour_start": "Empezar a usar EatMe+",
+  "planner_no_recipes": "Ninguna receta coincide con tu búsqueda.",
+  "planner_meal_recipes": "Sugeridas para esta comida",
+  "planner_other_recipes": "Otras recetas",
+  "planner_choose_day": "Elige el día",
+  "planner_choose_meal": "Elige la comida",
+  "diet_fit_selected_rule": "Regla alimentaria seleccionada",
+  "diet_fit_medical_tag_review": "Revisión recomendada por la etiqueta «{tag}»: comprueba esta comida con el plan de tu profesional sanitario. Este aviso procede del perfil seleccionado, no de un conflicto identificado en los ingredientes.",
+  "diet_fit_check_unavailable": "El control de compatibilidad está incompleto. Revisa tus ajustes e ingredientes.",
+  "diet_fit_medical_tag_summary": "Etiqueta médica seleccionada: {tag}."
 }

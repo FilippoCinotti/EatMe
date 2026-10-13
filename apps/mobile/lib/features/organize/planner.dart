@@ -11,6 +11,7 @@ import '../../design_system/widgets.dart';
 import '../onboarding/first_access_tour.dart';
 import 'shared.dart';
 import 'guilty_pleasure.dart';
+import 'recipe_picker.dart';
 
 class PlannerPage extends ConsumerStatefulWidget {
   const PlannerPage({super.key, this.initialRecipeId});
@@ -29,6 +30,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
   Json? selected;
   List<Json>? draftMeals;
   bool pendingAdded = false;
+  bool schedulingPrompted = false;
   int focusedDay = 0;
   @override
   Future<void> load() async {
@@ -54,10 +56,21 @@ class _PlannerState extends ResourceState<PlannerPage> {
       if (mounted && context.mounted) {
         setState(() {
           recipes = available;
-          selected = records(
-            data?['items'],
-          ).where((p) => p['start_date'] == isoDay(start)).firstOrNull;
+          selected = records(data?['items'])
+              .where((p) => p['start_date'] == isoDay(start))
+              .firstOrNull;
         });
+        if (!schedulingPrompted && widget.initialRecipeId != null) {
+          schedulingPrompted = true;
+          final pending = recipes
+              .where((r) => r['id'] == widget.initialRecipeId)
+              .firstOrNull;
+          if (pending != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) guard(() => scheduleRecipe(pending));
+            });
+          }
+        }
       }
     } on ApiFailure catch (e) {
       if (mounted && context.mounted) setState(() => error = e.code);
@@ -126,29 +139,74 @@ class _PlannerState extends ResourceState<PlannerPage> {
   }
 
   Future<void> addMeal(DateTime day, String slot) async {
-    final recipe = await chooseRecipe();
+    final recipe = await chooseRecipe(slot);
     if (recipe == null || !mounted) return;
     await addSpecificMeal(day, slot, recipe);
   }
 
-  Future<Json?> chooseRecipe() => showModalBottomSheet<Json>(
+  Future<Json?> chooseRecipe(String slot) => showModalBottomSheet<Json>(
     context: context,
     useRootNavigator: true,
     useSafeArea: true,
-    builder: (context) => ListView(
-      children: [
-        for (final recipe in recipes)
-          ListTile(
-            title: Text(labelOf(recipe['title'], context)),
-            subtitle: Text('${recipe['minutes']} min'),
-            onTap: () => Navigator.pop(context, recipe),
-          ),
-      ],
+    isScrollControlled: true,
+    builder: (context) => RecipePicker(
+      recipes: recipes,
+      foods: ref.read(appProvider).foods,
+      slot: slot,
     ),
   );
 
+  Future<void> scheduleRecipe(Json recipe) async {
+    final target = await showModalBottomSheet<MealTarget>(
+      context: context,
+      useRootNavigator: true,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (context) => MealScheduleSheet(
+        initialDay: start.add(Duration(days: focusedDay)),
+        title: labelOf(recipe['title'], context),
+      ),
+    );
+    if (target == null || !mounted) return;
+    final oldStart = start;
+    final oldFocusedDay = focusedDay;
+    final oldSelected = selected;
+    if (target.day.isBefore(start) ||
+        target.day.isAfter(start.add(const Duration(days: 6)))) {
+      final coveringPlan = records(data?['items']).where((plan) {
+        final first = DateTime.tryParse('${plan['start_date']}');
+        return first != null &&
+            !target.day.isBefore(first) &&
+            !target.day.isAfter(first.add(const Duration(days: 6)));
+      }).firstOrNull;
+      final weekOffset = (target.day.difference(start).inDays / 7).floor();
+      final targetStart = coveringPlan == null
+          ? start.add(Duration(days: weekOffset * 7))
+          : DateTime.parse('${coveringPlan['start_date']}');
+      setState(() {
+        start = targetStart;
+        focusedDay = target.day.difference(start).inDays;
+        selected = coveringPlan;
+      });
+    } else {
+      setState(() => focusedDay = target.day.difference(start).inDays);
+    }
+    try {
+      await addSpecificMeal(target.day, target.slot, recipe);
+    } on ApiFailure {
+      if (mounted) {
+        setState(() {
+          start = oldStart;
+          focusedDay = oldFocusedDay;
+          selected = oldSelected;
+        });
+      }
+      rethrow;
+    }
+  }
+
   Future<void> replaceMeal(DateTime day, String slot, Json meal) async {
-    final recipe = await chooseRecipe();
+    final recipe = await chooseRecipe(slot);
     if (recipe == null || !mounted) return;
     if (draftMeals != null) {
       setState(() {
@@ -168,9 +226,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
       numeric: true,
     );
     if (servings == null) return;
-    final meals = records(
-      selected?['data']?['meals'],
-    ).where((m) => !(m['date'] == isoDay(day) && m['slot'] == slot)).toList();
+    final meals = records(selected?['data']?['meals'])
+        .where((m) => !(m['date'] == isoDay(day) && m['slot'] == slot))
+        .toList();
     meals.add({
       'date': isoDay(day),
       'slot': slot,
@@ -386,12 +444,10 @@ class _PlannerState extends ResourceState<PlannerPage> {
                   ),
                 ),
                 FilledButton(
-                  onPressed: () => addSpecificMeal(
-                    DateUtils.dateOnly(DateTime.now()),
-                    'dinner',
-                    pendingRecipe,
-                  ),
-                  child: Text(context.t('add_to_tonight')),
+                  onPressed: updating
+                      ? null
+                      : () => guard(() => scheduleRecipe(pendingRecipe)),
+                  child: Text(context.t('plan_this')),
                 ),
               ],
             ),
@@ -772,9 +828,9 @@ class _WeekStrip extends StatelessWidget {
                                 context.t('today'),
                                 style: Theme.of(context).textTheme.labelSmall
                                     ?.copyWith(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary,
                                     ),
                               )
                             : null,
@@ -907,9 +963,9 @@ class _PlannerMealCard extends StatelessWidget {
                   height: 52,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.surfaceContainerHighest,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: const EatMeIcon(EatMeGlyph.plus, size: 22),

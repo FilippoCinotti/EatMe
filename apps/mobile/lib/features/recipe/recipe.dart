@@ -57,12 +57,16 @@ class _RecipePageState extends ConsumerState<RecipePage> {
   );
 
   Future<Food?> chooseReplacement(Recipe recipe, Food original) async {
-    final response = await mutation
-        .send(ref.read(apiProvider), 'POST', '/recipes', {
-          'action': 'substitution_candidates',
-          'recipe_id': recipe.id,
-          'food_id': original.id,
-        });
+    final response = await mutation.send(
+      ref.read(apiProvider),
+      'POST',
+      '/recipes',
+      {
+        'action': 'substitution_candidates',
+        'recipe_id': recipe.id,
+        'food_id': original.id,
+      },
+    );
     if (!mounted) return null;
     final candidates = records(response['candidates']);
     final allFoods = ref
@@ -132,9 +136,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                     ),
                                     context.language,
                                   ),
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium,
                                 ),
                                 Text(
                                   context.t(
@@ -189,14 +193,18 @@ class _RecipePageState extends ConsumerState<RecipePage> {
       numeric: true,
     );
     if (amount == null) return;
-    final changed = await Mutation()
-        .send(ref.read(apiProvider), 'POST', '/recipes', {
-          'action': 'substitute',
-          'recipe_id': recipe.id,
-          'food_id': original.id,
-          'replacement_id': replacement.id,
-          'quantity': amount,
-        });
+    final changed = await Mutation().send(
+      ref.read(apiProvider),
+      'POST',
+      '/recipes',
+      {
+        'action': 'substitute',
+        'recipe_id': recipe.id,
+        'food_id': original.id,
+        'replacement_id': replacement.id,
+        'quantity': amount,
+      },
+    );
     if (mounted && context.mounted) {
       context.push('/recipe-editor', extra: changed);
     }
@@ -279,6 +287,66 @@ class _RecipePageState extends ConsumerState<RecipePage> {
     }
   }
 
+  String reviewReason(
+    Json warning,
+    List<dynamic> ingredientRows, {
+    bool compact = false,
+  }) {
+    final state = ref.read(appProvider);
+    final strings = Localizations.of<EatMeStrings>(context, EatMeStrings)!;
+    String tagLabel(String key, String value) =>
+        strings.values.containsKey('${key}_$value')
+        ? context.t('${key}_$value')
+        : value;
+    final tags = <String>[
+      if (warning['profile'] != null)
+        tagLabel('medical', '${warning['profile']}'),
+      if (warning['allergen'] != null)
+        tagLabel('allergen', '${warning['allergen']}'),
+      if (warning['intolerance'] != null)
+        tagLabel('intolerance', '${warning['intolerance']}'),
+      if (warning['preference'] != null)
+        tagLabel('ethical', '${warning['preference']}'),
+      if (warning['diet_id'] != null)
+        state.diets
+                .where((diet) => diet.id == warning['diet_id'])
+                .map((diet) => localized(diet.name, context.language))
+                .firstOrNull ??
+            context.t('diet_fit_selected_rule'),
+    ];
+    final code = '${warning['code']}';
+    if (code == 'medical_profile_requires_review' && tags.isNotEmpty) {
+      return context.t(
+        compact
+            ? 'diet_fit_medical_tag_summary'
+            : 'diet_fit_medical_tag_review',
+        {'tag': tags.join(', ')},
+      );
+    }
+    String? foodName;
+    if (warning['food_id'] != null) {
+      foodName = state.foods
+          .where((food) => food.id == warning['food_id'])
+          .map((food) => localized(food.name, context.language))
+          .firstOrNull;
+      if (foodName == null) {
+        for (final value in ingredientRows) {
+          final row = Map<String, dynamic>.from(value as Map);
+          if (row['food_id'] == warning['food_id'] &&
+              row['food']?['name'] != null) {
+            foodName = labelOf(row['food']['name'], context);
+            break;
+          }
+        }
+      }
+    }
+    return [
+      context.t(code),
+      ...tags,
+      if (foodName != null) foodName,
+    ].join(' · ');
+  }
+
   @override
   Widget build(BuildContext context) => RecipeEditorial(builder: _build);
 
@@ -329,6 +397,10 @@ class _RecipePageState extends ConsumerState<RecipePage> {
           compatibilityWarnings.isNotEmpty ||
           rawRecipe['compatibility']?['status'] == null ||
           plan['preview_unavailable'] != null;
+      final reviewReasons = compatibilityWarnings
+          .map((warning) => reviewReason(warning, ingredientRows))
+          .toSet()
+          .toList();
       return Scaffold(
         appBar: EatMeAppBar(
           actions: [
@@ -394,9 +466,8 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                       foregroundColor: favorite
                           ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.onSurface,
-                      backgroundColor: Theme.of(
-                        context,
-                      ).colorScheme.surface.withValues(alpha: .92),
+                      backgroundColor: Theme.of(context).colorScheme.surface
+                          .withValues(alpha: .92),
                       onPressed: toggleFavorite,
                     ),
                   ),
@@ -447,13 +518,24 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                     ? 'diet_fit_review_title'
                     : 'diet_fit_match_title',
               ),
-              subtitle: context.t(
-                hasConflict
-                    ? 'diet_fit_conflict_body'
-                    : needsReview
-                    ? 'diet_fit_review_body'
-                    : 'diet_fit_match_body',
-              ),
+              subtitle: reviewReasons.isNotEmpty
+                  ? compatibilityWarnings
+                        .map(
+                          (warning) => reviewReason(
+                            warning,
+                            ingredientRows,
+                            compact: true,
+                          ),
+                        )
+                        .toSet()
+                        .join('\n')
+                  : context.t(
+                      hasConflict
+                          ? 'diet_fit_conflict_body'
+                          : needsReview
+                          ? 'diet_fit_check_unavailable'
+                          : 'diet_fit_match_body',
+                    ),
               onTap: () => sheet(
                 context,
                 SingleChildScrollView(
@@ -463,9 +545,11 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(context.t('validation_explanation')),
-                      for (final warning in compatibilityWarnings)
+                      for (final reason in reviewReasons)
+                        StatusNote(text: reason, warning: true),
+                      if (needsReview && reviewReasons.isEmpty)
                         StatusNote(
-                          text: context.t(warning['code'] as String),
+                          text: context.t('diet_fit_check_unavailable'),
                           warning: true,
                         ),
                     ],
@@ -677,9 +761,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                               size: 20,
                               color: isAvailable
                                   ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
+                                  : Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -693,9 +777,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                       ),
                                       context.language,
                                     ),
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.titleMedium,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium,
                                   ),
                                   const SizedBox(height: 3),
                                   Text(
@@ -705,9 +789,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                                           '${item['available'] ?? '—'}',
                                       'unit': '${item['food']['unit'] ?? ''}',
                                     }),
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall,
                                   ),
                                 ],
                               ),
@@ -873,12 +957,16 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                         label: context.t('like_recipe'),
                         icon: Icons.thumb_up_outlined,
                         action: () async {
-                          await Mutation()
-                              .send(ref.read(apiProvider), 'POST', '/recipes', {
-                                'action': 'feedback',
-                                'recipe_id': recipe.id,
-                                'rating': 1,
-                              });
+                          await Mutation().send(
+                            ref.read(apiProvider),
+                            'POST',
+                            '/recipes',
+                            {
+                              'action': 'feedback',
+                              'recipe_id': recipe.id,
+                              'rating': 1,
+                            },
+                          );
                         },
                       ),
                       const SizedBox(width: 8),
@@ -886,12 +974,16 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                         label: context.t('dislike_recipe'),
                         icon: Icons.thumb_down_outlined,
                         action: () async {
-                          await Mutation()
-                              .send(ref.read(apiProvider), 'POST', '/recipes', {
-                                'action': 'feedback',
-                                'recipe_id': recipe.id,
-                                'rating': -1,
-                              });
+                          await Mutation().send(
+                            ref.read(apiProvider),
+                            'POST',
+                            '/recipes',
+                            {
+                              'action': 'feedback',
+                              'recipe_id': recipe.id,
+                              'rating': -1,
+                            },
+                          );
                         },
                       ),
                       const SizedBox(width: 8),
@@ -924,12 +1016,16 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                             context.t('report_notice'),
                           );
                           if (message == null || message.isEmpty) return;
-                          await mutation
-                              .send(ref.read(apiProvider), 'POST', '/reports', {
-                                'kind': 'recipe',
-                                'subject_id': recipe.id,
-                                'message': message,
-                              });
+                          await mutation.send(
+                            ref.read(apiProvider),
+                            'POST',
+                            '/reports',
+                            {
+                              'kind': 'recipe',
+                              'subject_id': recipe.id,
+                              'message': message,
+                            },
+                          );
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text(context.t('report_sent'))),
@@ -1012,9 +1108,8 @@ class _RecipeToolActionState extends State<_RecipeToolAction> {
     } catch (error) {
       if (!mounted) return;
       final code = error is ApiFailure ? error.code : 'unknown_error';
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t(code))));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.t(code))));
     } finally {
       if (mounted) setState(() => busy = false);
     }

@@ -1213,5 +1213,14 @@
   "tour_profile_more_body": "Gérez confidentialité, Premium, synchronisation hors ligne, activité récente, analyses et preuves. La déconnexion se trouve en bas.",
   "first_tour_next": "Suivant",
   "first_tour_back": "Retour",
-  "first_tour_start": "Commencer avec EatMe+"
+  "first_tour_start": "Commencer avec EatMe+",
+  "planner_no_recipes": "Aucune recette ne correspond à votre recherche.",
+  "planner_meal_recipes": "Suggestions pour ce repas",
+  "planner_other_recipes": "Autres recettes",
+  "planner_choose_day": "Choisissez le jour",
+  "planner_choose_meal": "Choisissez le repas",
+  "diet_fit_selected_rule": "Règle alimentaire sélectionnée",
+  "diet_fit_medical_tag_review": "Vérification conseillée pour le tag « {tag} » : comparez ce repas au plan de votre professionnel de santé. Cet avis vient du profil sélectionné, pas d’un conflit identifié avec les ingrédients.",
+  "diet_fit_check_unavailable": "Le contrôle de compatibilité est incomplet. Vérifiez vos paramètres et les ingrédients.",
+  "diet_fit_medical_tag_summary": "Tag médical sélectionné : {tag}."
 }

@@ -1213,5 +1213,14 @@
   "tour_profile_more_body": "Verwalte Datenschutz, Premium, Offline-Sync, letzte Aktivitäten, Einblicke und Nachweise. Abmelden findest du unten.",
   "first_tour_next": "Weiter",
   "first_tour_back": "Zurück",
-  "first_tour_start": "EatMe+ starten"
+  "first_tour_start": "EatMe+ starten",
+  "planner_no_recipes": "Keine Rezepte entsprechen deiner Suche.",
+  "planner_meal_recipes": "Für diese Mahlzeit empfohlen",
+  "planner_other_recipes": "Weitere Rezepte",
+  "planner_choose_day": "Tag wählen",
+  "planner_choose_meal": "Mahlzeit wählen",
+  "diet_fit_selected_rule": "Ausgewählte Ernährungsregel",
+  "diet_fit_medical_tag_review": "Prüfung für das Tag „{tag}“ empfohlen: Gleiche diese Mahlzeit mit dem Plan deiner medizinischen Fachperson ab. Dieser Hinweis stammt vom ausgewählten Profil, nicht von einem erkannten Konflikt mit Zutaten.",
+  "diet_fit_check_unavailable": "Die Verträglichkeitsprüfung ist unvollständig. Prüfe deine Einstellungen und Zutaten.",
+  "diet_fit_medical_tag_summary": "Ausgewähltes medizinisches Tag: {tag}."
 }

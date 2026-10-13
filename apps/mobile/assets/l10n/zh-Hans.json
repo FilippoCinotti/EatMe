@@ -1213,5 +1213,14 @@
   "tour_profile_more_body": "在这里管理隐私、Premium、离线同步、近期活动、洞察和依据。退出登录位于底部。",
   "first_tour_next": "下一步",
   "first_tour_back": "返回",
-  "first_tour_start": "开始使用 EatMe+"
+  "first_tour_start": "开始使用 EatMe+",
+  "planner_no_recipes": "没有符合搜索条件的食谱。",
+  "planner_meal_recipes": "适合本餐的推荐",
+  "planner_other_recipes": "其他食谱",
+  "planner_choose_day": "选择日期",
+  "planner_choose_meal": "选择餐次",
+  "diet_fit_selected_rule": "已选择的饮食规则",
+  "diet_fit_medical_tag_review": "建议根据“{tag}”标签核查：请对照医疗专业人员制定的计划检查本餐。此提示源于所选个人资料，并非已发现的食材冲突。",
+  "diet_fit_check_unavailable": "兼容性检查尚不完整。请检查您的设置和食材。",
+  "diet_fit_medical_tag_summary": "已选择的医疗标签：{tag}。"
 }
