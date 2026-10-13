@@ -1,5 +1,5 @@
 # Launch Screen Assets
 
-You can customize the launch screen with your own desired assets by replacing the image files in this directory.
-
-You can also do it by opening your Flutter project's Xcode project with `open ios/Runner.xcworkspace`, selecting `Runner/Assets.xcassets` in the Project Navigator and dropping in the desired images.
+The three PNGs contain EatMe+'s two-leaf mark as an iOS template image. The
+launch storyboard applies `LaunchAccent`, allowing the same artwork to remain
+legible in light and dark mode without maintaining duplicate assets.

@@ -325,22 +325,7 @@ class LaunchPage extends ConsumerWidget {
                 ),
               ],
             )
-          : Center(
-              child: Semantics(
-                label: context.t('loading'),
-                child: const Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    EatMeWordmark(large: true),
-                    SizedBox(height: 26),
-                    SizedBox(
-                      width: 72,
-                      child: LinearProgressIndicator(minHeight: 2),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          : EatMeLoadingSplash(label: context.t('loading')),
     );
   }
 }

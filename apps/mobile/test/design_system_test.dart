@@ -36,6 +36,18 @@ void main() {
     expect(EatMeWordmark.plusScale, lessThan(1));
   });
 
+  testWidgets('loading splash uses the two-leaf brand mark', (tester) async {
+    await tester.pumpWidget(
+      harness(const EatMeLoadingSplash(label: 'Caricamento')),
+    );
+    await tester.pump(const Duration(milliseconds: 700));
+
+    expect(find.byType(EatMeBrandMark), findsNWidgets(2));
+    expect(find.byType(EatMeWordmark), findsOneWidget);
+    expect(find.bySemanticsLabel('Caricamento'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('busy action prevents duplicate consumption submissions', (
     tester,
   ) async {

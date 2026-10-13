@@ -17,23 +17,26 @@
                     <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="LaunchImage" translatesAutoresizingMaskIntoConstraints="NO" id="brand-leaves">
+                                <rect key="frame" x="153" y="286" width="88" height="88"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="88" id="leaves-width"/>
+                                    <constraint firstAttribute="height" constant="88" id="leaves-height"/>
+                                </constraints>
+                                <color key="tintColor" name="LaunchAccent"/>
+                            </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="EatMe+" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YRO-k0-Ey4">
                                 <fontDescription key="fontDescription" type="system" weight="bold" pointSize="42"/>
                                 <color key="textColor" name="LaunchWordmark"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="•" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" translatesAutoresizingMaskIntoConstraints="NO" id="accent-leaf">
-                                <fontDescription key="fontDescription" type="system" weight="bold" pointSize="22"/>
-                                <color key="textColor" name="LaunchAccent"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                         </subviews>
                         <color key="backgroundColor" name="LaunchBackground"/>
                         <constraints>
+                            <constraint firstItem="brand-leaves" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="leaves-center-x"/>
+                            <constraint firstItem="brand-leaves" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" constant="-54" id="leaves-center-y"/>
                             <constraint firstItem="YRO-k0-Ey4" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="1a2-6s-vTC"/>
-                            <constraint firstItem="YRO-k0-Ey4" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="4X2-HB-R7a"/>
-                            <constraint firstItem="accent-leaf" firstAttribute="leading" secondItem="YRO-k0-Ey4" secondAttribute="trailing" constant="3" id="accent-leading"/>
-                            <constraint firstItem="accent-leaf" firstAttribute="top" secondItem="YRO-k0-Ey4" secondAttribute="top" constant="3" id="accent-top"/>
+                            <constraint firstItem="YRO-k0-Ey4" firstAttribute="top" secondItem="brand-leaves" secondAttribute="bottom" constant="18" id="wordmark-below-leaves"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -43,6 +46,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="LaunchImage" width="88" height="88"/>
         <namedColor name="LaunchAccent"><color red="0.180" green="0.451" blue="0.275" alpha="1" colorSpace="custom" customColorSpace="sRGB"/></namedColor>
         <namedColor name="LaunchBackground"><color red="0.969" green="0.949" blue="0.910" alpha="1" colorSpace="custom" customColorSpace="sRGB"/></namedColor>
         <namedColor name="LaunchWordmark"><color red="0.125" green="0.137" blue="0.122" alpha="1" colorSpace="custom" customColorSpace="sRGB"/></namedColor>

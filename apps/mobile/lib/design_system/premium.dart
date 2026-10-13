@@ -149,6 +149,108 @@ class EatMeWordmark extends StatelessWidget {
   }
 }
 
+/// Full-screen branded loading state used while the app restores its session
+/// and initial data. The subtle motion keeps the native launch screen and the
+/// first Flutter frame visually continuous without making the mark distracting.
+class EatMeLoadingSplash extends StatefulWidget {
+  const EatMeLoadingSplash({super.key, required this.label});
+
+  final String label;
+
+  @override
+  State<EatMeLoadingSplash> createState() => _EatMeLoadingSplashState();
+}
+
+class _EatMeLoadingSplashState extends State<EatMeLoadingSplash>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1400),
+  );
+  bool? _reduceMotion;
+
+  late final Animation<double> _scale = Tween<double>(begin: .94, end: 1.02)
+      .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  late final Animation<double> _turn = Tween<double>(begin: -.012, end: .012)
+      .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final reduceMotion = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (_reduceMotion == reduceMotion) return;
+    _reduceMotion = reduceMotion;
+    if (reduceMotion) {
+      _controller
+        ..stop()
+        ..value = .5;
+    } else {
+      _controller.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      label: widget.label,
+      child: ExcludeSemantics(
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) => Transform.rotate(
+                  angle: _turn.value,
+                  child: Transform.scale(scale: _scale.value, child: child),
+                ),
+                child: Container(
+                  width: 118,
+                  height: 118,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: scheme.primary.withValues(alpha: .09),
+                    border: Border.all(
+                      color: scheme.primary.withValues(alpha: .14),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: scheme.primary.withValues(alpha: .10),
+                        blurRadius: 32,
+                        spreadRadius: 4,
+                      ),
+                    ],
+                  ),
+                  alignment: Alignment.center,
+                  child: const EatMeBrandMark(size: 76),
+                ),
+              ),
+              const SizedBox(height: 22),
+              const EatMeWordmark(),
+              const SizedBox(height: 28),
+              SizedBox(
+                width: 56,
+                child: LinearProgressIndicator(
+                  minHeight: 2,
+                  borderRadius: BorderRadius.circular(99),
+                  backgroundColor: scheme.primary.withValues(alpha: .10),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class RoundAction extends StatelessWidget {
   const RoundAction({
     super.key,
