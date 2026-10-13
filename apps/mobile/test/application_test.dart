@@ -180,7 +180,10 @@ class TestController extends AppController {
     ],
   );
   @override
-  Future<void> refresh({String? mode, bool recommendationsOnly = false}) async {}
+  Future<void> refresh({
+    String? mode,
+    bool recommendationsOnly = false,
+  }) async {}
 }
 
 Widget harness(

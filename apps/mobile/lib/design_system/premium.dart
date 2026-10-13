@@ -169,15 +169,20 @@ class _EatMeLoadingSplashState extends State<EatMeLoadingSplash>
   );
   bool? _reduceMotion;
 
-  late final Animation<double> _scale = Tween<double>(begin: .94, end: 1.02)
-      .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-  late final Animation<double> _turn = Tween<double>(begin: -.012, end: .012)
-      .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  late final Animation<double> _scale = Tween<double>(
+    begin: .94,
+    end: 1.02,
+  ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  late final Animation<double> _turn = Tween<double>(
+    begin: -.012,
+    end: .012,
+  ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final reduceMotion = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
     if (_reduceMotion == reduceMotion) return;
     _reduceMotion = reduceMotion;
     if (reduceMotion) {

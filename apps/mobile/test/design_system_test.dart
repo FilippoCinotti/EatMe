@@ -25,17 +25,17 @@ Widget harness(
   Brightness brightness = Brightness.light,
   LocalizationsDelegate<EatMeStrings> stringsDelegate = EatMeStrings.delegate,
 }) => MaterialApp(
-      theme: Tokens.theme(brightness),
-      locale: const Locale('it'),
-      supportedLocales: const [Locale('it'), Locale('en')],
-      localizationsDelegates: [
-        stringsDelegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      home: Scaffold(body: child),
-    );
+  theme: Tokens.theme(brightness),
+  locale: const Locale('it'),
+  supportedLocales: const [Locale('it'), Locale('en')],
+  localizationsDelegates: [
+    stringsDelegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+  ],
+  home: Scaffold(body: child),
+);
 
 void main() {
   testWidgets('display typography is reserved for titles and wordmark', (
