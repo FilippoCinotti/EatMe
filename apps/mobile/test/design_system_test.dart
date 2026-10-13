@@ -37,6 +37,9 @@ void main() {
   });
 
   testWidgets('loading splash uses the two-leaf brand mark', (tester) async {
+    // Load localization before introducing the continuously animated splash.
+    await tester.pumpWidget(harness(const SizedBox.shrink()));
+    await tester.pumpAndSettle();
     await tester.pumpWidget(
       harness(const EatMeLoadingSplash(label: 'Caricamento')),
     );

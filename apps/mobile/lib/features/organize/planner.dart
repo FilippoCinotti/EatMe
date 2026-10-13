@@ -98,17 +98,14 @@ class _PlannerState extends ResourceState<PlannerPage> {
               validTargets.contains('${item['date']}:${item['slot']}'),
         )
         .toList();
-    final result = await command(
-      {
-        'action': 'save',
-        'start_date': isoDay(start),
-        'meals': meals,
-        'preference_overrides': safeOverrides,
-        if (selected != null) 'id': selected!['id'],
-        if (selected != null) 'expected_version': selected!['version'],
-      },
-      reload: false,
-    );
+    final result = await command({
+      'action': 'save',
+      'start_date': isoDay(start),
+      'meals': meals,
+      'preference_overrides': safeOverrides,
+      if (selected != null) 'id': selected!['id'],
+      if (selected != null) 'expected_version': selected!['version'],
+    }, reload: false);
     if (mounted && result['id'] != null) {
       setState(() {
         selected = result;
@@ -267,15 +264,12 @@ class _PlannerState extends ResourceState<PlannerPage> {
       );
       return;
     }
-    final result = await command(
-      {
-        'action': 'preview_generate',
-        if (participants != null) 'participants': participants,
-        'start_date': isoDay(start),
-        'servings': 1,
-      },
-      reload: false,
-    );
+    final result = await command({
+      'action': 'preview_generate',
+      if (participants != null) 'participants': participants,
+      'start_date': isoDay(start),
+      'servings': 1,
+    }, reload: false);
     if (mounted && result['preview'] == true) {
       setState(() => draftMeals = records(result['data']?['meals']));
     }
