@@ -233,7 +233,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
         if (!snapshot.hasData) {
           return Scaffold(
             appBar: EatMeAppBar(title: Text(context.t('cooking_mode'))),
-            body: const Center(child: CircularProgressIndicator()),
+            body: EatMeLoadingSplash(label: context.t('loading')),
           );
         }
         final recipe = snapshot.data!;
@@ -638,7 +638,7 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
           );
         }
         if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
+          return EatMeLoadingSplash(label: context.t('loading'));
         }
         final plan = snapshot.data!;
         final shortages = (plan['shortages'] as List).isNotEmpty;

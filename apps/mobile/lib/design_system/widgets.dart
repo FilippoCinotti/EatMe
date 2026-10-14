@@ -127,7 +127,7 @@ class _AsyncActionState extends State<AsyncAction> {
   }
 }
 
-class PageBody extends StatelessWidget {
+class PageBody extends StatefulWidget {
   const PageBody({
     super.key,
     required this.children,
@@ -137,10 +137,28 @@ class PageBody extends StatelessWidget {
   final List<Widget> children;
   final Future<void> Function()? onRefresh;
   final ScrollController? controller;
+
+  @override
+  State<PageBody> createState() => _PageBodyState();
+}
+
+class _PageBodyState extends State<PageBody> {
+  bool refreshing = false;
+
+  Future<void> refresh() async {
+    if (refreshing || widget.onRefresh == null) return;
+    setState(() => refreshing = true);
+    try {
+      await widget.onRefresh!();
+    } finally {
+      if (mounted) setState(() => refreshing = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final content = ListView(
-      controller: controller,
+      controller: widget.controller,
       padding: EdgeInsets.fromLTRB(
         20,
         12,
@@ -149,7 +167,7 @@ class PageBody extends StatelessWidget {
       ),
       physics: const AlwaysScrollableScrollPhysics(),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      children: children,
+      children: widget.children,
     );
     return SafeArea(
       bottom: false,
@@ -157,9 +175,22 @@ class PageBody extends StatelessWidget {
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 620),
-          child: onRefresh == null
+          child: widget.onRefresh == null
               ? content
-              : RefreshIndicator(onRefresh: onRefresh!, child: content),
+              : Stack(
+                  children: [
+                    RefreshIndicator(onRefresh: refresh, child: content),
+                    if (refreshing)
+                      Positioned.fill(
+                        child: ColoredBox(
+                          color: Theme.of(context).colorScheme.surface,
+                          child: EatMeLoadingSplash(
+                            label: context.t('loading'),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
         ),
       ),
     );

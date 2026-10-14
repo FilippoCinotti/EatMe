@@ -67,6 +67,32 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('page refresh replaces content with the branded splash', (
+    tester,
+  ) async {
+    final pending = Completer<void>();
+    await tester.pumpWidget(
+      harness(
+        PageBody(
+          onRefresh: () => pending.future,
+          children: const [SizedBox(height: 900, child: Text('Contenuto'))],
+        ),
+        stringsDelegate: const SplashStringsDelegate(),
+      ),
+    );
+    await tester.drag(find.text('Contenuto'), const Offset(0, 500));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.byType(EatMeLoadingSplash), findsOneWidget);
+    expect(find.byType(EatMeWordmark), findsOneWidget);
+
+    pending.complete();
+    await tester.pumpAndSettle();
+    expect(find.byType(EatMeLoadingSplash), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('busy action prevents duplicate consumption submissions', (
     tester,
   ) async {

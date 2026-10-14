@@ -75,7 +75,7 @@ abstract class ResourceState<T extends ConsumerStatefulWidget>
   }
 
   Widget content(List<Widget> children) => data == null && error == null
-      ? const Center(child: CircularProgressIndicator())
+      ? EatMeLoadingSplash(label: context.t('loading'))
       : PageBody(
           onRefresh: load,
           children: [

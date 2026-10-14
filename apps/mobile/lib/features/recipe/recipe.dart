@@ -363,9 +363,9 @@ class _RecipePageState extends ConsumerState<RecipePage> {
         );
       }
       if (!snapshot.hasData) {
-        return const Scaffold(
-          appBar: EatMeAppBar(),
-          body: Center(child: CircularProgressIndicator()),
+        return Scaffold(
+          appBar: const EatMeAppBar(),
+          body: EatMeLoadingSplash(label: context.t('loading')),
         );
       }
       final (recipe, plan) = snapshot.data!;
