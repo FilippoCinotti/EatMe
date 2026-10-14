@@ -8,6 +8,7 @@ import '../core/api.dart';
 import '../core/localization.dart';
 import '../core/models.dart';
 import 'food_image.dart';
+import 'premium.dart';
 export 'food_image.dart';
 export 'brand.dart';
 export 'icons.dart';
