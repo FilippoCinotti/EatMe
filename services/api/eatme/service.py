@@ -420,6 +420,52 @@ class Service(
                 return {"id":batch_id,"version":1,"quantity":quantity(amount)}
             return self._once(tx,user_id,key,"add_inventory",data,add)
 
+    def remove_inventory_bulk(self, user_id, data, key):
+        """Remove inventory rows atomically, without recording food as waste."""
+        entries = data.get("items")
+        if not isinstance(entries, list) or not 1 <= len(entries) <= 100:
+            raise DomainError("invalid_inventory", 422)
+        seen = set()
+        for entry in entries:
+            if not isinstance(entry, dict) or set(entry) != {"id", "expected_version"}:
+                raise DomainError("invalid_inventory", 422)
+            batch_id = valid_uuid(entry["id"])
+            if batch_id in seen or type(entry["expected_version"]) is not int or entry["expected_version"] < 1:
+                raise DomainError("invalid_inventory", 422)
+            seen.add(batch_id)
+
+        household_id = self._household(user_id, write=True)
+        with self.db.transaction(household_id) as tx:
+            def remove():
+                self._member(tx, user_id, household_id, write=True)
+                # Validate every batch before touching any quantity.
+                batches = []
+                for entry in entries:
+                    batch = tx.one(
+                        "SELECT * FROM inventory_batches WHERE id=? AND household_id=? AND quantity_milli>0",
+                        (entry["id"], household_id),
+                    )
+                    if not batch:
+                        raise DomainError("item_not_found", 404)
+                    if batch["version"] != entry["expected_version"]:
+                        raise DomainError("stale_inventory", 409)
+                    batches.append(batch)
+                for batch in batches:
+                    updated = tx.execute(
+                        "UPDATE inventory_batches SET quantity_milli=0,version=version+1,updated_at=? "
+                        "WHERE id=? AND household_id=? AND version=? AND quantity_milli>0",
+                        (now(), batch["id"], household_id, batch["version"]),
+                    )
+                    if updated.rowcount != 1:
+                        raise DomainError("stale_inventory", 409)
+                    self._event(
+                        tx, user_id, household_id, batch["id"],
+                        "removed", -batch["quantity_milli"],
+                    )
+                return {"removed": [batch["id"] for batch in batches], "count": len(batches)}
+
+            return self._once(tx, user_id, key, "remove_inventory_bulk", data, remove)
+
     def change_inventory(self,user_id,batch_id,data,key):
         household_id = self._household(user_id,write=True)
         with self.db.transaction(household_id) as tx:
