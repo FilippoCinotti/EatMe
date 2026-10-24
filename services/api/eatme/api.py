@@ -73,6 +73,20 @@ class InventoryInput(StrictBody):
     estimate_expiry: bool | None = None
 
 
+class InventoryBulkRemoveItem(StrictBody):
+    id: str
+    expected_version: int = Field(ge=1)
+
+
+class InventoryBulkRemove(StrictBody):
+    items: list[InventoryBulkRemoveItem] = Field(min_length=1, max_length=100)
+
+
+class InventoryBulkAction(InventoryBulkRemove):
+    action: Literal["moved", "consumed"]
+    location: Literal["fridge", "freezer", "pantry"] | None = None
+
+
 class InventoryChange(StrictBody):
     expected_version: int
     action: Literal["consumed","discarded","corrected","moved","opened"]
@@ -232,6 +246,14 @@ def create_app(router=None):
 
     @app.post("/api/v1/inventory")
     def inventory(body:InventoryInput,request:Request):
+        return dispatch(request,body.model_dump(exclude_none=True))
+
+    @app.post("/api/v1/inventory/bulk-remove")
+    def remove_inventory_bulk(body:InventoryBulkRemove,request:Request):
+        return dispatch(request,body.model_dump())
+
+    @app.post("/api/v1/inventory/bulk-action")
+    def update_inventory_bulk(body:InventoryBulkAction,request:Request):
         return dispatch(request,body.model_dump(exclude_none=True))
 
     @app.patch("/api/v1/inventory/{batch_id}")
