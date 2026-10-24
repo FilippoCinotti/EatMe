@@ -339,78 +339,79 @@ class AppShell extends ConsumerWidget {
     final offline = ref.watch(appProvider.select((value) => value.offline));
     final safePadding = MediaQuery.paddingOf(context);
     return Scaffold(
-    extendBody: true,
-    body: Column(
-      children: [
-        if (offline)
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 6),
-              child: Row(
-                children: [
-                  const Icon(Icons.wifi_off_rounded, size: 18),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      context.t('offline_mode'),
-                      style: Theme.of(context).textTheme.bodySmall,
+      extendBody: true,
+      body: Column(
+        children: [
+          if (offline)
+            SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 6),
+                child: Row(
+                  children: [
+                    const Icon(Icons.wifi_off_rounded, size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        context.t('offline_mode'),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ),
-                  ),
-                  TextButton(
-                    onPressed: () => ref.read(appProvider.notifier).restore(),
-                    child: Text(context.t('retry')),
-                  ),
-                ],
+                    TextButton(
+                      onPressed: () => ref.read(appProvider.notifier).restore(),
+                      child: Text(context.t('retry')),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        Expanded(
-          child: MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              padding: safePadding.copyWith(
-                top: offline ? 0 : safePadding.top,
-                bottom: safePadding.bottom + 92,
+          Expanded(
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                padding: safePadding.copyWith(
+                  top: offline ? 0 : safePadding.top,
+                  bottom: safePadding.bottom + 92,
+                ),
               ),
+              child: child,
             ),
-            child: child,
           ),
-        ),
-      ],
-    ),
-    bottomNavigationBar: SafeArea(
-      minimum: const EdgeInsets.fromLTRB(18, 0, 18, 12),
-      child: Align(
-        heightFactor: 1,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 620),
-          child: GlassSurface(
-            child: KeyedSubtree(
-              key: FirstAccessTourTargets.navigation,
-              child: EatMeNavigationBar(
-                selectedIndex: selectedIndex(),
-                onDestinationSelected: (index) {
-                  HapticFeedback.selectionClick();
-                  context.go(paths[index]);
-                },
-                destinations: [
-                  EatMeNavigationItem(
-                    icon: EatMeGlyph.chefHat,
-                    label: context.t('chef_table'),
-                  ),
-                  EatMeNavigationItem(
-                    icon: EatMeGlyph.refrigerator,
-                    label: context.t('fridge'),
-                  ),
-                  EatMeNavigationItem(
-                    icon: EatMeGlyph.calendarDays,
-                    label: context.t('plan'),
-                  ),
-                  EatMeNavigationItem(
-                    icon: EatMeGlyph.userRound,
-                    label: context.t('profile'),
-                  ),
-                ],
+        ],
+      ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(18, 0, 18, 12),
+        child: Align(
+          heightFactor: 1,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 620),
+            child: GlassSurface(
+              child: KeyedSubtree(
+                key: FirstAccessTourTargets.navigation,
+                child: EatMeNavigationBar(
+                  selectedIndex: selectedIndex(),
+                  onDestinationSelected: (index) {
+                    HapticFeedback.selectionClick();
+                    context.go(paths[index]);
+                  },
+                  destinations: [
+                    EatMeNavigationItem(
+                      icon: EatMeGlyph.chefHat,
+                      label: context.t('chef_table'),
+                    ),
+                    EatMeNavigationItem(
+                      icon: EatMeGlyph.refrigerator,
+                      label: context.t('fridge'),
+                    ),
+                    EatMeNavigationItem(
+                      icon: EatMeGlyph.calendarDays,
+                      label: context.t('plan'),
+                    ),
+                    EatMeNavigationItem(
+                      icon: EatMeGlyph.userRound,
+                      label: context.t('profile'),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -418,3 +419,4 @@ class AppShell extends ConsumerWidget {
       ),
     );
   }
+}
