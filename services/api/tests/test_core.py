@@ -637,6 +637,54 @@ class EatMeCase(unittest.TestCase):
             self.service.inventory(self.user)["items"][0]["quantity"], "350"
         )
 
+    def test_bulk_inventory_move_and_consume_are_atomic(self):
+        a = self.add("tomato", 100)
+        b = self.add("chickpea", 200)
+        items = [
+            {"id": a["id"], "expected_version": 1},
+            {"id": b["id"], "expected_version": 1},
+        ]
+        moved = self.service.update_inventory_bulk(
+            self.user,
+            {"action": "moved", "location": "freezer", "items": items},
+            new_id(),
+        )
+        self.assertEqual(moved["count"], 2)
+        before = self.service.inventory(self.user)["items"]
+        self.assertEqual({row["location"] for row in before}, {"freezer"})
+        self.assertEqual({row["version"] for row in before}, {2})
+
+        self.assertCode(
+            "stale_inventory",
+            lambda: self.service.update_inventory_bulk(
+                self.user,
+                {"action": "consumed", "items": [
+                    {"id": a["id"], "expected_version": 2},
+                    {"id": b["id"], "expected_version": 1},
+                ]}, new_id(),
+            ),
+        )
+        self.assertEqual(self.service.inventory(self.user)["items"], before)
+        self.assertCode(
+            "invalid_inventory",
+            lambda: self.service.update_inventory_bulk(
+                self.user,
+                {"action": "consumed", "items": [
+                    {"id": a["id"], "expected_version": 2},
+                    {"id": a["id"], "expected_version": 2},
+                ]}, new_id(),
+            ),
+        )
+        consumed = self.service.update_inventory_bulk(
+            self.user,
+            {"action": "consumed", "items": [
+                {"id": a["id"], "expected_version": 2},
+                {"id": b["id"], "expected_version": 2},
+            ]}, new_id(),
+        )
+        self.assertEqual(consumed["count"], 2)
+        self.assertEqual(self.service.inventory(self.user)["items"], [])
+
     def test_household_authorization_prevents_cross_account_writes(self):
         item = self.add("tomato",100)
         other = new_id()
