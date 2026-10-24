@@ -12,6 +12,7 @@ import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
 import '../../design_system/widgets.dart';
+import '../../design_system/theme.dart';
 import '../onboarding/first_access_tour.dart';
 
 class FridgePage extends ConsumerStatefulWidget {
@@ -948,10 +949,26 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
         const SizedBox(height: 22),
         SizedBox(
           width: double.infinity,
-          child: AsyncAction(
-            label: context.t('mark_consumed'),
-            enabled: enabled && batch.usable,
-            action: () => run(() => apply('consumed')),
+          height: 52,
+          child: FilledButton(
+            key: const ValueKey('batch-consume'),
+            style: FilledButton.styleFrom(
+              backgroundColor: Tokens.paleGreen,
+              foregroundColor: Tokens.graphite,
+            ),
+            onPressed: enabled && batch.usable
+                ? () => run(() => apply('consumed'))
+                : null,
+            child: busy
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Tokens.graphite,
+                    ),
+                  )
+                : Text(context.t('mark_consumed')),
           ),
         ),
         const SizedBox(height: 20),
