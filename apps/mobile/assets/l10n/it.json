@@ -1222,5 +1222,11 @@
   "diet_fit_selected_rule": "Regola alimentare selezionata",
   "diet_fit_medical_tag_review": "Revisione consigliata per il tag “{tag}”: verifica il pasto rispetto al piano del professionista sanitario. Questo avviso deriva dal profilo selezionato, non da un conflitto rilevato negli ingredienti.",
   "diet_fit_check_unavailable": "Il controllo di compatibilità è incompleto. Verifica le tue impostazioni e gli ingredienti.",
-  "diet_fit_medical_tag_summary": "Tag medico selezionato: {tag}."
+  "diet_fit_medical_tag_summary": "Tag medico selezionato: {tag}.",
+  "smart_card_for_you": "Consigliato per te",
+  "smart_card_use_soon": "Usa prima questi",
+  "smart_card_quick": "Pronto in poco",
+  "smart_reason_expiry": "Usa {count} ingredienti vicini alla scadenza",
+  "smart_reason_available": "Hai già tutti gli ingredienti",
+  "smart_reason_minutes": "Pronto in circa {count} minuti"
 }

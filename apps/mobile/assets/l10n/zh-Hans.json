@@ -1222,5 +1222,11 @@
   "diet_fit_selected_rule": "已选择的饮食规则",
   "diet_fit_medical_tag_review": "建议根据“{tag}”标签核查：请对照医疗专业人员制定的计划检查本餐。此提示源于所选个人资料，并非已发现的食材冲突。",
   "diet_fit_check_unavailable": "兼容性检查尚不完整。请检查您的设置和食材。",
-  "diet_fit_medical_tag_summary": "已选择的医疗标签：{tag}。"
+  "diet_fit_medical_tag_summary": "已选择的医疗标签：{tag}。",
+  "smart_card_for_you": "为你推荐",
+  "smart_card_use_soon": "优先使用",
+  "smart_card_quick": "快速做好",
+  "smart_reason_expiry": "使用 {count} 种临近到期的食材",
+  "smart_reason_available": "食材已齐备",
+  "smart_reason_minutes": "预计 {count} 分钟完成"
 }

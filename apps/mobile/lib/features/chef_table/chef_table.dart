@@ -156,7 +156,11 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
         !searchLoading &&
         searchError == null &&
         matchingRecommendations.isEmpty;
-    final visibleRecommendations = matchingRecommendations;
+    final showContextual = normalizedQuery.isEmpty && state.mode == 'for_you' && state.contextual.isNotEmpty;
+    final contextualIds = {for (final card in state.contextual) (card['recommendation'] as Map)['recipe']['id']};
+    final visibleRecommendations = showContextual
+        ? matchingRecommendations.where((r) => !contextualIds.contains(r.recipe.id)).toList()
+        : matchingRecommendations;
     return Scaffold(
       body: PageBody(
         onRefresh: () => ref.read(appProvider.notifier).refresh(),
@@ -295,6 +299,19 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
               ),
               warning: true,
             ),
+          if (showContextual) ...[
+            LayoutBuilder(builder: (context, constraints) {
+              final wide = constraints.maxWidth >= 760;
+              final cards = [for (final card in state.contextual) _ContextualCard(card: card)];
+              if (wide) return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                for (var i = 0; i < cards.length; i++) ...[
+                  if (i > 0) const SizedBox(width: 12), Expanded(child: cards[i]),
+                ],
+              ]);
+              return Column(children: [for (final card in cards) Padding(padding: const EdgeInsets.only(bottom: 12), child: card)]);
+            }),
+            const SizedBox(height: 16),
+          ],
           if (state.inventory.isEmpty && normalizedQuery.isEmpty)
             EmptyMessage(
               title: context.t('start_with_fridge'),
@@ -311,7 +328,7 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
               title: context.t('no_recipes'),
               body: context.t('no_recipes_body'),
             )
-          else if (pick != null) ...[
+          else if (pick != null && !showContextual) ...[
             RecipeCard(
               recommendation: pick,
               featured: true,
@@ -352,9 +369,9 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
               ],
             ),
           ],
-          if (visibleRecommendations.length > 1) ...[
+          if (visibleRecommendations.length > (showContextual ? 0 : 1)) ...[
             SectionHeading(title: context.t('also_for_you')),
-            for (final recommendation in visibleRecommendations.skip(1))
+            for (final recommendation in visibleRecommendations.skip(showContextual ? 0 : 1))
               RecipeCard(recommendation: recommendation),
           ],
           if (normalizedQuery.isEmpty) ...[
@@ -876,4 +893,39 @@ class _ChefRecipeActions extends StatelessWidget {
       ),
     ],
   );
+}
+
+
+class _ContextualCard extends StatelessWidget {
+  const _ContextualCard({required this.card});
+  final Json card;
+  @override
+  Widget build(BuildContext context) {
+    final item = Recommendation.fromJson(Map<String, dynamic>.from(card['recommendation'] as Map));
+    final reasons = (card['reasons'] as List? ?? const []).take(2).map((raw) {
+      final reason = Map<String, dynamic>.from(raw as Map);
+      return context.t(reason['code'] as String, {if (reason['count'] != null) 'count': reason['count'] as Object});
+    }).join(' · ');
+    return InformationPanel(
+      padding: EdgeInsets.zero,
+      child: InkWell(
+        onTap: () => context.push('/recipes/${item.recipe.id}'),
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(children: [
+            FoodImage(id: item.recipe.id, imageUrl: item.recipe.imageUrl ?? '', width: 72, height: 80, radius: 14),
+            const SizedBox(width: 12),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(context.t('smart_card_${card['kind']}'), style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Theme.of(context).colorScheme.primary)),
+              const SizedBox(height: 4),
+              Text(localized(item.recipe.title, context.language), maxLines: 2, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 4),
+              Text(reasons, style: Theme.of(context).textTheme.bodySmall),
+            ])),
+          ]),
+        ),
+      ),
+    );
+  }
 }

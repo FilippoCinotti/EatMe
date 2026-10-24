@@ -18,6 +18,7 @@ from .auth import now
 from .catalog import ALLERGENS, ETHICAL_PREFERENCES, INTOLERANCES, MEDICAL_AWARENESS, SENSITIVITIES
 from .engine import (
     active_rules,
+    contextual_recommendations,
     amount_milli,
     batch_usable,
     compatibility,
@@ -516,9 +517,15 @@ class Service(
                                    staples=self._staples(tx,household_id),
                                    require_inventory_match=search is None)
             feedback = {r["recipe_id"]:r["rating"] for r in tx.all("SELECT recipe_id,rating FROM recipe_feedback WHERE user_id=?",(user_id,))} if preferences.get("learning") else {}
+            cooked = {}
+            if preferences.get("learning"):
+                cooked = {r["recipe_id"]: r["count"] for r in tx.all(
+                    "SELECT recipe_id,COUNT(*) AS count FROM cooking_sessions WHERE user_id=? GROUP BY recipe_id", (user_id,))}
             cuisines = {c.casefold() for c in preferences.get("cuisines",[])}
             for item in ranked:
                 item["preference_adjustment"] = 0 if relax_soft else (.05 * feedback.get(item["recipe"]["id"],0) + (.03 if item["recipe"].get("cuisine","").casefold() in cuisines else 0))
+                if not relax_soft and preferences.get("learning"):
+                    item["preference_adjustment"] += min(cooked.get(item["recipe"]["id"], 0), 3) * .01
                 if not relax_soft and preferences.get('budget') in {'low', 'medium'}:
                     item['preference_adjustment'] += item['component_scores']['availability'] * (.06 if preferences['budget'] == 'low' else .03)
                 seasonal = [foods[i['food_id']] for i in item['recipe']['ingredients'] if foods[i['food_id']].get('season_months')]
@@ -557,7 +564,7 @@ class Service(
             trace = {"mode":mode,"diet_rules_version":versions,"profile_version":profile["version"],
                      "inventory_snapshot":snapshot,"ranked":trace_ranked,"rejected":rejected,"servings":size}
             tx.execute("INSERT INTO recommendation_traces VALUES (?,?,?,?,?)",(trace_id,user_id,household_id,encode(trace),now()))
-            return {"trace_id":trace_id,"items":ranked[:4],"servings":size,"diet_rules_version":versions,
+            return {"trace_id":trace_id,"contextual":contextual_recommendations(ranked),"items":ranked[:4],"servings":size,"diet_rules_version":versions,
                     "preference_context":{"mode":mode,"soft_preferences_relaxed":relax_soft,
                                           "hard_restrictions_active":True},
                     "profile_context":{"diet_ids":[a["diet_id"] for a in profile["settings"]["diets"]],

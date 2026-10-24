@@ -1222,5 +1222,11 @@
   "diet_fit_selected_rule": "Selected dietary rule",
   "diet_fit_medical_tag_review": "Review recommended for the “{tag}” tag: check this meal against your healthcare professional’s plan. This notice comes from the selected profile, not an identified ingredient conflict.",
   "diet_fit_check_unavailable": "The compatibility check is incomplete. Review your settings and ingredients.",
-  "diet_fit_medical_tag_summary": "Selected medical tag: {tag}."
+  "diet_fit_medical_tag_summary": "Selected medical tag: {tag}.",
+  "smart_card_for_you": "Recommended for you",
+  "smart_card_use_soon": "Use these first",
+  "smart_card_quick": "Ready in no time",
+  "smart_reason_expiry": "Uses {count} ingredients nearing expiry",
+  "smart_reason_available": "You have all the ingredients",
+  "smart_reason_minutes": "Ready in about {count} minutes"
 }

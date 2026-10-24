@@ -1222,5 +1222,11 @@
   "diet_fit_selected_rule": "Règle alimentaire sélectionnée",
   "diet_fit_medical_tag_review": "Vérification conseillée pour le tag « {tag} » : comparez ce repas au plan de votre professionnel de santé. Cet avis vient du profil sélectionné, pas d’un conflit identifié avec les ingrédients.",
   "diet_fit_check_unavailable": "Le contrôle de compatibilité est incomplet. Vérifiez vos paramètres et les ingrédients.",
-  "diet_fit_medical_tag_summary": "Tag médical sélectionné : {tag}."
+  "diet_fit_medical_tag_summary": "Tag médical sélectionné : {tag}.",
+  "smart_card_for_you": "Recommandé pour vous",
+  "smart_card_use_soon": "À utiliser en priorité",
+  "smart_card_quick": "Prêt rapidement",
+  "smart_reason_expiry": "Utilise {count} ingrédients proches de leur date",
+  "smart_reason_available": "Vous avez tous les ingrédients",
+  "smart_reason_minutes": "Prêt en environ {count} minutes"
 }
