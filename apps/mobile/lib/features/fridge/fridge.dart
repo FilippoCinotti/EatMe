@@ -19,7 +19,10 @@ import '../onboarding/first_access_tour.dart';
 class FridgePage extends ConsumerStatefulWidget {
   const FridgePage({super.key});
   @override
-  ConsumerState<FridgePage> createStatclass _FridgePageState extends ConsumerState<FridgePage> {
+  ConsumerState<FridgePage> createState() => _FridgePageState();
+}
+
+class _FridgePageState extends ConsumerState<FridgePage> {
   String location = 'all', search = '', sort = 'expiry', expiryFilter = 'all';
   final selectedBatchIds = <String>{};
   final collapsedCategories = <String>{};
