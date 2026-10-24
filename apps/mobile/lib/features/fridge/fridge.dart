@@ -704,12 +704,6 @@ class _InventoryCategoryHeading extends StatelessWidget {
   }
 }
 
-    ],
-      ),
-    );
-  }
-}
-
 class AddFoodSheet extends ConsumerStatefulWidget {
   const AddFoodSheet({super.key, this.location = 'fridge', this.initialFood});
   final Food? initialFood;
