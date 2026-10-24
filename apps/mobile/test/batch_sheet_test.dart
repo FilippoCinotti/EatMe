@@ -225,10 +225,14 @@ void main() {
       find.byKey(const ValueKey('edit-batch-quantity')),
       '350',
     );
+    final editorScroll = find.ancestor(
+      of: find.byKey(const ValueKey('edit-batch-quantity')),
+      matching: find.byType(Scrollable),
+    );
     await tester.scrollUntilVisible(
       find.text('Salva'),
       180,
-      scrollable: find.byType(Scrollable).last,
+      scrollable: editorScroll.first,
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Salva'));
