@@ -6,6 +6,7 @@ import 'package:eatme/features/cooking/cooking.dart';
 import 'package:eatme/features/recipe/recipe.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'application_test.dart' as support;
 import 'premium_journeys_test.dart' as journey;
@@ -112,6 +113,7 @@ class EditorialApi extends journey.JourneyApi {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(visual.loadFonts);
+  setUp(() => FlutterSecureStorage.setMockInitialValues({}));
 
   for (final (width, scale) in [(390.0, 1.0), (320.0, 1.6)]) {
     testWidgets(
@@ -216,20 +218,19 @@ void main() {
       final startTimer = find.byKey(const ValueKey('cooking-start-timer'));
       await tester.ensureVisible(startTimer);
       await tester.tap(startTimer);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.enterText(find.byType(TextFormField), 'Pasta timer');
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 1));
-      expect(
-        find.textContaining(RegExp(r'(02:00|01:[0-5][0-9])')),
-        findsOneWidget,
-      );
-      expect(find.text('Cancel'), findsOneWidget);
+      expect(find.text('Pasta timer'), findsOneWidget);
       await tester.tap(find.text('Next step'));
       await tester.pump();
       expect(find.text('Cook gently, season and serve.'), findsOneWidget);
-      expect(
-        find.textContaining(RegExp(r'(02:00|01:[0-5][0-9])')),
-        findsOneWidget,
-      );
-      expect(find.text('Cancel'), findsOneWidget);
+      expect(find.text('Pasta timer'), findsOneWidget);
+      expect(find.byTooltip('Pause timer'), findsOneWidget);
+      expect(find.byTooltip('Stop timer'), findsOneWidget);
       await journey.capture(tester, boundary, 'editorial-cooking-timer');
       await tester.tap(find.text('I’m done'));
       await tester.pumpAndSettle();
