@@ -283,7 +283,7 @@ class AppController extends Notifier<AppState> {
         notification['preferences'] as Map? ?? {},
       );
       if (preferences['enabled'] != true) {
-        await Reminders.clear();
+        await Reminders.clear(includeCooking: false);
         return;
       }
       final plans = await api.request('GET', '/plans', allowCache: false);

@@ -38,9 +38,32 @@ class Reminders {
     return android ?? ios ?? false;
   }
 
-  static Future<void> clear() async {
+  static Future<void> clear({bool includeCooking = true}) async {
     await initialize();
-    await plugin.cancelAll();
+    for (final notification in await plugin.pendingNotificationRequests()) {
+      if (includeCooking || notification.payload != 'cooking_timer') {
+        await plugin.cancel(id: notification.id);
+      }
+    }
+  }
+
+  static Future<void> cookingTimer(int id, String name, DateTime deadline, String message) async {
+    await initialize();
+    await plugin.zonedSchedule(
+      id: id, title: name, body: message,
+      scheduledDate: tz.TZDateTime.from(deadline, tz.UTC),
+      notificationDetails: const NotificationDetails(
+        android: AndroidNotificationDetails('cooking_timers', 'Cooking timers', importance: Importance.high, priority: Priority.high),
+        iOS: DarwinNotificationDetails(),
+      ),
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      payload: 'cooking_timer',
+    );
+  }
+
+  static Future<void> cancelCookingTimer(int id) async {
+    await initialize();
+    await plugin.cancel(id: id);
   }
 
   // Scheduled without a BuildContext, so the copy lives here for every
@@ -62,7 +85,11 @@ class Reminders {
     String language,
   ) async {
     await initialize();
-    await plugin.cancelAll();
+    for (final notification in await plugin.pendingNotificationRequests()) {
+      if (notification.payload != 'cooking_timer') {
+        await plugin.cancel(id: notification.id);
+      }
+    }
     if (prefs['enabled'] != true) return;
     final zone = tz.getLocation(timezone),
         now = tz.TZDateTime.now(tz.getLocation(timezone));

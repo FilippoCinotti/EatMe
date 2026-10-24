@@ -1222,5 +1222,15 @@
   "diet_fit_selected_rule": "Ausgewählte Ernährungsregel",
   "diet_fit_medical_tag_review": "Prüfung für das Tag „{tag}“ empfohlen: Gleiche diese Mahlzeit mit dem Plan deiner medizinischen Fachperson ab. Dieser Hinweis stammt vom ausgewählten Profil, nicht von einem erkannten Konflikt mit Zutaten.",
   "diet_fit_check_unavailable": "Die Verträglichkeitsprüfung ist unvollständig. Prüfe deine Einstellungen und Zutaten.",
-  "diet_fit_medical_tag_summary": "Ausgewähltes medizinisches Tag: {tag}."
+  "diet_fit_medical_tag_summary": "Ausgewähltes medizinisches Tag: {tag}.",
+  "timer_name": "Timername",
+  "timer_step": "Schritt {count}",
+  "timer_seconds": "Noch {count} Sekunden",
+  "timer_pause": "Timer pausieren",
+  "timer_resume": "Timer fortsetzen",
+  "timer_stop": "Timer stoppen",
+  "timer_notifications": "Timerhinweise aktivieren",
+  "timer_restore_error": "Gespeicherte Timer nicht wiederhergestellt. Seite erneut öffnen.",
+  "timer_save_error": "Timer läuft, konnte aber nicht gespeichert werden.",
+  "timer_notification_error": "Hinweise nicht verfügbar. Timer bleibt in der App sichtbar."
 }
