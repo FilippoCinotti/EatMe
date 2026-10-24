@@ -23,6 +23,79 @@ class FridgePage extends ConsumerStatefulWidget {
 
 class _FridgePageState extends ConsumerState<FridgePage> {
   String location = 'all', search = '', sort = 'expiry', expiryFilter = 'all';
+  final selectedBatchIds = <String>{};
+  final bulkRemove = Mutation();
+  bool selecting = false, removing = false;
+
+  Future<void> removeSelected() async {
+    if (removing || selectedBatchIds.isEmpty) return;
+    final state = ref.read(appProvider);
+    if (state.offline) return;
+    final batches = state.inventory
+        .where((batch) => selectedBatchIds.contains(batch.id))
+        .toList();
+    if (batches.isEmpty || batches.length != selectedBatchIds.length) {
+      setState(() => selectedBatchIds.clear());
+      return;
+    }
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(context.t('inventory_remove_selected')),
+        content: Text(context.t('inventory_remove_confirmation', {
+          'count': batches.length,
+        })),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(context.t('cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(context.t('inventory_remove_selected')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted || ref.read(appProvider).offline) {
+      return;
+    }
+    setState(() => removing = true);
+    try {
+      await bulkRemove.send(
+        ref.read(apiProvider),
+        'POST',
+        '/inventory/bulk-remove',
+        {
+          'items': [
+            for (final batch in batches)
+              {'id': batch.id, 'expected_version': batch.version},
+          ],
+        },
+      );
+      await ref.read(appProvider.notifier).refresh();
+      if (!mounted) return;
+      setState(() {
+        selectedBatchIds.clear();
+        selecting = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.t('inventory_removed_count', {
+            'count': batches.length,
+          })),
+        ),
+      );
+    } on ApiFailure catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.t(error.code))),
+      );
+    } finally {
+      if (mounted) setState(() => removing = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) => RecipeEditorial(builder: _build);
 
@@ -184,6 +257,63 @@ class _FridgePageState extends ConsumerState<FridgePage> {
             onAction: () =>
                 setState(() => sort = sort == 'expiry' ? 'name' : 'expiry'),
           ),
+          if (visible.isNotEmpty || selecting)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                TextButton.icon(
+                  key: const ValueKey('inventory-select-mode'),
+                  onPressed: removing || state.offline
+                      ? null
+                      : () => setState(() {
+                          selecting = !selecting;
+                          selectedBatchIds.clear();
+                        }),
+                  icon: Icon(selecting ? Icons.close : Icons.checklist_rounded),
+                  label: Text(
+                    context.t(
+                      selecting ? 'inventory_cancel_selection' : 'inventory_select',
+                    ),
+                  ),
+                ),
+                if (selecting) ...[
+                  TextButton(
+                    key: const ValueKey('inventory-select-all'),
+                    onPressed: removing || state.offline || visible.isEmpty
+                        ? null
+                        : () => setState(() {
+                            final visibleIds = visible.map((b) => b.id).toSet();
+                            if (selectedBatchIds.containsAll(visibleIds)) {
+                              selectedBatchIds.removeAll(visibleIds);
+                            } else {
+                              selectedBatchIds.addAll(visibleIds);
+                            }
+                          }),
+                    child: Text(context.t('inventory_select_all')),
+                  ),
+                  Text(context.t('inventory_selected_count', {
+                    'count': selectedBatchIds.length,
+                  })),
+                  FilledButton.icon(
+                    key: const ValueKey('inventory-bulk-remove'),
+                    onPressed:
+                        selectedBatchIds.isEmpty || state.offline || removing
+                        ? null
+                        : removeSelected,
+                    icon: removing
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.delete_outline),
+                    label: Text(context.t('inventory_remove_selected')),
+                  ),
+                ],
+              ],
+            ),
           if (visible.isEmpty)
             EmptyMessage(
               title: context.t(
@@ -199,8 +329,20 @@ class _FridgePageState extends ConsumerState<FridgePage> {
             ),
           for (final batch in visible)
             CompactBatchRow(
+              key: ValueKey('inventory-batch-${batch.id}'),
               batch: batch,
               onTap: () => sheet(context, BatchSheet(batch: batch)),
+              selecting: selecting,
+              selected: selectedBatchIds.contains(batch.id),
+              onSelected: selecting && !removing && !state.offline
+                  ? (value) => setState(() {
+                      if (value) {
+                        selectedBatchIds.add(batch.id);
+                      } else {
+                        selectedBatchIds.remove(batch.id);
+                      }
+                    })
+                  : null,
             ),
           const SizedBox(height: 24),
           KeyedSubtree(
