@@ -17,6 +17,35 @@ const food = Food(
 Batch batch(String id, DateTime? date, {String kind = 'use_by'}) =>
     Batch(id, food, '2', 'fridge', date, kind, 1, true);
 
+class BulkFridgeApi extends support.TestApi {
+  final removals = <Json>[];
+  @override
+  Future<Json> request(
+    String method,
+    String path, {
+    Json? body,
+    String? operationKey,
+    bool allowCache = true,
+  }) async {
+    if (path == '/inventory/bulk-remove') {
+      removals.add(body!);
+      return {
+        'count': (body['items'] as List).length,
+        'removed': (body['items'] as List)
+            .map((item) => (item as Map)['id'])
+            .toList(),
+      };
+    }
+    return super.request(
+      method,
+      path,
+      body: body,
+      operationKey: operationKey,
+      allowCache: allowCache,
+    );
+  }
+}
+
 class FridgeController extends support.TestController {
   @override
   AppState build() {
@@ -60,6 +89,54 @@ void main() {
       expect(expiryDays(batch('d', null)), isNull);
     },
   );
+  testWidgets('multi-select uses batch ids and confirms before bulk removal', (
+    tester,
+  ) async {
+    final api = BulkFridgeApi();
+    await tester.pumpWidget(
+      support.harness(
+        const FridgePage(),
+        api,
+        language: 'it',
+        controller: FridgeController.new,
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('inventory-select-mode')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.byKey(const ValueKey('inventory-select-mode')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('inventory-select-all')));
+    await tester.pumpAndSettle();
+    expect(find.text('4 selezionati'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('inventory-bulk-remove')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Eliminare 4 elementi'), findsOneWidget);
+    await tester.tap(find.text('Annulla'));
+    await tester.pumpAndSettle();
+    expect(api.removals, isEmpty);
+
+    await tester.tap(find.byKey(const ValueKey('inventory-bulk-remove')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Elimina selezionati').last);
+    await tester.pumpAndSettle();
+    expect(api.removals.length, 1);
+    final records = api.removals.single['items'] as List;
+    expect(records.length, 4);
+    expect(records.map((x) => x['id']).toSet(), {
+      'expired',
+      'today',
+      'tomorrow',
+      'unknown',
+    });
+    expect(records.every((x) => x['expected_version'] == 1), isTrue);
+    expect(find.byKey(const ValueKey('inventory-select-all')), findsNothing);
+  });
+
   for (final scale in [1.0, 1.6]) {
     testWidgets('compact fridge filters expired dates at scale $scale', (
       tester,
