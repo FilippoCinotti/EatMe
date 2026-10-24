@@ -175,6 +175,10 @@ class Router:
                 return self.service.inventory(user_id)
             if method=="POST":
                 return self.service.add_inventory(user_id,body,operation_key)
+        if route=="/api/v1/inventory/bulk-remove" and method=="POST":
+            return self.service.remove_inventory_bulk(user_id,body,operation_key)
+        if route=="/api/v1/inventory/bulk-action" and method=="POST":
+            return self.service.update_inventory_bulk(user_id,body,operation_key)
         match = re.fullmatch(r"/api/v1/inventory/([a-f0-9-]{36})",route)
         if match and method=="PATCH":
             return self.service.change_inventory(user_id,match[1],body,operation_key)
