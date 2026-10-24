@@ -608,129 +608,325 @@ class _AddFoodSheetState extends ConsumerState<AddFoodSheet> {
 class BatchSheet extends ConsumerStatefulWidget {
   const BatchSheet({super.key, required this.batch});
   final Batch batch;
+
   @override
   ConsumerState<BatchSheet> createState() => _BatchSheetState();
 }
 
 class _BatchSheetState extends ConsumerState<BatchSheet> {
   final mutation = Mutation();
-  late final amount = TextEditingController(text: widget.batch.quantity);
-  late String location = widget.batch.location;
-  @override
-  void dispose() {
-    amount.dispose();
-    super.dispose();
+  final removal = Mutation();
+  bool busy = false;
+
+  /// A failed write leaves the sheet, cached state and selected location
+  /// unchanged. Server-side expected_version checks prevent stale updates.
+  Future<void> run(Future<void> Function() operation) async {
+    if (busy || ref.read(appProvider).offline) return;
+    setState(() => busy = true);
+    try {
+      await operation();
+    } on ApiFailure catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.t(error.code))),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.t('unknown_error'))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
   }
 
-  Future<void> changeLocation() async {
-    if (ref.read(appProvider).offline) return;
-    final destination = await showModalBottomSheet<String>(
+  Future<void> apply(String action, {String? destination}) async {
+    final batch = widget.batch;
+    await mutation.send(
+      ref.read(apiProvider),
+      'PATCH',
+      '/inventory/${batch.id}',
+      {
+        'action': action,
+        'expected_version': batch.version,
+        if (action == 'consumed' || action == 'discarded')
+          'quantity': batch.quantity,
+        if (action == 'moved') 'location': destination,
+      },
+    );
+    await ref.read(appProvider.notifier).refresh();
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  Future<void> move() async {
+    if (busy || ref.read(appProvider).offline) return;
+    final selected = await showModalBottomSheet<String>(
       context: context,
       useRootNavigator: true,
       useSafeArea: true,
       showDragHandle: true,
-      builder: (sheetContext) => SafeArea(
+      builder: (menu) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final option in [
+                ('fridge', Icons.kitchen_outlined),
+                ('freezer', Icons.ac_unit),
+                ('pantry', Icons.inventory_2_outlined),
+              ])
+                ListTile(
+                  key: ValueKey('batch-move-${option.$1}'),
+                  leading: Icon(option.$2),
+                  title: Text(context.t(option.$1)),
+                  selected: widget.batch.location == option.$1,
+                  trailing: widget.batch.location == option.$1
+                      ? const Icon(Icons.check_rounded)
+                      : null,
+                  onTap: () => Navigator.pop(menu, option.$1),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (!mounted ||
+        selected == null ||
+        selected == widget.batch.location) {
+      return;
+    }
+    await run(() => apply('moved', destination: selected));
+  }
+
+  Future<bool> confirm(String message, String action) async {
+    final response = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(action),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(context.t('cancel')),
+          ),
+          FilledButton(
+            key: const ValueKey('confirm-batch-delete'),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text(action),
+          ),
+        ],
+      ),
+    );
+    return response == true;
+  }
+
+  Future<void> deleteBatch() async {
+    if (!await confirm(
+      context.t('inventory_delete_confirm'),
+      context.t('inventory_delete_item'),
+    )) {
+      return;
+    }
+    if (!mounted) return;
+    await run(() async {
+      await removal.send(
+        ref.read(apiProvider),
+        'POST',
+        '/inventory/bulk-remove',
+        {
+          'items': [
+            {
+              'id': widget.batch.id,
+              'expected_version': widget.batch.version,
+            },
+          ],
+        },
+      );
+      await ref.read(appProvider.notifier).refresh();
+      if (mounted) Navigator.pop(context);
+    });
+  }
+
+  Future<void> more() async {
+    if (busy || ref.read(appProvider).offline) return;
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      useRootNavigator: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (menu) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.kitchen_outlined),
-                title: Text(context.t('fridge')),
-                selected: location == 'fridge',
-                onTap: () => Navigator.pop(sheetContext, 'fridge'),
+                key: const ValueKey('batch-mark-opened'),
+                leading: const Icon(Icons.lock_open_outlined),
+                title: Text(context.t('opened_today')),
+                onTap: () => Navigator.pop(menu, 'opened'),
               ),
               ListTile(
-                leading: const Icon(Icons.ac_unit),
-                title: Text(context.t('freezer')),
-                selected: location == 'freezer',
-                onTap: () => Navigator.pop(sheetContext, 'freezer'),
+                key: const ValueKey('batch-discard'),
+                leading: const Icon(Icons.delete_sweep_outlined),
+                title: Text(context.t('discard_food')),
+                onTap: () => Navigator.pop(menu, 'discarded'),
               ),
               ListTile(
-                leading: const Icon(Icons.inventory_2_outlined),
-                title: Text(context.t('pantry')),
-                selected: location == 'pantry',
-                onTap: () => Navigator.pop(sheetContext, 'pantry'),
+                key: const ValueKey('batch-delete'),
+                leading: Icon(
+                  Icons.delete_outline,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                title: Text(
+                  context.t('inventory_delete_item'),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+                onTap: () => Navigator.pop(menu, 'delete'),
               ),
             ],
           ),
         ),
       ),
     );
-    if (destination == null || destination == location || !mounted) return;
-    setState(() => location = destination);
-    await apply('moved');
+    if (!mounted) return;
+    if (choice == 'opened') {
+      await run(() => apply('opened'));
+    } else if (choice == 'discarded') {
+      final approved = await confirm(
+        context.t('inventory_discard_confirm'),
+        context.t('discard_food'),
+      );
+      if (mounted && approved) await run(() => apply('discarded'));
+    } else if (choice == 'delete') {
+      await deleteBatch();
+    }
   }
 
-  Future<void> correctQuantity() async {
-    final value = await askText(
-      context,
-      context.t('correct_quantity'),
-      initial: amount.text,
-      numeric: true,
+  Future<void> edit() async {
+    if (busy || ref.read(appProvider).offline) return;
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => BatchDetailsPage(batch: widget.batch),
+      ),
     );
-    if (value == null || value.trim().isEmpty || !mounted) return;
-    amount.text = value.trim();
-    await apply('corrected');
-  }
-
-  Future<void> apply(String action) async {
-    final body = <String, dynamic>{
-      'action': action,
-      'expected_version': widget.batch.version,
-      if (['consumed', 'discarded', 'corrected'].contains(action))
-        'quantity': amount.text.trim().replaceAll(',', '.'),
-      if (action == 'moved') 'location': location,
-    };
-    await mutation.send(
-      ref.read(apiProvider),
-      'PATCH',
-      '/inventory/${widget.batch.id}',
-      body,
-    );
-    await ref.read(appProvider.notifier).refresh();
-    if (mounted) Navigator.of(context).pop();
+    // The editor refreshes the inventory before returning a success marker.
+    if (saved == true && mounted) Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    final batch = widget.batch, offline = ref.watch(appProvider).offline;
+    final batch = widget.batch;
+    final scheme = Theme.of(context).colorScheme;
+    final expiry = batchExpiryStatus(batch);
+    final offline = ref.watch(appProvider).offline;
+    final enabled = !busy && !offline;
+    final statusColor = expiry == BatchExpiryStatus.expired || !batch.usable
+        ? scheme.errorContainer
+        : expiry == BatchExpiryStatus.soon
+        ? scheme.tertiaryContainer
+        : scheme.surfaceContainerHighest;
+    final statusText = expiry == BatchExpiryStatus.expired || !batch.usable
+        ? scheme.onErrorContainer
+        : expiry == BatchExpiryStatus.soon
+        ? scheme.onTertiaryContainer
+        : scheme.onSurfaceVariant;
     return ListView(
+      key: const ValueKey('batch-detail-sheet'),
       shrinkWrap: true,
-      padding: const EdgeInsets.fromLTRB(24, 4, 24, 28),
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
       children: [
-        FoodImage(
-          id: batch.food.id,
-          photoId: batch.food.photoId,
-          imageUrl: batch.food.imageUrl,
-          height: 200,
-          radius: 22,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            FoodImage(
+              id: batch.food.id,
+              photoId: batch.food.photoId,
+              imageUrl: batch.food.imageUrl,
+              width: 104,
+              height: 104,
+              radius: 20,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    localized(batch.food.name, context.language),
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    '${batch.quantity} ${batch.food.unit} · ${context.t(batch.location)}',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: statusColor,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        child: Text(
+                          relativeExpiryLabel(context, batch),
+                          key: const ValueKey('batch-expiry-badge'),
+                          softWrap: true,
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: statusText,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 20),
-        Text(
-          localized(batch.food.name, context.language),
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
+        const SizedBox(height: 16),
+        Divider(color: scheme.outlineVariant),
         const SizedBox(height: 12),
         Row(
           children: [
             Expanded(
-              child: _BatchMetaCard(
+              child: _BatchInfo(
                 icon: Icons.event_outlined,
-                label: expiryLabel(context, batch),
-                warning: !batch.usable,
+                title: batch.expiryKind == 'estimated'
+                    ? context.t('estimated_label')
+                    : context.t('expiry_date'),
+                value: expiryLabel(context, batch),
               ),
             ),
-            const SizedBox(width: 10),
-            _BatchMetaCard(
-              icon: Icons.scale_outlined,
-              label: '${amount.text} ${batch.food.unit}',
+            Container(width: 1, height: 44, color: scheme.outlineVariant),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _BatchInfo(
+                icon: Icons.scale_outlined,
+                title: context.t('quantity'),
+                value: '${batch.quantity} ${batch.food.unit}',
+              ),
             ),
           ],
         ),
         if (batch.recalls.isNotEmpty) ...[
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           _BatchNoticeCard(text: context.t('recalled_batch'), warning: true),
           for (final recall in batch.recalls)
             TextButton(
@@ -744,94 +940,110 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
           const SizedBox(height: 10),
           _BatchNoticeCard(text: context.t('use_by_passed'), warning: true),
         ],
-        const SizedBox(height: 24),
-        AsyncAction(
-          label: context.t('mark_consumed'),
-          enabled: !offline && batch.usable,
-          action: () => apply('consumed'),
+        const SizedBox(height: 22),
+        SizedBox(
+          width: double.infinity,
+          child: AsyncAction(
+            label: context.t('mark_consumed'),
+            enabled: enabled && batch.usable,
+            action: () => run(() => apply('consumed')),
+          ),
         ),
-        ExpansionTile(
-          tilePadding: EdgeInsets.zero,
-          title: Text(context.t('manage_food')),
+        const SizedBox(height: 20),
+        Divider(color: scheme.outlineVariant),
+        const SizedBox(height: 10),
+        Text(
+          context.t('manage_food'),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: scheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
           children: [
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                AsyncAction(
-                  label: context.t('edit_batch_details'),
-                  icon: Icons.event_note,
-                  iconOnly: true,
-                  secondary: true,
-                  enabled: !offline,
-                  action: () async {
-                    await Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => BatchDetailsPage(batch: batch),
-                      ),
-                    );
-                    if (context.mounted) Navigator.pop(context);
-                  },
-                ),
-                AsyncAction(
-                  label: context.t('correct_quantity'),
-                  icon: Icons.scale_outlined,
-                  iconOnly: true,
-                  secondary: true,
-                  enabled: !offline,
-                  action: correctQuantity,
-                ),
-                AsyncAction(
-                  label: context.t('opened_today'),
-                  icon: Icons.lock_open,
-                  iconOnly: true,
-                  secondary: true,
-                  enabled: !offline,
-                  action: () => apply('opened'),
-                ),
-                AsyncAction(
-                  label: context.t('move_food'),
-                  icon: Icons.swap_horiz_rounded,
-                  iconOnly: true,
-                  secondary: true,
-                  enabled: !offline,
-                  action: changeLocation,
-                ),
-                AsyncAction(
-                  label: context.t('discard_food'),
-                  icon: Icons.delete_outline,
-                  iconOnly: true,
-                  secondary: true,
-                  enabled: !offline,
-                  action: () => apply('discarded'),
-                ),
-              ],
+            Expanded(
+              child: _BatchAction(
+                label: context.t('change'),
+                icon: Icons.edit_outlined,
+                enabled: enabled,
+                onPressed: edit,
+              ),
+            ),
+            Expanded(
+              child: _BatchAction(
+                label: context.t('move_food'),
+                icon: Icons.swap_horiz_rounded,
+                enabled: enabled,
+                onPressed: move,
+              ),
+            ),
+            Expanded(
+              child: _BatchAction(
+                label: context.t('inventory_more'),
+                icon: Icons.more_horiz,
+                enabled: enabled,
+                onPressed: more,
+              ),
             ),
           ],
         ),
-        Container(
-          width: double.infinity,
-          margin: const EdgeInsets.only(top: 10),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainer,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.info_outline,
-                size: 18,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  context.t('manual_source'),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+        const SizedBox(height: 14),
+        Divider(color: scheme.outlineVariant),
+        const SizedBox(height: 10),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              Icons.info_outline,
+              size: 17,
+              color: scheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                context.t('manual_source'),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
                 ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _BatchInfo extends StatelessWidget {
+  const _BatchInfo({
+    required this.icon,
+    required this.title,
+    required this.value,
+  });
+  final IconData icon;
+  final String title, value;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20, color: scheme.primary),
+        const SizedBox(width: 9),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+              Text(
+                value,
+                style: Theme.of(context).textTheme.titleSmall,
               ),
             ],
           ),
@@ -841,49 +1053,43 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
   }
 }
 
-class _BatchMetaCard extends StatelessWidget {
-  const _BatchMetaCard({
-    required this.icon,
+class _BatchAction extends StatelessWidget {
+  const _BatchAction({
     required this.label,
-    this.warning = false,
+    required this.icon,
+    required this.enabled,
+    required this.onPressed,
   });
-
-  final IconData icon;
   final String label;
-  final bool warning;
+  final IconData icon;
+  final bool enabled;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Container(
-      constraints: const BoxConstraints(minHeight: 40),
-      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
-      decoration: BoxDecoration(
-        color: warning ? scheme.errorContainer : scheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 18,
-            color: warning ? scheme.onErrorContainer : scheme.primary,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton.filledTonal(
+          key: ValueKey('batch-action-$label'),
+          tooltip: label,
+          style: IconButton.styleFrom(
+            backgroundColor: scheme.surfaceContainerHighest,
+            foregroundColor: scheme.onSurface,
+            minimumSize: const Size(48, 48),
           ),
-          const SizedBox(width: 7),
-          Flexible(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: warning ? scheme.onErrorContainer : scheme.onSurface,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ],
-      ),
+          onPressed: enabled ? onPressed : null,
+          icon: Icon(icon, size: 22),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          softWrap: true,
+          style: Theme.of(context).textTheme.labelSmall,
+        ),
+      ],
     );
   }
 }
