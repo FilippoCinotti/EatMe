@@ -42,7 +42,7 @@ String inventoryCategoryTitle(BuildContext context, String id) =>
 
 IconData inventoryCategoryIcon(String id) => switch (id) {
   'vegetable' => Icons.eco_outlined,
-  'fruit' => Icons.apple_outlined,
+  'fruit' => Icons.local_florist_outlined,
   'dairy' => Icons.egg_outlined,
   'meat' => Icons.set_meal_outlined,
   'fish' => Icons.phishing_outlined,
@@ -78,7 +78,8 @@ int inventoryColumns(double availableWidth, double textScale) {
   final minWidth = availableWidth >= 600 ? 184.0 : 140.0;
   return ((availableWidth + 10) / (minWidth + 10))
       .floor()
-      .clamp(1, 5);
+      .clamp(1, 5)
+      .toInt();
 }
 
 double inventoryCardHeight(double textScale) =>
