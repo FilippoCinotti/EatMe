@@ -223,7 +223,7 @@ void main() {
         find.textContaining(RegExp(r'(02:00|01:[0-5][0-9])')),
         findsOneWidget,
       );
-      expect(find.text('Cancel'), findsOneWidget);
+      expect(find.byTooltip('Stop timer'), findsOneWidget);
       await tester.tap(find.text('Next step'));
       await tester.pump();
       expect(find.text('Cook gently, season and serve.'), findsOneWidget);
@@ -231,7 +231,7 @@ void main() {
         find.textContaining(RegExp(r'(02:00|01:[0-5][0-9])')),
         findsOneWidget,
       );
-      expect(find.text('Cancel'), findsOneWidget);
+      expect(find.byTooltip('Stop timer'), findsOneWidget);
       await journey.capture(tester, boundary, 'editorial-cooking-timer');
       await tester.tap(find.text('I’m done'));
       await tester.pumpAndSettle();
