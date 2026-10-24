@@ -512,7 +512,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                 }
               },
               itemBuilder: (context) => [
-                if (item['food_id'] != null)
+                if (item['checked'] == true || item['food_id'] != null)
                   PopupMenuItem(
                     value: 'purchase',
                     child: Text(context.t('put_in_fridge')),
