@@ -456,7 +456,7 @@ class FridgePage extends ConsumerStatefulWidget {
                                 },
                                 childCount: expandedCategories.contains(group.id)
                                     ? group.items.length
-                                    : group.items.length.clamp(0, 4),
+                                    : (group.items.length < 4 ? group.items.length : 4),
                                 addAutomaticKeepAlives: false,
                               ),
                               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
