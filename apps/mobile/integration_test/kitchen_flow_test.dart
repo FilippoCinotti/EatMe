@@ -89,6 +89,9 @@ void main() {
     await tester.tap(find.byTooltip('More'));
     await waitFor(tester, find.text('Purchased · add to fridge'));
     await tester.tap(find.text('Purchased · add to fridge'));
+    // Shopping now asks for explicit review before moving purchased items.
+    await waitFor(tester, find.text('Add 1 selected'));
+    await tester.tap(find.text('Add 1 selected'));
     await waitFor(tester, find.text('Everything is in order'));
     await tester.pumpAndSettle();
     expect((await api.request('GET', '/shopping'))['items'], isEmpty);
