@@ -802,8 +802,14 @@ class _PlannerState extends ResourceState<PlannerPage> {
                 );
                 return;
               }
-              final accepted = await reviewGeneratedShopping(context, ref.read(apiProvider), {'plan_id': selected!['id']});
-              if (accepted && mounted && context.mounted) context.go('/plan/shopping');
+              final accepted = await reviewGeneratedShopping(
+                context,
+                ref.read(apiProvider),
+                {'plan_id': selected!['id']},
+              );
+              if (accepted && mounted && context.mounted) {
+                context.go('/plan/shopping');
+              }
             },
           ),
         ],

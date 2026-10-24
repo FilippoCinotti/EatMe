@@ -906,10 +906,18 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                             return;
                           }
                           if (!context.mounted) return;
-                          final accepted = await reviewGeneratedShopping(context, ref.read(apiProvider), {
-                            'meals': [{'recipe_id': recipe.id, 'servings': servings}],
-                          });
-                          if (accepted && context.mounted) context.push('/shopping');
+                          final accepted = await reviewGeneratedShopping(
+                            context,
+                            ref.read(apiProvider),
+                            {
+                              'meals': [
+                                {'recipe_id': recipe.id, 'servings': servings},
+                              ],
+                            },
+                          );
+                          if (accepted && context.mounted) {
+                            context.push('/shopping');
+                          }
                         },
                       ),
                       const SizedBox(width: 8),
