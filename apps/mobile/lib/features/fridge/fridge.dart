@@ -913,7 +913,11 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
                 title: batch.expiryKind == 'estimated'
                     ? context.t('estimated_label')
                     : context.t('expiry_date'),
-                value: expiryLabel(context, batch),
+                value: batch.expiryDate == null
+                    ? context.t('date_unknown')
+                    : MaterialLocalizations.of(
+                        context,
+                      ).formatCompactDate(batch.expiryDate!),
               ),
             ),
             Container(width: 1, height: 44, color: scheme.outlineVariant),
