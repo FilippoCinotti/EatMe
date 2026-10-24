@@ -82,6 +82,11 @@ class InventoryBulkRemove(StrictBody):
     items: list[InventoryBulkRemoveItem] = Field(min_length=1, max_length=100)
 
 
+class InventoryBulkAction(InventoryBulkRemove):
+    action: Literal["moved", "consumed"]
+    location: Literal["fridge", "freezer", "pantry"] | None = None
+
+
 class InventoryChange(StrictBody):
     expected_version: int
     action: Literal["consumed","discarded","corrected","moved","opened"]
