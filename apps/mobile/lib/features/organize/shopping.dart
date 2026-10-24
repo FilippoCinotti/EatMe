@@ -47,7 +47,12 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
   }
 
   Future<void> purchase(Json item) async {
-    final amount = await askText(context, context.t('shopping_purchased_quantity'), initial: '${item['quantity']}', numeric: true);
+    final amount = await askText(
+      context,
+      context.t('shopping_purchased_quantity'),
+      initial: '${item['quantity']}',
+      numeric: true,
+    );
     if (amount == null || !mounted) return;
     await command({
       'purchase_quantity': amount.replaceAll(',', '.'),
@@ -437,8 +442,13 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        item['purchased_quantity'] != null && item['purchased_quantity'] != '0'
-                            ? context.t('shopping_partial_summary', {'remaining': '${item['quantity']}', 'bought': '${item['purchased_quantity']}', 'unit': '${item['unit']}'})
+                        item['purchased_quantity'] != null &&
+                                item['purchased_quantity'] != '0'
+                            ? context.t('shopping_partial_summary', {
+                                'remaining': '${item['quantity']}',
+                                'bought': '${item['purchased_quantity']}',
+                                'unit': '${item['unit']}',
+                              })
                             : '${item['quantity']} ${item['unit']}',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
