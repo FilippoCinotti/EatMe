@@ -411,6 +411,18 @@ int? expiryDays(Batch batch, {DateTime? now}) {
   ).difference(DateTime.utc(today.year, today.month, today.day)).inDays;
 }
 
+/// Shared expiry presentation for inventory rows and the detail sheet.
+/// Uses the same three-day warning threshold as the Fridge filters.
+enum BatchExpiryStatus { unknown, normal, soon, expired }
+
+BatchExpiryStatus batchExpiryStatus(Batch batch, {DateTime? now}) {
+  final days = expiryDays(batch, now: now);
+  if (days == null) return BatchExpiryStatus.unknown;
+  if (days < 0) return BatchExpiryStatus.expired;
+  if (days <= 3) return BatchExpiryStatus.soon;
+  return BatchExpiryStatus.normal;
+}
+
 String relativeExpiryLabel(BuildContext context, Batch batch) {
   final days = expiryDays(batch);
   if (days == null) return context.t('date_unknown');
@@ -461,7 +473,6 @@ class CompactBatchRow extends StatelessWidget {
   final ValueChanged<bool>? onSelected;
   @override
   Widget build(BuildContext context) {
-    final days = expiryDays(batch);
     final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -511,12 +522,11 @@ class CompactBatchRow extends StatelessWidget {
                       Text(
                         relativeExpiryLabel(context, batch),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color:
-                              !batch.usable ||
-                                  (days != null &&
-                                      days < 0 &&
-                                      batch.expiryKind == 'use_by')
+                          color: batchExpiryStatus(batch) ==
+                                  BatchExpiryStatus.expired
                               ? scheme.error
+                              : batchExpiryStatus(batch) == BatchExpiryStatus.soon
+                              ? scheme.tertiary
                               : scheme.onSurfaceVariant,
                         ),
                       ),
