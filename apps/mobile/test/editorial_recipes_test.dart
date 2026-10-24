@@ -70,8 +70,10 @@ class EditorialApi extends journey.JourneyApi {
         'id': recipeId,
         'title': {'en': 'Marshmallow eggs', 'it': 'Uova marshmallow'},
         'description': {
-          'en': 'Soft whipped whites envelop a tender yolk. A simple brunch recipe, cooked gently in a ring and finished with freshly ground pepper.',
-          'it': 'Albumi soffici che avvolgono un tuorlo morbido. Una ricetta semplice per il brunch, cotta delicatamente in un anello e completata con pepe appena macinato.',
+          'en':
+              'Soft whipped whites envelop a tender yolk. A simple brunch recipe, cooked gently in a ring and finished with freshly ground pepper.',
+          'it':
+              'Albumi soffici che avvolgono un tuorlo morbido. Una ricetta semplice per il brunch, cotta delicatamente in un anello e completata con pepe appena macinato.',
         },
         'minutes': 10,
         'servings': 2,

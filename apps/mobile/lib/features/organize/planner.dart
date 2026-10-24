@@ -62,9 +62,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
           data = plans;
           error = null;
           recipes = available;
-          selected = records(data?['items'])
-              .where((p) => p['start_date'] == isoDay(start))
-              .firstOrNull;
+          selected = records(
+            data?['items'],
+          ).where((p) => p['start_date'] == isoDay(start)).firstOrNull;
         });
         if (!schedulingPrompted && widget.initialRecipeId != null) {
           schedulingPrompted = true;
@@ -240,9 +240,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
       numeric: true,
     );
     if (servings == null) return;
-    final meals = records(selected?['data']?['meals'])
-        .where((m) => !(m['date'] == isoDay(day) && m['slot'] == slot))
-        .toList();
+    final meals = records(
+      selected?['data']?['meals'],
+    ).where((m) => !(m['date'] == isoDay(day) && m['slot'] == slot)).toList();
     meals.add({
       'date': isoDay(day),
       'slot': slot,
@@ -842,9 +842,9 @@ class _WeekStrip extends StatelessWidget {
                                 context.t('today'),
                                 style: Theme.of(context).textTheme.labelSmall
                                     ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
                                     ),
                               )
                             : null,
@@ -977,9 +977,9 @@ class _PlannerMealCard extends StatelessWidget {
                   height: 52,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .surfaceContainerHighest,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: const EatMeIcon(EatMeGlyph.plus, size: 22),
