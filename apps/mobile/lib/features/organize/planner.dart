@@ -86,7 +86,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
   List<Json> get preferenceOverrides =>
       records(selected?['data']?['preference_overrides']);
 
-  Future<void> saveMeals(List<Json> meals, {List<Json>? overrides}) async {
+  Future<void> saveMeals(List<Json> meals, {List<Json>? overrides, Json? dailyLimits}) async {
     final source = overrides ?? preferenceOverrides;
     final validTargets = {
       for (final meal in meals) '${meal['date']}:${meal['slot']}',
@@ -103,6 +103,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
       'start_date': isoDay(start),
       'meals': meals,
       'preference_overrides': safeOverrides,
+      if (dailyLimits != null) 'daily_limits': dailyLimits,
       if (selected != null) 'id': selected!['id'],
       if (selected != null) 'expected_version': selected!['version'],
     }, reload: false);
@@ -232,7 +233,11 @@ class _PlannerState extends ResourceState<PlannerPage> {
       throw const ApiFailure('invalid_time_limits');
     }
     limits[isoDay(day)] = minutes;
-    await mealCommand('set_time_limits', {'daily_limits': limits});
+    if (selected == null) {
+      await saveMeals([], dailyLimits: limits);
+    } else {
+      await mealCommand('set_time_limits', {'daily_limits': limits});
+    }
   });
 
   bool hasGuiltyPleasure(Json meal, List<Json> overrides) => overrides.any(
@@ -683,7 +688,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const Spacer(),
-              if (selected != null && draftMeals == null)
+              if (draftMeals == null)
                 IconButton(
                   tooltip: context.t('plan_time_limit'),
                   onPressed: () => editTimeLimit(day),
@@ -1126,7 +1131,7 @@ class _PlannerMealCard extends StatelessWidget {
                 FoodImage(
                   id: '${meal!['recipe_id']}',
                   imageUrl: '${recipe?['image_url'] ?? ''}',
-                  width: featured ? 104 : 52,
+                  width: featured ? (MediaQuery.sizeOf(context).width < 380 ? 72 : 104) : 52,
                   height: featured ? 92 : 52,
                   radius: featured ? 18 : 14,
                 )
