@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'batch_details.dart';
 import 'expiry.dart';
+import 'inventory_grid.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -18,33 +19,30 @@ import '../onboarding/first_access_tour.dart';
 class FridgePage extends ConsumerStatefulWidget {
   const FridgePage({super.key});
   @override
-  ConsumerState<FridgePage> createState() => _FridgePageState();
-}
-
-class _FridgePageState extends ConsumerState<FridgePage> {
+  ConsumerState<FridgePage> createStatclass _FridgePageState extends ConsumerState<FridgePage> {
   String location = 'all', search = '', sort = 'expiry', expiryFilter = 'all';
   final selectedBatchIds = <String>{};
-  final bulkRemove = Mutation();
-  bool selecting = false, removing = false;
+  final collapsedCategories = <String>{};
+  final expandedCategories = <String>{};
+  final bulkMutation = Mutation();
+  bool selecting = false, saving = false;
 
-  Future<void> removeSelected() async {
-    if (removing || selectedBatchIds.isEmpty) return;
-    final state = ref.read(appProvider);
-    if (state.offline) return;
-    final batches = state.inventory
-        .where((batch) => selectedBatchIds.contains(batch.id))
-        .toList();
-    if (batches.isEmpty || batches.length != selectedBatchIds.length) {
-      setState(() => selectedBatchIds.clear());
-      return;
-    }
-    final confirmed = await showDialog<bool>(
+  void toggleSelection(String id) => setState(() {
+    if (!selecting) selecting = true;
+    if (!selectedBatchIds.add(id)) selectedBatchIds.remove(id);
+  });
+
+  void stopSelection() => setState(() {
+    selecting = false;
+    selectedBatchIds.clear();
+  });
+
+  Future<bool> confirmAction(String title, String message) async {
+    final answer = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(context.t('inventory_remove_selected')),
-        content: Text(context.t('inventory_remove_confirmation', {
-          'count': batches.length,
-        })),
+        title: Text(title),
+        content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
@@ -52,21 +50,56 @@ class _FridgePageState extends ConsumerState<FridgePage> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(context.t('inventory_remove_selected')),
+            child: Text(title),
           ),
         ],
       ),
     );
-    if (confirmed != true || !mounted || ref.read(appProvider).offline) {
+    return answer == true;
+  }
+
+  Future<void> runBulk(String action, {String? destination}) async {
+    if (saving || selectedBatchIds.isEmpty || ref.read(appProvider).offline) {
       return;
     }
-    setState(() => removing = true);
+    final batches = ref.read(appProvider).inventory
+        .where((batch) => selectedBatchIds.contains(batch.id))
+        .toList();
+    if (batches.isEmpty || batches.length != selectedBatchIds.length) {
+      if (mounted) stopSelection();
+      return;
+    }
+    if (action == 'consumed' && batches.any((b) => !b.usable)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(context.t('batch_not_usable'))),
+      );
+      return;
+    }
+    if (action == 'delete' || action == 'consumed') {
+      final label = context.t(
+        action == 'delete'
+            ? 'inventory_remove_selected'
+            : 'inventory_bulk_consume',
+      );
+      final message = context.t(
+        action == 'delete'
+            ? 'inventory_remove_confirmation'
+            : 'inventory_bulk_consume_confirmation',
+        {'count': batches.length},
+      );
+      if (!await confirmAction(label, message) || !mounted) return;
+    }
+    setState(() => saving = true);
     try {
-      await bulkRemove.send(
+      await bulkMutation.send(
         ref.read(apiProvider),
         'POST',
-        '/inventory/bulk-remove',
+        action == 'delete'
+            ? '/inventory/bulk-remove'
+            : '/inventory/bulk-action',
         {
+          if (action != 'delete') 'action': action,
+          if (destination != null) 'location': destination,
           'items': [
             for (final batch in batches)
               {'id': batch.id, 'expected_version': batch.version},
@@ -75,25 +108,96 @@ class _FridgePageState extends ConsumerState<FridgePage> {
       );
       await ref.read(appProvider.notifier).refresh();
       if (!mounted) return;
-      setState(() {
-        selectedBatchIds.clear();
-        selecting = false;
-      });
+      stopSelection();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.t('inventory_removed_count', {
-            'count': batches.length,
-          })),
-        ),
+        SnackBar(content: Text(context.t('inventory_bulk_success'))),
       );
     } on ApiFailure catch (error) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.t(error.code))),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.t(error.code))),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.t('unknown_error'))),
+        );
+      }
     } finally {
-      if (mounted) setState(() => removing = false);
+      if (mounted) setState(() => saving = false);
     }
+  }
+
+  Future<void> bulkMove() async {
+    if (selectedBatchIds.isEmpty || saving) return;
+    final destination = await showModalBottomSheet<String>(
+      context: context,
+      useRootNavigator: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (menu) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final value in ['fridge', 'freezer', 'pantry'])
+              ListTile(
+                key: ValueKey('inventory-bulk-move-$value'),
+                leading: Icon(
+                  value == 'fridge'
+                      ? Icons.kitchen_outlined
+                      : value == 'freezer'
+                      ? Icons.ac_unit
+                      : Icons.inventory_2_outlined,
+                ),
+                title: Text(context.t(value)),
+                onTap: () => Navigator.pop(menu, value),
+              ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+    if (destination != null && mounted) {
+      await runBulk('moved', destination: destination);
+    }
+  }
+
+  void openFilters() {
+    sheet(
+      context,
+      ListView(
+        shrinkWrap: true,
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+        children: [
+          Text(
+            context.t('sort'),
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 10),
+          for (final value in ['expiry', 'name', 'name_desc', 'recent'])
+            ListTile(
+              key: ValueKey('inventory-sort-$value'),
+              title: Text(context.t('inventory_sort_$value')),
+              trailing: sort == value ? const Icon(Icons.check) : null,
+              onTap: () {
+                setState(() => sort = value);
+                Navigator.pop(context);
+              },
+            ),
+          const Divider(),
+          ListTile(
+            key: const ValueKey('inventory-select-from-filter'),
+            leading: const Icon(Icons.checklist_rounded),
+            title: Text(context.t('inventory_select')),
+            onTap: () {
+              Navigator.pop(context);
+              setState(() => selecting = true);
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -101,274 +205,503 @@ class _FridgePageState extends ConsumerState<FridgePage> {
 
   Widget _build(BuildContext context) {
     final state = ref.watch(appProvider);
-    final items = state.inventory
-        .where(
-          (b) =>
-              (location == 'all' || b.location == location) &&
-              localized(
-                b.food.name,
-                context.language,
-              ).toLowerCase().contains(search.toLowerCase()),
-        )
+    final source = state.inventory
+        .where((batch) => location == 'all' || batch.location == location)
+        .where((batch) => inventorySearchMatches(batch, search, context))
         .toList();
-    items.sort(
-      (a, b) => sort == 'name'
-          ? localized(
-              a.food.name,
-              context.language,
-            ).compareTo(localized(b.food.name, context.language))
-          : (a.expiryDate ?? DateTime(9999)).compareTo(
-              b.expiryDate ?? DateTime(9999),
-            ),
-    );
-    bool isExpired(Batch batch) =>
-        !batch.usable ||
-        (batch.expiryKind == 'use_by' && (expiryDays(batch) ?? 0) < 0);
-    final expired = items.where(isExpired).length;
-    final dueSoon = items.where((b) {
-      final days = expiryDays(b);
-      return days != null && days >= 0 && days <= 3;
-    }).length;
-    final visible = items.where((b) {
-      final days = expiryDays(b);
-      return expiryFilter == 'all' ||
-          (expiryFilter == 'expired' && isExpired(b)) ||
-          (expiryFilter == 'soon' && days != null && days >= 0 && days <= 3);
+    final dueSoon = source
+        .where((batch) =>
+            batchExpiryStatus(batch) == BatchExpiryStatus.soon && batch.usable)
+        .length;
+    final expired = source
+        .where((batch) =>
+            batchExpiryStatus(batch) == BatchExpiryStatus.expired ||
+            !batch.usable)
+        .length;
+    final visible = source.where((batch) {
+      final status = batchExpiryStatus(batch);
+      if (expiryFilter == 'expired') {
+        return status == BatchExpiryStatus.expired || !batch.usable;
+      }
+      if (expiryFilter == 'soon') {
+        return status == BatchExpiryStatus.soon && batch.usable;
+      }
+      return true;
     }).toList();
+    final groups = groupInventory(visible, sort, context.language);
+
     return Scaffold(
-      body: PageBody(
-        onRefresh: () => ref.read(appProvider.notifier).refresh(),
-        children: [
-          KeyedSubtree(
-            key: FirstAccessTourTargets.fridgeHeader,
-            child: EditorialHeader(
-              eyebrow: context.t('fridge_eyebrow'),
-              title: context.t('fridge_editorial'),
-              subtitle: context.t('fridge_support'),
-              actions: [
-                RoundAction(
-                  icon: EatMeGlyph.plus,
-                  label: context.t('add_food'),
-                  primary: true,
-                  onPressed: state.offline
-                      ? null
-                      : () => showAddFoodMethods(context, location: location),
-                ),
-              ],
+      body: SafeArea(
+        bottom: false,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1160),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final width = constraints.maxWidth;
+                final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
+                final available = width - 40;
+                final columns = inventoryColumns(available, scale);
+                return RefreshIndicator(
+                  onRefresh: () => ref.read(appProvider.notifier).refresh(),
+                  child: CustomScrollView(
+                    key: const ValueKey('fridge-inventory-scroll'),
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              KeyedSubtree(
+                                key: FirstAccessTourTargets.fridgeHeader,
+                                child: Row(
+                                  children: [
+                                    const EatMeBrandMark(size: 24),
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        'EatMe+',
+                                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                          fontFamily: 'EatMeDisplay',
+                                        ),
+                                      ),
+                                    ),
+                                    RoundAction(
+                                      icon: EatMeGlyph.plus,
+                                      label: context.t('add_food'),
+                                      primary: true,
+                                      onPressed: state.offline
+                                          ? null
+                                          : () => showAddFoodMethods(
+                                              context,
+                                              location: location,
+                                            ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              Text(
+                                context.t('inventory_title'),
+                                style: Theme.of(context).textTheme.displaySmall,
+                              ),
+                              Text(
+                                context.t('inventory_subtitle', {
+                                  'count': source.length,
+                                  'soon': dueSoon,
+                                }),
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              KeyedSubtree(
+                                key: FirstAccessTourTargets.fridgeSearch,
+                                child: SearchPill(
+                                  hint: context.t('inventory_search_hint'),
+                                  onChanged: (value) => setState(() => search = value),
+                                  onFilter: openFilters,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    for (final value in ['all', 'fridge', 'freezer', 'pantry'])
+                                      Padding(
+                                        padding: const EdgeInsetsDirectional.only(end: 7),
+                                        child: ChoiceChip(
+                                          showCheckmark: false,
+                                          label: Text(context.t(
+                                            value == 'all' ? 'food_group_all' : value,
+                                          )),
+                                          selected: location == value,
+                                          onSelected: (_) => setState(() => location = value),
+                                          visualDensity: VisualDensity.compact,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              if (state.offline) ...[
+                                const SizedBox(height: 8),
+                                StatusNote(text: context.t('offline_inventory'), warning: true),
+                              ],
+                              const SizedBox(height: 14),
+                              KeyedSubtree(
+                                key: FirstAccessTourTargets.fridgeFilters,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: _InventoryStatusTile(
+                                        label: context.t('expiry_soon_short'),
+                                        count: dueSoon,
+                                        icon: Icons.watch_later_outlined,
+                                        selected: expiryFilter == 'soon',
+                                        warning: false,
+                                        onTap: () => setState(() {
+                                          expiryFilter = expiryFilter == 'soon'
+                                              ? 'all'
+                                              : 'soon';
+                                        }),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: _InventoryStatusTile(
+                                        label: context.t('expiry_expired'),
+                                        count: expired,
+                                        icon: Icons.warning_amber_outlined,
+                                        selected: expiryFilter == 'expired',
+                                        warning: true,
+                                        onTap: () => setState(() {
+                                          expiryFilter = expiryFilter == 'expired'
+                                              ? 'all'
+                                              : 'expired';
+                                        }),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              if (visible.isNotEmpty || selecting)
+                                Align(
+                                  alignment: AlignmentDirectional.centerEnd,
+                                  child: TextButton.icon(
+                                    key: const ValueKey('inventory-select-mode'),
+                                    onPressed: state.offline || saving
+                                        ? null
+                                        : selecting
+                                        ? stopSelection
+                                        : () => setState(() => selecting = true),
+                                    icon: Icon(selecting
+                                        ? Icons.close
+                                        : Icons.checklist_rounded),
+                                    label: Text(context.t(selecting
+                                        ? 'inventory_cancel_selection'
+                                        : 'inventory_select')),
+                                  ),
+                                ),
+                              if (selecting)
+                                _selectionToolbar(context, visible, state.offline),
+                            ],
+                          ),
+                        ),
+                      ),
+                      if (visible.isEmpty)
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: EmptyMessage(
+                              title: context.t(source.isEmpty
+                                  ? 'empty_fridge'
+                                  : 'expiry_no_matches'),
+                              body: context.t('empty_fridge_body'),
+                              action: FilledButton(
+                                onPressed: state.offline
+                                    ? null
+                                    : () => showAddFoodMethods(context, location: location),
+                                child: Text(context.t('add_food')),
+                              ),
+                            ),
+                          ),
+                        ),
+                      for (final group in groups) ...[
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 12, 20, 10),
+                            child: _InventoryCategoryHeading(
+                              id: group.id,
+                              count: group.items.length,
+                              collapsed: collapsedCategories.contains(group.id),
+                              onTap: () => setState(() {
+                                if (!collapsedCategories.add(group.id)) {
+                                  collapsedCategories.remove(group.id);
+                                }
+                              }),
+                            ),
+                          ),
+                        ),
+                        if (!collapsedCategories.contains(group.id)) ...[
+                          SliverPadding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            sliver: SliverGrid(
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                                  final batch = group.items[index];
+                                  return InventoryPhotoCard(
+                                    key: ValueKey('inventory-batch-${batch.id}'),
+                                    batch: batch,
+                                    showLocation: location == 'all',
+                                    selecting: selecting,
+                                    selected: selectedBatchIds.contains(batch.id),
+                                    onTap: () {
+                                      if (selecting) {
+                                        toggleSelection(batch.id);
+                                      } else {
+                                        sheet(context, BatchSheet(batch: batch));
+                                      }
+                                    },
+                                    onLongPress: () {
+                                      if (!state.offline && !saving) {
+                                        toggleSelection(batch.id);
+                                      }
+                                    },
+                                  );
+                                },
+                                childCount: expandedCategories.contains(group.id)
+                                    ? group.items.length
+                                    : group.items.length.clamp(0, 4),
+                                addAutomaticKeepAlives: false,
+                              ),
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: columns,
+                                crossAxisSpacing: 10,
+                                mainAxisSpacing: 10,
+                                mainAxisExtent: inventoryCardHeight(scale),
+                              ),
+                            ),
+                          ),
+                          if (group.items.length > 4)
+                            SliverToBoxAdapter(
+                              child: Align(
+                                alignment: AlignmentDirectional.centerStart,
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(20, 2, 20, 4),
+                                  child: TextButton.icon(
+                                    key: ValueKey('inventory-expand-${group.id}'),
+                                    onPressed: () => setState(() {
+                                      if (!expandedCategories.add(group.id)) {
+                                        expandedCategories.remove(group.id);
+                                      }
+                                    }),
+                                    icon: Icon(expandedCategories.contains(group.id)
+                                        ? Icons.expand_less
+                                        : Icons.expand_more),
+                                    label: Text(expandedCategories.contains(group.id)
+                                        ? context.t('inventory_show_less')
+                                        : context.t('inventory_show_more', {
+                                            'count': group.items.length - 4,
+                                          })),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ],
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 24, 20, 126),
+                          child: KeyedSubtree(
+                            key: FirstAccessTourTargets.fridgeTools,
+                            child: SettingsGroup(
+                              children: [
+                                SettingRow(
+                                  title: context.t('expiry_view'),
+                                  icon: EatMeGlyph.clockAlert,
+                                  onTap: () => context.push('/expiry'),
+                                ),
+                                if (['all', 'fridge'].contains(location) && !state.offline)
+                                  SettingRow(
+                                    title: context.t('leftovers'),
+                                    icon: EatMeGlyph.packageOpen,
+                                    onTap: () => context.push('/leftovers'),
+                                  ),
+                                SettingRow(
+                                  title: context.t('scan_and_import'),
+                                  icon: EatMeGlyph.scanLine,
+                                  onTap: () => context.push('/scanning'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
-          KeyedSubtree(
-            key: FirstAccessTourTargets.fridgeSearch,
-            child: SearchPill(
-              hint: context.t('inventory_search_hint'),
-              onChanged: (s) => setState(() => search = s),
-              onFilter: () => sheet(
-                context,
-                ListView(
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
+        ),
+      ),
+    );
+  }
+
+  Widget _selectionToolbar(
+    BuildContext context,
+    List<Batch> visible,
+    bool offline,
+  ) {
+    final enabled = !offline && !saving && selectedBatchIds.isNotEmpty;
+    final visibleIds = visible.map((batch) => batch.id).toSet();
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          Text(context.t('inventory_selected_count', {
+            'count': selectedBatchIds.length,
+          })),
+          const SizedBox(width: 8),
+          TextButton(
+            key: const ValueKey('inventory-select-all'),
+            onPressed: offline || saving || visible.isEmpty
+                ? null
+                : () => setState(() {
+                    if (selectedBatchIds.containsAll(visibleIds)) {
+                      selectedBatchIds.removeAll(visibleIds);
+                    } else {
+                      selectedBatchIds.addAll(visibleIds);
+                    }
+                  }),
+            child: Text(context.t('inventory_select_all')),
+          ),
+          OutlinedButton.icon(
+            key: const ValueKey('inventory-bulk-move'),
+            onPressed: enabled ? bulkMove : null,
+            icon: const Icon(Icons.swap_horiz_rounded, size: 18),
+            label: Text(context.t('move_food')),
+          ),
+          const SizedBox(width: 8),
+          OutlinedButton.icon(
+            key: const ValueKey('inventory-bulk-consume'),
+            onPressed: enabled ? () => runBulk('consumed') : null,
+            icon: const Icon(Icons.check_rounded, size: 18),
+            label: Text(context.t('inventory_bulk_consume')),
+          ),
+          const SizedBox(width: 8),
+          FilledButton.icon(
+            key: const ValueKey('inventory-bulk-remove'),
+            onPressed: enabled ? () => runBulk('delete') : null,
+            icon: const Icon(Icons.delete_outline, size: 18),
+            label: Text(context.t('inventory_remove_selected')),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InventoryStatusTile extends StatelessWidget {
+  const _InventoryStatusTile({
+    required this.label,
+    required this.count,
+    required this.icon,
+    required this.selected,
+    required this.warning,
+    required this.onTap,
+  });
+  final String label;
+  final int count;
+  final IconData icon;
+  final bool selected, warning;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final tint = warning ? scheme.error : scheme.primary;
+    return Material(
+      color: selected
+          ? (warning ? scheme.errorContainer : scheme.primaryContainer)
+          : scheme.surfaceContainer,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 72),
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              Icon(icon, color: tint, size: 22),
+              const SizedBox(width: 9),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      context.t('sort'),
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                    const SizedBox(height: 12),
-                    for (final value in ['expiry', 'name'])
-                      SettingRow(
-                        title: context.t('sort_$value'),
-                        icon: value == 'expiry'
-                            ? EatMeGlyph.clockAlert
-                            : EatMeGlyph.listFilter,
-                        trailing: sort == value
-                            ? EatMeIcon(
-                                EatMeGlyph.check,
-                                color: Theme.of(context).colorScheme.primary,
-                              )
-                            : null,
-                        onTap: () {
-                          setState(() => sort = value);
-                          Navigator.pop(context);
-                        },
-                      ),
+                    Text(label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall),
+                    Text('$count',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: tint,
+                        )),
                   ],
                 ),
               ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final value in ['all', 'fridge', 'freezer', 'pantry'])
-                ChoiceChip(
-                  showCheckmark: false,
-                  label: Text(
-                    context.t(value == 'all' ? 'food_group_all' : value),
-                  ),
-                  selected: location == value,
-                  onSelected: (_) => setState(() => location = value),
-                ),
+              Icon(Icons.chevron_right, size: 16, color: scheme.onSurfaceVariant),
             ],
           ),
-          if (state.offline)
-            StatusNote(text: context.t('offline_inventory'), warning: true),
-          const SizedBox(height: 12),
-          KeyedSubtree(
-            key: FirstAccessTourTargets.fridgeFilters,
-            child: RecipeActionRow(
-              primary: OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  side: expiryFilter == 'soon'
-                      ? BorderSide(color: Theme.of(context).colorScheme.primary)
-                      : BorderSide.none,
-                ),
-                onPressed: () => setState(
-                  () => expiryFilter = expiryFilter == 'soon' ? 'all' : 'soon',
-                ),
-                icon: const EatMeIcon(EatMeGlyph.clockAlert),
-                label: Text('${context.t('expiry_soon_short')} · $dueSoon'),
-              ),
-              secondary: OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  side: expiryFilter == 'expired'
-                      ? BorderSide(color: Theme.of(context).colorScheme.primary)
-                      : BorderSide.none,
-                ),
-                onPressed: () => setState(
-                  () => expiryFilter = expiryFilter == 'expired'
-                      ? 'all'
-                      : 'expired',
-                ),
-                icon: const EatMeIcon(EatMeGlyph.triangleAlert),
-                label: Text('${context.t('expiry_expired')} · $expired'),
-              ),
-            ),
-          ),
-          SectionHeading(
-            title: context.t(
-              expiryFilter == 'expired'
-                  ? 'expiry_expired'
-                  : expiryFilter == 'soon'
-                  ? 'expiry_soon_short'
-                  : 'all_foods',
-            ),
-            actionLabel: context.t('sort_$sort'),
-            onAction: () =>
-                setState(() => sort = sort == 'expiry' ? 'name' : 'expiry'),
-          ),
-          if (visible.isNotEmpty || selecting)
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                TextButton.icon(
-                  key: const ValueKey('inventory-select-mode'),
-                  onPressed: removing || state.offline
-                      ? null
-                      : () => setState(() {
-                          selecting = !selecting;
-                          selectedBatchIds.clear();
-                        }),
-                  icon: Icon(selecting ? Icons.close : Icons.checklist_rounded),
-                  label: Text(
-                    context.t(
-                      selecting ? 'inventory_cancel_selection' : 'inventory_select',
-                    ),
-                  ),
-                ),
-                if (selecting) ...[
-                  TextButton(
-                    key: const ValueKey('inventory-select-all'),
-                    onPressed: removing || state.offline || visible.isEmpty
-                        ? null
-                        : () => setState(() {
-                            final visibleIds = visible.map((b) => b.id).toSet();
-                            if (selectedBatchIds.containsAll(visibleIds)) {
-                              selectedBatchIds.removeAll(visibleIds);
-                            } else {
-                              selectedBatchIds.addAll(visibleIds);
-                            }
-                          }),
-                    child: Text(context.t('inventory_select_all')),
-                  ),
-                  Text(context.t('inventory_selected_count', {
-                    'count': selectedBatchIds.length,
-                  })),
-                  FilledButton.icon(
-                    key: const ValueKey('inventory-bulk-remove'),
-                    onPressed:
-                        selectedBatchIds.isEmpty || state.offline || removing
-                        ? null
-                        : removeSelected,
-                    icon: removing
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.delete_outline),
-                    label: Text(context.t('inventory_remove_selected')),
-                  ),
-                ],
-              ],
-            ),
-          if (visible.isEmpty)
-            EmptyMessage(
-              title: context.t(
-                items.isEmpty ? 'empty_fridge' : 'expiry_no_matches',
-              ),
-              body: context.t('empty_fridge_body'),
-              action: FilledButton(
-                onPressed: state.offline
-                    ? null
-                    : () => showAddFoodMethods(context, location: location),
-                child: Text(context.t('add_food')),
+        ),
+      ),
+    );
+  }
+}
+
+class _InventoryCategoryHeading extends StatelessWidget {
+  const _InventoryCategoryHeading({
+    required this.id,
+    required this.count,
+    required this.collapsed,
+    required this.onTap,
+  });
+  final String id;
+  final int count;
+  final bool collapsed;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return InkWell(
+      key: ValueKey('inventory-category-$id'),
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            Icon(inventoryCategoryIcon(id), size: 21, color: scheme.primary),
+            const SizedBox(width: 9),
+            Flexible(
+              child: Text(
+                inventoryCategoryTitle(context, id),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
-          for (final batch in visible)
-            CompactBatchRow(
-              key: ValueKey('inventory-batch-${batch.id}'),
-              batch: batch,
-              onTap: () => sheet(context, BatchSheet(batch: batch)),
-              selecting: selecting,
-              selected: selectedBatchIds.contains(batch.id),
-              onSelected: selecting && !removing && !state.offline
-                  ? (value) => setState(() {
-                      if (value) {
-                        selectedBatchIds.add(batch.id);
-                      } else {
-                        selectedBatchIds.remove(batch.id);
-                      }
-                    })
-                  : null,
+            const SizedBox(width: 8),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: scheme.primaryContainer,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                child: Text('$count', style: Theme.of(context).textTheme.labelSmall),
+              ),
             ),
-          const SizedBox(height: 24),
-          KeyedSubtree(
-            key: FirstAccessTourTargets.fridgeTools,
-            child: SettingsGroup(
-              children: [
-                SettingRow(
-                  title: context.t('expiry_view'),
-                  icon: EatMeGlyph.clockAlert,
-                  onTap: () => context.push('/expiry'),
-                ),
-                if (['all', 'fridge'].contains(location) && !state.offline)
-                  SettingRow(
-                    title: context.t('leftovers'),
-                    icon: EatMeGlyph.packageOpen,
-                    onTap: () => context.push('/leftovers'),
-                  ),
-                SettingRow(
-                  title: context.t('scan_and_import'),
-                  icon: EatMeGlyph.scanLine,
-                  onTap: () => context.push('/scanning'),
-                ),
-              ],
+            const Spacer(),
+            AnimatedRotation(
+              turns: collapsed ? 0.5 : 0,
+              duration: const Duration(milliseconds: 180),
+              child: const Icon(Icons.keyboard_arrow_up_rounded, size: 22),
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+    ],
       ),
     );
   }
