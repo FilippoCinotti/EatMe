@@ -1242,5 +1242,7 @@
   "set_use_date": "Set planned use date",
   "storage_location": "Storage location",
   "review_shopping": "Review shopping updates",
-  "shopping_nothing_missing": "No ingredients are missing."
+  "shopping_nothing_missing": "No ingredients are missing.",
+  "shopping_purchased_quantity": "Quantity purchased",
+  "shopping_partial_summary": "Remaining {remaining} {unit} · Bought {bought} {unit}"
 }

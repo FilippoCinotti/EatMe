@@ -1242,5 +1242,7 @@
   "set_use_date": "Fecha de consumo prevista",
   "storage_location": "Lugar de conservación",
   "review_shopping": "Revisar cambios de la compra",
-  "shopping_nothing_missing": "No faltan ingredientes."
+  "shopping_nothing_missing": "No faltan ingredientes.",
+  "shopping_purchased_quantity": "Cantidad comprada",
+  "shopping_partial_summary": "Faltan {remaining} {unit} · Comprado {bought} {unit}"
 }

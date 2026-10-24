@@ -1242,5 +1242,7 @@
   "set_use_date": "设置预计食用日期",
   "storage_location": "储存位置",
   "review_shopping": "查看购物清单更新",
-  "shopping_nothing_missing": "没有缺少的食材。"
+  "shopping_nothing_missing": "没有缺少的食材。",
+  "shopping_purchased_quantity": "已购买数量",
+  "shopping_partial_summary": "剩余 {remaining} {unit} · 已购 {bought} {unit}"
 }
