@@ -384,6 +384,7 @@ Future<void> sheet(BuildContext context, Widget child) =>
         ),
         child: ConstrainedBox(
           constraints: BoxConstraints(
+            maxWidth: 620,
             maxHeight: MediaQuery.sizeOf(context).height * 0.88,
           ),
           child: child,
