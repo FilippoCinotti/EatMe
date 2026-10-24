@@ -2,6 +2,7 @@ import 'package:eatme/core/models.dart';
 import 'package:eatme/core/state.dart';
 import 'package:eatme/design_system/widgets.dart';
 import 'package:eatme/features/fridge/fridge.dart';
+import 'package:eatme/features/fridge/inventory_grid.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -19,6 +20,7 @@ Batch batch(String id, DateTime? date, {String kind = 'use_by'}) =>
 
 class BulkFridgeApi extends support.TestApi {
   final removals = <Json>[];
+  final actions = <Json>[];
   @override
   Future<Json> request(
     String method,
@@ -35,6 +37,10 @@ class BulkFridgeApi extends support.TestApi {
             .map((item) => (item as Map)['id'])
             .toList(),
       };
+    }
+    if (path == '/inventory/bulk-action') {
+      actions.add(body!);
+      return {'count': (body['items'] as List).length};
     }
     return super.request(
       method,
@@ -89,7 +95,34 @@ void main() {
       expect(expiryDays(batch('d', null)), isNull);
     },
   );
-  testWidgets('multi-select uses batch ids and confirms before bulk removal', (
+
+  test('catalog taxonomy has one stable visual category per food', () {
+    expect(inventoryCategory(food), 'dairy');
+    expect(
+      inventoryCategory(const Food(
+        id: 'rice',
+        name: {'en': 'Rice'},
+        unit: 'g',
+        group: 'grain',
+      )),
+      'grain',
+    );
+    expect(
+      inventoryCategory(const Food(
+        id: 'unmapped',
+        name: {'en': 'Unmapped'},
+        unit: 'g',
+        group: 'unsupported_new_group',
+      )),
+      'other',
+    );
+    expect(inventoryColumns(350, 1), 2);
+    expect(inventoryColumns(750, 1), inInclusiveRange(3, 4));
+    expect(inventoryColumns(1100, 1), 5);
+    expect(inventoryColumns(350, 1.6), 1);
+  });
+
+  testWidgets('multi-select uses batch ids and confirms bulk removal', (
     tester,
   ) async {
     final api = BulkFridgeApi();
@@ -102,17 +135,13 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.byKey(const ValueKey('inventory-select-mode')),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
     await tester.tap(find.byKey(const ValueKey('inventory-select-mode')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('inventory-select-all')));
     await tester.pumpAndSettle();
     expect(find.text('4 selezionati'), findsOneWidget);
 
+    await tester.ensureVisible(find.byKey(const ValueKey('inventory-bulk-remove')));
     await tester.tap(find.byKey(const ValueKey('inventory-bulk-remove')));
     await tester.pumpAndSettle();
     expect(find.textContaining('Eliminare 4 elementi'), findsOneWidget);
@@ -137,8 +166,36 @@ void main() {
     expect(find.byKey(const ValueKey('inventory-select-all')), findsNothing);
   });
 
+  testWidgets('bulk move uses one request with versions and destination', (
+    tester,
+  ) async {
+    final api = BulkFridgeApi();
+    await tester.pumpWidget(
+      support.harness(
+        const FridgePage(),
+        api,
+        language: 'it',
+        controller: FridgeController.new,
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('inventory-select-mode')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('inventory-select-all')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('inventory-bulk-move')));
+    await tester.tap(find.byKey(const ValueKey('inventory-bulk-move')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('inventory-bulk-move-freezer')));
+    await tester.pumpAndSettle();
+    expect(api.actions.length, 1);
+    expect(api.actions.single['action'], 'moved');
+    expect(api.actions.single['location'], 'freezer');
+    expect((api.actions.single['items'] as List).length, 4);
+  });
+
   for (final scale in [1.0, 1.6]) {
-    testWidgets('compact fridge filters expired dates at scale $scale', (
+    testWidgets('grouped fridge filters expiry at scale $scale', (
       tester,
     ) async {
       tester.view.physicalSize = Size(scale == 1 ? 390 : 320, 844);
@@ -157,18 +214,42 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(
-        find.text('Scaduti · 1'),
-        180,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.tap(find.text('Scaduti · 1'));
+      expect(find.text('Latticini e uova'), findsOneWidget);
+      await tester.tap(find.text('Scaduti'));
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.byType(CompactBatchRow));
-      expect(find.byType(CompactBatchRow), findsOneWidget);
-      expect(find.text('Scaduto da 2 giorni'), findsOneWidget);
+      expect(find.byKey(const ValueKey('inventory-batch-expired')), findsOneWidget);
+      expect(find.byKey(const ValueKey('inventory-batch-unknown')), findsNothing);
       expect(tester.takeException(), isNull);
       await journey.capture(tester, boundary, 'compact-fridge-$scale');
+    });
+  }
+
+  for (final dark in [false, true]) {
+    testWidgets('iPad grid renders on resize in ${dark ? 'dark' : 'light'}', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1024, 768);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final boundary = GlobalKey();
+      await tester.pumpWidget(
+        support.harness(
+          RepaintBoundary(key: boundary, child: const FridgePage()),
+          BulkFridgeApi(),
+          language: 'it',
+          dark: dark,
+          controller: FridgeController.new,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Latticini e uova'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await journey.capture(
+        tester,
+        boundary,
+        'fridge-ipad-${dark ? 'dark' : 'light'}',
+      );
     });
   }
 }
