@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -151,7 +152,21 @@ class AppController extends Notifier<AppState> {
         await api.clearSession();
         state = state.copy(stage: Stage.login);
       } else {
-        state = state.copy(stage: Stage.failed, error: error.code);
+        // Keep already-verified data on screen during a transient outage, but
+        // never display a previous account's profile after an auth switch.
+        final sameAccount = state.profile['user_id'] == api.userId;
+        final recoverable =
+            error.offline ||
+            const [
+              'service_unavailable',
+              'connection_timeout',
+              'secure_connection_failed',
+            ].contains(error.code);
+        if (state.stage == Stage.ready && sameAccount && recoverable) {
+          state = state.copy(offline: true, error: error.code);
+        } else {
+          state = state.copy(stage: Stage.failed, error: error.code);
+        }
       }
     } catch (_) {
       state = state.copy(stage: Stage.failed, error: 'unknown_error');
@@ -164,6 +179,9 @@ class AppController extends Notifier<AppState> {
       api.request('GET', '/profile'),
       api.request('GET', '/catalog'),
     ]);
+    final usingCachedBootstrap = responses.any(
+      (response) => response['_offline'] == true,
+    );
     final config = responses[0];
     if ((config['auth_mode'] == 'development') != EatMeApi.development) {
       throw const ApiFailure('auth_mode_mismatch');
@@ -201,7 +219,7 @@ class AppController extends Notifier<AppState> {
       stage: profile['onboarded'] == true ? Stage.ready : Stage.onboarding,
     );
     if (state.stage == Stage.ready) await refresh();
-    state = state.copy(offline: api.offline);
+    state = state.copy(offline: usingCachedBootstrap || state.offline);
   }
 
   Future<void> refresh({String? mode, bool recommendationsOnly = false}) async {
@@ -219,6 +237,9 @@ class AppController extends Notifier<AppState> {
           '/recommendations?mode=$chosenMode&slot=${mealSlotAt(DateTime.now())}',
         ),
       ]);
+      final usingCachedData = requests.any(
+        (response) => response['_offline'] == true,
+      );
       var index = 0;
       if (!recommendationsOnly) {
         final inventory = requests[index++];
@@ -246,8 +267,10 @@ class AppController extends Notifier<AppState> {
             )
             .toList(),
       );
-      state = state.copy(offline: api.offline);
-      if (!api.offline && !recommendationsOnly) unawaited(updateReminders());
+      state = state.copy(offline: usingCachedData || api.offline);
+      if (!state.offline && !recommendationsOnly) {
+        unawaited(updateReminders());
+      }
     } on ApiFailure catch (error) {
       if (error.code == 'unauthorized' ||
           error.code == 'account_deletion_pending') {
@@ -286,6 +309,12 @@ class AppController extends Notifier<AppState> {
   }
 
   Future<void> updateReminders() async {
+    // Local notifications are supported on iOS and Android only. Headless
+    // Flutter tests and unsupported desktop targets have no native plugin.
+    if (defaultTargetPlatform != TargetPlatform.iOS &&
+        defaultTargetPlatform != TargetPlatform.android) {
+      return;
+    }
     try {
       final notification = await api.request(
         'GET',

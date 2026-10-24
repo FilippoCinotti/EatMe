@@ -348,6 +348,44 @@ class EatMeCase(unittest.TestCase):
         version = dict(diet_id="d",version=1,status="PUBLISHED",effective_from="2027-01-01",effective_until=None,rules=[])
         self.assertCode("diet_rules_unavailable",lambda:active_rules(assignments,[version],date(2026,9,10)))
 
+    def test_bulk_inventory_removal_is_atomic_idempotent_and_not_waste(self):
+        first = self.add("tomato", 100)
+        second = self.add("chickpea", 200)
+        original = self.service.inventory(self.user)["items"]
+        entries = {"items": [
+            {"id": first["id"], "expected_version": first["version"]},
+            {"id": second["id"], "expected_version": second["version"]},
+        ]}
+        bad = {"items": [
+            entries["items"][0],
+            {"id": second["id"], "expected_version": 999},
+        ]}
+        self.assertCode("stale_inventory", lambda: self.service.remove_inventory_bulk(self.user, bad, new_id()))
+        self.assertEqual(original, self.service.inventory(self.user)["items"])
+        self.assertCode("invalid_inventory", lambda: self.service.remove_inventory_bulk(
+            self.user, {"items": [entries["items"][0]] * 2}, new_id()))
+        key = new_id()
+        result = self.service.remove_inventory_bulk(self.user, entries, key)
+        self.assertEqual(result["count"], 2)
+        self.assertEqual(result, self.service.remove_inventory_bulk(self.user, entries, key))
+        self.assertEqual(self.service.inventory(self.user)["items"], [])
+        with self.db.transaction() as tx:
+            removed = tx.all("SELECT kind, delta_milli FROM inventory_events WHERE kind='removed'")
+            discarded = tx.one("SELECT COUNT(*) AS count FROM inventory_events WHERE kind='discarded'")
+        self.assertEqual(len(removed), 2)
+        self.assertEqual(discarded["count"], 0)
+        self.assertEqual(sorted(r["delta_milli"] for r in removed), [-200000, -100000])
+        self.assertCode("item_not_found", lambda: self.service.remove_inventory_bulk(
+            self.user, entries, new_id()))
+
+    def test_bulk_inventory_removal_does_not_touch_other_households(self):
+        mine = self.add("tomato", 100)
+        another = new_id()
+        self.service.save_profile(another, self.profile, new_id())
+        self.assertCode("item_not_found", lambda: self.service.remove_inventory_bulk(
+            another, {"items": [{"id": mine["id"], "expected_version": 1}]}, new_id()))
+        self.assertEqual(len(self.service.inventory(self.user)["items"]), 1)
+
     def test_distinct_batches_keep_their_own_dates(self):
         self.add("tomato",100,expiry_date="2026-09-12",expiry_kind="best_before")
         self.add("tomato",100,expiry_date="2026-09-18",expiry_kind="best_before")
@@ -565,6 +603,87 @@ class EatMeCase(unittest.TestCase):
             results = list(pool.map(lambda _:consume(),range(2)))
         self.assertEqual(sorted(results),["ok","stale_inventory"])
         self.assertEqual(self.service.inventory(self.user)["items"][0]["quantity"],"20")
+
+    def test_inventory_editor_updates_quantity_and_expiry_atomically(self):
+        item = self.add("tomato", 250)
+        identifier = item["id"]
+        data = {
+            "id": identifier,
+            "expected_version": 1,
+            "quantity": "350",
+            "expiry_kind": "estimated",
+            "expiry_date": "2026-09-18",
+            "metadata": {"notes": "Stored in the fridge"},
+        }
+        result = self.service.inventory_metadata(self.user, data, new_id())
+        self.assertEqual(result["version"], 2)
+        self.assertEqual(result["quantity"], "350")
+        updated = self.service.inventory(self.user)["items"][0]
+        self.assertEqual(updated["quantity"], "350")
+        self.assertEqual(updated["expiry_kind"], "estimated")
+        self.assertEqual(updated["expiry_date"], "2026-09-18")
+        self.assertCode(
+            "stale_inventory",
+            lambda: self.service.inventory_metadata(self.user, data, new_id()),
+        )
+        self.assertCode(
+            "invalid_quantity",
+            lambda: self.service.inventory_metadata(
+                self.user, {**data, "expected_version": 2, "quantity": "-1"},
+                new_id(),
+            ),
+        )
+        self.assertEqual(
+            self.service.inventory(self.user)["items"][0]["quantity"], "350"
+        )
+
+    def test_bulk_inventory_move_and_consume_are_atomic(self):
+        a = self.add("tomato", 100)
+        b = self.add("chickpea", 200)
+        items = [
+            {"id": a["id"], "expected_version": 1},
+            {"id": b["id"], "expected_version": 1},
+        ]
+        moved = self.service.update_inventory_bulk(
+            self.user,
+            {"action": "moved", "location": "freezer", "items": items},
+            new_id(),
+        )
+        self.assertEqual(moved["count"], 2)
+        before = self.service.inventory(self.user)["items"]
+        self.assertEqual({row["location"] for row in before}, {"freezer"})
+        self.assertEqual({row["version"] for row in before}, {2})
+
+        self.assertCode(
+            "stale_inventory",
+            lambda: self.service.update_inventory_bulk(
+                self.user,
+                {"action": "consumed", "items": [
+                    {"id": a["id"], "expected_version": 2},
+                    {"id": b["id"], "expected_version": 1},
+                ]}, new_id(),
+            ),
+        )
+        self.assertEqual(self.service.inventory(self.user)["items"], before)
+        self.assertCode(
+            "invalid_inventory",
+            lambda: self.service.update_inventory_bulk(
+                self.user,
+                {"action": "consumed", "items": [
+                    {"id": a["id"], "expected_version": 2},
+                    {"id": a["id"], "expected_version": 2},
+                ]}, new_id(),
+            ),
+        )
+        consumed = self.service.update_inventory_bulk(
+            self.user,
+            {"action": "consumed", "items": [
+                {"id": a["id"], "expected_version": 2},
+                {"id": b["id"], "expected_version": 2},
+            ]}, new_id(),
+        )
+        self.assertEqual(consumed["count"], 2)
+        self.assertEqual(self.service.inventory(self.user)["items"], [])
 
     def test_household_authorization_prevents_cross_account_writes(self):
         item = self.add("tomato",100)
