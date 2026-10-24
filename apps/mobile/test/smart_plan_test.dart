@@ -15,23 +15,54 @@ class SmartPlanApi extends planning.PlanningApi {
   SmartPlanApi() {
     final day = DateTime.now().toIso8601String().substring(0, 10);
     saved = {
-      'id': 'plan', 'version': 1, 'start_date': day,
-      'data': {'meals': [
-        {'date': day, 'slot': 'dinner', 'recipe_id': 'dinner', 'servings': 2, 'participants': [support.uid]},
-      ], 'daily_limits': {}, 'preference_overrides': []},
+      'id': 'plan',
+      'version': 1,
+      'start_date': day,
+      'data': {
+        'meals': [
+          {
+            'date': day,
+            'slot': 'dinner',
+            'recipe_id': 'dinner',
+            'servings': 2,
+            'participants': [support.uid],
+          },
+        ],
+        'daily_limits': {},
+        'preference_overrides': [],
+      },
     };
   }
   @override
-  Future<Json> request(String method, String path, {Json? body, String? operationKey, bool allowCache = true}) async {
+  Future<Json> request(
+    String method,
+    String path, {
+    Json? body,
+    String? operationKey,
+    bool allowCache = true,
+  }) async {
     if (path == '/plans' && body?['action'] == 'lock') {
       calls.add({'method': method, 'path': path, 'body': body});
       expect(body!['expected_version'], saved!['version']);
       final value = Map<String, dynamic>.from(saved!['data'] as Map);
-      value['meals'] = [for (final raw in value['meals'] as List) {...Map<String, dynamic>.from(raw as Map), 'locked': body['locked']}];
-      saved = {...saved!, 'version': (saved!['version'] as int) + 1, 'data': value};
+      value['meals'] = [
+        for (final raw in value['meals'] as List)
+          {...Map<String, dynamic>.from(raw as Map), 'locked': body['locked']},
+      ];
+      saved = {
+        ...saved!,
+        'version': (saved!['version'] as int) + 1,
+        'data': value,
+      };
       return saved!;
     }
-    return super.request(method, path, body: body, operationKey: operationKey, allowCache: allowCache);
+    return super.request(
+      method,
+      path,
+      body: body,
+      operationKey: operationKey,
+      allowCache: allowCache,
+    );
   }
 }
 
@@ -39,14 +70,22 @@ void main() {
   setUpAll(visual.loadFonts);
   for (final dark in [false, true]) {
     for (final width in [320.0, 1024.0]) {
-      testWidgets('persisted meal lock at $width ${dark ? 'dark' : 'light'}', (tester) async {
+      testWidgets('persisted meal lock at $width ${dark ? 'dark' : 'light'}', (
+        tester,
+      ) async {
         tester.view.physicalSize = Size(width, 900);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
         final api = SmartPlanApi();
         final boundary = GlobalKey();
-        await tester.pumpWidget(support.harness(RepaintBoundary(key: boundary, child: const PlannerPage()), api, dark: dark));
+        await tester.pumpWidget(
+          support.harness(
+            RepaintBoundary(key: boundary, child: const PlannerPage()),
+            api,
+            dark: dark,
+          ),
+        );
         await tester.pumpAndSettle();
         final lock = find.byTooltip('Lock meal');
         await tester.ensureVisible(lock);
@@ -55,12 +94,20 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.byTooltip('Unlock meal'), findsOneWidget);
         expect((api.saved!['data']['meals'] as List).single['locked'], true);
-        expect(api.calls.where((c) => c['body']?['action'] == 'lock').length, 1);
+        expect(
+          api.calls.where((c) => c['body']?['action'] == 'lock').length,
+          1,
+        );
         expect(tester.takeException(), isNull);
         await tester.runAsync(() async {
-          final image = await (boundary.currentContext!.findRenderObject()! as RenderRepaintBoundary).toImage();
+          final image =
+              await (boundary.currentContext!.findRenderObject()!
+                      as RenderRepaintBoundary)
+                  .toImage();
           final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-          final file = File('build/screenshots/smart-plan-${width.toInt()}-${dark ? 'dark' : 'light'}.png');
+          final file = File(
+            'build/screenshots/smart-plan-${width.toInt()}-${dark ? 'dark' : 'light'}.png',
+          );
           await file.parent.create(recursive: true);
           await file.writeAsBytes(bytes!.buffer.asUint8List());
           image.dispose();

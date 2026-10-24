@@ -86,8 +86,16 @@ class _PlannerState extends ResourceState<PlannerPage> {
   List<Json> get preferenceOverrides =>
       records(selected?['data']?['preference_overrides']);
 
-  Future<void> saveMeals(List<Json> meals, {List<Json>? overrides, Json? dailyLimits}) async {
+  Future<void> saveMeals(
+    List<Json> meals, {
+    List<Json>? overrides,
+    Json? dailyLimits,
+  }) async {
     final source = overrides ?? preferenceOverrides;
+    final limits = <String, dynamic>{
+      ...?selected?['data']?['daily_limits'],
+      ...?dailyLimits,
+    };
     final validTargets = {
       for (final meal in meals) '${meal['date']}:${meal['slot']}',
     };
@@ -103,7 +111,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
       'start_date': isoDay(start),
       'meals': meals,
       'preference_overrides': safeOverrides,
-      if (dailyLimits != null) 'daily_limits': dailyLimits,
+      'daily_limits': limits,
       if (selected != null) 'id': selected!['id'],
       if (selected != null) 'expected_version': selected!['version'],
     }, reload: false);
@@ -1122,7 +1130,9 @@ class _PlannerMealCard extends StatelessWidget {
                 FoodImage(
                   id: '${meal!['recipe_id']}',
                   imageUrl: '${recipe?['image_url'] ?? ''}',
-                  width: featured ? (MediaQuery.sizeOf(context).width < 380 ? 72 : 104) : 52,
+                  width: featured
+                      ? (MediaQuery.sizeOf(context).width < 380 ? 72 : 104)
+                      : 52,
                   height: featured ? 92 : 52,
                   radius: featured ? 18 : 14,
                 )
