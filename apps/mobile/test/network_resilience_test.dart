@@ -28,7 +28,10 @@ class BootstrapApi extends EatMeApi {
     String? operationKey,
     bool allowCache = true,
   }) async {
-    if (!connected) throw const ApiFailure('network_error', offline: true);
+    if (!connected || path == '/notifications') {
+      // A headless widget test has no native notification plugin.
+      throw const ApiFailure('network_error', offline: true);
+    }
     if (path == '/config') return {'auth_mode': 'development'};
     if (path == '/profile') {
       return {
