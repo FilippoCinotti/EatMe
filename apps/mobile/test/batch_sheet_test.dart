@@ -225,16 +225,11 @@ void main() {
       find.byKey(const ValueKey('edit-batch-quantity')),
       '350',
     );
-    final editorScroll = find.ancestor(
-      of: find.byKey(const ValueKey('edit-batch-quantity')),
-      matching: find.byType(Scrollable),
-    );
-    await tester.scrollUntilVisible(
-      find.text('Salva'),
-      180,
-      scrollable: editorScroll.first,
-    );
+    // Scroll the editor's mounted ListView; the lazy Save action is
+    // initially outside the viewport and cannot be the scroll finder.
+    await tester.drag(find.byType(ListView).last, const Offset(0, -650));
     await tester.pumpAndSettle();
+    expect(find.text('Salva'), findsOneWidget);
     await tester.tap(find.text('Salva'));
     await tester.pumpAndSettle();
     final saved = api.calls.where((call) =>
