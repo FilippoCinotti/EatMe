@@ -838,7 +838,9 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
         : expiry == BatchExpiryStatus.soon
         ? scheme.onTertiaryContainer
         : scheme.onSurfaceVariant;
-    return ListView(
+    return RepaintBoundary(
+      key: const ValueKey('batch-detail-capture'),
+      child: ListView(
       key: const ValueKey('batch-detail-sheet'),
       shrinkWrap: true,
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
@@ -1010,6 +1012,7 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
           ],
         ),
       ],
+      ),
     );
   }
 }
