@@ -963,7 +963,7 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
           children: [
             Expanded(
               child: _BatchAction(
-                label: context.t('change'),
+                label: context.t('inventory_edit'),
                 icon: Icons.edit_outlined,
                 enabled: enabled,
                 onPressed: edit,
