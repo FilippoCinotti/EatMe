@@ -276,7 +276,7 @@ class AppController extends Notifier<AppState> {
           contextual: const [],
         );
       } else {
-        state = state.copy(error: error.code, recommendations: const []);
+        state = state.copy(error: error.code, recommendations: const [], contextual: const []);
       }
     }
   }
