@@ -1242,5 +1242,7 @@
   "set_use_date": "Date de consommation prévue",
   "storage_location": "Lieu de conservation",
   "review_shopping": "Vérifier les achats à mettre à jour",
-  "shopping_nothing_missing": "Aucun ingrédient ne manque."
+  "shopping_nothing_missing": "Aucun ingrédient ne manque.",
+  "plan_share_household": "Partager le plan avec le foyer",
+  "plan_make_private": "Rendre le plan privé"
 }

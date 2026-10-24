@@ -173,8 +173,8 @@ class PlanningService:
                     meals = data.get("meals")
                     source = "recipes"
                     if data.get("plan_id"):
-                        plan = tx.one("SELECT * FROM meal_plans WHERE id=? AND user_id=? AND household_id=?", (valid_uuid(data["plan_id"]), user_id, home))
-                        if not plan:
+                        plan = tx.one("SELECT * FROM meal_plans WHERE id=? AND household_id=?", (valid_uuid(data["plan_id"]), home))
+                        if not plan or (plan["user_id"] != user_id and decode(plan["data"]).get("shared") is not True):
                             raise DomainError("plan_not_found", 404)
                         meals, source = decode(plan["data"])["meals"], "plan:" + plan["id"]
                     if not isinstance(meals, list) or not 1 <= len(meals) <= 28:
@@ -343,7 +343,9 @@ class PlanningService:
     def plans(self, user_id):
         with self.db.transaction() as tx:
             home = self._member(tx, user_id)["household_id"]
-            return {"items": [{**r, "data": decode(r["data"])} for r in tx.all("SELECT * FROM meal_plans WHERE user_id=? AND household_id=? ORDER BY start_date DESC LIMIT 52", (user_id, home))]}
+            rows = tx.all("SELECT * FROM meal_plans WHERE household_id=? ORDER BY start_date DESC", (home,))
+            return {"items": [{**r, "data": decode(r["data"])} for r in rows
+                              if r["user_id"] == user_id or decode(r["data"]).get("shared") is True][:52]}
 
     def _plan_time_limits(self, value, start):
         if not isinstance(value, dict) or len(value) > 7:
@@ -390,7 +392,13 @@ class PlanningService:
         with self.db.transaction(home) as tx:
             def save():
                 self._member(tx, user_id, home)
-                existing = tx.one("SELECT * FROM meal_plans WHERE id=? AND user_id=? AND household_id=?", (data.get("id"), user_id, home)) if data.get("id") else None
+                existing = tx.one("SELECT * FROM meal_plans WHERE id=? AND household_id=?", (data.get("id"), home)) if data.get("id") else None
+                if existing:
+                    shared = decode(existing["data"]).get("shared") is True
+                    if existing["user_id"] != user_id and not shared:
+                        raise DomainError("plan_not_found", 404)
+                    if shared:
+                        self._member(tx, user_id, home, write=True)
                 if data.get("id") and not existing:
                     raise DomainError("plan_not_found", 404)
                 if existing and existing["version"] != data.get("expected_version"):
@@ -400,18 +408,27 @@ class PlanningService:
                         raise DomainError("plan_not_found", 404)
                     tx.execute("DELETE FROM meal_plans WHERE id=?", (existing["id"],))
                     return {"deleted": True}
-                action = choice(data.get("action"), {"save", "generate", "preview_generate", "lock", "suggest_alternative", "replace", "move", "swap", "skip", "copy", "set_time_limits"})
+                action = choice(data.get("action"), {"save", "generate", "preview_generate", "lock", "suggest_alternative", "replace", "move", "swap", "skip", "copy", "set_time_limits", "set_visibility"})
                 previous = decode(existing["data"]) if existing else {}
                 start = valid_date(data.get("start_date", existing["start_date"] if existing else None))
                 if not start:
                     raise DomainError("invalid_date", 422)
                 limits = self._plan_time_limits(data.get("daily_limits", previous.get("daily_limits", {})), start)
                 meals = data.get("meals", [])
-                if action in {"lock", "suggest_alternative", "replace", "move", "swap", "skip", "copy", "set_time_limits"}:
+                if action in {"lock", "suggest_alternative", "replace", "move", "swap", "skip", "copy", "set_time_limits", "set_visibility"}:
                     if not existing:
                         raise DomainError("plan_not_found", 404)
                     meals = [dict(meal) for meal in previous.get("meals", [])]
-                    if action != "set_time_limits":
+                    if action == "set_visibility":
+                        if existing["user_id"] != user_id:
+                            raise DomainError("forbidden", 403)
+                        if type(data.get("shared")) is not bool:
+                            raise DomainError("invalid_shared", 422)
+                        self._member(tx, user_id, home, write=True)
+                        previous["shared"] = data["shared"]
+                        # A previously implicit participant means the creator, never the editing member.
+                        meals = [{**m, "participants": m.get("participants", [existing["user_id"]])} for m in meals]
+                    if action not in {"set_time_limits", "set_visibility"}:
                         source = next((m for m in meals if m["date"] == data.get("date") and m["slot"] == data.get("slot")), None)
                         if source is None:
                             raise DomainError("meal_not_found", 404)
@@ -487,7 +504,7 @@ class PlanningService:
                     if not day or not 0 <= (date.fromisoformat(day) - date.fromisoformat(start)).days < 7 or (day, slot) in slots:
                         raise DomainError("invalid_meal_slot", 422)
                     slots.add((day, slot))
-                if action != "lock":
+                if action not in {"lock", "set_visibility"}:
                     for old in previous.get("meals", []):
                         if old.get("locked") and old not in meals:
                             raise DomainError("meal_locked", 409)

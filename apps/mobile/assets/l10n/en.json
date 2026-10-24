@@ -1242,5 +1242,7 @@
   "set_use_date": "Set planned use date",
   "storage_location": "Storage location",
   "review_shopping": "Review shopping updates",
-  "shopping_nothing_missing": "No ingredients are missing."
+  "shopping_nothing_missing": "No ingredients are missing.",
+  "plan_share_household": "Share plan with household",
+  "plan_make_private": "Make plan private"
 }
