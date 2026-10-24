@@ -218,6 +218,11 @@ void main() {
       final startTimer = find.byKey(const ValueKey('cooking-start-timer'));
       await tester.ensureVisible(startTimer);
       await tester.tap(startTimer);
+      await tester.pumpAndSettle();
+      // Named persistent timers ask for a name before they actually start.
+      expect(find.text('Timer name'), findsOneWidget);
+      await tester.enterText(find.byType(TextFormField), 'Gentle simmer');
+      await tester.tap(find.text('Save'));
       await tester.pump(const Duration(seconds: 1));
       expect(
         find.textContaining(RegExp(r'(02:00|01:[0-5][0-9])')),
