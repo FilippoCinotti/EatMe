@@ -252,6 +252,10 @@ def create_app(router=None):
     def remove_inventory_bulk(body:InventoryBulkRemove,request:Request):
         return dispatch(request,body.model_dump())
 
+    @app.post("/api/v1/inventory/bulk-action")
+    def update_inventory_bulk(body:InventoryBulkAction,request:Request):
+        return dispatch(request,body.model_dump(exclude_none=True))
+
     @app.patch("/api/v1/inventory/{batch_id}")
     def change_inventory(batch_id:str,body:InventoryChange,request:Request):
         return dispatch(request,body.model_dump(exclude_none=True))
