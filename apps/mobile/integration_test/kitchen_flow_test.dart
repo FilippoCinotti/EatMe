@@ -84,11 +84,10 @@ void main() {
       if (tester.widget<Checkbox>(find.byType(Checkbox)).value == true) break;
     }
     expect(tester.widget<Checkbox>(find.byType(Checkbox)).value, isTrue);
-    await waitFor(tester, find.byTooltip('More'));
-    await tester.ensureVisible(find.byTooltip('More'));
-    await tester.tap(find.byTooltip('More'));
-    await waitFor(tester, find.text('Purchased · add to fridge'));
-    await tester.tap(find.text('Purchased · add to fridge'));
+    const review = ValueKey('did-the-shopping');
+    await waitFor(tester, find.byKey(review));
+    await tester.ensureVisible(find.byKey(review));
+    await tester.tap(find.byKey(review));
     // Shopping now asks for explicit review before moving purchased items.
     await waitFor(tester, find.text('Add 1 selected'));
     await tester.tap(find.text('Add 1 selected'));
