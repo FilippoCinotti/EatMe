@@ -290,3 +290,4 @@ def create_app(router=None):
     app.add_api_route("/api/v1/dinners/{dinner_id}/invitations", domain_command, methods=["POST"], name="dinner_invitation_command")
     app.add_api_route("/api/v1/products/{code}", get_resource, methods=["GET"], name="product_lookup")
     return app
+
