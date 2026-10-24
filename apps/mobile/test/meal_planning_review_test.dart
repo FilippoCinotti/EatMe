@@ -158,9 +158,8 @@ void main() {
       final picker = tester.widget<CalendarDatePicker>(
         find.byType(CalendarDatePicker),
       );
-      final tomorrow = DateUtils.dateOnly(
-        DateTime.now(),
-      ).add(const Duration(days: 1));
+      final tomorrow = DateUtils.dateOnly(DateTime.now())
+          .add(const Duration(days: 1));
       picker.onDateChanged(tomorrow);
       await tester.pumpAndSettle();
       await tester.tap(find.text('OK'));

@@ -430,9 +430,8 @@ class _SocialSignInButtonState extends State<_SocialSignInButton> {
           : error is AuthException
           ? 'authentication_failed'
           : 'unknown_error';
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t(code))));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.t(code))));
     } finally {
       if (mounted) setState(() => busy = false);
     }
