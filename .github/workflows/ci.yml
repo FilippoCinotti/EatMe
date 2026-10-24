@@ -176,8 +176,7 @@ jobs:
           disable-animations: true
           working-directory: apps/mobile
           script: |
-            set -o pipefail
-            flutter test integration_test/kitchen_flow_test.dart --dart-define=API_URL=http://10.0.2.2:8000/api/v1 2>&1 | tee "$RUNNER_TEMP/android-integration.log"
+            bash -o pipefail -c 'flutter test integration_test/kitchen_flow_test.dart --dart-define=API_URL=http://10.0.2.2:8000/api/v1 2>&1 | tee "$RUNNER_TEMP/android-integration.log"'
       - name: Archive Android integration output
         if: failure() && runner.os == 'Linux'
         uses: actions/upload-artifact@v7
