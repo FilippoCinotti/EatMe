@@ -102,7 +102,7 @@ class _FridgePageState extends ConsumerState<FridgePage> {
             : '/inventory/bulk-action',
         {
           if (action != 'delete') 'action': action,
-          if (destination != null) 'location': destination,
+          'location': ?destination,
           'items': [
             for (final batch in batches)
               {'id': batch.id, 'expected_version': batch.version},
