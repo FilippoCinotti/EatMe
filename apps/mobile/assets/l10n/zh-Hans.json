@@ -1222,5 +1222,18 @@
   "diet_fit_selected_rule": "已选择的饮食规则",
   "diet_fit_medical_tag_review": "建议根据“{tag}”标签核查：请对照医疗专业人员制定的计划检查本餐。此提示源于所选个人资料，并非已发现的食材冲突。",
   "diet_fit_check_unavailable": "兼容性检查尚不完整。请检查您的设置和食材。",
-  "diet_fit_medical_tag_summary": "已选择的医疗标签：{tag}。"
+  "diet_fit_medical_tag_summary": "已选择的医疗标签：{tag}。",
+  "plan_lock": "锁定餐食",
+  "plan_unlock": "解锁餐食",
+  "plan_alternative": "推荐替代食谱",
+  "plan_another": "换一个推荐",
+  "plan_move": "移动餐食",
+  "plan_swap": "交换餐食",
+  "plan_copy": "在另一天重复使用",
+  "plan_time_limit": "预计时间上限（分钟，留空表示不限）",
+  "meal_locked": "请先解锁餐食再修改。",
+  "meal_slot_occupied": "此时段已有餐食。请使用交换。",
+  "meal_time_limit": "此餐食超过预计时间上限。",
+  "invalid_time_limits": "请输入本计划日期内的有效时间。",
+  "meal_not_found": "此餐食已不可用。请重新加载计划。"
 }

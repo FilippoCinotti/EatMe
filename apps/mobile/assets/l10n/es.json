@@ -1222,5 +1222,18 @@
   "diet_fit_selected_rule": "Regla alimentaria seleccionada",
   "diet_fit_medical_tag_review": "Revisión recomendada por la etiqueta «{tag}»: comprueba esta comida con el plan de tu profesional sanitario. Este aviso procede del perfil seleccionado, no de un conflicto identificado en los ingredientes.",
   "diet_fit_check_unavailable": "El control de compatibilidad está incompleto. Revisa tus ajustes e ingredientes.",
-  "diet_fit_medical_tag_summary": "Etiqueta médica seleccionada: {tag}."
+  "diet_fit_medical_tag_summary": "Etiqueta médica seleccionada: {tag}.",
+  "plan_lock": "Bloquear comida",
+  "plan_unlock": "Desbloquear comida",
+  "plan_alternative": "Sugerir alternativa",
+  "plan_another": "Otra propuesta",
+  "plan_move": "Mover comida",
+  "plan_swap": "Intercambiar comidas",
+  "plan_copy": "Reutilizar otro día",
+  "plan_time_limit": "Tiempo máximo estimado (minutos, vacío: sin límite)",
+  "meal_locked": "Desbloquea la comida antes de cambiarla.",
+  "meal_slot_occupied": "Este espacio ya tiene una comida. Usa Intercambiar.",
+  "meal_time_limit": "La comida supera el tiempo estimado.",
+  "invalid_time_limits": "Introduce un tiempo válido para un día del plan.",
+  "meal_not_found": "Esta comida ya no está disponible. Recarga el plan."
 }
