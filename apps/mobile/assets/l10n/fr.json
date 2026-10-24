@@ -1283,5 +1283,22 @@
   "smart_card_quick": "Prêt rapidement",
   "smart_reason_expiry": "Utilise {count} ingrédients proches de leur date",
   "smart_reason_available": "Vous avez tous les ingrédients",
-  "smart_reason_minutes": "Prêt en environ {count} minutes"
+  "smart_reason_minutes": "Prêt en environ {count} minutes",
+  "timer_name": "Nom du minuteur",
+  "timer_step": "Étape {count}",
+  "timer_seconds": "{count} secondes restantes",
+  "timer_pause": "Mettre en pause",
+  "timer_resume": "Reprendre le minuteur",
+  "timer_stop": "Arrêter le minuteur",
+  "timer_notifications": "Activer les alertes",
+  "timer_restore_error": "Impossible de restaurer les minuteurs. Rouvrez la page.",
+  "timer_save_error": "Minuteur actif, mais enregistrement impossible.",
+  "timer_notification_error": "Alertes indisponibles. Le minuteur reste visible dans l’app.",
+  "quantity_confirmed": "Confirmée",
+  "quantity_estimated": "Estimée",
+  "consumed_portions": "Portions consommées : {count}",
+  "set_use_date": "Date de consommation prévue",
+  "storage_location": "Lieu de conservation",
+  "review_shopping": "Vérifier les achats à mettre à jour",
+  "shopping_nothing_missing": "Aucun ingrédient ne manque."
 }

@@ -1283,5 +1283,22 @@
   "smart_card_quick": "Ready in no time",
   "smart_reason_expiry": "Uses {count} ingredients nearing expiry",
   "smart_reason_available": "You have all the ingredients",
-  "smart_reason_minutes": "Ready in about {count} minutes"
+  "smart_reason_minutes": "Ready in about {count} minutes",
+  "timer_name": "Timer name",
+  "timer_step": "Step {count}",
+  "timer_seconds": "{count} seconds remaining",
+  "timer_pause": "Pause timer",
+  "timer_resume": "Resume timer",
+  "timer_stop": "Stop timer",
+  "timer_notifications": "Enable timer alerts",
+  "timer_restore_error": "Saved timers could not be restored. Reopen this page to retry.",
+  "timer_save_error": "Timer is active, but could not be saved.",
+  "timer_notification_error": "Alerts unavailable. The timer remains visible in the app.",
+  "quantity_confirmed": "Confirmed",
+  "quantity_estimated": "Estimated",
+  "consumed_portions": "Portions eaten: {count}",
+  "set_use_date": "Set planned use date",
+  "storage_location": "Storage location",
+  "review_shopping": "Review shopping updates",
+  "shopping_nothing_missing": "No ingredients are missing."
 }

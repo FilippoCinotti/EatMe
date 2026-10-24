@@ -1283,5 +1283,22 @@
   "smart_card_quick": "Pronto in poco",
   "smart_reason_expiry": "Usa {count} ingredienti vicini alla scadenza",
   "smart_reason_available": "Hai già tutti gli ingredienti",
-  "smart_reason_minutes": "Pronto in circa {count} minuti"
+  "smart_reason_minutes": "Pronto in circa {count} minuti",
+  "timer_name": "Nome timer",
+  "timer_step": "Passaggio {count}",
+  "timer_seconds": "{count} secondi rimanenti",
+  "timer_pause": "Pausa timer",
+  "timer_resume": "Riprendi timer",
+  "timer_stop": "Arresta timer",
+  "timer_notifications": "Abilita avvisi timer",
+  "timer_restore_error": "Impossibile recuperare i timer salvati. Riapri la pagina per riprovare.",
+  "timer_save_error": "Timer attivo, ma salvataggio non riuscito.",
+  "timer_notification_error": "Avvisi non disponibili. Il timer rimane visibile nell’app.",
+  "quantity_confirmed": "Confermata",
+  "quantity_estimated": "Stimata",
+  "consumed_portions": "Porzioni consumate: {count}",
+  "set_use_date": "Imposta data di consumo prevista",
+  "storage_location": "Conservazione",
+  "review_shopping": "Controlla la spesa da aggiornare",
+  "shopping_nothing_missing": "Non mancano ingredienti."
 }
