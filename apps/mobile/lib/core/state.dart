@@ -294,6 +294,12 @@ class AppController extends Notifier<AppState> {
   }
 
   Future<void> updateReminders() async {
+    // Local notifications are supported on iOS and Android only. Headless
+    // Flutter tests and unsupported desktop targets have no native plugin.
+    if (defaultTargetPlatform != TargetPlatform.iOS &&
+        defaultTargetPlatform != TargetPlatform.android) {
+      return;
+    }
     try {
       final notification = await api.request(
         'GET',
