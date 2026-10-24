@@ -1264,5 +1264,18 @@
   "diet_fit_selected_rule": "Regola alimentare selezionata",
   "diet_fit_medical_tag_review": "Revisione consigliata per il tag “{tag}”: verifica il pasto rispetto al piano del professionista sanitario. Questo avviso deriva dal profilo selezionato, non da un conflitto rilevato negli ingredienti.",
   "diet_fit_check_unavailable": "Il controllo di compatibilità è incompleto. Verifica le tue impostazioni e gli ingredienti.",
-  "diet_fit_medical_tag_summary": "Tag medico selezionato: {tag}."
+  "diet_fit_medical_tag_summary": "Tag medico selezionato: {tag}.",
+  "plan_lock": "Blocca pasto",
+  "plan_unlock": "Sblocca pasto",
+  "plan_alternative": "Suggerisci un’alternativa",
+  "plan_another": "Un’altra proposta",
+  "plan_move": "Sposta pasto",
+  "plan_swap": "Scambia pasti",
+  "plan_copy": "Riutilizza in un altro giorno",
+  "plan_time_limit": "Tempo indicativo massimo (minuti, vuoto: nessun limite)",
+  "meal_locked": "Sblocca il pasto prima di modificarlo.",
+  "meal_slot_occupied": "Questo momento ha già un pasto. Usa Scambia.",
+  "meal_time_limit": "Il pasto supera il tempo indicativo impostato.",
+  "invalid_time_limits": "Inserisci un tempo valido per un giorno del piano.",
+  "meal_not_found": "Il pasto non è più disponibile. Ricarica il piano."
 }

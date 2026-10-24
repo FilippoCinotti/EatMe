@@ -1264,5 +1264,18 @@
   "diet_fit_selected_rule": "Règle alimentaire sélectionnée",
   "diet_fit_medical_tag_review": "Vérification conseillée pour le tag « {tag} » : comparez ce repas au plan de votre professionnel de santé. Cet avis vient du profil sélectionné, pas d’un conflit identifié avec les ingrédients.",
   "diet_fit_check_unavailable": "Le contrôle de compatibilité est incomplet. Vérifiez vos paramètres et les ingrédients.",
-  "diet_fit_medical_tag_summary": "Tag médical sélectionné : {tag}."
+  "diet_fit_medical_tag_summary": "Tag médical sélectionné : {tag}.",
+  "plan_lock": "Verrouiller le repas",
+  "plan_unlock": "Déverrouiller le repas",
+  "plan_alternative": "Proposer une alternative",
+  "plan_another": "Autre proposition",
+  "plan_move": "Déplacer le repas",
+  "plan_swap": "Échanger les repas",
+  "plan_copy": "Réutiliser un autre jour",
+  "plan_time_limit": "Durée estimée maximale (minutes, vide : sans limite)",
+  "meal_locked": "Déverrouillez le repas avant de le modifier.",
+  "meal_slot_occupied": "Ce créneau a déjà un repas. Utilisez Échanger.",
+  "meal_time_limit": "Ce repas dépasse la durée estimée définie.",
+  "invalid_time_limits": "Saisissez une durée valide pour un jour du plan.",
+  "meal_not_found": "Ce repas n’est plus disponible. Rechargez le plan."
 }
