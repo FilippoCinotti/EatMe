@@ -192,9 +192,8 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
             if (title != null) ...[
               Text(
                 title,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontSize: 14),
+                style: Theme.of(context).textTheme.titleMedium
+                    ?.copyWith(fontSize: 14),
               ),
               const SizedBox(height: 12),
             ],
