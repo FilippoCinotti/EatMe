@@ -6,6 +6,7 @@ import 'package:eatme/features/cooking/cooking.dart';
 import 'package:eatme/features/recipe/recipe.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'application_test.dart' as support;
 import 'premium_journeys_test.dart' as journey;
@@ -114,6 +115,7 @@ class EditorialApi extends journey.JourneyApi {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUpAll(visual.loadFonts);
+  setUp(() => FlutterSecureStorage.setMockInitialValues({}));
 
   for (final (width, scale) in [(390.0, 1.0), (320.0, 1.6)]) {
     testWidgets(
