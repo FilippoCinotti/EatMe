@@ -75,9 +75,8 @@ class _FridgePageState extends ConsumerState<FridgePage> {
       return;
     }
     if (action == 'consumed' && batches.any((b) => !b.usable)) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.t('batch_not_usable'))));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.t('batch_not_usable'))));
       return;
     }
     if (action == 'delete' || action == 'consumed') {
@@ -119,15 +118,13 @@ class _FridgePageState extends ConsumerState<FridgePage> {
       );
     } on ApiFailure catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.t(error.code))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.t(error.code))));
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.t('unknown_error'))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.t('unknown_error'))));
       }
     } finally {
       if (mounted) setState(() => saving = false);
@@ -309,9 +306,9 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                                 }),
                                 style: Theme.of(context).textTheme.bodySmall
                                     ?.copyWith(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
                                     ),
                               ),
                               const SizedBox(height: 14),
@@ -713,9 +710,8 @@ class _InventoryStatusTile extends StatelessWidget {
                     ),
                     Text(
                       '$count',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleLarge?.copyWith(color: tint),
+                      style: Theme.of(context).textTheme.titleLarge
+                          ?.copyWith(color: tint),
                     ),
                   ],
                 ),
@@ -1045,15 +1041,13 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
       await operation();
     } on ApiFailure catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.t(error.code))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.t(error.code))));
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.t('unknown_error'))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.t('unknown_error'))));
       }
     } finally {
       if (mounted) setState(() => busy = false);
@@ -1062,14 +1056,18 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
 
   Future<void> apply(String action, {String? destination}) async {
     final batch = widget.batch;
-    await mutation
-        .send(ref.read(apiProvider), 'PATCH', '/inventory/${batch.id}', {
-          'action': action,
-          'expected_version': batch.version,
-          if (action == 'consumed' || action == 'discarded')
-            'quantity': batch.quantity,
-          if (action == 'moved') 'location': destination,
-        });
+    await mutation.send(
+      ref.read(apiProvider),
+      'PATCH',
+      '/inventory/${batch.id}',
+      {
+        'action': action,
+        'expected_version': batch.version,
+        if (action == 'consumed' || action == 'discarded')
+          'quantity': batch.quantity,
+        if (action == 'moved') 'location': destination,
+      },
+    );
     await ref.read(appProvider.notifier).refresh();
     if (mounted) Navigator.of(context).pop();
   }
@@ -1277,9 +1275,8 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
                     const SizedBox(height: 3),
                     Text(
                       '${batch.quantity} ${batch.food.unit} · ${context.t(batch.location)}',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium
+                          ?.copyWith(color: scheme.onSurfaceVariant),
                     ),
                     const SizedBox(height: 8),
                     Align(
@@ -1325,9 +1322,8 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
                       : context.t('expiry_date'),
                   value: batch.expiryDate == null
                       ? context.t('date_unknown')
-                      : MaterialLocalizations.of(
-                          context,
-                        ).formatCompactDate(batch.expiryDate!),
+                      : MaterialLocalizations.of(context)
+                            .formatCompactDate(batch.expiryDate!),
                 ),
               ),
               Container(width: 1, height: 44, color: scheme.outlineVariant),
@@ -1386,9 +1382,8 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
           const SizedBox(height: 10),
           Text(
             context.t('manage_food'),
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 8),
           Row(
@@ -1434,9 +1429,8 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
               Expanded(
                 child: Text(
                   context.t('manual_source'),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: scheme.onSurfaceVariant),
                 ),
               ),
             ],
@@ -1470,9 +1464,8 @@ class _BatchInfo extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(color: scheme.onSurfaceVariant),
               ),
               Text(value, style: Theme.of(context).textTheme.titleSmall),
             ],
