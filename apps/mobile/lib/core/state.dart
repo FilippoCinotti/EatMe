@@ -32,6 +32,7 @@ class AppState {
     this.inventory = const [],
     this.leftovers = const [],
     this.recommendations = const [],
+    this.contextual = const [],
     this.theme = ThemeMode.system,
     this.locale,
     this.error,
@@ -52,6 +53,7 @@ class AppState {
   final List<Batch> inventory;
   final List<Json> leftovers;
   final List<Recommendation> recommendations;
+  final List<Json> contextual;
   final ThemeMode theme;
   final Locale? locale;
   final String? error;
@@ -73,6 +75,7 @@ class AppState {
     List<Batch>? inventory,
     List<Json>? leftovers,
     List<Recommendation>? recommendations,
+    List<Json>? contextual,
     ThemeMode? theme,
     Locale? locale,
     String? error,
@@ -94,6 +97,7 @@ class AppState {
     inventory: inventory ?? this.inventory,
     leftovers: leftovers ?? this.leftovers,
     recommendations: recommendations ?? this.recommendations,
+    contextual: contextual ?? this.contextual,
     theme: theme ?? this.theme,
     locale: locale ?? this.locale,
     error: error,
@@ -192,6 +196,7 @@ class AppController extends Notifier<AppState> {
       inventory: switchedUser ? const [] : null,
       leftovers: switchedUser ? const [] : null,
       recommendations: switchedUser ? const [] : null,
+      contextual: switchedUser ? const [] : null,
       foods: (catalog['foods'] as List)
           .map((f) => Food.fromJson(Map<String, dynamic>.from(f as Map)))
           .toList(),
@@ -252,6 +257,9 @@ class AppController extends Notifier<AppState> {
       final recommendations = requests[index];
       state = state.copy(
         mode: chosenMode,
+        contextual: (recommendations['contextual'] as List? ?? const [])
+            .map((r) => Map<String, dynamic>.from(r as Map))
+            .toList(),
         recommendations: (recommendations['items'] as List)
             .map(
               (r) =>
@@ -288,9 +296,14 @@ class AppController extends Notifier<AppState> {
                     )
                     .toList(),
           recommendations: const [],
+          contextual: const [],
         );
       } else {
-        state = state.copy(error: error.code, recommendations: const []);
+        state = state.copy(
+          error: error.code,
+          recommendations: const [],
+          contextual: const [],
+        );
       }
     }
   }

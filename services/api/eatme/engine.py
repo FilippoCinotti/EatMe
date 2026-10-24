@@ -289,3 +289,42 @@ def rank(recipes: list[dict], foods: dict, inventory: list[dict], profile: dict,
         (repeated if primary in seen else diverse).append(candidate)
         seen.add(primary)
     return diverse+repeated,rejected
+
+
+def contextual_recommendations(ranked):
+    """Select distinct cards from already Diet-Fit-filtered candidates.
+
+    A small maximum matching preserves scarce quick/expiry candidates instead of
+    consuming them in the first generic card. Empty categories are omitted.
+    """
+    from itertools import product
+
+    pools = [
+        ("for_you", ranked),
+        ("use_soon", sorted([r for r in ranked if r["use_soon_food_ids"]],
+                            key=lambda r: (-len(r["use_soon_food_ids"]), -r["component_scores"]["availability"], -r["score"], r["recipe"]["id"]))),
+        ("quick", sorted([r for r in ranked if r["minutes"] <= 15],
+                         key=lambda r: (r["minutes"], -r["component_scores"]["availability"], len(r["recipe"].get("steps", [])), -r["score"], r["recipe"]["id"]))),
+    ]
+    options = [[None, *range(min(3, len(pool)))] for _, pool in pools]
+    valid = []
+    for indexes in product(*options):
+        ids = [pools[i][1][index]["recipe"]["id"] for i, index in enumerate(indexes) if index is not None]
+        if len(ids) == len(set(ids)):
+            valid.append(indexes)
+    indexes = max(valid, key=lambda values: (sum(v is not None for v in values),
+                                             *(v is not None for v in values), -sum(v for v in values if v is not None)))
+    result = []
+    for (kind, pool), index in zip(pools, indexes):
+        if index is None:
+            continue
+        item = pool[index]
+        reasons = []
+        if kind == "use_soon":
+            reasons.append({"code": "smart_reason_expiry", "count": len(item["use_soon_food_ids"])})
+        if item["ingredient_count"] and item["available_count"] == item["ingredient_count"]:
+            reasons.append({"code": "smart_reason_available"})
+        if len(reasons) < 2:
+            reasons.append({"code": "smart_reason_minutes", "count": item["minutes"]})
+        result.append({"kind": kind, "recommendation": item, "reasons": reasons[:2]})
+    return result
