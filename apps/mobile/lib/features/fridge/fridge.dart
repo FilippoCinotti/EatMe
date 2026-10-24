@@ -325,6 +325,7 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                                           selected: location == value,
                                           onSelected: (_) => setState(() => location = value),
                                           visualDensity: VisualDensity.compact,
+                                          materialTapTargetSize: MaterialTapTargetSize.padded,
                                         ),
                                       ),
                                   ],
@@ -667,7 +668,7 @@ class _InventoryCategoryHeading extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: const EdgeInsets.symmetric(vertical: 10),
         child: Row(
           children: [
             Icon(inventoryCategoryIcon(id), size: 21, color: scheme.primary),
