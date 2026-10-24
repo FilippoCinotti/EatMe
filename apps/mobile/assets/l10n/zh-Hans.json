@@ -1244,5 +1244,6 @@
   "review_shopping": "查看购物清单更新",
   "shopping_nothing_missing": "没有缺少的食材。",
   "shopping_purchased_quantity": "已购买数量",
-  "shopping_partial_summary": "剩余 {remaining} {unit} · 已购 {bought} {unit}"
+  "shopping_partial_summary": "剩余 {remaining} {unit} · 已购 {bought} {unit}",
+  "shopping_reconciliation_required": "部分购买记录需要核对。请检查清单中的数量。"
 }

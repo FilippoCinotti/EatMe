@@ -40,6 +40,22 @@ class PartialPurchaseCase(unittest.TestCase):
         self.assertEqual(rows[0]['quantity'], '100')
         self.assertEqual(rows[0]['purchased_quantity'], '100')
 
+    def test_stock_consumed_after_partial_purchase_does_not_duplicate_line(self):
+        self.enable_plus()
+        request = {'meals': [self.meal()]}
+        self.app.shopping_action(self.owner, {**request, 'action': 'generate'}, new_id())
+        row = next(i for i in self.app.shopping(self.owner)['items'] if i['food_id'] == identifier('food', 'tomato'))
+        self.app.shopping_action(self.owner, {'action': 'purchase', 'id': row['id'], 'expected_version': 1, 'purchase_quantity': '100'}, new_id())
+        batch = self.app.inventory(self.owner)['items'][0]
+        self.app.change_inventory(self.owner, batch['id'], {'action': 'consumed', 'quantity': '100', 'expected_version': 1}, new_id())
+        preview = self.app.shopping_action(self.owner, {**request, 'action': 'preview_generate'}, new_id())
+        self.assertEqual(next(i for i in preview['items'] if i['food_id'] == row['food_id'])['quantity'], '200')
+        self.app.shopping_action(self.owner, {**request, 'action': 'generate', 'shopping_versions': preview['shopping_versions'], 'inventory_versions': preview['inventory_versions']}, new_id())
+        rows = [i for i in self.app.shopping(self.owner)['items'] if i['food_id'] == row['food_id']]
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['quantity'], '200')
+        self.assertEqual(rows[0]['purchased_quantity'], '100')
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -213,7 +213,7 @@ class PlanningService:
                     protected = [row["id"] for row in current if row["checked"] or purchased[row["id"]]]
                     # Checked and partially purchased lines retain their confirmed history.
                     for row in current:
-                        if row["source_key"] == source and row["id"] in protected and row["food_id"] in totals:
+                        if row["source_key"] == source and row["checked"] and row["food_id"] in totals:
                             totals[row["food_id"]] = max(0, totals[row["food_id"]] - row["quantity_milli"])
                     proposed = [{"food_id": food_id, "quantity": quantity(amount), "unit": foods[food_id]["unit"],
                                  "label": foods[food_id]["name"], "category": foods[food_id].get("group", "other")}
@@ -224,6 +224,23 @@ class PlanningService:
                                 **({"plan_version": plan["version"]} if data.get("plan_id") else {})}
                     if "shopping_versions" in data and data["shopping_versions"] != snapshot:
                         raise DomainError("stale_shopping_item", 409)
+                    # Reuse a partial line for its new outstanding requirement instead of
+                    # adding another line when stock was consumed after the purchase.
+                    partial_foods = set()
+                    for row in current:
+                        if row["source_key"] != source or row["checked"] or not purchased[row["id"]]:
+                            continue
+                        food_id = row["food_id"]
+                        if food_id in partial_foods:
+                            raise DomainError("shopping_reconciliation_required", 409)
+                        partial_foods.add(food_id)
+                        amount = totals.get(food_id, 0)
+                        if amount:
+                            if amount != row["quantity_milli"]:
+                                tx.execute("UPDATE shopping_items SET quantity_milli=?,version=version+1,updated_at=? WHERE id=?", (amount, now(), row["id"]))
+                        else:
+                            tx.execute("DELETE FROM shopping_items WHERE id=?", (row["id"],))
+                        totals[food_id] = 0
                     # Replace only unconfirmed generated lines; manual and checked lines survive.
                     for row in current:
                         if row["source_key"] == source and row["id"] not in protected:
