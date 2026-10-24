@@ -1300,5 +1300,8 @@
   "set_use_date": "Imposta data di consumo prevista",
   "storage_location": "Conservazione",
   "review_shopping": "Controlla la spesa da aggiornare",
-  "shopping_nothing_missing": "Non mancano ingredienti."
+  "shopping_nothing_missing": "Non mancano ingredienti.",
+  "shopping_purchased_quantity": "Quantità acquistata",
+  "shopping_partial_summary": "Restano {remaining} {unit} · Acquistati {bought} {unit}",
+  "shopping_reconciliation_required": "Sono presenti acquisti parziali da riconciliare. Controlla le quantità nella lista."
 }

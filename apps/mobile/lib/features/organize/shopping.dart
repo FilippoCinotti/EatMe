@@ -47,7 +47,15 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
   }
 
   Future<void> purchase(Json item) async {
+    final amount = await askText(
+      context,
+      context.t('shopping_purchased_quantity'),
+      initial: '${item['quantity']}',
+      numeric: true,
+    );
+    if (amount == null || !mounted) return;
     await command({
+      'purchase_quantity': amount.replaceAll(',', '.'),
       'action': 'purchase',
       'id': item['id'],
       'expected_version': item['version'],
@@ -109,6 +117,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
               ),
               const SizedBox(height: 18),
               FilledButton(
+                key: const ValueKey('shopping-confirm-purchased'),
                 onPressed: selected.isEmpty
                     ? null
                     : () => Navigator.pop(sheetContext, true),
@@ -434,8 +443,15 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${item['quantity']} ${item['unit']}',
-                        maxLines: 1,
+                        item['purchased_quantity'] != null &&
+                                item['purchased_quantity'] != '0'
+                            ? context.t('shopping_partial_summary', {
+                                'remaining': '${item['quantity']}',
+                                'bought': '${item['purchased_quantity']}',
+                                'unit': '${item['unit']}',
+                              })
+                            : '${item['quantity']} ${item['unit']}',
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: text.bodySmall?.copyWith(
                           fontSize: 11,
@@ -507,7 +523,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                 }
               },
               itemBuilder: (context) => [
-                if (item['checked'] == true)
+                if (item['checked'] == true || item['food_id'] != null)
                   PopupMenuItem(
                     value: 'purchase',
                     child: Text(context.t('put_in_fridge')),
