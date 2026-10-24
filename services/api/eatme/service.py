@@ -466,6 +466,69 @@ class Service(
 
             return self._once(tx, user_id, key, "remove_inventory_bulk", data, remove)
 
+    def update_inventory_bulk(self, user_id, data, key):
+        """Move or consume many rows in one transaction, or change nothing."""
+        entries = data.get("items")
+        action = data.get("action")
+        location = data.get("location")
+        if action not in {"moved", "consumed"}:
+            raise DomainError("invalid_action", 422)
+        if action == "moved" and location not in {"fridge", "freezer", "pantry"}:
+            raise DomainError("invalid_location", 422)
+        if action == "consumed" and location is not None:
+            raise DomainError("invalid_inventory", 422)
+        if not isinstance(entries, list) or not 1 <= len(entries) <= 100:
+            raise DomainError("invalid_inventory", 422)
+        seen = set()
+        for entry in entries:
+            if not isinstance(entry, dict) or set(entry) != {"id", "expected_version"}:
+                raise DomainError("invalid_inventory", 422)
+            batch_id = valid_uuid(entry["id"])
+            if batch_id in seen or type(entry["expected_version"]) is not int or entry["expected_version"] < 1:
+                raise DomainError("invalid_inventory", 422)
+            seen.add(batch_id)
+
+        household_id = self._household(user_id, write=True)
+        with self.db.transaction(household_id) as tx:
+            def update():
+                self._member(tx, user_id, household_id, write=True)
+                available = {
+                    item["id"]: item
+                    for item in self._inventory(tx, household_id)
+                }
+                profile = self._profile(tx, user_id) if action == "consumed" else None
+                today = self.today(profile["settings"]) if profile else None
+                batches = []
+                for entry in entries:
+                    batch = available.get(entry["id"])
+                    if batch is None:
+                        raise DomainError("item_not_found", 404)
+                    if batch["version"] != entry["expected_version"]:
+                        raise DomainError("stale_inventory", 409)
+                    if action == "consumed" and not batch_usable(batch, today):
+                        raise DomainError("batch_not_usable", 409)
+                    batches.append(batch)
+                for batch in batches:
+                    updated = tx.execute(
+                        "UPDATE inventory_batches SET quantity_milli=?,location=?,"
+                        "version=version+1,updated_at=? WHERE id=? AND household_id=?"
+                        " AND version=? AND quantity_milli>0",
+                        (
+                            0 if action == "consumed" else batch["quantity_milli"],
+                            location if action == "moved" else batch["location"],
+                            now(), batch["id"], household_id, batch["version"],
+                        ),
+                    )
+                    if updated.rowcount != 1:
+                        raise DomainError("stale_inventory", 409)
+                    self._event(
+                        tx, user_id, household_id, batch["id"], action,
+                        -batch["quantity_milli"] if action == "consumed" else 0,
+                    )
+                return {"updated": [batch["id"] for batch in batches], "count": len(batches)}
+
+            return self._once(tx, user_id, key, "update_inventory_bulk", data, update)
+
     def change_inventory(self,user_id,batch_id,data,key):
         household_id = self._household(user_id,write=True)
         with self.db.transaction(household_id) as tx:
