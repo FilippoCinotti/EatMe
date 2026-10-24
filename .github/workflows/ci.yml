@@ -122,6 +122,14 @@ jobs:
           fi
           exit "$test_status"
         working-directory: apps/mobile
+      - name: Archive Flutter test output
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: flutter-test-output-${{ runner.os }}
+          path: ${{ runner.temp }}/flutter-test.log
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Validate localization and screenshot route policy
         if: runner.os == 'Linux'
         run: |
