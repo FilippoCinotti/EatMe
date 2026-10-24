@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'application_test.dart' as support;
 import 'premium_journeys_test.dart' as journey;
+import 'visual_reference_test.dart' as visual;
 
 final sampleFood = Food(
   id: '00000000-0000-4000-8000-000000000111',
@@ -94,6 +95,7 @@ Future<void> openSheet(WidgetTester tester) async {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(visual.loadFonts);
   for (final dark in [false, true]) {
     testWidgets('compact item renders in ${dark ? 'dark' : 'light'} mode', (
       tester,
