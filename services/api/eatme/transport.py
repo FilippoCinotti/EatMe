@@ -95,6 +95,11 @@ class Router:
             if self.development:
                 self.auth.logout(token)
             return {"logged_out":True}
+        if route == "/api/v1/insights" and method == "GET" and "days" in query:
+            days = query["days"][0]
+            if days not in {"7", "30", "90"}:
+                raise DomainError("invalid_period", 422)
+            return self.service.insights(user_id, int(days))
         reads = {"/shopping":self.service.shopping, "/plans":self.service.plans,
                  "/dinners":self.service.dinners,
                  "/dinner-guests":self.service.dinner_saved_guests,

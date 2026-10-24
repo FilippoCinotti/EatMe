@@ -1222,5 +1222,9 @@
   "diet_fit_selected_rule": "Regola alimentare selezionata",
   "diet_fit_medical_tag_review": "Revisione consigliata per il tag “{tag}”: verifica il pasto rispetto al piano del professionista sanitario. Questo avviso deriva dal profilo selezionato, non da un conflitto rilevato negli ingredienti.",
   "diet_fit_check_unavailable": "Il controllo di compatibilità è incompleto. Verifica le tue impostazioni e gli ingredienti.",
-  "diet_fit_medical_tag_summary": "Tag medico selezionato: {tag}."
+  "diet_fit_medical_tag_summary": "Tag medico selezionato: {tag}.",
+  "insights_period": "Ultimi {count} giorni",
+  "insights_daily_meals": "Pasti cucinati per giorno",
+  "insights_chart_description": "Andamento dei pasti cucinati. Date in UTC.",
+  "unavailable": "Non disponibile"
 }

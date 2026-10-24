@@ -1222,5 +1222,9 @@
   "diet_fit_selected_rule": "Regla alimentaria seleccionada",
   "diet_fit_medical_tag_review": "Revisión recomendada por la etiqueta «{tag}»: comprueba esta comida con el plan de tu profesional sanitario. Este aviso procede del perfil seleccionado, no de un conflicto identificado en los ingredientes.",
   "diet_fit_check_unavailable": "El control de compatibilidad está incompleto. Revisa tus ajustes e ingredientes.",
-  "diet_fit_medical_tag_summary": "Etiqueta médica seleccionada: {tag}."
+  "diet_fit_medical_tag_summary": "Etiqueta médica seleccionada: {tag}.",
+  "insights_period": "Últimos {count} días",
+  "insights_daily_meals": "Comidas cocinadas por día",
+  "insights_chart_description": "Comidas cocinadas por día. Fechas UTC.",
+  "unavailable": "No disponible"
 }

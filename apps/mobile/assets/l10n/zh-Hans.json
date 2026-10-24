@@ -1222,5 +1222,9 @@
   "diet_fit_selected_rule": "已选择的饮食规则",
   "diet_fit_medical_tag_review": "建议根据“{tag}”标签核查：请对照医疗专业人员制定的计划检查本餐。此提示源于所选个人资料，并非已发现的食材冲突。",
   "diet_fit_check_unavailable": "兼容性检查尚不完整。请检查您的设置和食材。",
-  "diet_fit_medical_tag_summary": "已选择的医疗标签：{tag}。"
+  "diet_fit_medical_tag_summary": "已选择的医疗标签：{tag}。",
+  "insights_period": "最近 {count} 天",
+  "insights_daily_meals": "每日烹饪餐数",
+  "insights_chart_description": "每日烹饪餐数。日期按 UTC 显示。",
+  "unavailable": "暂无数据"
 }

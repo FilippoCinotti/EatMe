@@ -1222,5 +1222,9 @@
   "diet_fit_selected_rule": "Selected dietary rule",
   "diet_fit_medical_tag_review": "Review recommended for the “{tag}” tag: check this meal against your healthcare professional’s plan. This notice comes from the selected profile, not an identified ingredient conflict.",
   "diet_fit_check_unavailable": "The compatibility check is incomplete. Review your settings and ingredients.",
-  "diet_fit_medical_tag_summary": "Selected medical tag: {tag}."
+  "diet_fit_medical_tag_summary": "Selected medical tag: {tag}.",
+  "insights_period": "Last {count} days",
+  "insights_daily_meals": "Meals cooked per day",
+  "insights_chart_description": "Daily cooked meals. Dates in UTC.",
+  "unavailable": "Not available"
 }
