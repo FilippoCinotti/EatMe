@@ -604,6 +604,39 @@ class EatMeCase(unittest.TestCase):
         self.assertEqual(sorted(results),["ok","stale_inventory"])
         self.assertEqual(self.service.inventory(self.user)["items"][0]["quantity"],"20")
 
+    def test_inventory_editor_updates_quantity_and_expiry_atomically(self):
+        item = self.add("tomato", 250)
+        identifier = item["id"]
+        data = {
+            "id": identifier,
+            "expected_version": 1,
+            "quantity": "350",
+            "expiry_kind": "estimated",
+            "expiry_date": "2026-09-18",
+            "metadata": {"notes": "Stored in the fridge"},
+        }
+        result = self.service.inventory_metadata(self.user, data, new_id())
+        self.assertEqual(result["version"], 2)
+        self.assertEqual(result["quantity"], "350")
+        updated = self.service.inventory(self.user)["items"][0]
+        self.assertEqual(updated["quantity"], "350")
+        self.assertEqual(updated["expiry_kind"], "estimated")
+        self.assertEqual(updated["expiry_date"], "2026-09-18")
+        self.assertCode(
+            "stale_inventory",
+            lambda: self.service.inventory_metadata(self.user, data, new_id()),
+        )
+        self.assertCode(
+            "invalid_quantity",
+            lambda: self.service.inventory_metadata(
+                self.user, {**data, "expected_version": 2, "quantity": "-1"},
+                new_id(),
+            ),
+        )
+        self.assertEqual(
+            self.service.inventory(self.user)["items"][0]["quantity"], "350"
+        )
+
     def test_household_authorization_prevents_cross_account_writes(self):
         item = self.add("tomato",100)
         other = new_id()
