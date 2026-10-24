@@ -251,9 +251,23 @@ class LifecycleService:
                 kind = choice(data.get('expiry_kind', batch['expiry_kind']), {'unknown', 'use_by', 'best_before', 'estimated'})
                 if bool(expiry) != (kind != 'unknown'):
                     raise DomainError('expiry_type_required', 422)
-                tx.execute('UPDATE inventory_batches SET expiry_date=?,expiry_kind=?,version=version+1,updated_at=? WHERE id=?', (expiry, kind, now(), identifier))
+                # One atomic, optimistic-lock-protected update for the editor.
+                # The optional quantity is backwards compatible with older clients.
+                from .engine import amount_milli, quantity
+                current_amount = batch['quantity_milli']
+                new_amount = current_amount
+                if 'quantity' in data:
+                    new_amount = amount_milli(data['quantity'], zero=True)
+                    if new_amount == 0:
+                        raise DomainError('invalid_quantity', 422)
+                tx.execute(
+                    'UPDATE inventory_batches SET quantity_milli=?,expiry_date=?,expiry_kind=?,version=version+1,updated_at=? WHERE id=?',
+                    (new_amount, expiry, kind, now(), identifier),
+                )
+                if new_amount != current_amount:
+                    self._event(tx, user_id, home, identifier, 'corrected', new_amount - current_amount)
                 self._event(tx, user_id, home, identifier, 'metadata_updated', 0)
-                return {'id': identifier, 'version': batch['version'] + 1}
+                return {'id': identifier, 'version': batch['version'] + 1, 'quantity': quantity(new_amount)}
             return self._once(tx, user_id, key, 'inventory_metadata', data, save)
 
     def export_all(self, user_id):

@@ -17,6 +17,7 @@ class BatchDetailsPage extends ConsumerStatefulWidget {
 
 class _BatchDetailsState extends ConsumerState<BatchDetailsPage> {
   final mutation = Mutation();
+  late final quantity = TextEditingController(text: widget.batch.quantity);
   late final lot = TextEditingController(
     text: '${widget.batch.metadata['lot'] ?? ''}',
   );
@@ -37,7 +38,7 @@ class _BatchDetailsState extends ConsumerState<BatchDetailsPage> {
   );
   @override
   void dispose() {
-    for (final controller in [lot, code, cost, notes]) {
+    for (final controller in [quantity, lot, code, cost, notes]) {
       controller.dispose();
     }
     super.dispose();
@@ -61,6 +62,16 @@ class _BatchDetailsState extends ConsumerState<BatchDetailsPage> {
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         const SizedBox(height: 20),
+        TextField(
+          key: const ValueKey('edit-batch-quantity'),
+          controller: quantity,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+            labelText: context.t('correct_quantity'),
+            suffixText: widget.batch.food.unit,
+          ),
+        ),
+        const SizedBox(height: 12),
         DropdownButtonFormField<String>(
           isExpanded: true,
           initialValue: kind,
@@ -154,6 +165,7 @@ class _BatchDetailsState extends ConsumerState<BatchDetailsPage> {
               {
                 'id': widget.batch.id,
                 'expected_version': widget.batch.version,
+                'quantity': quantity.text.trim().replaceAll(',', '.'),
                 'expiry_kind': kind,
                 'expiry_date': expiry == null ? null : isoDay(expiry!),
                 'metadata': {
@@ -171,7 +183,7 @@ class _BatchDetailsState extends ConsumerState<BatchDetailsPage> {
               },
             );
             await ref.read(appProvider.notifier).refresh();
-            if (context.mounted) Navigator.pop(context);
+            if (context.mounted) Navigator.pop(context, true);
           },
         ),
       ],

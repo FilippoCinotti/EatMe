@@ -403,10 +403,8 @@ class _TourCard extends StatelessWidget {
               child: SingleChildScrollView(
                 child: Text(
                   body,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                    height: 1.35,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium
+                      ?.copyWith(color: scheme.onSurfaceVariant, height: 1.35),
                 ),
               ),
             ),
