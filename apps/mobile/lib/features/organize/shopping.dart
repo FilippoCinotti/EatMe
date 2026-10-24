@@ -117,6 +117,7 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
               ),
               const SizedBox(height: 18),
               FilledButton(
+                key: const ValueKey('shopping-confirm-purchased'),
                 onPressed: selected.isEmpty
                     ? null
                     : () => Navigator.pop(sheetContext, true),
