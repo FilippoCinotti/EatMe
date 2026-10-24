@@ -47,13 +47,25 @@ class Reminders {
     }
   }
 
-  static Future<void> cookingTimer(int id, String name, DateTime deadline, String message) async {
+  static Future<void> cookingTimer(
+    int id,
+    String name,
+    DateTime deadline,
+    String message,
+  ) async {
     await initialize();
     await plugin.zonedSchedule(
-      id: id, title: name, body: message,
+      id: id,
+      title: name,
+      body: message,
       scheduledDate: tz.TZDateTime.from(deadline, tz.UTC),
       notificationDetails: const NotificationDetails(
-        android: AndroidNotificationDetails('cooking_timers', 'Cooking timers', importance: Importance.high, priority: Priority.high),
+        android: AndroidNotificationDetails(
+          'cooking_timers',
+          'Cooking timers',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
         iOS: DarwinNotificationDetails(),
       ),
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,

@@ -65,7 +65,10 @@ class _CookingPageState extends ConsumerState<CookingPage> {
   @override
   void initState() {
     super.initState();
-    timerStore = CookingTimerStore(ref.read(apiProvider).userId ?? 'local', widget.recipeId);
+    timerStore = CookingTimerStore(
+      ref.read(apiProvider).userId ?? 'local',
+      widget.recipeId,
+    );
     restoredTimers = restoreTimers();
     timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
@@ -119,7 +122,9 @@ class _CookingPageState extends ConsumerState<CookingPage> {
 
   Future<void> persistTimers() async {
     final snapshot = List<CookingTimer>.from(activeTimers);
-    timerWrites = timerWrites.catchError((Object _) {}).then((_) => timerStore.write(snapshot));
+    timerWrites = timerWrites
+        .catchError((Object _) {})
+        .then((_) => timerStore.write(snapshot));
     try {
       await timerWrites;
       if (mounted) setState(() => timerError = null);
@@ -131,46 +136,76 @@ class _CookingPageState extends ConsumerState<CookingPage> {
   Future<void> toggleTimer([int? requestedMinutes]) async {
     await restoredTimers;
     if (!mounted || timerError == 'timer_restore_error') return;
-    final current = activeTimers.where((t) => t.step == step && t.secondsAt(DateTime.now()) > 0).firstOrNull;
+    final current = activeTimers
+        .where((t) => t.step == step && t.secondsAt(DateTime.now()) > 0)
+        .firstOrNull;
     if (current != null) {
       await removeTimer(current);
       return;
     }
-    final name = await askText(context, context.t('timer_name'), initial: context.t('timer_step', {'count': step + 1}));
+    final name = await askText(
+      context,
+      context.t('timer_name'),
+      initial: context.t('timer_step', {'count': step + 1}),
+    );
     if (name == null || name.trim().isEmpty || !mounted) return;
     final minutes = requestedMinutes ?? durationMinutes;
     final value = CookingTimer(
-      id: 1073741824 + DateTime.now().microsecondsSinceEpoch.remainder(1073741823),
-      name: name.trim(), step: step, durationSeconds: minutes * 60,
+      id:
+          1073741824 +
+          DateTime.now().microsecondsSinceEpoch.remainder(1073741823),
+      name: name.trim(),
+      step: step,
+      durationSeconds: minutes * 60,
       deadline: DateTime.now().add(Duration(minutes: minutes)),
     );
-    setState(() { activeTimers.add(value); durationMinutes = minutes; remaining = minutes * 60; });
+    setState(() {
+      activeTimers.add(value);
+      durationMinutes = minutes;
+      remaining = minutes * 60;
+    });
     await persistTimers();
     if (timerNotifications) await notifyTimer(value);
   }
 
   Future<void> notifyTimer(CookingTimer value) async {
-    if (value.deadline == null || !value.deadline!.isAfter(DateTime.now())) return;
+    if (value.deadline == null || !value.deadline!.isAfter(DateTime.now())) {
+      return;
+    }
     try {
-      await Reminders.cookingTimer(value.id, value.name, value.deadline!, context.t('timer_done'));
+      await Reminders.cookingTimer(
+        value.id,
+        value.name,
+        value.deadline!,
+        context.t('timer_done'),
+      );
     } catch (_) {
       if (mounted) setState(() => timerError = 'timer_notification_error');
     }
   }
 
   Future<void> removeTimer(CookingTimer value) async {
-    setState(() { activeTimers.removeWhere((t) => t.id == value.id); remaining = 0; });
+    setState(() {
+      activeTimers.removeWhere((t) => t.id == value.id);
+      remaining = 0;
+    });
     await persistTimers();
-    try { await Reminders.cancelCookingTimer(value.id); } catch (_) {
+    try {
+      await Reminders.cancelCookingTimer(value.id);
+    } catch (_) {
       if (mounted) setState(() => timerError = 'timer_notification_error');
     }
   }
 
   Future<void> pauseTimer(CookingTimer value) async {
-    final replacement = value.paused ? value.resume(DateTime.now()) : value.pause(DateTime.now());
+    final replacement = value.paused
+        ? value.resume(DateTime.now())
+        : value.pause(DateTime.now());
     setState(() => activeTimers[activeTimers.indexOf(value)] = replacement);
     await persistTimers();
-    try { await Reminders.cancelCookingTimer(value.id); } catch (_) {
+    try {
+      await Reminders.cancelCookingTimer(value.id);
+    } catch (_) {
       if (mounted) setState(() => timerError = 'timer_notification_error');
     }
     if (timerNotifications) await notifyTimer(replacement);
@@ -484,15 +519,36 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (timerError != null) StatusNote(text: context.t(timerError!), warning: true),
+                    if (timerError != null)
+                      StatusNote(text: context.t(timerError!), warning: true),
                     for (final value in activeTimers)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         title: Text(value.name),
-                        subtitle: Text(context.t(value.secondsAt(DateTime.now()) == 0 ? 'timer_done' : 'timer_seconds', {'count': value.secondsAt(DateTime.now())})),
-                        leading: IconButton(tooltip: context.t(value.paused ? 'timer_resume' : 'timer_pause'), onPressed: () => pauseTimer(value), icon: Icon(value.paused ? Icons.play_arrow : Icons.pause)),
-                        trailing: IconButton(tooltip: context.t('timer_stop'), onPressed: () => removeTimer(value), icon: const Icon(Icons.close)),
-                        onTap: () => showStep(value.step.clamp(0, steps.length - 1)),
+                        subtitle: Text(
+                          context.t(
+                            value.secondsAt(DateTime.now()) == 0
+                                ? 'timer_done'
+                                : 'timer_seconds',
+                            {'count': value.secondsAt(DateTime.now())},
+                          ),
+                        ),
+                        leading: IconButton(
+                          tooltip: context.t(
+                            value.paused ? 'timer_resume' : 'timer_pause',
+                          ),
+                          onPressed: () => pauseTimer(value),
+                          icon: Icon(
+                            value.paused ? Icons.play_arrow : Icons.pause,
+                          ),
+                        ),
+                        trailing: IconButton(
+                          tooltip: context.t('timer_stop'),
+                          onPressed: () => removeTimer(value),
+                          icon: const Icon(Icons.close),
+                        ),
+                        onTap: () =>
+                            showStep(value.step.clamp(0, steps.length - 1)),
                       ),
                     TextButton.icon(
                       icon: const Icon(Icons.notifications_outlined),
@@ -500,9 +556,16 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                       onPressed: () async {
                         final allowed = await Reminders.requestPermission();
                         if (!mounted) return;
-                        setState(() { timerNotifications = allowed; timerError = allowed ? null : 'timer_notification_error'; });
+                        setState(() {
+                          timerNotifications = allowed;
+                          timerError = allowed
+                              ? null
+                              : 'timer_notification_error';
+                        });
                         if (allowed) {
-                          for (final value in activeTimers) { await notifyTimer(value); }
+                          for (final value in activeTimers) {
+                            await notifyTimer(value);
+                          }
                         }
                       },
                     ),
