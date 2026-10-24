@@ -224,6 +224,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
       await tester.enterText(find.byType(TextFormField), 'Pasta timer');
       await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 1));
       expect(find.text('Pasta timer'), findsOneWidget);
       await tester.tap(find.text('Next step'));
