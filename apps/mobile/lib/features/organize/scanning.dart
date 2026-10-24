@@ -590,6 +590,8 @@ class _DetectionState extends ConsumerState<DetectionReviewPage> {
                           ],
                         ),
                         const SizedBox(height: 8),
+                        if (item['expiry_evidence'] != null)
+                          StatusNote(text: context.t('capture_label_evidence', {'text': '${item['expiry_evidence']}'})),
                         Row(
                           children: [
                             Expanded(

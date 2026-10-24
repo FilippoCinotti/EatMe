@@ -1222,5 +1222,6 @@
   "diet_fit_selected_rule": "Ausgewählte Ernährungsregel",
   "diet_fit_medical_tag_review": "Prüfung für das Tag „{tag}“ empfohlen: Gleiche diese Mahlzeit mit dem Plan deiner medizinischen Fachperson ab. Dieser Hinweis stammt vom ausgewählten Profil, nicht von einem erkannten Konflikt mit Zutaten.",
   "diet_fit_check_unavailable": "Die Verträglichkeitsprüfung ist unvollständig. Prüfe deine Einstellungen und Zutaten.",
-  "diet_fit_medical_tag_summary": "Ausgewähltes medizinisches Tag: {tag}."
+  "diet_fit_medical_tag_summary": "Ausgewähltes medizinisches Tag: {tag}.",
+  "capture_label_evidence": "Erkannter Etikettentext: {text}"
 }
