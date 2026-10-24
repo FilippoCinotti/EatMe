@@ -94,6 +94,8 @@ class CookingConfirmation(CookingInput):
     batch_versions: dict[str,int]
     leftover_servings: int = Field(default=0,ge=0,le=20)
     leftover_use_date: str | None = None
+    prepared_at: str | None = None
+    leftover_location: Literal["fridge", "freezer"] = "fridge"
 
 
 class DeleteInput(StrictBody):

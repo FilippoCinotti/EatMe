@@ -1235,5 +1235,12 @@
   "meal_slot_occupied": "Questo momento ha già un pasto. Usa Scambia.",
   "meal_time_limit": "Il pasto supera il tempo indicativo impostato.",
   "invalid_time_limits": "Inserisci un tempo valido per un giorno del piano.",
-  "meal_not_found": "Il pasto non è più disponibile. Ricarica il piano."
+  "meal_not_found": "Il pasto non è più disponibile. Ricarica il piano.",
+  "quantity_confirmed": "Confermata",
+  "quantity_estimated": "Stimata",
+  "consumed_portions": "Porzioni consumate: {count}",
+  "set_use_date": "Imposta data di consumo prevista",
+  "storage_location": "Conservazione",
+  "review_shopping": "Controlla la spesa da aggiornare",
+  "shopping_nothing_missing": "Non mancano ingredienti."
 }

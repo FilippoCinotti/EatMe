@@ -802,13 +802,8 @@ class _PlannerState extends ResourceState<PlannerPage> {
                 );
                 return;
               }
-              await Mutation().send(
-                ref.read(apiProvider),
-                'POST',
-                '/shopping',
-                {'action': 'generate', 'plan_id': selected!['id']},
-              );
-              if (mounted && context.mounted) context.go('/plan/shopping');
+              final accepted = await reviewGeneratedShopping(context, ref.read(apiProvider), {'plan_id': selected!['id']});
+              if (accepted && mounted && context.mounted) context.go('/plan/shopping');
             },
           ),
         ],

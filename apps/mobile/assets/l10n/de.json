@@ -1235,5 +1235,12 @@
   "meal_slot_occupied": "Hier ist bereits eine Mahlzeit geplant. Tauschen verwenden.",
   "meal_time_limit": "Mahlzeit überschreitet das geschätzte Zeitbudget.",
   "invalid_time_limits": "Gültiges Zeitbudget für einen Tag dieses Plans eingeben.",
-  "meal_not_found": "Diese Mahlzeit ist nicht mehr verfügbar. Plan neu laden."
+  "meal_not_found": "Diese Mahlzeit ist nicht mehr verfügbar. Plan neu laden.",
+  "quantity_confirmed": "Bestätigt",
+  "quantity_estimated": "Geschätzt",
+  "consumed_portions": "Verzehrte Portionen: {count}",
+  "set_use_date": "Geplantes Verbrauchsdatum",
+  "storage_location": "Aufbewahrungsort",
+  "review_shopping": "Einkaufsänderungen prüfen",
+  "shopping_nothing_missing": "Es fehlen keine Zutaten."
 }

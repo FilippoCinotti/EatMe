@@ -905,40 +905,11 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                             }
                             return;
                           }
-                          final result = await Mutation().send(
-                            ref.read(apiProvider),
-                            'POST',
-                            '/shopping',
-                            {
-                              'action': 'generate',
-                              'meals': [
-                                {'recipe_id': recipe.id, 'servings': servings},
-                              ],
-                            },
-                          );
                           if (!context.mounted) return;
-                          final added =
-                              (result['ids'] as List? ?? const []).length;
-                          if (added == 0) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  context.t('recipe_shopping_nothing_missing'),
-                                ),
-                              ),
-                            );
-                            return;
-                          }
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                context.t('recipe_shopping_added', {
-                                  'count': added,
-                                }),
-                              ),
-                            ),
-                          );
-                          context.push('/shopping');
+                          final accepted = await reviewGeneratedShopping(context, ref.read(apiProvider), {
+                            'meals': [{'recipe_id': recipe.id, 'servings': servings}],
+                          });
+                          if (accepted && context.mounted) context.push('/shopping');
                         },
                       ),
                       const SizedBox(width: 8),

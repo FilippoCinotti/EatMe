@@ -561,6 +561,9 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
   final mutation = Mutation();
   final Map<String, String> overrides = {};
   int leftovers = 0;
+  DateTime preparedAt = DateUtils.dateOnly(DateTime.now());
+  DateTime? leftoverUseDate;
+  String leftoverLocation = 'fridge';
   int? savedLeftovers;
   late Future<Json> future = load();
   Json get request => {
@@ -682,7 +685,7 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
                                   ).textTheme.titleMedium,
                                 ),
                                 Text(
-                                  '${raw['quantity']} ${raw['food']['unit']}',
+                                  '${raw['quantity']} ${raw['food']['unit']} · ${context.t(raw['quantity_source'] == 'confirmed' ? 'quantity_confirmed' : 'quantity_estimated')}',
                                 ),
                               ],
                             ),
@@ -715,11 +718,36 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
               ),
               onChanged: (n) => setState(() => leftovers = n!),
             ),
-            if (leftovers > 0)
+            if (leftovers > 0) ...[
+              Text(context.t('consumed_portions', {'count': widget.servings - leftovers})),
+              TextButton.icon(
+                icon: const Icon(Icons.calendar_today_outlined),
+                label: Text(context.t('prepared_at', {'date': context.displayDate(preparedAt)})),
+                onPressed: () async {
+                  final day = await showDatePicker(context: context, initialDate: preparedAt, firstDate: DateTime(2020), lastDate: DateTime.now());
+                  if (day != null && mounted) setState(() { preparedAt = day; leftoverUseDate = null; });
+                },
+              ),
+              DropdownButtonFormField<String>(
+                initialValue: leftoverLocation,
+                decoration: InputDecoration(labelText: context.t('storage_location')),
+                items: [for (final value in ['fridge', 'freezer']) DropdownMenuItem(value: value, child: Text(context.t(value)))],
+                onChanged: (value) => setState(() { leftoverLocation = value!; leftoverUseDate = null; }),
+              ),
+              TextButton.icon(
+                icon: const Icon(Icons.event_outlined),
+                label: Text(leftoverUseDate == null ? context.t('set_use_date') : context.displayDate(leftoverUseDate)),
+                onPressed: () async {
+                  final day = await showDatePicker(context: context, initialDate: leftoverUseDate ?? preparedAt.add(const Duration(days: 3)), firstDate: preparedAt, lastDate: preparedAt.add(const Duration(days: 365)));
+                  if (day != null && mounted) setState(() => leftoverUseDate = day);
+                },
+              ),
+            ],
+            if (leftovers > 0 && leftoverUseDate == null && leftoverLocation == 'fridge')
               StatusNote(
                 text: context.t('leftover_date_suggested', {
                   'date': context.displayDate(
-                    DateTime.now().add(const Duration(days: 3)),
+                    preparedAt.add(const Duration(days: 3)),
                   ),
                 }),
               ),
@@ -739,6 +767,9 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
                       a['batch_id'] as String: a['version'] as int,
                   },
                   'leftover_servings': leftovers,
+                  'prepared_at': isoDay(preparedAt),
+                  'leftover_location': leftoverLocation,
+                  if (leftoverUseDate != null) 'leftover_use_date': isoDay(leftoverUseDate!),
                 };
                 if (savedLeftovers == null) {
                   await mutation.send(

@@ -1235,5 +1235,12 @@
   "meal_slot_occupied": "Ce créneau a déjà un repas. Utilisez Échanger.",
   "meal_time_limit": "Ce repas dépasse la durée estimée définie.",
   "invalid_time_limits": "Saisissez une durée valide pour un jour du plan.",
-  "meal_not_found": "Ce repas n’est plus disponible. Rechargez le plan."
+  "meal_not_found": "Ce repas n’est plus disponible. Rechargez le plan.",
+  "quantity_confirmed": "Confirmée",
+  "quantity_estimated": "Estimée",
+  "consumed_portions": "Portions consommées : {count}",
+  "set_use_date": "Date de consommation prévue",
+  "storage_location": "Lieu de conservation",
+  "review_shopping": "Vérifier les achats à mettre à jour",
+  "shopping_nothing_missing": "Aucun ingrédient ne manque."
 }

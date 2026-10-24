@@ -1235,5 +1235,12 @@
   "meal_slot_occupied": "Este espacio ya tiene una comida. Usa Intercambiar.",
   "meal_time_limit": "La comida supera el tiempo estimado.",
   "invalid_time_limits": "Introduce un tiempo válido para un día del plan.",
-  "meal_not_found": "Esta comida ya no está disponible. Recarga el plan."
+  "meal_not_found": "Esta comida ya no está disponible. Recarga el plan.",
+  "quantity_confirmed": "Confirmada",
+  "quantity_estimated": "Estimada",
+  "consumed_portions": "Porciones consumidas: {count}",
+  "set_use_date": "Fecha de consumo prevista",
+  "storage_location": "Lugar de conservación",
+  "review_shopping": "Revisar cambios de la compra",
+  "shopping_nothing_missing": "No faltan ingredientes."
 }

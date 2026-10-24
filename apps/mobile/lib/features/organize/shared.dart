@@ -360,3 +360,35 @@ class MemberAvatar extends StatelessWidget {
     );
   }
 }
+
+
+Future<bool> reviewGeneratedShopping(BuildContext context, EatMeApi api, Json request) async {
+  final preview = await Mutation().send(api, 'POST', '/shopping', {...request, 'action': 'preview_generate'});
+  if (!context.mounted) return false;
+  final accepted = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(context.t('review_shopping')),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 480, maxHeight: 420),
+        child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
+          if (records(preview['items']).isEmpty) Text(context.t('shopping_nothing_missing')),
+          for (final item in records(preview['items']))
+            ListTile(title: Text(labelOf(item['label'], context)), subtitle: Text('${item['quantity']} ${item['unit']}')),
+        ])),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(context.t('cancel'))),
+        TextButton(onPressed: () => Navigator.pop(context, true), child: Text(context.t('confirm_update'))),
+      ],
+    ),
+  );
+  if (accepted != true) return false;
+  await Mutation().send(api, 'POST', '/shopping', {
+    ...request, 'action': 'generate',
+    'shopping_versions': preview['shopping_versions'],
+    'inventory_versions': preview['inventory_versions'],
+    if (preview['plan_version'] != null) 'plan_version': preview['plan_version'],
+  });
+  return true;
+}

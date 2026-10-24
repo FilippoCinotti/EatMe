@@ -1235,5 +1235,12 @@
   "meal_slot_occupied": "This slot already has a meal. Use Swap.",
   "meal_time_limit": "This meal exceeds the estimated time budget.",
   "invalid_time_limits": "Enter a valid time budget for a day in this plan.",
-  "meal_not_found": "This meal is no longer available. Reload the plan."
+  "meal_not_found": "This meal is no longer available. Reload the plan.",
+  "quantity_confirmed": "Confirmed",
+  "quantity_estimated": "Estimated",
+  "consumed_portions": "Portions eaten: {count}",
+  "set_use_date": "Set planned use date",
+  "storage_location": "Storage location",
+  "review_shopping": "Review shopping updates",
+  "shopping_nothing_missing": "No ingredients are missing."
 }
