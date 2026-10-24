@@ -1277,5 +1277,11 @@
   "meal_slot_occupied": "Questo momento ha già un pasto. Usa Scambia.",
   "meal_time_limit": "Il pasto supera il tempo indicativo impostato.",
   "invalid_time_limits": "Inserisci un tempo valido per un giorno del piano.",
-  "meal_not_found": "Il pasto non è più disponibile. Ricarica il piano."
+  "meal_not_found": "Il pasto non è più disponibile. Ricarica il piano.",
+  "smart_card_for_you": "Consigliato per te",
+  "smart_card_use_soon": "Usa prima questi",
+  "smart_card_quick": "Pronto in poco",
+  "smart_reason_expiry": "Usa {count} ingredienti vicini alla scadenza",
+  "smart_reason_available": "Hai già tutti gli ingredienti",
+  "smart_reason_minutes": "Pronto in circa {count} minuti"
 }

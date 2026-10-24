@@ -1277,5 +1277,11 @@
   "meal_slot_occupied": "此时段已有餐食。请使用交换。",
   "meal_time_limit": "此餐食超过预计时间上限。",
   "invalid_time_limits": "请输入本计划日期内的有效时间。",
-  "meal_not_found": "此餐食已不可用。请重新加载计划。"
+  "meal_not_found": "此餐食已不可用。请重新加载计划。",
+  "smart_card_for_you": "为你推荐",
+  "smart_card_use_soon": "优先使用",
+  "smart_card_quick": "快速做好",
+  "smart_reason_expiry": "使用 {count} 种临近到期的食材",
+  "smart_reason_available": "食材已齐备",
+  "smart_reason_minutes": "预计 {count} 分钟完成"
 }
