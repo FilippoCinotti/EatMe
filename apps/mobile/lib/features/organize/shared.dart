@@ -18,7 +18,8 @@ String labelOf(dynamic value, BuildContext context) => value is Map
 String isoDay(DateTime date) => date.toIso8601String().substring(0, 10);
 
 abstract class ResourceState<T extends ConsumerStatefulWidget>
-    extends ConsumerState<T> with WidgetsBindingObserver {
+    extends ConsumerState<T>
+    with WidgetsBindingObserver {
   String get path;
   Json? data;
   String? error;
@@ -41,7 +42,10 @@ abstract class ResourceState<T extends ConsumerStatefulWidget>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed && mounted && !updating && ModalRoute.of(context)?.isCurrent == true) {
+    if (state == AppLifecycleState.resumed &&
+        mounted &&
+        !updating &&
+        ModalRoute.of(context)?.isCurrent == true) {
       load();
     }
   }
