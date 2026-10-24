@@ -446,9 +446,19 @@ String relativeExpiryLabel(BuildContext context, Batch batch) {
 }
 
 class CompactBatchRow extends StatelessWidget {
-  const CompactBatchRow({super.key, required this.batch, required this.onTap});
+  const CompactBatchRow({
+    super.key,
+    required this.batch,
+    required this.onTap,
+    this.selecting = false,
+    this.selected = false,
+    this.onSelected,
+  });
   final Batch batch;
   final VoidCallback onTap;
+  final bool selecting;
+  final bool selected;
+  final ValueChanged<bool>? onSelected;
   @override
   Widget build(BuildContext context) {
     final days = expiryDays(batch);
@@ -460,11 +470,22 @@ class CompactBatchRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: onTap,
+          onTap: selecting ? () => onSelected?.call(!selected) : onTap,
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Row(
               children: [
+                if (selecting) ...[
+                  Checkbox(
+                    key: ValueKey('select-batch-${batch.id}'),
+                    value: selected,
+                    onChanged: onSelected == null
+                        ? null
+                        : (value) => onSelected!(value ?? false),
+                    semanticLabel: context.t('inventory_select_item'),
+                  ),
+                  const SizedBox(width: 4),
+                ],
                 FoodImage(
                   id: batch.food.id,
                   photoId: batch.food.photoId,
@@ -503,7 +524,10 @@ class CompactBatchRow extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 4),
-                const Icon(Icons.chevron_right, size: 18),
+                if (!selecting)
+                  const Icon(Icons.chevron_right, size: 18)
+                else if (selected)
+                  Icon(Icons.check_circle, size: 18, color: scheme.primary),
               ],
             ),
           ),
