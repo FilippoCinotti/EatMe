@@ -225,7 +225,11 @@ void main() {
       find.byKey(const ValueKey('edit-batch-quantity')),
       '350',
     );
-    await tester.ensureVisible(find.text('Salva'));
+    await tester.scrollUntilVisible(
+      find.text('Salva'),
+      180,
+      scrollable: find.byType(Scrollable).last,
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Salva'));
     await tester.pumpAndSettle();
