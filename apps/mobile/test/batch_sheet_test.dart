@@ -71,10 +71,8 @@ Widget sheetHarness(
     body: Builder(
       builder: (context) => Center(
         child: TextButton(
-          onPressed: () => sheet(
-            context,
-            BatchSheet(batch: batch ?? sampleBatch),
-          ),
+          onPressed: () =>
+              sheet(context, BatchSheet(batch: batch ?? sampleBatch)),
           child: const Text('Open item'),
         ),
       ),
@@ -125,9 +123,7 @@ void main() {
     });
   }
 
-  testWidgets('small screen and enlarged text do not overflow', (
-    tester,
-  ) async {
+  testWidgets('small screen and enlarged text do not overflow', (tester) async {
     tester.view.physicalSize = const Size(320, 640);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -171,8 +167,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('batch-move-freezer')));
     await tester.pumpAndSettle();
-    final moves = api.calls.where((call) => call['path'] ==
-        '/inventory/${sampleBatch.id}');
+    final moves = api.calls.where(
+      (call) => call['path'] == '/inventory/${sampleBatch.id}',
+    );
     expect(moves.length, 1);
     expect(moves.single['body']['action'], 'moved');
     expect(moves.single['body']['location'], 'freezer');
@@ -194,16 +191,19 @@ void main() {
     expect(find.byType(AlertDialog), findsOneWidget);
     await tester.tap(find.text('Annulla'));
     await tester.pumpAndSettle();
-    expect(api.calls.where((call) =>
-        call['path'] == '/inventory/bulk-remove'), isEmpty);
+    expect(
+      api.calls.where((call) => call['path'] == '/inventory/bulk-remove'),
+      isEmpty,
+    );
     await tester.tap(find.byTooltip('Altro'));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('batch-delete')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('confirm-batch-delete')));
     await tester.pumpAndSettle();
-    final deletes = api.calls.where((call) =>
-        call['path'] == '/inventory/bulk-remove');
+    final deletes = api.calls.where(
+      (call) => call['path'] == '/inventory/bulk-remove',
+    );
     expect(deletes.length, 1);
     expect(deletes.single['body']['items'], [
       {'id': sampleBatch.id, 'expected_version': 1},
@@ -232,8 +232,9 @@ void main() {
     expect(find.text('Salva'), findsOneWidget);
     await tester.tap(find.text('Salva'));
     await tester.pumpAndSettle();
-    final saved = api.calls.where((call) =>
-        call['path'] == '/inventory/metadata');
+    final saved = api.calls.where(
+      (call) => call['path'] == '/inventory/metadata',
+    );
     expect(saved.length, 1);
     expect(saved.single['body']['quantity'], '350');
     expect(saved.single['body']['expiry_kind'], 'estimated');
@@ -250,8 +251,9 @@ void main() {
     await openSheet(tester);
     await tester.tap(find.text('Segna come consumato'));
     await tester.pumpAndSettle();
-    final actions = api.calls.where((call) =>
-        call['path'] == '/inventory/${sampleBatch.id}');
+    final actions = api.calls.where(
+      (call) => call['path'] == '/inventory/${sampleBatch.id}',
+    );
     expect(actions.length, 1);
     expect(actions.single['body']['action'], 'consumed');
     expect(find.byType(BatchSheet), findsNothing);

@@ -266,9 +266,7 @@ class EatMeApi {
           ),
         );
       } on DioException catch (error) {
-        if (method != 'GET' ||
-            attempt >= 2 ||
-            !isRetryableReadFailure(error)) {
+        if (method != 'GET' || attempt >= 2 || !isRetryableReadFailure(error)) {
           rethrow;
         }
         await Future<void>.delayed(
@@ -336,7 +334,8 @@ class EatMeApi {
       }
       throw ApiFailure(
         apiFailureCode(error),
-        offline: error.response == null &&
+        offline:
+            error.response == null &&
             error.type != DioExceptionType.badCertificate,
       );
     }

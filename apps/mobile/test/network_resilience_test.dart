@@ -41,11 +41,7 @@ class BootstrapApi extends EatMeApi {
       };
     }
     if (path == '/catalog') {
-      return {
-        'foods': <Json>[],
-        'diets': <Json>[],
-        'allergens': <String>[],
-      };
+      return {'foods': <Json>[], 'diets': <Json>[], 'allergens': <String>[]};
     }
     return {'items': <Json>[]};
   }
@@ -58,18 +54,12 @@ void main() {
 
   test('transport failures and server failures have actionable codes', () {
     final options = RequestOptions(path: '/config');
-    DioException failure(
-      DioExceptionType type, {
-      int? status,
-    }) => DioException(
+    DioException failure(DioExceptionType type, {int? status}) => DioException(
       requestOptions: options,
       type: type,
       response: status == null
           ? null
-          : Response<dynamic>(
-              requestOptions: options,
-              statusCode: status,
-            ),
+          : Response<dynamic>(requestOptions: options, statusCode: status),
     );
 
     expect(
@@ -89,11 +79,15 @@ void main() {
       'unauthorized',
     );
     expect(
-      isRetryableReadFailure(failure(DioExceptionType.badResponse, status: 503)),
+      isRetryableReadFailure(
+        failure(DioExceptionType.badResponse, status: 503),
+      ),
       isTrue,
     );
     expect(
-      isRetryableReadFailure(failure(DioExceptionType.badResponse, status: 401)),
+      isRetryableReadFailure(
+        failure(DioExceptionType.badResponse, status: 401),
+      ),
       isFalse,
     );
     expect(
@@ -141,65 +135,71 @@ void main() {
     expect(attempts, 4);
   });
 
-  test('mutation is attempted once and is never automatically replayed', () async {
-    final api = EatMeApi()
-      ..localToken = 'local-test-token'
-      ..localUserId = 'account-a';
-    var attempts = 0;
-    api.dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) {
-          attempts++;
-          handler.reject(
-            DioException(
-              requestOptions: options,
-              type: DioExceptionType.connectionError,
-            ),
-          );
-        },
-      ),
-    );
-
-    await expectLater(
-      api.request('POST', '/shopping', body: {'action': 'add'}),
-      throwsA(
-        isA<ApiFailure>().having(
-          (failure) => failure.code,
-          'code',
-          'network_error',
+  test(
+    'mutation is attempted once and is never automatically replayed',
+    () async {
+      final api = EatMeApi()
+        ..localToken = 'local-test-token'
+        ..localUserId = 'account-a';
+      var attempts = 0;
+      api.dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            attempts++;
+            handler.reject(
+              DioException(
+                requestOptions: options,
+                type: DioExceptionType.connectionError,
+              ),
+            );
+          },
         ),
-      ),
-    );
-    expect(attempts, 1);
-  });
+      );
 
-  test('failed startup retains authentication and restores usable session', () async {
-    final api = BootstrapApi();
-    final container = ProviderContainer(
-      overrides: [apiProvider.overrideWithValue(api)],
-    );
-    addTearDown(container.dispose);
-    final app = container.read(appProvider.notifier);
+      await expectLater(
+        api.request('POST', '/shopping', body: {'action': 'add'}),
+        throwsA(
+          isA<ApiFailure>().having(
+            (failure) => failure.code,
+            'code',
+            'network_error',
+          ),
+        ),
+      );
+      expect(attempts, 1);
+    },
+  );
 
-    await app.restore();
-    expect(container.read(appProvider).stage, Stage.failed);
-    expect(api.localToken, 'local-test-token');
+  test(
+    'failed startup retains authentication and restores usable session',
+    () async {
+      final api = BootstrapApi();
+      final container = ProviderContainer(
+        overrides: [apiProvider.overrideWithValue(api)],
+      );
+      addTearDown(container.dispose);
+      final app = container.read(appProvider.notifier);
 
-    api.connected = true;
-    await app.restore();
-    expect(container.read(appProvider).stage, Stage.ready);
+      await app.restore();
+      expect(container.read(appProvider).stage, Stage.failed);
+      expect(api.localToken, 'local-test-token');
 
-    api.connected = false;
-    await app.restore();
-    final offline = container.read(appProvider);
-    expect(offline.stage, Stage.ready);
-    expect(offline.offline, isTrue);
-    expect(offline.profile['user_id'], 'account-a');
-    expect(api.localToken, 'local-test-token');
+      api.connected = true;
+      await app.restore();
+      expect(container.read(appProvider).stage, Stage.ready);
 
-    // Never reuse account A's in-memory profile for account B.
-    api.localUserId = 'account-b';
-    await app.restore();
-    expect(container.read(appProvider).stage, Stage.failed);
-  });
+      api.connected = false;
+      await app.restore();
+      final offline = container.read(appProvider);
+      expect(offline.stage, Stage.ready);
+      expect(offline.offline, isTrue);
+      expect(offline.profile['user_id'], 'account-a');
+      expect(api.localToken, 'local-test-token');
+
+      // Never reuse account A's in-memory profile for account B.
+      api.localUserId = 'account-b';
+      await app.restore();
+      expect(container.read(appProvider).stage, Stage.failed);
+    },
+  );
 }

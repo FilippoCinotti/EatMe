@@ -151,7 +151,8 @@ class AppController extends Notifier<AppState> {
         // Keep already-verified data on screen during a transient outage, but
         // never display a previous account's profile after an auth switch.
         final sameAccount = state.profile['user_id'] == api.userId;
-        final recoverable = error.offline ||
+        final recoverable =
+            error.offline ||
             const [
               'service_unavailable',
               'connection_timeout',

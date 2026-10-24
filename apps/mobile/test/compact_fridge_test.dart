@@ -68,52 +68,42 @@ class FridgeController extends support.TestController {
 }
 
 void main() {
-  test(
-    'expiry uses calendar days across timezones, month boundaries and leap days',
-    () {
-      expect(
-        expiryDays(
-          batch('a', DateTime(2026, 3, 30)),
-          now: DateTime(2026, 3, 29, 23, 59),
-        ),
-        1,
-      );
-      expect(
-        expiryDays(
-          batch('b', DateTime(2024, 3, 1)),
-          now: DateTime(2024, 2, 28),
-        ),
-        2,
-      );
-      expect(
-        expiryDays(
-          batch('c', DateTime(2025, 12, 31)),
-          now: DateTime(2026, 1, 1),
-        ),
-        -1,
-      );
-      expect(expiryDays(batch('d', null)), isNull);
-    },
-  );
+  test('expiry uses calendar days across timezones, month boundaries and leap days', () {
+    expect(
+      expiryDays(
+        batch('a', DateTime(2026, 3, 30)),
+        now: DateTime(2026, 3, 29, 23, 59),
+      ),
+      1,
+    );
+    expect(
+      expiryDays(batch('b', DateTime(2024, 3, 1)), now: DateTime(2024, 2, 28)),
+      2,
+    );
+    expect(
+      expiryDays(batch('c', DateTime(2025, 12, 31)), now: DateTime(2026, 1, 1)),
+      -1,
+    );
+    expect(expiryDays(batch('d', null)), isNull);
+  });
 
   test('catalog taxonomy has one stable visual category per food', () {
     expect(inventoryCategory(food), 'dairy');
     expect(
-      inventoryCategory(const Food(
-        id: 'rice',
-        name: {'en': 'Rice'},
-        unit: 'g',
-        group: 'grain',
-      )),
+      inventoryCategory(
+        const Food(id: 'rice', name: {'en': 'Rice'}, unit: 'g', group: 'grain'),
+      ),
       'grain',
     );
     expect(
-      inventoryCategory(const Food(
-        id: 'unmapped',
-        name: {'en': 'Unmapped'},
-        unit: 'g',
-        group: 'unsupported_new_group',
-      )),
+      inventoryCategory(
+        const Food(
+          id: 'unmapped',
+          name: {'en': 'Unmapped'},
+          unit: 'g',
+          group: 'unsupported_new_group',
+        ),
+      ),
       'other',
     );
     expect(inventoryColumns(350, 1), 2);
@@ -141,7 +131,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('4 selezionati'), findsOneWidget);
 
-    await tester.ensureVisible(find.byKey(const ValueKey('inventory-bulk-remove')));
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('inventory-bulk-remove')),
+    );
     await tester.tap(find.byKey(const ValueKey('inventory-bulk-remove')));
     await tester.pumpAndSettle();
     expect(find.textContaining('Eliminare 4 elementi'), findsOneWidget);
@@ -183,7 +175,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('inventory-select-all')));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.byKey(const ValueKey('inventory-bulk-move')));
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('inventory-bulk-move')),
+    );
     await tester.tap(find.byKey(const ValueKey('inventory-bulk-move')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('inventory-bulk-move-freezer')));
@@ -217,8 +211,14 @@ void main() {
       expect(find.text('Latticini e uova'), findsOneWidget);
       await tester.tap(find.text('Scaduti'));
       await tester.pumpAndSettle();
-      expect(find.byKey(const ValueKey('inventory-batch-expired')), findsOneWidget);
-      expect(find.byKey(const ValueKey('inventory-batch-unknown')), findsNothing);
+      expect(
+        find.byKey(const ValueKey('inventory-batch-expired')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const ValueKey('inventory-batch-unknown')),
+        findsNothing,
+      );
       expect(tester.takeException(), isNull);
       await journey.capture(tester, boundary, 'compact-fridge-$scale');
     });

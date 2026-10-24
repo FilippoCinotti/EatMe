@@ -30,8 +30,13 @@ String inventoryCategory(Food food) => switch (food.group) {
   'grain' || 'pasta' || 'rice' => 'grain',
   'legume' => 'legume',
   'bread' || 'bakery' || 'baked' => 'bakery',
-  'oil' || 'herb' || 'spice' || 'condiment' ||
-  'honey' || 'sweetener' || 'sauce' => 'condiment',
+  'oil' ||
+  'herb' ||
+  'spice' ||
+  'condiment' ||
+  'honey' ||
+  'sweetener' ||
+  'sauce' => 'condiment',
   'beverage' || 'drink' => 'beverage',
   'nuts' || 'seed' || 'snack' || 'dessert' || 'sweet' => 'snack',
   _ => 'other',
@@ -66,9 +71,7 @@ bool inventorySearchMatches(Batch batch, String query, BuildContext context) {
     context.t('food_group_${batch.food.group}'),
     batch.location,
     context.t(batch.location),
-    ...['barcode', 'lot', 'notes'].map(
-      (key) => '${batch.metadata[key] ?? ''}',
-    ),
+    ...['barcode', 'lot', 'notes'].map((key) => '${batch.metadata[key] ?? ''}'),
   ].join(' ').toLowerCase();
   return searchText.contains(needle);
 }
@@ -76,14 +79,10 @@ bool inventorySearchMatches(Batch batch, String query, BuildContext context) {
 int inventoryColumns(double availableWidth, double textScale) {
   if (textScale >= 1.55) return 1;
   final minWidth = availableWidth >= 600 ? 184.0 : 140.0;
-  return ((availableWidth + 10) / (minWidth + 10))
-      .floor()
-      .clamp(1, 5)
-      .toInt();
+  return ((availableWidth + 10) / (minWidth + 10)).floor().clamp(1, 5).toInt();
 }
 
-double inventoryCardHeight(double textScale) =>
-    textScale > 1.25 ? 214 : 187;
+double inventoryCardHeight(double textScale) => textScale > 1.25 ? 214 : 187;
 
 class InventoryCategoryGroup {
   const InventoryCategoryGroup(this.id, this.items);
@@ -220,7 +219,9 @@ class InventoryPhotoCard extends StatelessWidget {
                               selected
                                   ? Icons.check_circle
                                   : Icons.radio_button_unchecked,
-                              color: selected ? scheme.primary : scheme.onSurface,
+                              color: selected
+                                  ? scheme.primary
+                                  : scheme.onSurface,
                               size: 25,
                             ),
                           ),
@@ -242,9 +243,8 @@ class InventoryPhotoCard extends StatelessWidget {
                   '${batch.quantity} ${batch.food.unit}${showLocation ? ' · ${context.t(batch.location)}' : ''}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: scheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 3),
                 Row(
@@ -256,9 +256,8 @@ class InventoryPhotoCard extends StatelessWidget {
                         compactExpiry,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: statusColor,
-                        ),
+                        style: Theme.of(context).textTheme.labelSmall
+                            ?.copyWith(color: statusColor),
                       ),
                     ),
                     if (batch.expiryKind == 'estimated')

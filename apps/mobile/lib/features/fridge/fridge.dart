@@ -65,7 +65,9 @@ class _FridgePageState extends ConsumerState<FridgePage> {
     if (saving || selectedBatchIds.isEmpty || ref.read(appProvider).offline) {
       return;
     }
-    final batches = ref.read(appProvider).inventory
+    final batches = ref
+        .read(appProvider)
+        .inventory
         .where((batch) => selectedBatchIds.contains(batch.id))
         .toList();
     if (batches.isEmpty || batches.length != selectedBatchIds.length) {
@@ -73,9 +75,8 @@ class _FridgePageState extends ConsumerState<FridgePage> {
       return;
     }
     if (action == 'consumed' && batches.any((b) => !b.usable)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.t('batch_not_usable'))),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.t('batch_not_usable'))));
       return;
     }
     if (action == 'delete' || action == 'consumed') {
@@ -117,15 +118,13 @@ class _FridgePageState extends ConsumerState<FridgePage> {
       );
     } on ApiFailure catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.t(error.code))),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.t(error.code))));
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.t('unknown_error'))),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.t('unknown_error'))));
       }
     } finally {
       if (mounted) setState(() => saving = false);
@@ -213,13 +212,18 @@ class _FridgePageState extends ConsumerState<FridgePage> {
         .where((batch) => inventorySearchMatches(batch, search, context))
         .toList();
     final dueSoon = source
-        .where((batch) =>
-            batchExpiryStatus(batch) == BatchExpiryStatus.soon && batch.usable)
+        .where(
+          (batch) =>
+              batchExpiryStatus(batch) == BatchExpiryStatus.soon &&
+              batch.usable,
+        )
         .length;
     final expired = source
-        .where((batch) =>
-            batchExpiryStatus(batch) == BatchExpiryStatus.expired ||
-            !batch.usable)
+        .where(
+          (batch) =>
+              batchExpiryStatus(batch) == BatchExpiryStatus.expired ||
+              !batch.usable,
+        )
         .length;
     final visible = source.where((batch) {
       final status = batchExpiryStatus(batch);
@@ -249,7 +253,8 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                   onRefresh: () => ref.read(appProvider.notifier).refresh(),
                   child: CustomScrollView(
                     key: const ValueKey('fridge-inventory-scroll'),
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
                     physics: const AlwaysScrollableScrollPhysics(),
                     slivers: [
                       SliverToBoxAdapter(
@@ -267,9 +272,12 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                                     Expanded(
                                       child: Text(
                                         'EatMe+',
-                                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                          fontFamily: 'EatMeDisplay',
-                                        ),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleLarge
+                                            ?.copyWith(
+                                              fontFamily: 'EatMeDisplay',
+                                            ),
                                       ),
                                     ),
                                     RoundAction(
@@ -296,16 +304,20 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                                   'count': source.length,
                                   'soon': dueSoon,
                                 }),
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
                               ),
                               const SizedBox(height: 14),
                               KeyedSubtree(
                                 key: FirstAccessTourTargets.fridgeSearch,
                                 child: SearchPill(
                                   hint: context.t('inventory_search_hint'),
-                                  onChanged: (value) => setState(() => search = value),
+                                  onChanged: (value) =>
+                                      setState(() => search = value),
                                   onFilter: openFilters,
                                 ),
                               ),
@@ -314,18 +326,32 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                                 scrollDirection: Axis.horizontal,
                                 child: Row(
                                   children: [
-                                    for (final value in ['all', 'fridge', 'freezer', 'pantry'])
+                                    for (final value in [
+                                      'all',
+                                      'fridge',
+                                      'freezer',
+                                      'pantry',
+                                    ])
                                       Padding(
-                                        padding: const EdgeInsetsDirectional.only(end: 7),
+                                        padding:
+                                            const EdgeInsetsDirectional.only(
+                                              end: 7,
+                                            ),
                                         child: ChoiceChip(
                                           showCheckmark: false,
-                                          label: Text(context.t(
-                                            value == 'all' ? 'food_group_all' : value,
-                                          )),
+                                          label: Text(
+                                            context.t(
+                                              value == 'all'
+                                                  ? 'food_group_all'
+                                                  : value,
+                                            ),
+                                          ),
                                           selected: location == value,
-                                          onSelected: (_) => setState(() => location = value),
+                                          onSelected: (_) =>
+                                              setState(() => location = value),
                                           visualDensity: VisualDensity.compact,
-                                          materialTapTargetSize: MaterialTapTargetSize.padded,
+                                          materialTapTargetSize:
+                                              MaterialTapTargetSize.padded,
                                         ),
                                       ),
                                   ],
@@ -333,7 +359,10 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                               ),
                               if (state.offline) ...[
                                 const SizedBox(height: 8),
-                                StatusNote(text: context.t('offline_inventory'), warning: true),
+                                StatusNote(
+                                  text: context.t('offline_inventory'),
+                                  warning: true,
+                                ),
                               ],
                               const SizedBox(height: 14),
                               KeyedSubtree(
@@ -363,7 +392,8 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                                         selected: expiryFilter == 'expired',
                                         warning: true,
                                         onTap: () => setState(() {
-                                          expiryFilter = expiryFilter == 'expired'
+                                          expiryFilter =
+                                              expiryFilter == 'expired'
                                               ? 'all'
                                               : 'expired';
                                         }),
@@ -377,22 +407,35 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                                 Align(
                                   alignment: AlignmentDirectional.centerEnd,
                                   child: TextButton.icon(
-                                    key: const ValueKey('inventory-select-mode'),
+                                    key: const ValueKey(
+                                      'inventory-select-mode',
+                                    ),
                                     onPressed: state.offline || saving
                                         ? null
                                         : selecting
                                         ? stopSelection
-                                        : () => setState(() => selecting = true),
-                                    icon: Icon(selecting
-                                        ? Icons.close
-                                        : Icons.checklist_rounded),
-                                    label: Text(context.t(selecting
-                                        ? 'inventory_cancel_selection'
-                                        : 'inventory_select')),
+                                        : () =>
+                                              setState(() => selecting = true),
+                                    icon: Icon(
+                                      selecting
+                                          ? Icons.close
+                                          : Icons.checklist_rounded,
+                                    ),
+                                    label: Text(
+                                      context.t(
+                                        selecting
+                                            ? 'inventory_cancel_selection'
+                                            : 'inventory_select',
+                                      ),
+                                    ),
                                   ),
                                 ),
                               if (selecting)
-                                _selectionToolbar(context, visible, state.offline),
+                                _selectionToolbar(
+                                  context,
+                                  visible,
+                                  state.offline,
+                                ),
                             ],
                           ),
                         ),
@@ -402,14 +445,19 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                           child: Padding(
                             padding: const EdgeInsets.all(20),
                             child: EmptyMessage(
-                              title: context.t(source.isEmpty
-                                  ? 'empty_fridge'
-                                  : 'expiry_no_matches'),
+                              title: context.t(
+                                source.isEmpty
+                                    ? 'empty_fridge'
+                                    : 'expiry_no_matches',
+                              ),
                               body: context.t('empty_fridge_body'),
                               action: FilledButton(
                                 onPressed: state.offline
                                     ? null
-                                    : () => showAddFoodMethods(context, location: location),
+                                    : () => showAddFoodMethods(
+                                        context,
+                                        location: location,
+                                      ),
                                 child: Text(context.t('add_food')),
                               ),
                             ),
@@ -439,16 +487,23 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                                 (context, index) {
                                   final batch = group.items[index];
                                   return InventoryPhotoCard(
-                                    key: ValueKey('inventory-batch-${batch.id}'),
+                                    key: ValueKey(
+                                      'inventory-batch-${batch.id}',
+                                    ),
                                     batch: batch,
                                     showLocation: location == 'all',
                                     selecting: selecting,
-                                    selected: selectedBatchIds.contains(batch.id),
+                                    selected: selectedBatchIds.contains(
+                                      batch.id,
+                                    ),
                                     onTap: () {
                                       if (selecting) {
                                         toggleSelection(batch.id);
                                       } else {
-                                        sheet(context, BatchSheet(batch: batch));
+                                        sheet(
+                                          context,
+                                          BatchSheet(batch: batch),
+                                        );
                                       }
                                     },
                                     onLongPress: () {
@@ -458,17 +513,21 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                                     },
                                   );
                                 },
-                                childCount: expandedCategories.contains(group.id)
+                                childCount:
+                                    expandedCategories.contains(group.id)
                                     ? group.items.length
-                                    : (group.items.length < 4 ? group.items.length : 4),
+                                    : (group.items.length < 4
+                                          ? group.items.length
+                                          : 4),
                                 addAutomaticKeepAlives: false,
                               ),
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: columns,
-                                crossAxisSpacing: 10,
-                                mainAxisSpacing: 10,
-                                mainAxisExtent: inventoryCardHeight(scale),
-                              ),
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: columns,
+                                    crossAxisSpacing: 10,
+                                    mainAxisSpacing: 10,
+                                    mainAxisExtent: inventoryCardHeight(scale),
+                                  ),
                             ),
                           ),
                           if (group.items.length > 4)
@@ -476,22 +535,33 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                               child: Align(
                                 alignment: AlignmentDirectional.centerStart,
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(20, 2, 20, 4),
+                                  padding: const EdgeInsets.fromLTRB(
+                                    20,
+                                    2,
+                                    20,
+                                    4,
+                                  ),
                                   child: TextButton.icon(
-                                    key: ValueKey('inventory-expand-${group.id}'),
+                                    key: ValueKey(
+                                      'inventory-expand-${group.id}',
+                                    ),
                                     onPressed: () => setState(() {
                                       if (!expandedCategories.add(group.id)) {
                                         expandedCategories.remove(group.id);
                                       }
                                     }),
-                                    icon: Icon(expandedCategories.contains(group.id)
-                                        ? Icons.expand_less
-                                        : Icons.expand_more),
-                                    label: Text(expandedCategories.contains(group.id)
-                                        ? context.t('inventory_show_less')
-                                        : context.t('inventory_show_more', {
-                                            'count': group.items.length - 4,
-                                          })),
+                                    icon: Icon(
+                                      expandedCategories.contains(group.id)
+                                          ? Icons.expand_less
+                                          : Icons.expand_more,
+                                    ),
+                                    label: Text(
+                                      expandedCategories.contains(group.id)
+                                          ? context.t('inventory_show_less')
+                                          : context.t('inventory_show_more', {
+                                              'count': group.items.length - 4,
+                                            }),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -510,7 +580,8 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                                   icon: EatMeGlyph.clockAlert,
                                   onTap: () => context.push('/expiry'),
                                 ),
-                                if (['all', 'fridge'].contains(location) && !state.offline)
+                                if (['all', 'fridge'].contains(location) &&
+                                    !state.offline)
                                   SettingRow(
                                     title: context.t('leftovers'),
                                     icon: EatMeGlyph.packageOpen,
@@ -548,9 +619,11 @@ class _FridgePageState extends ConsumerState<FridgePage> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          Text(context.t('inventory_selected_count', {
-            'count': selectedBatchIds.length,
-          })),
+          Text(
+            context.t('inventory_selected_count', {
+              'count': selectedBatchIds.length,
+            }),
+          ),
           const SizedBox(width: 8),
           TextButton(
             key: const ValueKey('inventory-select-all'),
@@ -629,18 +702,25 @@ class _InventoryStatusTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodySmall),
-                    Text('$count',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: tint,
-                        )),
+                    Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    Text(
+                      '$count',
+                      style: Theme.of(context).textTheme.titleLarge
+                          ?.copyWith(color: tint),
+                    ),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right, size: 16, color: scheme.onSurfaceVariant),
+              Icon(
+                Icons.chevron_right,
+                size: 16,
+                color: scheme.onSurfaceVariant,
+              ),
             ],
           ),
         ),
@@ -689,7 +769,10 @@ class _InventoryCategoryHeading extends StatelessWidget {
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                child: Text('$count', style: Theme.of(context).textTheme.labelSmall),
+                child: Text(
+                  '$count',
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
               ),
             ),
             const Spacer(),
@@ -958,15 +1041,13 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
       await operation();
     } on ApiFailure catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.t(error.code))),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.t(error.code))));
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.t('unknown_error'))),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.t('unknown_error'))));
       }
     } finally {
       if (mounted) setState(() => busy = false);
@@ -1024,9 +1105,7 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
         ),
       ),
     );
-    if (!mounted ||
-        selected == null ||
-        selected == widget.batch.location) {
+    if (!mounted || selected == null || selected == widget.batch.location) {
       return;
     }
     await run(() => apply('moved', destination: selected));
@@ -1073,10 +1152,7 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
         '/inventory/bulk-remove',
         {
           'items': [
-            {
-              'id': widget.batch.id,
-              'expected_version': widget.batch.version,
-            },
+            {'id': widget.batch.id, 'expected_version': widget.batch.version},
           ],
         },
       );
@@ -1172,197 +1248,194 @@ class _BatchSheetState extends ConsumerState<BatchSheet> {
     return RepaintBoundary(
       key: const ValueKey('batch-detail-capture'),
       child: ListView(
-      key: const ValueKey('batch-detail-sheet'),
-      shrinkWrap: true,
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            FoodImage(
-              id: batch.food.id,
-              photoId: batch.food.photoId,
-              imageUrl: batch.food.imageUrl,
-              width: 104,
-              height: 104,
-              radius: 20,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    localized(batch.food.name, context.language),
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    '${batch.quantity} ${batch.food.unit} · ${context.t(batch.location)}',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: scheme.onSurfaceVariant,
+        key: const ValueKey('batch-detail-sheet'),
+        shrinkWrap: true,
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              FoodImage(
+                id: batch.food.id,
+                photoId: batch.food.photoId,
+                imageUrl: batch.food.imageUrl,
+                width: 104,
+                height: 104,
+                radius: 20,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      localized(batch.food.name, context.language),
+                      style: Theme.of(context).textTheme.headlineMedium,
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: statusColor,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
+                    const SizedBox(height: 3),
+                    Text(
+                      '${batch.quantity} ${batch.food.unit} · ${context.t(batch.location)}',
+                      style: Theme.of(context).textTheme.bodyMedium
+                          ?.copyWith(color: scheme.onSurfaceVariant),
+                    ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: statusColor,
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        child: Text(
-                          relativeExpiryLabel(context, batch),
-                          key: const ValueKey('batch-expiry-badge'),
-                          softWrap: true,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: statusText,
-                            fontWeight: FontWeight.w600,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          child: Text(
+                            relativeExpiryLabel(context, batch),
+                            key: const ValueKey('batch-expiry-badge'),
+                            softWrap: true,
+                            style: Theme.of(context).textTheme.labelSmall
+                                ?.copyWith(
+                                  color: statusText,
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Divider(color: scheme.outlineVariant),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _BatchInfo(
-                icon: Icons.event_outlined,
-                title: batch.expiryKind == 'estimated'
-                    ? context.t('estimated_label')
-                    : context.t('expiry_date'),
-                value: batch.expiryDate == null
-                    ? context.t('date_unknown')
-                    : MaterialLocalizations.of(
-                        context,
-                      ).formatCompactDate(batch.expiryDate!),
-              ),
-            ),
-            Container(width: 1, height: 44, color: scheme.outlineVariant),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _BatchInfo(
-                icon: Icons.scale_outlined,
-                title: context.t('quantity'),
-                value: '${batch.quantity} ${batch.food.unit}',
-              ),
-            ),
-          ],
-        ),
-        if (batch.recalls.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          _BatchNoticeCard(text: context.t('recalled_batch'), warning: true),
-          for (final recall in batch.recalls)
-            TextButton(
-              onPressed: () => launchUrl(
-                Uri.parse(recall['url'] as String),
-                mode: LaunchMode.externalApplication,
-              ),
-              child: Text(context.t('read_source')),
-            ),
-        ] else if (!batch.usable) ...[
-          const SizedBox(height: 10),
-          _BatchNoticeCard(text: context.t('use_by_passed'), warning: true),
-        ],
-        const SizedBox(height: 22),
-        SizedBox(
-          width: double.infinity,
-          height: 52,
-          child: FilledButton(
-            key: const ValueKey('batch-consume'),
-            style: FilledButton.styleFrom(
-              backgroundColor: Tokens.paleGreen,
-              foregroundColor: Tokens.graphite,
-            ),
-            onPressed: enabled && batch.usable
-                ? () => run(() => apply('consumed'))
-                : null,
-            child: busy
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Tokens.graphite,
-                    ),
-                  )
-                : Text(context.t('mark_consumed')),
-          ),
-        ),
-        const SizedBox(height: 20),
-        Divider(color: scheme.outlineVariant),
-        const SizedBox(height: 10),
-        Text(
-          context.t('manage_food'),
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: scheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: _BatchAction(
-                label: context.t('inventory_edit'),
-                icon: Icons.edit_outlined,
-                enabled: enabled,
-                onPressed: edit,
-              ),
-            ),
-            Expanded(
-              child: _BatchAction(
-                label: context.t('move_food'),
-                icon: Icons.swap_horiz_rounded,
-                enabled: enabled,
-                onPressed: move,
-              ),
-            ),
-            Expanded(
-              child: _BatchAction(
-                label: context.t('inventory_more'),
-                icon: Icons.more_horiz,
-                enabled: enabled,
-                onPressed: more,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 14),
-        Divider(color: scheme.outlineVariant),
-        const SizedBox(height: 10),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              Icons.info_outline,
-              size: 17,
-              color: scheme.onSurfaceVariant,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                context.t('manual_source'),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
+                  ],
                 ),
               ),
-            ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Divider(color: scheme.outlineVariant),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _BatchInfo(
+                  icon: Icons.event_outlined,
+                  title: batch.expiryKind == 'estimated'
+                      ? context.t('estimated_label')
+                      : context.t('expiry_date'),
+                  value: batch.expiryDate == null
+                      ? context.t('date_unknown')
+                      : MaterialLocalizations.of(context)
+                            .formatCompactDate(batch.expiryDate!),
+                ),
+              ),
+              Container(width: 1, height: 44, color: scheme.outlineVariant),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _BatchInfo(
+                  icon: Icons.scale_outlined,
+                  title: context.t('quantity'),
+                  value: '${batch.quantity} ${batch.food.unit}',
+                ),
+              ),
+            ],
+          ),
+          if (batch.recalls.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _BatchNoticeCard(text: context.t('recalled_batch'), warning: true),
+            for (final recall in batch.recalls)
+              TextButton(
+                onPressed: () => launchUrl(
+                  Uri.parse(recall['url'] as String),
+                  mode: LaunchMode.externalApplication,
+                ),
+                child: Text(context.t('read_source')),
+              ),
+          ] else if (!batch.usable) ...[
+            const SizedBox(height: 10),
+            _BatchNoticeCard(text: context.t('use_by_passed'), warning: true),
           ],
-        ),
-      ],
+          const SizedBox(height: 22),
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: FilledButton(
+              key: const ValueKey('batch-consume'),
+              style: FilledButton.styleFrom(
+                backgroundColor: Tokens.paleGreen,
+                foregroundColor: Tokens.graphite,
+              ),
+              onPressed: enabled && batch.usable
+                  ? () => run(() => apply('consumed'))
+                  : null,
+              child: busy
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Tokens.graphite,
+                      ),
+                    )
+                  : Text(context.t('mark_consumed')),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Divider(color: scheme.outlineVariant),
+          const SizedBox(height: 10),
+          Text(
+            context.t('manage_food'),
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: scheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: _BatchAction(
+                  label: context.t('inventory_edit'),
+                  icon: Icons.edit_outlined,
+                  enabled: enabled,
+                  onPressed: edit,
+                ),
+              ),
+              Expanded(
+                child: _BatchAction(
+                  label: context.t('move_food'),
+                  icon: Icons.swap_horiz_rounded,
+                  enabled: enabled,
+                  onPressed: move,
+                ),
+              ),
+              Expanded(
+                child: _BatchAction(
+                  label: context.t('inventory_more'),
+                  icon: Icons.more_horiz,
+                  enabled: enabled,
+                  onPressed: more,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Divider(color: scheme.outlineVariant),
+          const SizedBox(height: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.info_outline,
+                size: 17,
+                color: scheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  context.t('manual_source'),
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: scheme.onSurfaceVariant),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -1391,14 +1464,10 @@ class _BatchInfo extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(color: scheme.onSurfaceVariant),
               ),
-              Text(
-                value,
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
+              Text(value, style: Theme.of(context).textTheme.titleSmall),
             ],
           ),
         ),
