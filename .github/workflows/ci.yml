@@ -105,7 +105,7 @@ jobs:
           test_status=$?
           if [ "$test_status" -ne 0 ]; then
             failure_summary="$(
-              { grep -aE '\[E\]|FAILED|Some tests failed' "$RUNNER_TEMP/flutter-test.log" | head -n 40; grep -a -A 60 -m 5 'EXCEPTION CAUGHT' "$RUNNER_TEMP/flutter-test.log"; } | cut -c1-1000 | head -n 400
+              { grep -aE '\[E\]|FAILED|Some tests failed|Expected:|Actual:|Which:|TestFailure|Bad state:' "$RUNNER_TEMP/flutter-test.log" | head -n 100; grep -a -A 35 -B 5 -m 8 'EXCEPTION CAUGHT\|Expected:' "$RUNNER_TEMP/flutter-test.log"; } | cut -c1-1000 | head -n 400
             )"
             if [ -z "$failure_summary" ]; then
               failure_summary="$(tail -n 200 "$RUNNER_TEMP/flutter-test.log" | cut -c1-1000)"
@@ -122,14 +122,13 @@ jobs:
           fi
           exit "$test_status"
         working-directory: apps/mobile
-      - name: Archive Flutter test output
-        if: always()
-        uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v7
+        if: failure()
         with:
-          name: flutter-test-output-${{ runner.os }}
+          name: flutter-test-log-${{ runner.os }}
           path: ${{ runner.temp }}/flutter-test.log
-          if-no-files-found: ignore
           retention-days: 7
+          if-no-files-found: ignore
       - name: Validate localization and screenshot route policy
         if: runner.os == 'Linux'
         run: |
@@ -177,9 +176,22 @@ jobs:
           disable-animations: true
           working-directory: apps/mobile
           script: flutter test integration_test/kitchen_flow_test.dart --dart-define=API_URL=http://10.0.2.2:8000/api/v1
-      - name: Verify Dart formatting
-        run: git diff --exit-code -- lib test integration_test
+      # The PR checkout is a synthetic merge with main; main may have
+      # unformatted changes beyond this PR. Validate the actual PR head instead.
+      - name: Verify Dart formatting on PR head
+        shell: bash
         working-directory: apps/mobile
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          CI_EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$CI_EVENT" = "pull_request" ]; then
+            git fetch --no-tags origin "$PR_HEAD_SHA"
+            git worktree add --detach "$RUNNER_TEMP/eatme-pr-source" "$PR_HEAD_SHA"
+            (cd "$RUNNER_TEMP/eatme-pr-source/apps/mobile" && dart format --output=none --set-exit-if-changed lib test integration_test)
+          else
+            git diff --exit-code -- lib test integration_test
+          fi
       - name: Export UI verification images
         if: always()
         run: python3 scripts/export_ci_review.py mobile
