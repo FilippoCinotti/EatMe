@@ -18,6 +18,7 @@ from .auth import now
 from .catalog import ALLERGENS, ETHICAL_PREFERENCES, INTOLERANCES, MEDICAL_AWARENESS, SENSITIVITIES
 from .engine import (
     active_rules,
+    contextual_recommendations,
     amount_milli,
     batch_usable,
     compatibility,
@@ -625,9 +626,15 @@ class Service(
                                    staples=self._staples(tx,household_id),
                                    require_inventory_match=search is None)
             feedback = {r["recipe_id"]:r["rating"] for r in tx.all("SELECT recipe_id,rating FROM recipe_feedback WHERE user_id=?",(user_id,))} if preferences.get("learning") else {}
+            cooked = {}
+            if preferences.get("learning"):
+                cooked = {r["recipe_id"]: r["count"] for r in tx.all(
+                    "SELECT recipe_id,COUNT(*) AS count FROM cooking_sessions WHERE user_id=? GROUP BY recipe_id", (user_id,))}
             cuisines = {c.casefold() for c in preferences.get("cuisines",[])}
             for item in ranked:
                 item["preference_adjustment"] = 0 if relax_soft else (.05 * feedback.get(item["recipe"]["id"],0) + (.03 if item["recipe"].get("cuisine","").casefold() in cuisines else 0))
+                if not relax_soft and preferences.get("learning"):
+                    item["preference_adjustment"] += min(cooked.get(item["recipe"]["id"], 0), 3) * .01
                 if not relax_soft and preferences.get('budget') in {'low', 'medium'}:
                     item['preference_adjustment'] += item['component_scores']['availability'] * (.06 if preferences['budget'] == 'low' else .03)
                 seasonal = [foods[i['food_id']] for i in item['recipe']['ingredients'] if foods[i['food_id']].get('season_months')]
@@ -666,7 +673,7 @@ class Service(
             trace = {"mode":mode,"diet_rules_version":versions,"profile_version":profile["version"],
                      "inventory_snapshot":snapshot,"ranked":trace_ranked,"rejected":rejected,"servings":size}
             tx.execute("INSERT INTO recommendation_traces VALUES (?,?,?,?,?)",(trace_id,user_id,household_id,encode(trace),now()))
-            return {"trace_id":trace_id,"items":ranked[:4],"servings":size,"diet_rules_version":versions,
+            return {"trace_id":trace_id,"contextual":contextual_recommendations(ranked),"items":ranked[:4],"servings":size,"diet_rules_version":versions,
                     "preference_context":{"mode":mode,"soft_preferences_relaxed":relax_soft,
                                           "hard_restrictions_active":True},
                     "profile_context":{"diet_ids":[a["diet_id"] for a in profile["settings"]["diets"]],
@@ -730,7 +737,7 @@ class Service(
             if remaining and f not in staples:
                 shortages.append({"food_id":f,"quantity":quantity(remaining)})
             ingredients.append({"food_id":f,"food":foods[f],"quantity":quantity(total),"available":quantity(total-remaining),
-                                "pantry":f in staples})
+                                "pantry":f in staples, "quantity_source": "confirmed" if f in custom else "estimated"})
         return {"recipe_id":recipe["id"],"servings":data.get("servings",recipe["servings"]),"ingredients":ingredients,"nutrition":self.recipe_nutrition(recipe,foods,data.get("servings",recipe["servings"])),
                 "allocations":allocations,"shortages":shortages,"profile_version":profile["version"],"diet_rules_version":versions,"participant_versions":participants}
 
@@ -757,7 +764,15 @@ class Service(
                 left = data.get("leftover_servings",0)
                 if type(left) is not int or not 0 <= left <= plan["servings"]:
                     raise DomainError("invalid_leftovers",422)
-                use_date = valid_date(data.get("leftover_use_date")) or (self.today(self._profile(tx,user_id)["settings"]) + timedelta(days=3)).isoformat()
+                today = self.today(self._profile(tx,user_id)["settings"])
+                prepared = valid_date(data.get("prepared_at")) or today.isoformat()
+                if prepared > today.isoformat():
+                    raise DomainError("invalid_date", 422)
+                location = choice(data.get("leftover_location", "fridge"), {"fridge", "freezer"})
+                explicit_date = valid_date(data.get("leftover_use_date"))
+                use_date = explicit_date or ((date.fromisoformat(prepared) + timedelta(days=3)).isoformat() if location == "fridge" else None)
+                if use_date and use_date < prepared:
+                    raise DomainError("invalid_date", 422)
                 cooking_id = new_id()
                 for item in plan["allocations"]:
                     changed = tx.execute("UPDATE inventory_batches SET quantity_milli=quantity_milli-?,version=version+1,updated_at=? WHERE id=? AND household_id=? AND version=? AND quantity_milli>=?",
@@ -765,18 +780,20 @@ class Service(
                     if changed.rowcount != 1:
                         raise DomainError("stale_inventory",409)
                     self._event(tx,user_id,household_id,item["batch_id"],"cooked",-item["quantity_milli"],{"cooking_id":cooking_id})
-                record = {**plan,"consumption_overrides":data.get("consumption",{}),"leftover_servings":left}
+                record = {**plan,"consumption_overrides":data.get("consumption",{}),"leftover_servings":left, "consumed_servings":plan["servings"]-left,
+                          "leftover_use_date_source": "confirmed" if explicit_date else "suggested" if use_date else "unknown",
+                          "prepared_at": prepared, "leftover_location": location}
                 tx.execute("INSERT INTO cooking_sessions VALUES (?,?,?,?,?,?)",(cooking_id,user_id,household_id,plan["recipe_id"],encode(record),now()))
                 if left:
-                    tx.execute("INSERT INTO leftovers VALUES (?,?,?,?,?,?,?,?)",(new_id(),household_id,cooking_id,left,now(),"fridge",use_date,"manual"))
+                    tx.execute("INSERT INTO leftovers VALUES (?,?,?,?,?,?,?,?)",(new_id(),household_id,cooking_id,left,prepared,location,use_date,"manual"))
                 return {"id":cooking_id,"consumed":plan["allocations"],"leftover_servings":left}
             return self._once(tx,user_id,key,"cooking_confirm",data,confirm)
 
     def leftovers(self,user_id):
         household_id = self._household(user_id)
         with self.db.transaction() as tx:
-            rows = tx.all("SELECT l.*,COALESCE(s.remaining,l.servings) AS remaining,COALESCE(s.version,1) AS version,c.recipe_id,r.data AS recipe_data FROM leftovers l LEFT JOIN leftover_state s ON s.leftover_id=l.id JOIN cooking_sessions c ON c.id=l.cooking_id JOIN recipes r ON r.id=c.recipe_id WHERE l.household_id=? AND COALESCE(s.remaining,l.servings)>0 ORDER BY l.prepared_at DESC LIMIT 100",(household_id,))
-            return {"items":[{**{k:v for k,v in row.items() if k!="recipe_data"},"recipe_title":decode(row["recipe_data"])["title"],"recipe_image_url":decode(row["recipe_data"]).get("image_url"),"suggested_use_date":(date.fromisoformat(row["prepared_at"][:10])+timedelta(days=3)).isoformat() if row["location"]=="fridge" else None} for row in rows]}
+            rows = tx.all("SELECT l.*,COALESCE(s.remaining,l.servings) AS remaining,COALESCE(s.version,1) AS version,c.recipe_id,c.data AS cooking_data,r.data AS recipe_data FROM leftovers l LEFT JOIN leftover_state s ON s.leftover_id=l.id JOIN cooking_sessions c ON c.id=l.cooking_id JOIN recipes r ON r.id=c.recipe_id WHERE l.household_id=? AND COALESCE(s.remaining,l.servings)>0 ORDER BY l.prepared_at DESC LIMIT 100",(household_id,))
+            return {"items":[{**{k:v for k,v in row.items() if k not in {"recipe_data", "cooking_data"}},"use_date_source":decode(row["cooking_data"]).get("leftover_use_date_source", "unknown"),"recipe_title":decode(row["recipe_data"])["title"],"recipe_image_url":decode(row["recipe_data"]).get("image_url"),"suggested_use_date":(date.fromisoformat(row["prepared_at"][:10])+timedelta(days=3)).isoformat() if row["location"]=="fridge" else None} for row in rows]}
 
     def export(self,user_id):
         household_id = self._household(user_id)

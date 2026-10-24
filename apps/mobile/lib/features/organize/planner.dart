@@ -86,8 +86,16 @@ class _PlannerState extends ResourceState<PlannerPage> {
   List<Json> get preferenceOverrides =>
       records(selected?['data']?['preference_overrides']);
 
-  Future<void> saveMeals(List<Json> meals, {List<Json>? overrides}) async {
+  Future<void> saveMeals(
+    List<Json> meals, {
+    List<Json>? overrides,
+    Json? dailyLimits,
+  }) async {
     final source = overrides ?? preferenceOverrides;
+    final limits = <String, dynamic>{
+      ...?selected?['data']?['daily_limits'],
+      ...?dailyLimits,
+    };
     final validTargets = {
       for (final meal in meals) '${meal['date']}:${meal['slot']}',
     };
@@ -103,6 +111,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
       'start_date': isoDay(start),
       'meals': meals,
       'preference_overrides': safeOverrides,
+      'daily_limits': limits,
       if (selected != null) 'id': selected!['id'],
       if (selected != null) 'expected_version': selected!['version'],
     }, reload: false);
@@ -116,6 +125,128 @@ class _PlannerState extends ResourceState<PlannerPage> {
       });
     }
   }
+
+  Future<Json> mealCommand(String action, [Json extra = const {}]) async {
+    final result = await command({
+      'action': action,
+      'id': selected!['id'],
+      'expected_version': selected!['version'],
+      ...extra,
+    }, reload: false);
+    if (mounted && result['data'] != null) {
+      setState(() {
+        selected = {...selected!, ...result};
+        data = {
+          ...?data,
+          'items': [
+            selected,
+            ...records(data?['items']).where((p) => p['id'] != result['id']),
+          ],
+        };
+      });
+    }
+    return result;
+  }
+
+  Future<void> toggleLock(Json meal) => guard(() async {
+    if (draftMeals != null) return;
+    await mealCommand('lock', {
+      'date': meal['date'],
+      'slot': meal['slot'],
+      'locked': meal['locked'] != true,
+    });
+  });
+
+  Future<void> suggestAlternative(Json meal) => guard(() async {
+    final excluded = <String>[];
+    while (mounted) {
+      final result = await mealCommand('suggest_alternative', {
+        'date': meal['date'],
+        'slot': meal['slot'],
+        'exclude_recipe_ids': excluded,
+      });
+      if (!mounted) return;
+      final candidate = Map<String, dynamic>.from(
+        result['recommendation']['recipe'] as Map,
+      );
+      final choice = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(context.t('plan_alternative')),
+          content: Text(labelOf(candidate['title'], context)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(context.t('cancel')),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'another'),
+              child: Text(context.t('plan_another')),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'accept'),
+              child: Text(context.t('accept_plan')),
+            ),
+          ],
+        ),
+      );
+      if (choice == null || !mounted) return;
+      if (choice == 'another') {
+        excluded.add(candidate['id'] as String);
+        continue;
+      }
+      await mealCommand('replace', {
+        'date': meal['date'],
+        'slot': meal['slot'],
+        'recipe_id': candidate['id'],
+      });
+      return;
+    }
+  });
+
+  Future<void> reschedule(Json meal, String action) => guard(() async {
+    final target = await showModalBottomSheet<MealTarget>(
+      context: context,
+      useRootNavigator: true,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (context) => MealScheduleSheet(
+        initialDay: DateTime.parse(meal['date'] as String),
+        title: context.t('plan_$action'),
+      ),
+    );
+    if (target == null || !mounted) return;
+    await mealCommand(action, {
+      'date': meal['date'],
+      'slot': meal['slot'],
+      'target_date': isoDay(target.day),
+      'target_slot': target.slot,
+    });
+  });
+
+  Future<void> editTimeLimit(DateTime day) => guard(() async {
+    final limits = Map<String, dynamic>.from(
+      selected?['data']?['daily_limits'] as Map? ?? {},
+    );
+    final value = await askText(
+      context,
+      context.t('plan_time_limit'),
+      initial: '${limits[isoDay(day)] ?? ''}',
+      numeric: true,
+    );
+    if (value == null || !mounted) return;
+    final minutes = value.trim().isEmpty ? null : int.tryParse(value);
+    if (value.trim().isNotEmpty &&
+        (minutes == null || minutes < 1 || minutes > 1440)) {
+      throw const ApiFailure('invalid_time_limits');
+    }
+    limits[isoDay(day)] = minutes;
+    if (selected == null) {
+      await saveMeals([], dailyLimits: limits);
+    } else {
+      await mealCommand('set_time_limits', {'daily_limits': limits});
+    }
+  });
 
   bool hasGuiltyPleasure(Json meal, List<Json> overrides) => overrides.any(
     (item) =>
@@ -268,7 +399,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
       'action': 'preview_generate',
       if (participants != null) 'participants': participants,
       'start_date': isoDay(start),
-      'servings': 1,
+      'servings': participants?.length ?? 1,
+      if (selected != null) 'id': selected!['id'],
+      if (selected != null) 'expected_version': selected!['version'],
     }, reload: false);
     if (mounted && result['preview'] == true) {
       setState(() => draftMeals = records(result['data']?['meals']));
@@ -563,6 +696,12 @@ class _PlannerState extends ResourceState<PlannerPage> {
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const Spacer(),
+              if (draftMeals == null)
+                IconButton(
+                  tooltip: context.t('plan_time_limit'),
+                  onPressed: () => editTimeLimit(day),
+                  icon: const Icon(Icons.schedule, size: 20),
+                ),
               Text(
                 MaterialLocalizations.of(context).formatMediumDate(day),
                 style: Theme.of(context).textTheme.bodyMedium,
@@ -581,9 +720,18 @@ class _PlannerState extends ResourceState<PlannerPage> {
             guiltyPleasure: hasGuiltyPleasure(featured.meal, overrides),
             onOpen: () =>
                 context.push('/recipes/${featured.meal['recipe_id']}'),
-            onReplace: () => replaceMeal(day, featured.slot, featured.meal),
-            onDelete: () => removeMeal(featured.meal, meals),
-            onGuiltyPleasure: () => changeGuiltyPleasure(featured.meal),
+            onLock: draftMeals == null ? () => toggleLock(featured.meal) : null,
+            onAlternative: draftMeals == null
+                ? () => suggestAlternative(featured.meal)
+                : null,
+            onReschedule: draftMeals == null
+                ? (action) => reschedule(featured.meal, action)
+                : null,
+            onReplace: () =>
+                guard(() => replaceMeal(day, featured.slot, featured.meal)),
+            onDelete: () => guard(() => removeMeal(featured.meal, meals)),
+            onGuiltyPleasure: () =>
+                guard(() => changeGuiltyPleasure(featured.meal)),
           ),
         for (final slot in slots)
           if (featured == null || slot != featured.slot) ...[
@@ -605,15 +753,24 @@ class _PlannerState extends ResourceState<PlannerPage> {
                   onOpen: () => item == null
                       ? addMeal(day, slot)
                       : context.push('/recipes/${item.meal['recipe_id']}'),
+                  onLock: item == null || draftMeals != null
+                      ? null
+                      : () => toggleLock(item.meal),
+                  onAlternative: item == null || draftMeals != null
+                      ? null
+                      : () => suggestAlternative(item.meal),
+                  onReschedule: item == null || draftMeals != null
+                      ? null
+                      : (action) => reschedule(item.meal, action),
                   onReplace: item == null
                       ? null
-                      : () => replaceMeal(day, slot, item.meal),
+                      : () => guard(() => replaceMeal(day, slot, item.meal)),
                   onDelete: item == null
                       ? null
-                      : () => removeMeal(item.meal, meals),
+                      : () => guard(() => removeMeal(item.meal, meals)),
                   onGuiltyPleasure: item == null
                       ? null
-                      : () => changeGuiltyPleasure(item.meal),
+                      : () => guard(() => changeGuiltyPleasure(item.meal)),
                 );
               },
             ),
@@ -658,13 +815,14 @@ class _PlannerState extends ResourceState<PlannerPage> {
                 );
                 return;
               }
-              await Mutation().send(
+              final accepted = await reviewGeneratedShopping(
+                context,
                 ref.read(apiProvider),
-                'POST',
-                '/shopping',
-                {'action': 'generate', 'plan_id': selected!['id']},
+                {'plan_id': selected!['id']},
               );
-              if (mounted && context.mounted) context.go('/plan/shopping');
+              if (accepted && mounted && context.mounted) {
+                context.go('/plan/shopping');
+              }
             },
           ),
         ],
@@ -933,6 +1091,9 @@ class _PlannerMealCard extends StatelessWidget {
     this.onReplace,
     this.onDelete,
     this.onGuiltyPleasure,
+    this.onLock,
+    this.onAlternative,
+    this.onReschedule,
   });
 
   final DateTime day;
@@ -945,6 +1106,9 @@ class _PlannerMealCard extends StatelessWidget {
   final VoidCallback? onReplace;
   final VoidCallback? onDelete;
   final VoidCallback? onGuiltyPleasure;
+  final VoidCallback? onLock;
+  final VoidCallback? onAlternative;
+  final void Function(String)? onReschedule;
 
   @override
   Widget build(BuildContext context) {
@@ -967,7 +1131,9 @@ class _PlannerMealCard extends StatelessWidget {
                 FoodImage(
                   id: '${meal!['recipe_id']}',
                   imageUrl: '${recipe?['image_url'] ?? ''}',
-                  width: featured ? 104 : 52,
+                  width: featured
+                      ? (MediaQuery.sizeOf(context).width < 380 ? 72 : 104)
+                      : 52,
                   height: featured ? 92 : 52,
                   radius: featured ? 18 : 14,
                 )
@@ -1023,14 +1189,42 @@ class _PlannerMealCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (hasMeal)
+              if (hasMeal && onLock != null)
+                IconButton(
+                  tooltip: context.t(
+                    meal!['locked'] == true ? 'plan_unlock' : 'plan_lock',
+                  ),
+                  icon: Icon(
+                    meal!['locked'] == true
+                        ? Icons.lock_outline
+                        : Icons.lock_open,
+                    size: 20,
+                  ),
+                  onPressed: onLock,
+                ),
+              if (hasMeal && meal!['locked'] != true)
                 PopupMenuButton<String>(
                   onSelected: (action) {
+                    if (action == 'alternative') onAlternative?.call();
+                    if (const {'move', 'swap', 'copy'}.contains(action)) {
+                      onReschedule?.call(action);
+                    }
                     if (action == 'replace') onReplace?.call();
                     if (action == 'delete') onDelete?.call();
                     if (action == 'guilty_pleasure') onGuiltyPleasure?.call();
                   },
                   itemBuilder: (context) => [
+                    if (onAlternative != null)
+                      PopupMenuItem(
+                        value: 'alternative',
+                        child: Text(context.t('plan_alternative')),
+                      ),
+                    if (onReschedule != null)
+                      for (final action in ['move', 'swap', 'copy'])
+                        PopupMenuItem(
+                          value: action,
+                          child: Text(context.t('plan_$action')),
+                        ),
                     PopupMenuItem(
                       value: 'replace',
                       child: Text(context.t('replace')),

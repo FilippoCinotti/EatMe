@@ -245,7 +245,7 @@ class DomainCase(unittest.TestCase):
         for food, amount in [('tomato', '300'), ('chickpea', '300'), ('olive-oil', '20')]:
             self.app.add_inventory(self.owner, {'food_id': identifier('food', food), 'quantity': amount}, new_id())
         preview = self.app.cooking_preview(self.owner, self.meal())
-        command = {**self.meal(), 'profile_version': preview['profile_version'], 'diet_rules_version': preview['diet_rules_version'], 'batch_versions': {b['batch_id']: b['version'] for b in preview['allocations']}, 'leftover_servings': 1, 'leftover_use_date': '2026-09-10'}
+        command = {**self.meal(), 'profile_version': preview['profile_version'], 'diet_rules_version': preview['diet_rules_version'], 'batch_versions': {b['batch_id']: b['version'] for b in preview['allocations']}, 'leftover_servings': 1, 'prepared_at': '2026-09-09', 'leftover_use_date': '2026-09-10'}
         self.app.cooking_confirm(self.owner, command, new_id())
         leftover = self.app.leftovers(self.owner)['items'][0]
         eat = {'action': 'consume', 'id': leftover['id'], 'servings': 1, 'expected_version': 1}
