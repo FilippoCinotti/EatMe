@@ -243,7 +243,7 @@ class SocialApi extends support.TestApi {
         'nutrition': null,
       };
     }
-    if (path == '/insights') {
+    if (path == '/insights' || path.startsWith('/insights?')) {
       return {
         'recorded_quantities': {
           'g': {'used': '350', 'discarded': '0'},
