@@ -188,7 +188,7 @@ jobs:
           if [ "$CI_EVENT" = "pull_request" ]; then
             git fetch --no-tags origin "$PR_HEAD_SHA"
             git worktree add --detach "$RUNNER_TEMP/eatme-pr-source" "$PR_HEAD_SHA"
-            (cd "$RUNNER_TEMP/eatme-pr-source/apps/mobile" && dart format --output=none --set-exit-if-changed lib test integration_test)
+            (cd "$RUNNER_TEMP/eatme-pr-source/apps/mobile" && flutter pub get && dart format --output=none --set-exit-if-changed lib test integration_test)
           else
             git diff --exit-code -- lib test integration_test
           fi
