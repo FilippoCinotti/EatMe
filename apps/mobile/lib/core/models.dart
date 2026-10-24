@@ -85,6 +85,7 @@ class Batch {
     this.usable, {
     this.metadata = const {},
     this.recalls = const [],
+    this.createdAt,
   });
   final String id, quantity, location, expiryKind;
   final Food food;
@@ -93,6 +94,7 @@ class Batch {
   final bool usable;
   final Json metadata;
   final List<Json> recalls;
+  final DateTime? createdAt;
   factory Batch.fromJson(Json j) => Batch(
     j['id'] as String,
     Food.fromJson(Map<String, dynamic>.from(j['food'] as Map)),
@@ -106,6 +108,7 @@ class Batch {
     recalls: (j['recalls'] as List? ?? [])
         .map((v) => Map<String, dynamic>.from(v as Map))
         .toList(),
+    createdAt: DateTime.tryParse(j['created_at'] as String? ?? ''),
   );
 }
 
@@ -147,9 +150,10 @@ class Recipe {
         .toList();
   }
 
-  List<String> instructions(String language) => instructionSteps(
-    language,
-  ).map((step) => '${step['text'] ?? ''}').toList();
+  List<String> instructions(String language) =>
+      instructionSteps(language)
+          .map((step) => '${step['text'] ?? ''}')
+          .toList();
 
   int? timerMinutes(String language, int index) {
     final rows = instructionSteps(language);

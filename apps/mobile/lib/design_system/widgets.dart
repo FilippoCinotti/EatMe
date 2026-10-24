@@ -52,9 +52,8 @@ class _AsyncActionState extends State<AsyncAction> {
             : error is AuthException
             ? 'authentication_failed'
             : 'unknown_error';
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(context.t(code))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(context.t(code))));
       }
     } finally {
       if (mounted) setState(() => busy = false);
@@ -108,14 +107,14 @@ class _AsyncActionState extends State<AsyncAction> {
         ? OutlinedButton(
             style: widget.destructive
                 ? OutlinedButton.styleFrom(
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.errorContainer,
+                    backgroundColor: Theme.of(context)
+                        .colorScheme
+                        .errorContainer,
                     // The container/on-container pair keeps the label legible
                     // in both themes.
-                    foregroundColor: Theme.of(
-                      context,
-                    ).colorScheme.onErrorContainer,
+                    foregroundColor: Theme.of(context)
+                        .colorScheme
+                        .onErrorContainer,
                   )
                 : null,
             onPressed: busy || !widget.enabled ? null : run,
@@ -384,6 +383,7 @@ Future<void> sheet(BuildContext context, Widget child) =>
         ),
         child: ConstrainedBox(
           constraints: BoxConstraints(
+            maxWidth: 620,
             maxHeight: MediaQuery.sizeOf(context).height * 0.88,
           ),
           child: child,
@@ -393,9 +393,8 @@ Future<void> sheet(BuildContext context, Widget child) =>
 
 String expiryLabel(BuildContext context, Batch batch) {
   if (batch.expiryDate == null) return context.t('date_unknown');
-  final date = MaterialLocalizations.of(
-    context,
-  ).formatCompactDate(batch.expiryDate!);
+  final date = MaterialLocalizations.of(context)
+      .formatCompactDate(batch.expiryDate!);
   return context.t(batch.expiryKind, {'date': date});
 }
 
@@ -409,6 +408,18 @@ int? expiryDays(Batch batch, {DateTime? now}) {
     date.month,
     date.day,
   ).difference(DateTime.utc(today.year, today.month, today.day)).inDays;
+}
+
+/// Shared expiry presentation for inventory rows and the detail sheet.
+/// Uses the same three-day warning threshold as the Fridge filters.
+enum BatchExpiryStatus { unknown, normal, soon, expired }
+
+BatchExpiryStatus batchExpiryStatus(Batch batch, {DateTime? now}) {
+  final days = expiryDays(batch, now: now);
+  if (days == null) return BatchExpiryStatus.unknown;
+  if (days < 0) return BatchExpiryStatus.expired;
+  if (days <= 3) return BatchExpiryStatus.soon;
+  return BatchExpiryStatus.normal;
 }
 
 String relativeExpiryLabel(BuildContext context, Batch batch) {
@@ -446,12 +457,21 @@ String relativeExpiryLabel(BuildContext context, Batch batch) {
 }
 
 class CompactBatchRow extends StatelessWidget {
-  const CompactBatchRow({super.key, required this.batch, required this.onTap});
+  const CompactBatchRow({
+    super.key,
+    required this.batch,
+    required this.onTap,
+    this.selecting = false,
+    this.selected = false,
+    this.onSelected,
+  });
   final Batch batch;
   final VoidCallback onTap;
+  final bool selecting;
+  final bool selected;
+  final ValueChanged<bool>? onSelected;
   @override
   Widget build(BuildContext context) {
-    final days = expiryDays(batch);
     final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -460,11 +480,22 @@ class CompactBatchRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: onTap,
+          onTap: selecting ? () => onSelected?.call(!selected) : onTap,
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Row(
               children: [
+                if (selecting) ...[
+                  Checkbox(
+                    key: ValueKey('select-batch-${batch.id}'),
+                    value: selected,
+                    onChanged: onSelected == null
+                        ? null
+                        : (value) => onSelected!(value ?? false),
+                    semanticLabel: context.t('inventory_select_item'),
+                  ),
+                  const SizedBox(width: 4),
+                ],
                 FoodImage(
                   id: batch.food.id,
                   photoId: batch.food.photoId,
@@ -491,11 +522,12 @@ class CompactBatchRow extends StatelessWidget {
                         relativeExpiryLabel(context, batch),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color:
-                              !batch.usable ||
-                                  (days != null &&
-                                      days < 0 &&
-                                      batch.expiryKind == 'use_by')
+                              batchExpiryStatus(batch) ==
+                                  BatchExpiryStatus.expired
                               ? scheme.error
+                              : batchExpiryStatus(batch) ==
+                                    BatchExpiryStatus.soon
+                              ? scheme.tertiary
                               : scheme.onSurfaceVariant,
                         ),
                       ),
@@ -503,7 +535,10 @@ class CompactBatchRow extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 4),
-                const Icon(Icons.chevron_right, size: 18),
+                if (!selecting)
+                  const Icon(Icons.chevron_right, size: 18)
+                else if (selected)
+                  Icon(Icons.check_circle, size: 18, color: scheme.primary),
               ],
             ),
           ),

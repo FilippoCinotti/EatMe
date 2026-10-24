@@ -113,9 +113,9 @@ class _BiometricGateState extends ConsumerState<BiometricGate>
                                   Icon(
                                     Icons.fingerprint,
                                     size: 40,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primary,
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
@@ -176,9 +176,9 @@ class _BiometricGateState extends ConsumerState<BiometricGate>
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.error,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .error,
                                       ),
                                     ),
                                 ],

@@ -35,4 +35,11 @@ jobs:
             apps/mobile/lib/features/auth/welcome/*.dart
             apps/mobile/test/welcome_themes_test.dart
           retention-days: 7
-      - run: git diff --exit-code -- apps/mobile/lib/features/auth apps/mobile/test/welcome_themes_test.dart
+      - name: Verify PR-head welcome formatting
+        shell: bash
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git fetch --no-tags origin "$PR_HEAD_SHA"
+          git worktree add --detach "$RUNNER_TEMP/eatme-welcome-source" "$PR_HEAD_SHA"
+          (cd "$RUNNER_TEMP/eatme-welcome-source/apps/mobile" && dart format --output=none --set-exit-if-changed lib/features/auth test/welcome_themes_test.dart)
