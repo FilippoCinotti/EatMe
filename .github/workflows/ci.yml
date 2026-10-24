@@ -176,9 +176,22 @@ jobs:
           disable-animations: true
           working-directory: apps/mobile
           script: flutter test integration_test/kitchen_flow_test.dart --dart-define=API_URL=http://10.0.2.2:8000/api/v1
-      - name: Verify Dart formatting
-        run: git diff --exit-code -- lib test integration_test
+      # The PR checkout is a synthetic merge with main; main may have
+      # unformatted changes beyond this PR. Validate the actual PR head instead.
+      - name: Verify Dart formatting on PR head
+        shell: bash
         working-directory: apps/mobile
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          CI_EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$CI_EVENT" = "pull_request" ]; then
+            git fetch --no-tags origin "$PR_HEAD_SHA"
+            git worktree add --detach "$RUNNER_TEMP/eatme-pr-source" "$PR_HEAD_SHA"
+            (cd "$RUNNER_TEMP/eatme-pr-source/apps/mobile" && dart format --output=none --set-exit-if-changed lib test integration_test)
+          else
+            git diff --exit-code -- lib test integration_test
+          fi
       - name: Export UI verification images
         if: always()
         run: python3 scripts/export_ci_review.py mobile
