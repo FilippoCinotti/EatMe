@@ -1293,5 +1293,12 @@
   "timer_notifications": "Timerhinweise aktivieren",
   "timer_restore_error": "Gespeicherte Timer nicht wiederhergestellt. Seite erneut öffnen.",
   "timer_save_error": "Timer läuft, konnte aber nicht gespeichert werden.",
-  "timer_notification_error": "Hinweise nicht verfügbar. Timer bleibt in der App sichtbar."
+  "timer_notification_error": "Hinweise nicht verfügbar. Timer bleibt in der App sichtbar.",
+  "quantity_confirmed": "Bestätigt",
+  "quantity_estimated": "Geschätzt",
+  "consumed_portions": "Verzehrte Portionen: {count}",
+  "set_use_date": "Geplantes Verbrauchsdatum",
+  "storage_location": "Aufbewahrungsort",
+  "review_shopping": "Einkaufsänderungen prüfen",
+  "shopping_nothing_missing": "Es fehlen keine Zutaten."
 }

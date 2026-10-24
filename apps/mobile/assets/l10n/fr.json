@@ -1293,5 +1293,12 @@
   "timer_notifications": "Activer les alertes",
   "timer_restore_error": "Impossible de restaurer les minuteurs. Rouvrez la page.",
   "timer_save_error": "Minuteur actif, mais enregistrement impossible.",
-  "timer_notification_error": "Alertes indisponibles. Le minuteur reste visible dans l’app."
+  "timer_notification_error": "Alertes indisponibles. Le minuteur reste visible dans l’app.",
+  "quantity_confirmed": "Confirmée",
+  "quantity_estimated": "Estimée",
+  "consumed_portions": "Portions consommées : {count}",
+  "set_use_date": "Date de consommation prévue",
+  "storage_location": "Lieu de conservation",
+  "review_shopping": "Vérifier les achats à mettre à jour",
+  "shopping_nothing_missing": "Aucun ingrédient ne manque."
 }

@@ -1293,5 +1293,12 @@
   "timer_notifications": "Abilita avvisi timer",
   "timer_restore_error": "Impossibile recuperare i timer salvati. Riapri la pagina per riprovare.",
   "timer_save_error": "Timer attivo, ma salvataggio non riuscito.",
-  "timer_notification_error": "Avvisi non disponibili. Il timer rimane visibile nell’app."
+  "timer_notification_error": "Avvisi non disponibili. Il timer rimane visibile nell’app.",
+  "quantity_confirmed": "Confermata",
+  "quantity_estimated": "Stimata",
+  "consumed_portions": "Porzioni consumate: {count}",
+  "set_use_date": "Imposta data di consumo prevista",
+  "storage_location": "Conservazione",
+  "review_shopping": "Controlla la spesa da aggiornare",
+  "shopping_nothing_missing": "Non mancano ingredienti."
 }

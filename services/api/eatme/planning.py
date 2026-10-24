@@ -150,7 +150,7 @@ class PlanningService:
             return {"items": [{**r, "quantity": quantity(r["quantity_milli"]), "checked": bool(r["checked"])} for r in tx.all("SELECT * FROM shopping_items WHERE household_id=? ORDER BY checked,category,label,id", (home,))]}
 
     def shopping_action(self, user_id, data, key):
-        if data.get("action") == "generate":
+        if data.get("action") in {"generate", "preview_generate"}:
             self.require_capability(user_id, "canUseGeneratedShopping")
         home = self._household(user_id, write=True)
         with self.db.transaction(home) as tx:
@@ -169,7 +169,7 @@ class PlanningService:
                         raise DomainError("whole_units_required", 422)
                     identifier = self._shopping_insert(tx, user_id, home, food_id, label, amount, unit, text(data.get("category", food.get("group", "other") if food else "other"), maximum=40), "manual")
                     return {"id": identifier, "version": 1}
-                if action == "generate":
+                if action in {"generate", "preview_generate"}:
                     meals = data.get("meals")
                     source = "recipes"
                     if data.get("plan_id"):
@@ -179,6 +179,8 @@ class PlanningService:
                         meals, source = decode(plan["data"])["meals"], "plan:" + plan["id"]
                     if not isinstance(meals, list) or not 1 <= len(meals) <= 28:
                         raise DomainError("invalid_meals", 422)
+                    if data.get("plan_id") and "plan_version" in data and data["plan_version"] != plan["version"]:
+                        raise DomainError("stale_plan", 409)
                     totals, foods = {}, {}
                     for meal in meals:
                         checked, catalog = self._validate_meal(tx, user_id, meal)
@@ -186,13 +188,32 @@ class PlanningService:
                         for food_id, amount in requirements(checked, meal["servings"]).items():
                             totals[food_id] = totals.get(food_id, 0) + amount
                     today = self.today(self._profile(tx, user_id)["settings"])
-                    for batch in self._inventory(tx, home):
+                    inventory = self._inventory(tx, home)
+                    inventory_versions = {b["id"]: b["version"] for b in inventory}
+                    if "inventory_versions" in data and data["inventory_versions"] != inventory_versions:
+                        raise DomainError("stale_inventory", 409)
+                    for batch in inventory:
                         if batch_usable(batch, today) and batch["food_id"] in totals:
                             totals[batch["food_id"]] = max(0, totals[batch["food_id"]] - batch["quantity_milli"])
                     for food_id in self._staples(tx, home) & set(totals):
                         totals[food_id] = 0
-                    # Replace only this plan's generated lines; manual lines remain explicit purchases.
-                    tx.execute("DELETE FROM shopping_items WHERE household_id=? AND source_key=?", (home, source))
+                    current = tx.all("SELECT * FROM shopping_items WHERE household_id=?", (home,))
+                    snapshot = {row["id"]: row["version"] for row in current}
+                    # Checked purchases are user-confirmed and must survive recalculation.
+                    for row in current:
+                        if row["source_key"] == source and row["checked"] and row["food_id"] in totals:
+                            totals[row["food_id"]] = max(0, totals[row["food_id"]] - row["quantity_milli"])
+                    proposed = [{"food_id": food_id, "quantity": quantity(amount), "unit": foods[food_id]["unit"],
+                                 "label": foods[food_id]["name"], "category": foods[food_id].get("group", "other")}
+                                for food_id, amount in totals.items() if amount]
+                    if action == "preview_generate":
+                        return {"preview": True, "items": proposed, "shopping_versions": snapshot,
+                                "inventory_versions": inventory_versions,
+                                **({"plan_version": plan["version"]} if data.get("plan_id") else {})}
+                    if "shopping_versions" in data and data["shopping_versions"] != snapshot:
+                        raise DomainError("stale_shopping_item", 409)
+                    # Replace only unconfirmed generated lines; manual and checked lines survive.
+                    tx.execute("DELETE FROM shopping_items WHERE household_id=? AND source_key=? AND checked=0", (home, source))
                     identifiers = []
                     for food_id, amount in totals.items():
                         if amount:
@@ -231,7 +252,7 @@ class PlanningService:
                     amount = amount_milli(data.get("quantity"))
                     if item["unit"] == "pcs" and amount % 1000:
                         raise DomainError("whole_units_required", 422)
-                    tx.execute("UPDATE shopping_items SET label=?,quantity_milli=?,version=version+1,updated_at=? WHERE id=?", (text(data.get("label", item["label"]), maximum=120), amount, now(), identifier))
+                    tx.execute("UPDATE shopping_items SET label=?,quantity_milli=?,source_key='manual',version=version+1,updated_at=? WHERE id=?", (text(data.get("label", item["label"]), maximum=120), amount, now(), identifier))
                 else:
                     raise DomainError("invalid_action", 422)
                 return {"id": identifier, "version": item["version"] + 1}

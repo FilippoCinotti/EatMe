@@ -737,7 +737,7 @@ class Service(
             if remaining and f not in staples:
                 shortages.append({"food_id":f,"quantity":quantity(remaining)})
             ingredients.append({"food_id":f,"food":foods[f],"quantity":quantity(total),"available":quantity(total-remaining),
-                                "pantry":f in staples})
+                                "pantry":f in staples, "quantity_source": "confirmed" if f in custom else "estimated"})
         return {"recipe_id":recipe["id"],"servings":data.get("servings",recipe["servings"]),"ingredients":ingredients,"nutrition":self.recipe_nutrition(recipe,foods,data.get("servings",recipe["servings"])),
                 "allocations":allocations,"shortages":shortages,"profile_version":profile["version"],"diet_rules_version":versions,"participant_versions":participants}
 
@@ -764,7 +764,15 @@ class Service(
                 left = data.get("leftover_servings",0)
                 if type(left) is not int or not 0 <= left <= plan["servings"]:
                     raise DomainError("invalid_leftovers",422)
-                use_date = valid_date(data.get("leftover_use_date")) or (self.today(self._profile(tx,user_id)["settings"]) + timedelta(days=3)).isoformat()
+                today = self.today(self._profile(tx,user_id)["settings"])
+                prepared = valid_date(data.get("prepared_at")) or today.isoformat()
+                if prepared > today.isoformat():
+                    raise DomainError("invalid_date", 422)
+                location = choice(data.get("leftover_location", "fridge"), {"fridge", "freezer"})
+                explicit_date = valid_date(data.get("leftover_use_date"))
+                use_date = explicit_date or ((date.fromisoformat(prepared) + timedelta(days=3)).isoformat() if location == "fridge" else None)
+                if use_date and use_date < prepared:
+                    raise DomainError("invalid_date", 422)
                 cooking_id = new_id()
                 for item in plan["allocations"]:
                     changed = tx.execute("UPDATE inventory_batches SET quantity_milli=quantity_milli-?,version=version+1,updated_at=? WHERE id=? AND household_id=? AND version=? AND quantity_milli>=?",
@@ -772,18 +780,20 @@ class Service(
                     if changed.rowcount != 1:
                         raise DomainError("stale_inventory",409)
                     self._event(tx,user_id,household_id,item["batch_id"],"cooked",-item["quantity_milli"],{"cooking_id":cooking_id})
-                record = {**plan,"consumption_overrides":data.get("consumption",{}),"leftover_servings":left}
+                record = {**plan,"consumption_overrides":data.get("consumption",{}),"leftover_servings":left, "consumed_servings":plan["servings"]-left,
+                          "leftover_use_date_source": "confirmed" if explicit_date else "suggested" if use_date else "unknown",
+                          "prepared_at": prepared, "leftover_location": location}
                 tx.execute("INSERT INTO cooking_sessions VALUES (?,?,?,?,?,?)",(cooking_id,user_id,household_id,plan["recipe_id"],encode(record),now()))
                 if left:
-                    tx.execute("INSERT INTO leftovers VALUES (?,?,?,?,?,?,?,?)",(new_id(),household_id,cooking_id,left,now(),"fridge",use_date,"manual"))
+                    tx.execute("INSERT INTO leftovers VALUES (?,?,?,?,?,?,?,?)",(new_id(),household_id,cooking_id,left,prepared,location,use_date,"manual"))
                 return {"id":cooking_id,"consumed":plan["allocations"],"leftover_servings":left}
             return self._once(tx,user_id,key,"cooking_confirm",data,confirm)
 
     def leftovers(self,user_id):
         household_id = self._household(user_id)
         with self.db.transaction() as tx:
-            rows = tx.all("SELECT l.*,COALESCE(s.remaining,l.servings) AS remaining,COALESCE(s.version,1) AS version,c.recipe_id,r.data AS recipe_data FROM leftovers l LEFT JOIN leftover_state s ON s.leftover_id=l.id JOIN cooking_sessions c ON c.id=l.cooking_id JOIN recipes r ON r.id=c.recipe_id WHERE l.household_id=? AND COALESCE(s.remaining,l.servings)>0 ORDER BY l.prepared_at DESC LIMIT 100",(household_id,))
-            return {"items":[{**{k:v for k,v in row.items() if k!="recipe_data"},"recipe_title":decode(row["recipe_data"])["title"],"recipe_image_url":decode(row["recipe_data"]).get("image_url"),"suggested_use_date":(date.fromisoformat(row["prepared_at"][:10])+timedelta(days=3)).isoformat() if row["location"]=="fridge" else None} for row in rows]}
+            rows = tx.all("SELECT l.*,COALESCE(s.remaining,l.servings) AS remaining,COALESCE(s.version,1) AS version,c.recipe_id,c.data AS cooking_data,r.data AS recipe_data FROM leftovers l LEFT JOIN leftover_state s ON s.leftover_id=l.id JOIN cooking_sessions c ON c.id=l.cooking_id JOIN recipes r ON r.id=c.recipe_id WHERE l.household_id=? AND COALESCE(s.remaining,l.servings)>0 ORDER BY l.prepared_at DESC LIMIT 100",(household_id,))
+            return {"items":[{**{k:v for k,v in row.items() if k not in {"recipe_data", "cooking_data"}},"use_date_source":decode(row["cooking_data"]).get("leftover_use_date_source", "unknown"),"recipe_title":decode(row["recipe_data"])["title"],"recipe_image_url":decode(row["recipe_data"]).get("image_url"),"suggested_use_date":(date.fromisoformat(row["prepared_at"][:10])+timedelta(days=3)).isoformat() if row["location"]=="fridge" else None} for row in rows]}
 
     def export(self,user_id):
         household_id = self._household(user_id)
