@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../core/api.dart';
+import '../../core/cooking_timers.dart';
+import '../../core/reminders.dart';
 import '../../core/localization.dart';
 import '../../core/models.dart';
 import '../../core/state.dart';
@@ -30,7 +32,12 @@ class _CookingPageState extends ConsumerState<CookingPage> {
   late Future<Recipe> future = load();
   Json preview = {};
   Timer? timer;
-  DateTime? timerEnd;
+  final List<CookingTimer> activeTimers = [];
+  late final CookingTimerStore timerStore;
+  late final Future<void> restoredTimers;
+  Future<void> timerWrites = Future.value();
+  bool timerNotifications = false;
+  String? timerError;
   final scrollController = ScrollController();
   int step = 0, remaining = 0, durationMinutes = 5;
   bool confirmation = false;
@@ -58,6 +65,18 @@ class _CookingPageState extends ConsumerState<CookingPage> {
   @override
   void initState() {
     super.initState();
+    timerStore = CookingTimerStore(
+      ref.read(apiProvider).userId ?? 'local',
+      widget.recipeId,
+    );
+    restoredTimers = restoreTimers();
+    timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      setState(() {
+        final selected = activeTimers.where((t) => t.step == step).firstOrNull;
+        remaining = selected?.secondsAt(DateTime.now()) ?? 0;
+      });
+    });
     unawaited(WakelockPlus.enable().catchError((Object _) {}));
   }
 
@@ -92,35 +111,104 @@ class _CookingPageState extends ConsumerState<CookingPage> {
     if (mounted) setState(() => customTimers[step] = minutes);
   }
 
-  void toggleTimer([int? requestedMinutes]) {
-    if (remaining > 0) {
-      timer?.cancel();
-      setState(() => remaining = 0);
+  Future<void> restoreTimers() async {
+    try {
+      final saved = await timerStore.read();
+      if (mounted) setState(() => activeTimers.addAll(saved));
+    } catch (_) {
+      if (mounted) setState(() => timerError = 'timer_restore_error');
+    }
+  }
+
+  Future<void> persistTimers() async {
+    final snapshot = List<CookingTimer>.from(activeTimers);
+    timerWrites = timerWrites
+        .catchError((Object _) {})
+        .then((_) => timerStore.write(snapshot));
+    try {
+      await timerWrites;
+      if (mounted) setState(() => timerError = null);
+    } catch (_) {
+      if (mounted) setState(() => timerError = 'timer_save_error');
+    }
+  }
+
+  Future<void> toggleTimer([int? requestedMinutes]) async {
+    await restoredTimers;
+    if (!mounted || timerError == 'timer_restore_error') return;
+    final current = activeTimers
+        .where((t) => t.step == step && t.secondsAt(DateTime.now()) > 0)
+        .firstOrNull;
+    if (current != null) {
+      await removeTimer(current);
       return;
     }
+    final name = await askText(
+      context,
+      context.t('timer_name'),
+      initial: context.t('timer_step', {'count': step + 1}),
+    );
+    if (name == null || name.trim().isEmpty || !mounted) return;
     final minutes = requestedMinutes ?? durationMinutes;
-    timerEnd = DateTime.now().add(Duration(minutes: minutes));
+    final value = CookingTimer(
+      id:
+          1073741824 +
+          DateTime.now().microsecondsSinceEpoch.remainder(1073741823),
+      name: name.trim(),
+      step: step,
+      durationSeconds: minutes * 60,
+      deadline: DateTime.now().add(Duration(minutes: minutes)),
+    );
     setState(() {
+      activeTimers.add(value);
       durationMinutes = minutes;
       remaining = minutes * 60;
     });
-    timer = Timer.periodic(const Duration(seconds: 1), (t) {
-      if (!mounted) {
-        t.cancel();
-        return;
-      }
-      setState(
-        () => remaining =
-            ((timerEnd!.difference(DateTime.now()).inMilliseconds + 999) ~/
-                    1000)
-                .clamp(0, durationMinutes * 60),
+    await persistTimers();
+    if (timerNotifications) await notifyTimer(value);
+  }
+
+  Future<void> notifyTimer(CookingTimer value) async {
+    if (value.deadline == null || !value.deadline!.isAfter(DateTime.now())) {
+      return;
+    }
+    try {
+      await Reminders.cookingTimer(
+        value.id,
+        value.name,
+        value.deadline!,
+        context.t('timer_done'),
       );
-      if (remaining == 0) {
-        t.cancel();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(context.t('timer_done'))));
-      }
+    } catch (_) {
+      if (mounted) setState(() => timerError = 'timer_notification_error');
+    }
+  }
+
+  Future<void> removeTimer(CookingTimer value) async {
+    setState(() {
+      activeTimers.removeWhere((t) => t.id == value.id);
+      remaining = 0;
     });
+    await persistTimers();
+    try {
+      await Reminders.cancelCookingTimer(value.id);
+    } catch (_) {
+      if (mounted) setState(() => timerError = 'timer_notification_error');
+    }
+  }
+
+  Future<void> pauseTimer(CookingTimer value) async {
+    final replacement = value.paused
+        ? value.resume(DateTime.now())
+        : value.pause(DateTime.now());
+    setState(() => activeTimers[activeTimers.indexOf(value)] = replacement);
+    await persistTimers();
+    try {
+      await Reminders.cancelCookingTimer(value.id);
+    } catch (_) {
+      if (mounted) setState(() => timerError = 'timer_notification_error');
+    }
+    if (timerNotifications) await notifyTimer(replacement);
   }
 
   String stepTitle(String instruction) {
@@ -295,8 +383,6 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                         onPressed: () {
                           if (step == steps.length - 1) {
                             setState(() {
-                              timer?.cancel();
-                              remaining = 0;
                               confirmation = true;
                             });
                           } else {
@@ -431,6 +517,56 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (timerError != null)
+                      StatusNote(text: context.t(timerError!), warning: true),
+                    for (final value in activeTimers)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(value.name),
+                        subtitle: Text(
+                          context.t(
+                            value.secondsAt(DateTime.now()) == 0
+                                ? 'timer_done'
+                                : 'timer_seconds',
+                            {'count': value.secondsAt(DateTime.now())},
+                          ),
+                        ),
+                        leading: IconButton(
+                          tooltip: context.t(
+                            value.paused ? 'timer_resume' : 'timer_pause',
+                          ),
+                          onPressed: () => pauseTimer(value),
+                          icon: Icon(
+                            value.paused ? Icons.play_arrow : Icons.pause,
+                          ),
+                        ),
+                        trailing: IconButton(
+                          tooltip: context.t('timer_stop'),
+                          onPressed: () => removeTimer(value),
+                          icon: const Icon(Icons.close),
+                        ),
+                        onTap: () =>
+                            showStep(value.step.clamp(0, steps.length - 1)),
+                      ),
+                    TextButton.icon(
+                      icon: const Icon(Icons.notifications_outlined),
+                      label: Text(context.t('timer_notifications')),
+                      onPressed: () async {
+                        final allowed = await Reminders.requestPermission();
+                        if (!mounted) return;
+                        setState(() {
+                          timerNotifications = allowed;
+                          timerError = allowed
+                              ? null
+                              : 'timer_notification_error';
+                        });
+                        if (allowed) {
+                          for (final value in activeTimers) {
+                            await notifyTimer(value);
+                          }
+                        }
+                      },
+                    ),
                     if (remaining > 0) ...[
                       Text(
                         context.t('timer_running'),
