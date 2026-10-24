@@ -634,7 +634,7 @@ class _InsightsState extends ResourceState<InsightsPage> {
               for (final metric in ['cooked_meals', 'different_recipes']) ...[
                 Expanded(
                   child: _InsightMetric(
-                    value: data == null ? context.t('unavailable') : '${data?[metric] ?? 0}',
+                    value: data?[metric] == null ? context.t('unavailable') : '${data![metric]}',
                     label: context.t(metric),
                   ),
                 ),
