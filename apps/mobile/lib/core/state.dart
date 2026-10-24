@@ -236,7 +236,9 @@ class AppController extends Notifier<AppState> {
       final recommendations = requests[index];
       state = state.copy(
         mode: chosenMode,
-        contextual: (recommendations['contextual'] as List? ?? const []).map((r) => Map<String, dynamic>.from(r as Map)).toList(),
+        contextual: (recommendations['contextual'] as List? ?? const [])
+            .map((r) => Map<String, dynamic>.from(r as Map))
+            .toList(),
         recommendations: (recommendations['items'] as List)
             .map(
               (r) =>
@@ -270,7 +272,8 @@ class AppController extends Notifier<AppState> {
                           Batch.fromJson(Map<String, dynamic>.from(b as Map)),
                     )
                     .toList(),
-          recommendations: const [], contextual: const [],
+          recommendations: const [],
+          contextual: const [],
         );
       } else {
         state = state.copy(error: error.code, recommendations: const []);
