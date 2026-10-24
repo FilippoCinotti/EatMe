@@ -214,6 +214,12 @@ void main() {
   testWidgets('edit persists quantity and expiry in one transaction', (
     tester,
   ) async {
+    // This test checks the save contract; the separate small-screen test
+    // covers scrolling/overflow. Use a tall viewport to expose the action.
+    tester.view.physicalSize = const Size(390, 1800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     final api = SheetApi();
     await tester.pumpWidget(sheetHarness(api));
     await tester.pumpAndSettle();
@@ -225,11 +231,8 @@ void main() {
       find.byKey(const ValueKey('edit-batch-quantity')),
       '350',
     );
-    // Scroll the editor's mounted ListView; the lazy Save action is
-    // initially outside the viewport and cannot be the scroll finder.
-    await tester.drag(find.byType(ListView).last, const Offset(0, -650));
+    await tester.ensureVisible(find.text('Salva'));
     await tester.pumpAndSettle();
-    expect(find.text('Salva'), findsOneWidget);
     await tester.tap(find.text('Salva'));
     await tester.pumpAndSettle();
     final saved = api.calls.where(
