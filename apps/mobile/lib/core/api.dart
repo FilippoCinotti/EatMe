@@ -23,6 +23,42 @@ class ApiFailure implements Exception {
   String toString() => code;
 }
 
+/// A GET can be retried safely when transport or the gateway is temporarily down.
+/// Mutations must never be implicitly repeated, even with an idempotency key.
+bool isRetryableReadFailure(DioException error) {
+  final status = error.response?.statusCode;
+  if (status != null) return status == 502 || status == 503 || status == 504;
+  return error.type == DioExceptionType.connectionTimeout ||
+      error.type == DioExceptionType.sendTimeout ||
+      error.type == DioExceptionType.receiveTimeout ||
+      error.type == DioExceptionType.connectionError;
+}
+
+String apiFailureCode(DioException error) {
+  final data = error.response?.data;
+  final serverCode = data is Map && data['error'] is Map
+      ? data['error']['code'] as String?
+      : null;
+  if (serverCode != null) return serverCode;
+  final status = error.response?.statusCode;
+  if (status == 401) return 'unauthorized';
+  if (status == 422) return 'invalid_request';
+  if (status == 429) return 'rate_limited';
+  if (status == 502 || status == 503 || status == 504) {
+    return 'service_unavailable';
+  }
+  if (status != null) return 'request_failed';
+  if (error.type == DioExceptionType.connectionTimeout ||
+      error.type == DioExceptionType.sendTimeout ||
+      error.type == DioExceptionType.receiveTimeout) {
+    return 'connection_timeout';
+  }
+  if (error.type == DioExceptionType.badCertificate) {
+    return 'secure_connection_failed';
+  }
+  return 'network_error';
+}
+
 class SecureAuthStorage extends LocalStorage {
   const SecureAuthStorage();
   static const storage = FlutterSecureStorage();
@@ -210,6 +246,38 @@ class EatMeApi {
     localUserId = await secure.read(key: 'eatme.user');
   }
 
+  Future<Response<dynamic>> _sendWithRetry(
+    String method,
+    String path, {
+    Json? body,
+    String? operationKey,
+  }) async {
+    for (var attempt = 0; ; attempt++) {
+      try {
+        return await dio.request<dynamic>(
+          path,
+          data: body,
+          options: Options(
+            method: method,
+            headers: {
+              if (token != null) 'Authorization': 'Bearer $token',
+              'Idempotency-Key': ?operationKey,
+            },
+          ),
+        );
+      } on DioException catch (error) {
+        if (method != 'GET' ||
+            attempt >= 2 ||
+            !isRetryableReadFailure(error)) {
+          rethrow;
+        }
+        await Future<void>.delayed(
+          Duration(milliseconds: attempt == 0 ? 250 : 750),
+        );
+      }
+    }
+  }
+
   Future<Json> request(
     String method,
     String path, {
@@ -220,16 +288,11 @@ class EatMeApi {
     final account = userId;
     final epoch = _cacheEpoch;
     try {
-      final result = await dio.request<dynamic>(
+      final result = await _sendWithRetry(
+        method,
         path,
-        data: body,
-        options: Options(
-          method: method,
-          headers: {
-            if (token != null) 'Authorization': 'Bearer $token',
-            'Idempotency-Key': ?operationKey,
-          },
-        ),
+        body: body,
+        operationKey: operationKey,
       );
       final value = Map<String, dynamic>.from(result.data as Map);
       offline = false;
@@ -261,7 +324,7 @@ class EatMeApi {
     } on DioException catch (error) {
       if (account == userId &&
           epoch == _cacheEpoch &&
-          error.response == null &&
+          isRetryableReadFailure(error) &&
           method == 'GET' &&
           allowCache &&
           cacheable(path)) {
@@ -271,23 +334,10 @@ class EatMeApi {
           return saved;
         }
       }
-      final data = error.response?.data;
-      final code = data is Map && data['error'] is Map
-          ? data['error']['code'] as String?
-          : null;
-      final status = error.response?.statusCode;
       throw ApiFailure(
-        code ??
-            (status == null
-                ? 'network_error'
-                : status == 401
-                ? 'unauthorized'
-                : status == 422
-                ? 'invalid_request'
-                : status == 429
-                ? 'rate_limited'
-                : 'request_failed'),
-        offline: error.response == null,
+        apiFailureCode(error),
+        offline: error.response == null &&
+            error.type != DioExceptionType.badCertificate,
       );
     }
   }
