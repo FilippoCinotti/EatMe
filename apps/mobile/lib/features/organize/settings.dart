@@ -601,31 +601,81 @@ class _InsightsState extends ResourceState<InsightsPage> {
           ),
         ],
         if (tab == 'overview') ...[
-          Wrap(spacing: 8, children: [
-            for (final days in [7, 30, 90]) ChoiceChip(
-              label: Text(context.t('insights_period', {'count': days})),
-              selected: period == days,
-              onSelected: data == null ? null : (_) async {
-                setState(() { period = days; data = null; });
-                await load();
-              },
-            ),
-          ]),
+          Wrap(
+            spacing: 8,
+            children: [
+              for (final days in [7, 30, 90])
+                ChoiceChip(
+                  label: Text(context.t('insights_period', {'count': days})),
+                  selected: period == days,
+                  onSelected: data == null
+                      ? null
+                      : (_) async {
+                          setState(() {
+                            period = days;
+                            data = null;
+                          });
+                          await load();
+                        },
+                ),
+            ],
+          ),
           const SizedBox(height: 12),
           if (data != null && records(data?['timeline']).isNotEmpty) ...[
-            Text(context.t('insights_daily_meals'), style: Theme.of(context).textTheme.titleSmall),
+            Text(
+              context.t('insights_daily_meals'),
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
             Semantics(
               label: context.t('insights_chart_description'),
-              child: SizedBox(height: 72, child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                for (final day in records(data?['timeline'])) Expanded(child: Tooltip(
-                  message: '${context.displayDate(day['date'])}: ${day['cooked_meals']}',
-                  child: Semantics(label: '${context.displayDate(day['date'])}: ${day['cooked_meals']}', child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 1),
-                    child: FractionallySizedBox(heightFactor: ((day['cooked_meals'] as num) / records(data?['timeline']).fold<num>(1, (highest, entry) => (entry['cooked_meals'] as num) > highest ? entry['cooked_meals'] as num : highest)).toDouble(),
-                      child: DecoratedBox(decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(3)))),
-                  )),
-                )),
-              ])),
+              child: SizedBox(
+                height: 72,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    for (final day in records(data?['timeline']))
+                      Expanded(
+                        child: Tooltip(
+                          message:
+                              '${context.displayDate(day['date'])}: ${day['cooked_meals']}',
+                          child: Semantics(
+                            label:
+                                '${context.displayDate(day['date'])}: ${day['cooked_meals']}',
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 1,
+                              ),
+                              child: FractionallySizedBox(
+                                heightFactor:
+                                    ((day['cooked_meals'] as num) /
+                                            records(
+                                              data?['timeline'],
+                                            ).fold<num>(
+                                              1,
+                                              (highest, entry) =>
+                                                  (entry['cooked_meals']
+                                                          as num) >
+                                                      highest
+                                                  ? entry['cooked_meals'] as num
+                                                  : highest,
+                                            ))
+                                        .toDouble(),
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 16),
           ],
@@ -634,7 +684,9 @@ class _InsightsState extends ResourceState<InsightsPage> {
               for (final metric in ['cooked_meals', 'different_recipes']) ...[
                 Expanded(
                   child: _InsightMetric(
-                    value: data?[metric] == null ? context.t('unavailable') : '${data![metric]}',
+                    value: data?[metric] == null
+                        ? context.t('unavailable')
+                        : '${data![metric]}',
                     label: context.t(metric),
                   ),
                 ),
