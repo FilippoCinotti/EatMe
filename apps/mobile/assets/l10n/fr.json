@@ -1304,5 +1304,7 @@
   "shopping_purchased_quantity": "Quantité achetée",
   "shopping_partial_summary": "Restant {remaining} {unit} · Acheté {bought} {unit}",
   "shopping_reconciliation_required": "Des achats partiels doivent être rapprochés. Vérifiez les quantités de la liste.",
+  "plan_share_household": "Partager le plan avec le foyer",
+  "plan_make_private": "Rendre le plan privé",
   "capture_label_evidence": "Texte détecté sur l’étiquette : {text}"
 }
