@@ -1,0 +1,24 @@
+name: Dispatch verified TestFlight 33 once
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/testflight-once.yml'
+permissions:
+  actions: write
+  contents: read
+jobs:
+  dispatch:
+    if: github.event.head_commit.message == 'ci: dispatch TestFlight build 33 from verified main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Dispatch official signed TestFlight workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ github.sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          jq -n --arg sha "$RELEASE_SHA" '{ref:"main", inputs:{release_sha:$sha, build_number:"33", upload_to_testflight:"true"}}' | \
+            gh api -X POST "repos/$REPO/actions/workflows/testflight.yml/dispatches" --input -
+          echo "Official TestFlight build 33 dispatched for $RELEASE_SHA"
