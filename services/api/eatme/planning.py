@@ -144,10 +144,20 @@ class PlanningService:
             normalized.append({"mode": "guilty_pleasure", "scope": scope, "date": day, **({"slot": slot} if slot else {})})
         return normalized
 
+    def _shopping_purchases(self, tx, home):
+        totals = Counter()
+        for row in tx.all("SELECT delta_milli,metadata FROM inventory_events WHERE household_id=? AND kind='purchased'", (home,)):
+            identifier = decode(row["metadata"]).get("shopping_item_id")
+            if identifier:
+                totals[identifier] += row["delta_milli"]
+        return totals
+
     def shopping(self, user_id):
         with self.db.transaction() as tx:
             home = self._member(tx, user_id)["household_id"]
-            return {"items": [{**r, "quantity": quantity(r["quantity_milli"]), "checked": bool(r["checked"])} for r in tx.all("SELECT * FROM shopping_items WHERE household_id=? ORDER BY checked,category,label,id", (home,))]}
+            purchased = self._shopping_purchases(tx, home)
+            return {"items": [{**r, "quantity": quantity(r["quantity_milli"]), "purchased_quantity": quantity(purchased[r["id"]]),
+                               "requested_quantity": quantity(r["quantity_milli"] + purchased[r["id"]]), "checked": bool(r["checked"])} for r in tx.all("SELECT * FROM shopping_items WHERE household_id=? ORDER BY checked,category,label,id", (home,))]}
 
     def shopping_action(self, user_id, data, key):
         if data.get("action") in {"generate", "preview_generate"}:
@@ -199,7 +209,9 @@ class PlanningService:
                         totals[food_id] = 0
                     current = tx.all("SELECT * FROM shopping_items WHERE household_id=?", (home,))
                     snapshot = {row["id"]: row["version"] for row in current}
-                    # Checked purchases are user-confirmed and must survive recalculation.
+                    purchased = self._shopping_purchases(tx, home)
+                    protected = [row["id"] for row in current if row["checked"] or purchased[row["id"]]]
+                    # Checked and partially purchased lines retain their confirmed history.
                     for row in current:
                         if row["source_key"] == source and row["checked"] and row["food_id"] in totals:
                             totals[row["food_id"]] = max(0, totals[row["food_id"]] - row["quantity_milli"])
@@ -212,8 +224,27 @@ class PlanningService:
                                 **({"plan_version": plan["version"]} if data.get("plan_id") else {})}
                     if "shopping_versions" in data and data["shopping_versions"] != snapshot:
                         raise DomainError("stale_shopping_item", 409)
+                    # Reuse a partial line for its new outstanding requirement instead of
+                    # adding another line when stock was consumed after the purchase.
+                    partial_foods = set()
+                    for row in current:
+                        if row["source_key"] != source or row["checked"] or not purchased[row["id"]]:
+                            continue
+                        food_id = row["food_id"]
+                        if food_id in partial_foods:
+                            raise DomainError("shopping_reconciliation_required", 409)
+                        partial_foods.add(food_id)
+                        amount = totals.get(food_id, 0)
+                        if amount:
+                            if amount != row["quantity_milli"]:
+                                tx.execute("UPDATE shopping_items SET quantity_milli=?,version=version+1,updated_at=? WHERE id=?", (amount, now(), row["id"]))
+                        else:
+                            tx.execute("DELETE FROM shopping_items WHERE id=?", (row["id"],))
+                        totals[food_id] = 0
                     # Replace only unconfirmed generated lines; manual and checked lines survive.
-                    tx.execute("DELETE FROM shopping_items WHERE household_id=? AND source_key=? AND checked=0", (home, source))
+                    for row in current:
+                        if row["source_key"] == source and row["id"] not in protected:
+                            tx.execute("DELETE FROM shopping_items WHERE id=?", (row["id"],))
                     identifiers = []
                     for food_id, amount in totals.items():
                         if amount:
@@ -242,8 +273,10 @@ class PlanningService:
                     estimate = data.get("estimate_expiry", False)
                     if type(estimate) is not bool:
                         raise DomainError("invalid_purchase", 422)
-                    batch_id, expiry, kind = self._purchase_line(tx, user_id, home, item, location, expiry, kind, estimate)
-                    return {"batch_id": batch_id, "purchased": True, "expiry_date": expiry, "expiry_kind": kind}
+                    batch_id, expiry, kind = self._purchase_line(tx, user_id, home, item, location, expiry, kind, estimate, data.get("purchase_quantity"))
+                    remaining = tx.one("SELECT quantity_milli FROM shopping_items WHERE id=?", (item["id"],))
+                    return {"batch_id": batch_id, "purchased": True, "expiry_date": expiry, "expiry_kind": kind,
+                            "remaining_quantity": quantity(remaining["quantity_milli"]) if remaining else "0"}
                 if action == "check":
                     if type(data.get("checked")) is not bool:
                         raise DomainError("invalid_checked", 422)
@@ -258,16 +291,23 @@ class PlanningService:
                 return {"id": identifier, "version": item["version"] + 1}
             return self._once(tx, user_id, key, "shopping", data, change)
 
-    def _purchase_line(self, tx, user_id, home, item, location, expiry, kind, estimate):
+    def _purchase_line(self, tx, user_id, home, item, location, expiry, kind, estimate, purchase_quantity=None):
         """Move one shopping line into the fridge as a batch; returns (batch_id, expiry, kind)."""
         if estimate:
             food = self._catalog(tx, user_id, include_recipes=False)[0].get(item["food_id"])
             if food:
                 expiry, kind = self._estimated_expiry(tx, user_id, food, location, expiry, kind)
+        amount = item["quantity_milli"] if purchase_quantity is None else amount_milli(purchase_quantity)
+        if item["unit"] == "pcs" and amount % 1000:
+            raise DomainError("whole_units_required", 422)
         batch_id, stamp = new_id(), now()
-        tx.execute("INSERT INTO inventory_batches VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", (batch_id, home, item["food_id"], item["quantity_milli"], location, expiry, kind, None, "shopping", 1, stamp, stamp))
-        self._event(tx, user_id, home, batch_id, "purchased", item["quantity_milli"])
-        tx.execute("DELETE FROM shopping_items WHERE id=?", (item["id"],))
+        tx.execute("INSERT INTO inventory_batches VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", (batch_id, home, item["food_id"], amount, location, expiry, kind, None, "shopping", 1, stamp, stamp))
+        self._event(tx, user_id, home, batch_id, "purchased", amount, {"shopping_item_id": item["id"], "requested_milli": item["quantity_milli"]})
+        remaining = max(0, item["quantity_milli"] - amount)
+        if remaining:
+            tx.execute("UPDATE shopping_items SET quantity_milli=?,checked=0,version=version+1,updated_at=? WHERE id=?", (remaining, stamp, item["id"]))
+        else:
+            tx.execute("DELETE FROM shopping_items WHERE id=?", (item["id"],))
         return batch_id, expiry, kind
 
     def _purchase_many(self, tx, user_id, home, data):
