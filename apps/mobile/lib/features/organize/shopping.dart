@@ -370,121 +370,38 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
       ]),
     );
   }
-
-  Widget _itemGrid(BuildContext context, List<Json> items) => LayoutBuilder(
-    builder: (context, constraints) {
-      final scaledBody = MediaQuery.textScalerOf(context).scale(13);
-      final columns = scaledBody > 20
-          ? 1
-          : constraints.maxWidth >= 300 && scaledBody <= 18
-          ? 3
-          : 2;
-      const gap = 8.0;
-      final extent = (constraints.maxWidth - gap * (columns - 1)) / columns;
-      return Wrap(
-        spacing: gap,
-        runSpacing: gap,
-        children: [
-          for (final item in items)
-            SizedBox(
-              key: ValueKey('shopping-item-${item['id']}'),
-              width: extent,
-              height: extent,
-              child: _itemCard(context, item),
-            ),
-        ],
-      );
-    },
-  );
+  Widget _itemGrid(BuildContext context, List<Json> items) => Column(children: [
+    for (final item in items) ...[
+      _itemCard(context, item),
+      const Divider(height: 1),
+    ],
+  ]);
 
   Widget _itemCard(BuildContext context, Json item) {
     final food = itemFood(item);
     final price = estimate(item);
-    final text = Theme.of(context).textTheme;
-    final scheme = Theme.of(context).colorScheme;
-    return InformationPanel(
-      tinted: false,
-      padding: EdgeInsets.zero,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Column(
-            children: [
-              Expanded(
-                flex: 4,
-                child: FoodImage(
-                  id: '${item['food_id'] ?? ''}',
-                  photoId: food?.photoId,
-                  imageUrl: food?.imageUrl,
-                  width: double.infinity,
-                  height: 72,
-                  radius: 0,
-                  fallback: Icons.shopping_bag_outlined,
-                ),
-              ),
-              Expanded(
-                flex: 6,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 4, 10, 6),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        itemLabel(item),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: text.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          decoration: item['checked'] == true
-                              ? TextDecoration.lineThrough
-                              : null,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        item['purchased_quantity'] != null &&
-                                item['purchased_quantity'] != '0'
-                            ? context.t('shopping_partial_summary', {
-                                'remaining': '${item['quantity']}',
-                                'bought': '${item['purchased_quantity']}',
-                                'unit': '${item['unit']}',
-                              })
-                            : '${item['quantity']} ${item['unit']}',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: text.bodySmall?.copyWith(
-                          fontSize: 11,
-                          color: scheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        price == null
-                            ? context.t('shopping_price_unavailable')
-                            : context.t('shopping_line_estimate', {
-                                'price': money(price.cents),
-                              }),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: text.bodySmall?.copyWith(
-                          fontSize: 11,
-                          color: price == null
-                              ? scheme.onSurfaceVariant
-                              : scheme.primary,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          PositionedDirectional(
-            top: 2,
-            start: 2,
-            child: PopupMenuButton<String>(
+    return ListTile(
+      key: ValueKey('shopping-item-${item['id']}'),
+      contentPadding: EdgeInsets.zero,
+      leading: Checkbox(
+        semanticLabel: itemLabel(item),
+        value: item['checked'] == true,
+        onChanged: updating ? null : (value) => guard(() => command({
+          'action': 'check', 'id': item['id'], 'expected_version': item['version'], 'checked': value,
+        })),
+      ),
+      title: Row(children: [
+        FoodImage(id: '${item['food_id'] ?? ''}', photoId: food?.photoId, imageUrl: food?.imageUrl, width: 40, height: 40, radius: 8, fallback: Icons.shopping_bag_outlined),
+        const SizedBox(width: 10),
+        Expanded(child: Text(itemLabel(item), style: Theme.of(context).textTheme.bodySmall?.copyWith(decoration: item['checked'] == true ? TextDecoration.lineThrough : null))),
+      ]),
+      subtitle: Padding(padding: const EdgeInsetsDirectional.only(start: 50), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(item['purchased_quantity'] != null && item['purchased_quantity'] != '0'
+          ? context.t('shopping_partial_summary', {'remaining': '${item['quantity']}', 'bought': '${item['purchased_quantity']}', 'unit': '${item['unit']}'})
+          : '${item['quantity']} ${item['unit']}', style: Theme.of(context).textTheme.bodySmall),
+        Text(price == null ? context.t('shopping_price_unavailable') : context.t('shopping_line_estimate', {'price': money(price.cents)}), style: Theme.of(context).textTheme.bodySmall),
+      ])),
+      trailing: PopupMenuButton<String>(
               tooltip: context.t('more'),
               icon: const Icon(Icons.more_horiz),
               enabled: !updating,
@@ -535,39 +452,6 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
                 ),
               ],
             ),
-          ),
-          PositionedDirectional(
-            top: 2,
-            end: 2,
-            child: SizedBox(
-              width: 44,
-              height: 44,
-              child: Checkbox(
-                semanticLabel: itemLabel(item),
-                value: item['checked'] == true,
-                onChanged: updating
-                    ? null
-                    : (value) async {
-                        try {
-                          await command({
-                            'action': 'check',
-                            'id': item['id'],
-                            'expected_version': item['version'],
-                            'checked': value,
-                          });
-                        } catch (_) {
-                          if (mounted && context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(context.t('retry'))),
-                            );
-                          }
-                        }
-                      },
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

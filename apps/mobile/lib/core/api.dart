@@ -310,7 +310,8 @@ class EatMeApi {
         if (path == '/profile' && method == 'GET') {
           final previous = await cache?.read('/profile');
           if (previous != null &&
-              previous['household_id'] != value['household_id']) {
+              (previous['household_id'] != value['household_id'] ||
+               jsonEncode(previous['settings']) != jsonEncode(value['settings']))) {
             _cacheEpoch++;
             await cache?.clearSnapshots();
             await secure.delete(key: 'eatme.inventory');

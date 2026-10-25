@@ -403,7 +403,11 @@ class _CookingPageState extends ConsumerState<CookingPage> {
               ],
             ),
           ),
-          body: PageBody(
+          body: _CookingWorkspace(
+            steps: steps,
+            selected: step,
+            onSelected: showStep,
+            child: PageBody(
             controller: scrollController,
             children: [
               Row(
@@ -441,6 +445,11 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                 ],
               ),
               const SizedBox(height: 16),
+              AspectRatio(
+                aspectRatio: 2.2,
+                child: FoodImage(id: recipe.id, imageUrl: recipe.imageUrl, width: double.infinity, height: double.infinity, radius: 18),
+              ),
+              const SizedBox(height: 12),
               LinearProgressIndicator(
                 value: (step + 1) / steps.length,
                 minHeight: 4,
@@ -467,7 +476,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
                 steps[step],
                 style: Theme.of(
                   context,
-                ).textTheme.bodyLarge?.copyWith(fontSize: 17, height: 1.55),
+                ).textTheme.bodyLarge?.copyWith(height: 1.5),
               ),
               if (currentIngredients.isNotEmpty) ...[
                 const SizedBox(height: 22),
@@ -671,11 +680,36 @@ class _CookingPageState extends ConsumerState<CookingPage> {
               ),
               const SizedBox(height: 20),
             ],
-          ),
+          )),
         );
       },
     );
   }
+}
+
+class _CookingWorkspace extends StatelessWidget {
+  const _CookingWorkspace({required this.steps, required this.selected, required this.onSelected, required this.child});
+  final List<String> steps;
+  final int selected;
+  final ValueChanged<int> onSelected;
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, constraints) {
+    if (constraints.maxWidth < 850) return child;
+    return Row(key: const ValueKey('cooking-split-layout'), children: [
+      SizedBox(width: 260, child: ListView(padding: const EdgeInsets.all(16), children: [
+        Text(context.t('cooking_all_steps'), style: Theme.of(context).textTheme.titleMedium),
+        for (var i = 0; i < steps.length; i++) ListTile(
+          selected: i == selected,
+          leading: Text('${i + 1}'),
+          title: Text(steps[i], maxLines: 3, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodySmall),
+          onTap: () => onSelected(i),
+        ),
+      ])),
+      const VerticalDivider(width: 1),
+      Expanded(child: child),
+    ]);
+  });
 }
 
 class ConfirmCookingPage extends ConsumerStatefulWidget {
@@ -782,24 +816,18 @@ class _ConfirmCookingPageState extends ConsumerState<ConfirmCookingPage> {
         final shortages = (plan['shortages'] as List).isNotEmpty;
         return PageBody(
           children: [
-            Text(
-              context.t('did_you_make_it'),
-              style: Theme.of(context).textTheme.displaySmall,
-            ),
-            const SizedBox(height: 16),
             Text(context.t('confirm_consumption_hint')),
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
             for (final raw in (plan['ingredients'] as List))
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
-                child: InformationPanel(
-                  tinted: false,
+                child: Padding(
                   padding: EdgeInsets.zero,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(22),
                     onTap: () => adjust(Map<String, dynamic>.from(raw as Map)),
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Row(
                         children: [
                           const EatMeIcon(EatMeGlyph.leaf, size: 20),

@@ -22,6 +22,8 @@ class PlannerPage extends ConsumerStatefulWidget {
 
 class _PlannerState extends ResourceState<PlannerPage> {
   @override
+  double get contentMaxWidth => 1400;
+  @override
   String get path => '/plans';
   DateTime start = DateUtils.dateOnly(DateTime.now());
   List<Json> recipes = [];
@@ -431,6 +433,59 @@ class _PlannerState extends ResourceState<PlannerPage> {
     }
   }
 
+  Widget weeklyCalendar(BuildContext context, List<Json> meals, List<String> slots, List<Json> overrides) {
+    return Table(
+      key: const ValueKey('planner-week-calendar'),
+      columnWidths: const {0: FixedColumnWidth(80)},
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      children: [
+        TableRow(children: [
+          const SizedBox.shrink(),
+          for (var i = 0; i < 7; i++)
+            TextButton(
+              onPressed: () => setState(() => focusedDay = i),
+              child: Text(MaterialLocalizations.of(context).formatShortDate(start.add(Duration(days: i))), maxLines: 1),
+            ),
+        ]),
+        for (final slot in slots)
+          TableRow(children: [
+            Text(context.t(slot), style: Theme.of(context).textTheme.labelSmall),
+            for (var i = 0; i < 7; i++)
+              Builder(builder: (context) {
+                final date = start.add(Duration(days: i));
+                final meal = meals.where((m) => m['date'] == isoDay(date) && m['slot'] == slot).firstOrNull;
+                final recipe = recipes.where((r) => r['id'] == meal?['recipe_id']).firstOrNull;
+                return Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    InkWell(
+                      onTap: () => meal == null ? addMeal(date, slot) : context.push('/recipes/${meal['recipe_id']}'),
+                      child: Column(children: [
+                        if (meal != null) FoodImage(id: '${meal['recipe_id']}', imageUrl: '${recipe?['image_url'] ?? ''}', width: 80, height: 52, radius: 10)
+                        else const SizedBox(height: 52, child: Icon(Icons.add, size: 20)),
+                        Text(meal == null ? context.t('add_meal') : labelOf(recipe?['title'] ?? '', context), maxLines: 2, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodySmall),
+                      ]),
+                    ),
+                    if (meal != null) Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      IconButton(tooltip: context.t(meal['locked'] == true ? 'plan_unlock' : 'plan_lock'), icon: Icon(meal['locked'] == true ? Icons.lock_outline : Icons.lock_open, size: 18), onPressed: draftMeals == null ? () => toggleLock(meal) : null),
+                      PopupMenuButton<String>(
+                        enabled: meal['locked'] != true && draftMeals == null,
+                        onSelected: (action) => action == 'alternative' ? suggestAlternative(meal) : reschedule(meal, action),
+                        itemBuilder: (_) => [
+                          PopupMenuItem(value: 'alternative', child: Text(context.t('plan_suggest_alternative'))),
+                          for (final action in ['move', 'swap', 'copy']) PopupMenuItem(value: action, child: Text(context.t('plan_$action'))),
+                        ],
+                      ),
+                    ]),
+                    const Divider(),
+                  ]),
+                );
+              }),
+          ]),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) => RecipeEditorial(builder: _build);
 
@@ -454,8 +509,8 @@ class _PlannerState extends ResourceState<PlannerPage> {
     final slots = [
       'breakfast',
       'lunch',
-      'dinner',
       'snack',
+      'dinner',
     ].where((slot) => enabled[slot] as bool? ?? true).toList();
     final day = start.add(Duration(days: focusedDay));
     final plannedToday = <({String slot, Json meal, Json? recipe})>[];
@@ -710,6 +765,9 @@ class _PlannerState extends ResourceState<PlannerPage> {
           ),
         ),
         const SizedBox(height: 12),
+        if (MediaQuery.sizeOf(context).width >= 1100 && MediaQuery.textScalerOf(context).scale(14) < 22)
+          weeklyCalendar(context, meals, slots, overrides)
+        else ...[
         if (featured != null)
           _PlannerMealCard(
             day: day,
@@ -775,6 +833,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
               },
             ),
           ],
+        ],
         if (upcoming.isNotEmpty) ...[
           const SizedBox(height: 28),
           Text(
@@ -1138,7 +1197,7 @@ class _PlannerMealCard extends StatelessWidget {
         ? labelOf(recipe?['title'] ?? '', context)
         : context.t('add_meal');
     return InformationPanel(
-      tinted: featured,
+      tinted: false,
       padding: EdgeInsets.zero,
       child: InkWell(
         key: ValueKey('planner-slot-$slot'),
@@ -1152,11 +1211,9 @@ class _PlannerMealCard extends StatelessWidget {
                 FoodImage(
                   id: '${meal!['recipe_id']}',
                   imageUrl: '${recipe?['image_url'] ?? ''}',
-                  width: featured
-                      ? (MediaQuery.sizeOf(context).width < 380 ? 72 : 104)
-                      : 52,
-                  height: featured ? 92 : 52,
-                  radius: featured ? 18 : 14,
+                  width: 52,
+                  height: 52,
+                  radius: 12,
                 )
               else
                 Container(
@@ -1188,9 +1245,7 @@ class _PlannerMealCard extends StatelessWidget {
                       title,
                       maxLines: featured ? 2 : 1,
                       overflow: TextOverflow.ellipsis,
-                      style: featured
-                          ? Theme.of(context).textTheme.titleLarge
-                          : Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                     if (hasMeal) ...[
                       const SizedBox(height: 5),

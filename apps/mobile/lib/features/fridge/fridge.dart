@@ -241,6 +241,20 @@ class _FridgePageState extends ConsumerState<FridgePage> {
     final groups = groupInventory(visible, sort, context.language);
 
     return Scaffold(
+      bottomSheet: selecting
+          ? SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 6, 12, 100),
+                child: Material(
+                  elevation: 3,
+                  borderRadius: BorderRadius.circular(20),
+                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                  child: _selectionToolbar(context, visible, state.offline),
+                ),
+              ),
+            )
+          : null,
       body: SafeArea(
         bottom: false,
         child: Center(
@@ -406,39 +420,6 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              if (visible.isNotEmpty || selecting)
-                                Align(
-                                  alignment: AlignmentDirectional.centerEnd,
-                                  child: TextButton.icon(
-                                    key: const ValueKey(
-                                      'inventory-select-mode',
-                                    ),
-                                    onPressed: state.offline || saving
-                                        ? null
-                                        : selecting
-                                        ? stopSelection
-                                        : () =>
-                                              setState(() => selecting = true),
-                                    icon: Icon(
-                                      selecting
-                                          ? Icons.close
-                                          : Icons.checklist_rounded,
-                                    ),
-                                    label: Text(
-                                      context.t(
-                                        selecting
-                                            ? 'inventory_cancel_selection'
-                                            : 'inventory_select',
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              if (selecting)
-                                _selectionToolbar(
-                                  context,
-                                  visible,
-                                  state.offline,
-                                ),
                             ],
                           ),
                         ),
@@ -618,18 +599,21 @@ class _FridgePageState extends ConsumerState<FridgePage> {
   ) {
     final enabled = !offline && !saving && selectedBatchIds.isNotEmpty;
     final visibleIds = visible.map((batch) => batch.id).toSet();
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: Row(
         children: [
-          Text(
+          Expanded(child: Text(
             context.t('inventory_selected_count', {
               'count': selectedBatchIds.length,
             }),
-          ),
-          const SizedBox(width: 8),
-          TextButton(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall,
+          )),
+          IconButton(
             key: const ValueKey('inventory-select-all'),
+            tooltip: context.t('inventory_select_all'),
             onPressed: offline || saving || visible.isEmpty
                 ? null
                 : () => setState(() {
@@ -639,27 +623,31 @@ class _FridgePageState extends ConsumerState<FridgePage> {
                       selectedBatchIds.addAll(visibleIds);
                     }
                   }),
-            child: Text(context.t('inventory_select_all')),
+            icon: const Icon(Icons.select_all, size: 20),
           ),
-          OutlinedButton.icon(
+          IconButton(
             key: const ValueKey('inventory-bulk-move'),
             onPressed: enabled ? bulkMove : null,
             icon: const Icon(Icons.swap_horiz_rounded, size: 18),
-            label: Text(context.t('move_food')),
+            tooltip: context.t('move_food'),
           ),
-          const SizedBox(width: 8),
-          OutlinedButton.icon(
+          IconButton(
             key: const ValueKey('inventory-bulk-consume'),
             onPressed: enabled ? () => runBulk('consumed') : null,
             icon: const Icon(Icons.check_rounded, size: 18),
-            label: Text(context.t('inventory_bulk_consume')),
+            tooltip: context.t('inventory_bulk_consume'),
           ),
-          const SizedBox(width: 8),
-          FilledButton.icon(
+          IconButton(
             key: const ValueKey('inventory-bulk-remove'),
             onPressed: enabled ? () => runBulk('delete') : null,
             icon: const Icon(Icons.delete_outline, size: 18),
-            label: Text(context.t('inventory_remove_selected')),
+            tooltip: context.t('inventory_remove_selected'),
+          ),
+          IconButton(
+            key: const ValueKey('inventory-cancel-selection'),
+            tooltip: context.t('inventory_cancel_selection'),
+            onPressed: saving ? null : stopSelection,
+            icon: const Icon(Icons.close, size: 20),
           ),
         ],
       ),

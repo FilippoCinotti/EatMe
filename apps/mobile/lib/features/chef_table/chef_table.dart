@@ -104,19 +104,12 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
   Widget _build(BuildContext context) {
     final state = ref.watch(appProvider);
     final fullName = (state.profile['name'] as String? ?? '').trim();
-    final name = fullName.isEmpty ? '' : fullName.split(RegExp(r'\s+')).first;
     final initials = fullName
         .split(RegExp(r'\s+'))
         .where((part) => part.isNotEmpty)
         .take(2)
         .map((part) => part.substring(0, 1).toUpperCase())
         .join();
-    final hour = DateTime.now().hour;
-    final greetingKey = hour < 12
-        ? 'good_morning'
-        : hour < 18
-        ? 'good_afternoon'
-        : 'good_evening';
     final settings = Map<String, dynamic>.from(
       state.profile['settings'] as Map? ?? {},
     );
@@ -171,16 +164,15 @@ class _ChefTablePageState extends ConsumerState<ChefTablePage> {
         : matchingRecommendations;
     return Scaffold(
       body: PageBody(
+        maxWidth: 1160,
         onRefresh: () => ref.read(appProvider.notifier).refresh(),
         children: [
           KeyedSubtree(
             key: FirstAccessTourTargets.chefHeader,
             child: EditorialHeader(
               eyebrow: '',
-              title: name.isEmpty
-                  ? context.t(greetingKey)
-                  : context.t('${greetingKey}_name', {'name': name}),
-              subtitle: context.t('cooking_your_way'),
+              title: context.t('chef_question'),
+              subtitle: context.t('chef_subtitle'),
               actions: [
                 RoundAction(
                   icon: EatMeGlyph.bell,
@@ -923,66 +915,35 @@ class _ChefRecipeActions extends StatelessWidget {
     ],
   );
 }
-
 class _ContextualCard extends StatelessWidget {
   const _ContextualCard({required this.card});
   final Json card;
   @override
   Widget build(BuildContext context) {
-    final item = Recommendation.fromJson(
-      Map<String, dynamic>.from(card['recommendation'] as Map),
-    );
-    final reasons = (card['reasons'] as List? ?? const [])
-        .take(2)
-        .map((raw) {
-          final reason = Map<String, dynamic>.from(raw as Map);
-          return context.t(reason['code'] as String, {
-            if (reason['count'] != null) 'count': reason['count'] as Object,
-          });
-        })
-        .join(' · ');
-    return InformationPanel(
-      padding: EdgeInsets.zero,
+    final item = Recommendation.fromJson(Map<String, dynamic>.from(card['recommendation'] as Map));
+    final reasons = (card['reasons'] as List? ?? const []).take(1).map((raw) {
+      final reason = Map<String, dynamic>.from(raw as Map);
+      return context.t(reason['code'] as String, {if (reason['count'] != null) 'count': reason['count'] as Object});
+    }).join(' · ');
+    return Material(
+      color: Theme.of(context).colorScheme.surfaceContainer,
+      borderRadius: BorderRadius.circular(18),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () => context.push('/recipes/${item.recipe.id}'),
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              FoodImage(
-                id: item.recipe.id,
-                imageUrl: item.recipe.imageUrl ?? '',
-                width: 72,
-                height: 80,
-                radius: 14,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.t('smart_card_${card['kind']}'),
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      localized(item.recipe.title, context.language),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(reasons, style: Theme.of(context).textTheme.bodySmall),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Stack(children: [
+            AspectRatio(aspectRatio: 2.2, child: FoodImage(id: item.recipe.id, imageUrl: item.recipe.imageUrl ?? '', width: double.infinity, height: double.infinity, radius: 0)),
+            PositionedDirectional(top: 6, end: 6, child: RecipeFavorite(recipeId: item.recipe.id)),
+          ]),
+          Padding(padding: const EdgeInsets.all(12), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(context.t('smart_card_${card['kind']}'), style: Theme.of(context).textTheme.labelSmall),
+            const SizedBox(height: 4),
+            Text(localized(item.recipe.title, context.language), maxLines: 2, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.titleSmall),
+            const SizedBox(height: 4),
+            Text('${item.recipe.minutes} min · $reasons', style: Theme.of(context).textTheme.bodySmall),
+          ])),
+        ]),
       ),
     );
   }
