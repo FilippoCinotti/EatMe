@@ -84,11 +84,30 @@ void main() {
       if (tester.widget<Checkbox>(find.byType(Checkbox)).value == true) break;
     }
     expect(tester.widget<Checkbox>(find.byType(Checkbox)).value, isTrue);
-    await waitFor(tester, find.byTooltip('More'));
-    await tester.ensureVisible(find.byTooltip('More'));
-    await tester.tap(find.byTooltip('More'));
-    await waitFor(tester, find.text('Purchased · add to fridge'));
-    await tester.tap(find.text('Purchased · add to fridge'));
+    const review = ValueKey('did-the-shopping');
+    await waitFor(tester, find.byKey(review));
+    await tester.ensureVisible(find.byKey(review));
+    // Checking an item saves to the API asynchronously; do not tap the
+    // reconciliation button while its parent resource is still updating.
+    final actionButton = find.descendant(
+      of: find.byKey(review),
+      matching: find.byType(FilledButton),
+    );
+    final readyBy = DateTime.now().add(const Duration(seconds: 30));
+    while (DateTime.now().isBefore(readyBy)) {
+      await tester.pump(const Duration(milliseconds: 100));
+      if (actionButton.evaluate().isNotEmpty &&
+          tester.widget<FilledButton>(actionButton).onPressed != null) {
+        break;
+      }
+    }
+    expect(tester.widget<FilledButton>(actionButton).onPressed, isNotNull);
+    await tester.tap(actionButton);
+    await tester.pump(const Duration(milliseconds: 200));
+    // Confirm the actual review sheet, not a brittle localized label.
+    const purchaseConfirm = ValueKey('shopping-confirm-purchased');
+    await waitFor(tester, find.byKey(purchaseConfirm));
+    await tester.tap(find.byKey(purchaseConfirm));
     await waitFor(tester, find.text('Everything is in order'));
     await tester.pumpAndSettle();
     expect((await api.request('GET', '/shopping'))['items'], isEmpty);

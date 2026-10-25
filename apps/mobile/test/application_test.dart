@@ -405,6 +405,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Purchased · add to fridge'));
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
     expect(
       api.calls.where((c) => c['body']?['action'] == 'purchase').length,
       1,
