@@ -134,10 +134,12 @@ class PageBody extends StatefulWidget {
     required this.children,
     this.onRefresh,
     this.controller,
+    this.maxWidth = 620,
   });
   final List<Widget> children;
   final Future<void> Function()? onRefresh;
   final ScrollController? controller;
+  final double maxWidth;
 
   @override
   State<PageBody> createState() => _PageBodyState();
@@ -175,7 +177,7 @@ class _PageBodyState extends State<PageBody> {
       child: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 620),
+          constraints: BoxConstraints(maxWidth: widget.maxWidth),
           child: widget.onRefresh == null
               ? content
               : Stack(

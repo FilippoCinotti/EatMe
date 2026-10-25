@@ -134,7 +134,9 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('inventory-select-mode')));
+    expect(find.byKey(const ValueKey('inventory-select-mode')), findsNothing);
+    await tester.ensureVisible(find.byType(InventoryPhotoCard).first);
+    await tester.longPress(find.byType(InventoryPhotoCard).first);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('inventory-select-all')));
     await tester.pumpAndSettle();
@@ -180,7 +182,8 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('inventory-select-mode')));
+    await tester.ensureVisible(find.byType(InventoryPhotoCard).first);
+    await tester.longPress(find.byType(InventoryPhotoCard).first);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('inventory-select-all')));
     await tester.pumpAndSettle();

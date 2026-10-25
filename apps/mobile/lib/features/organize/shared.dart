@@ -92,9 +92,11 @@ abstract class ResourceState<T extends ConsumerStatefulWidget>
     }
   }
 
+  double get contentMaxWidth => 620;
   Widget content(List<Widget> children) => data == null && error == null
       ? EatMeLoadingSplash(label: context.t('loading'))
       : PageBody(
+          maxWidth: contentMaxWidth,
           onRefresh: load,
           children: [
             if (error != null) ...[

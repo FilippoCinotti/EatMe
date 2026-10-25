@@ -173,7 +173,7 @@ void main() {
       final sauceImage = tester
           .widgetList<FoodImage>(find.byType(FoodImage))
           .firstWhere((image) => image.id == 'sauce');
-      expect(sauceImage.width, double.infinity);
+      expect(sauceImage.width, 40);
       await tester.tap(find.byType(Checkbox).first);
       await tester.pumpAndSettle();
       await tester.scrollUntilVisible(
@@ -187,37 +187,52 @@ void main() {
     },
   );
 
-  testWidgets('ingredient tiles are square and use three columns', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(390, 1200);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    final api = ShoppingApi();
-    api.rows = [
-      for (var index = 0; index < 3; index++)
-        {...api.rows[1], 'id': 'vegetable-$index', 'label': 'Vegetable $index'},
-    ];
-    await tester.pumpWidget(
-      support.harness(
-        const ShoppingPage(),
-        api,
-        controller: ShoppingController.new,
-      ),
-    );
-    await tester.pumpAndSettle();
-    final tiles = [
-      for (var index = 0; index < 3; index++)
-        find.byKey(ValueKey('shopping-item-vegetable-$index')),
-    ];
-    for (final tile in tiles) {
-      expect(tester.getSize(tile).aspectRatio, closeTo(1, .001));
-    }
-    expect(tester.getTopLeft(tiles[0]).dy, tester.getTopLeft(tiles[1]).dy);
-    expect(tester.getTopLeft(tiles[1]).dy, tester.getTopLeft(tiles[2]).dy);
-    expect(tester.takeException(), isNull);
-  });
+  testWidgets(
+    'ingredient rows share a width and remain individually selectable',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 1200);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final api = ShoppingApi();
+      api.rows = [
+        for (var index = 0; index < 3; index++)
+          {
+            ...api.rows[1],
+            'id': 'vegetable-$index',
+            'label': 'Vegetable $index',
+          },
+      ];
+      await tester.pumpWidget(
+        support.harness(
+          const ShoppingPage(),
+          api,
+          controller: ShoppingController.new,
+        ),
+      );
+      await tester.pumpAndSettle();
+      final tiles = [
+        for (var index = 0; index < 3; index++)
+          find.byKey(ValueKey('shopping-item-vegetable-$index')),
+      ];
+      for (final tile in tiles) {
+        expect(tester.getSize(tile).width, tester.getSize(tiles.first).width);
+        expect(
+          find.descendant(of: tile, matching: find.byType(Checkbox)),
+          findsOneWidget,
+        );
+      }
+      expect(
+        tester.getTopLeft(tiles[1]).dy,
+        greaterThan(tester.getTopLeft(tiles[0]).dy),
+      );
+      expect(
+        tester.getTopLeft(tiles[2]).dy,
+        greaterThan(tester.getTopLeft(tiles[1]).dy),
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('editing and deleting update the displayed grand total', (
     tester,

@@ -690,6 +690,7 @@ class _RecipePageState extends ConsumerState<RecipePage> {
                   'overview',
                   'ingredients',
                   'steps',
+                  'see_alternatives',
                   'nutrition',
                 ])
                   (value, context.t(value)),
@@ -698,6 +699,55 @@ class _RecipePageState extends ConsumerState<RecipePage> {
               onSelected: (value) => setState(() => tab = value),
             ),
             const SizedBox(height: 20),
+            if (tab == 'see_alternatives')
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  for (final alternative
+                      in ref
+                          .watch(appProvider)
+                          .recommendations
+                          .where((r) => r.recipe.id != recipe.id))
+                    SizedBox(
+                      width: 150,
+                      child: InkWell(
+                        onTap: () =>
+                            context.push('/recipes/${alternative.recipe.id}'),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FoodImage(
+                              id: alternative.recipe.id,
+                              imageUrl: alternative.recipe.imageUrl,
+                              width: 150,
+                              height: 100,
+                              radius: 12,
+                            ),
+                            Text(
+                              localized(
+                                alternative.recipe.title,
+                                context.language,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            Text(
+                              '${alternative.recipe.minutes} min',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  if (!ref
+                      .watch(appProvider)
+                      .recommendations
+                      .any((r) => r.recipe.id != recipe.id))
+                    Text(context.t('no_recipes')),
+                ],
+              ),
             if (tab == 'overview') ...[
               RecipeAvailability(
                 available: availableCount,

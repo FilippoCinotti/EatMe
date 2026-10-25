@@ -22,6 +22,8 @@ class PlannerPage extends ConsumerStatefulWidget {
 
 class _PlannerState extends ResourceState<PlannerPage> {
   @override
+  double get contentMaxWidth => 1400;
+  @override
   String get path => '/plans';
   DateTime start = DateUtils.dateOnly(DateTime.now());
   List<Json> recipes = [];
@@ -363,6 +365,43 @@ class _PlannerState extends ResourceState<PlannerPage> {
     await addSpecificMeal(day, slot, recipe);
   }
 
+  Future<void> editMeal(Json meal, String field) => guard(() async {
+    if (meal['locked'] == true) return;
+    final updated = Map<String, dynamic>.from(meal);
+    if (field == 'servings') {
+      final value = await askText(
+        context,
+        context.t('servings'),
+        initial: '${meal['servings']}',
+        numeric: true,
+      );
+      if (value == null || !mounted) return;
+      final count = int.tryParse(value);
+      if (count == null || count < 1 || count > 20) {
+        throw const ApiFailure('invalid_servings');
+      }
+      updated['servings'] = count;
+    } else {
+      final diners = await chooseDiners(
+        context,
+        ref.read(apiProvider),
+        List<String>.from(meal['participants'] as List? ?? participants ?? []),
+      );
+      if (diners == null || !mounted) return;
+      updated['participants'] = diners;
+      updated['servings'] = diners.isEmpty ? 1 : diners.length;
+    }
+    await saveMeals(
+      records(selected?['data']?['meals'])
+          .map(
+            (m) => m['date'] == meal['date'] && m['slot'] == meal['slot']
+                ? updated
+                : m,
+          )
+          .toList(),
+    );
+  });
+
   Future<void> addSpecificMeal(DateTime day, String slot, Json recipe) async {
     final servings = await askText(
       context,
@@ -431,6 +470,149 @@ class _PlannerState extends ResourceState<PlannerPage> {
     }
   }
 
+  Widget weeklyCalendar(
+    BuildContext context,
+    List<Json> meals,
+    List<String> slots,
+    List<Json> overrides,
+  ) {
+    return Table(
+      key: const ValueKey('planner-week-calendar'),
+      columnWidths: const {0: FixedColumnWidth(80)},
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      children: [
+        TableRow(
+          children: [
+            const SizedBox.shrink(),
+            for (var i = 0; i < 7; i++)
+              TextButton(
+                onPressed: () => setState(() => focusedDay = i),
+                child: Text(
+                  MaterialLocalizations.of(
+                    context,
+                  ).formatShortDate(start.add(Duration(days: i))),
+                  maxLines: 1,
+                ),
+              ),
+          ],
+        ),
+        for (final slot in slots)
+          TableRow(
+            children: [
+              Text(
+                context.t(slot),
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+              for (var i = 0; i < 7; i++)
+                Builder(
+                  builder: (context) {
+                    final date = start.add(Duration(days: i));
+                    final meal = meals
+                        .where(
+                          (m) => m['date'] == isoDay(date) && m['slot'] == slot,
+                        )
+                        .firstOrNull;
+                    final recipe = recipes
+                        .where((r) => r['id'] == meal?['recipe_id'])
+                        .firstOrNull;
+                    return Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          InkWell(
+                            onTap: () => meal == null
+                                ? addMeal(date, slot)
+                                : context.push('/recipes/${meal['recipe_id']}'),
+                            child: Column(
+                              children: [
+                                if (meal != null)
+                                  FoodImage(
+                                    id: '${meal['recipe_id']}',
+                                    imageUrl: '${recipe?['image_url'] ?? ''}',
+                                    width: 80,
+                                    height: 52,
+                                    radius: 10,
+                                  )
+                                else
+                                  const SizedBox(
+                                    height: 52,
+                                    child: Icon(Icons.add, size: 20),
+                                  ),
+                                Text(
+                                  meal == null
+                                      ? context.t('add_meal')
+                                      : labelOf(
+                                          recipe?['title'] ?? '',
+                                          context,
+                                        ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (meal != null)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  tooltip: context.t(
+                                    meal['locked'] == true
+                                        ? 'plan_unlock'
+                                        : 'plan_lock',
+                                  ),
+                                  icon: Icon(
+                                    meal['locked'] == true
+                                        ? Icons.lock_outline
+                                        : Icons.lock_open,
+                                    size: 18,
+                                  ),
+                                  onPressed: draftMeals == null
+                                      ? () => toggleLock(meal)
+                                      : null,
+                                ),
+                                PopupMenuButton<String>(
+                                  enabled:
+                                      meal['locked'] != true &&
+                                      draftMeals == null,
+                                  onSelected: (action) =>
+                                      action == 'alternative'
+                                      ? suggestAlternative(meal)
+                                      : reschedule(meal, action),
+                                  itemBuilder: (_) => [
+                                    PopupMenuItem(
+                                      value: 'alternative',
+                                      child: Text(
+                                        context.t('plan_alternative'),
+                                      ),
+                                    ),
+                                    for (final action in [
+                                      'move',
+                                      'swap',
+                                      'copy',
+                                    ])
+                                      PopupMenuItem(
+                                        value: action,
+                                        child: Text(context.t('plan_$action')),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          const Divider(),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) => RecipeEditorial(builder: _build);
 
@@ -454,8 +636,8 @@ class _PlannerState extends ResourceState<PlannerPage> {
     final slots = [
       'breakfast',
       'lunch',
-      'dinner',
       'snack',
+      'dinner',
     ].where((slot) => enabled[slot] as bool? ?? true).toList();
     final day = start.add(Duration(days: focusedDay));
     final plannedToday = <({String slot, Json meal, Json? recipe})>[];
@@ -710,71 +892,84 @@ class _PlannerState extends ResourceState<PlannerPage> {
           ),
         ),
         const SizedBox(height: 12),
-        if (featured != null)
-          _PlannerMealCard(
-            day: day,
-            slot: featured.slot,
-            meal: featured.meal,
-            recipe: featured.recipe,
-            featured: true,
-            guiltyPleasure: hasGuiltyPleasure(featured.meal, overrides),
-            onOpen: () =>
-                context.push('/recipes/${featured.meal['recipe_id']}'),
-            onLock: draftMeals == null ? () => toggleLock(featured.meal) : null,
-            onAlternative: draftMeals == null
-                ? () => suggestAlternative(featured.meal)
-                : null,
-            onReschedule: draftMeals == null
-                ? (action) => reschedule(featured.meal, action)
-                : null,
-            onReplace: () =>
-                guard(() => replaceMeal(day, featured.slot, featured.meal)),
-            onDelete: () => guard(() => removeMeal(featured.meal, meals)),
-            onGuiltyPleasure: () =>
-                guard(() => changeGuiltyPleasure(featured.meal)),
-          ),
-        for (final slot in slots)
-          if (featured == null || slot != featured.slot) ...[
-            const SizedBox(height: 10),
-            Builder(
-              builder: (context) {
-                final item = plannedToday
-                    .where((value) => value.slot == slot)
-                    .firstOrNull;
-                return _PlannerMealCard(
-                  day: day,
-                  slot: slot,
-                  meal: item?.meal,
-                  recipe: item?.recipe,
-                  featured: false,
-                  guiltyPleasure: item == null
-                      ? false
-                      : hasGuiltyPleasure(item.meal, overrides),
-                  onOpen: () => item == null
-                      ? addMeal(day, slot)
-                      : context.push('/recipes/${item.meal['recipe_id']}'),
-                  onLock: item == null || draftMeals != null
-                      ? null
-                      : () => toggleLock(item.meal),
-                  onAlternative: item == null || draftMeals != null
-                      ? null
-                      : () => suggestAlternative(item.meal),
-                  onReschedule: item == null || draftMeals != null
-                      ? null
-                      : (action) => reschedule(item.meal, action),
-                  onReplace: item == null
-                      ? null
-                      : () => guard(() => replaceMeal(day, slot, item.meal)),
-                  onDelete: item == null
-                      ? null
-                      : () => guard(() => removeMeal(item.meal, meals)),
-                  onGuiltyPleasure: item == null
-                      ? null
-                      : () => guard(() => changeGuiltyPleasure(item.meal)),
-                );
-              },
+        if (MediaQuery.sizeOf(context).width >= 1100 &&
+            MediaQuery.textScalerOf(context).scale(14) < 22)
+          weeklyCalendar(context, meals, slots, overrides)
+        else ...[
+          if (featured != null)
+            _PlannerMealCard(
+              day: day,
+              slot: featured.slot,
+              meal: featured.meal,
+              recipe: featured.recipe,
+              featured: true,
+              guiltyPleasure: hasGuiltyPleasure(featured.meal, overrides),
+              onOpen: () =>
+                  context.push('/recipes/${featured.meal['recipe_id']}'),
+              onLock: draftMeals == null
+                  ? () => toggleLock(featured.meal)
+                  : null,
+              onEdit: draftMeals == null
+                  ? (field) => editMeal(featured.meal, field)
+                  : null,
+              onAlternative: draftMeals == null
+                  ? () => suggestAlternative(featured.meal)
+                  : null,
+              onReschedule: draftMeals == null
+                  ? (action) => reschedule(featured.meal, action)
+                  : null,
+              onReplace: () =>
+                  guard(() => replaceMeal(day, featured.slot, featured.meal)),
+              onDelete: () => guard(() => removeMeal(featured.meal, meals)),
+              onGuiltyPleasure: () =>
+                  guard(() => changeGuiltyPleasure(featured.meal)),
             ),
-          ],
+          for (final slot in slots)
+            if (featured == null || slot != featured.slot) ...[
+              const SizedBox(height: 10),
+              Builder(
+                builder: (context) {
+                  final item = plannedToday
+                      .where((value) => value.slot == slot)
+                      .firstOrNull;
+                  return _PlannerMealCard(
+                    day: day,
+                    slot: slot,
+                    meal: item?.meal,
+                    recipe: item?.recipe,
+                    featured: false,
+                    guiltyPleasure: item == null
+                        ? false
+                        : hasGuiltyPleasure(item.meal, overrides),
+                    onOpen: () => item == null
+                        ? addMeal(day, slot)
+                        : context.push('/recipes/${item.meal['recipe_id']}'),
+                    onLock: item == null || draftMeals != null
+                        ? null
+                        : () => toggleLock(item.meal),
+                    onEdit: item == null || draftMeals != null
+                        ? null
+                        : (field) => editMeal(item.meal, field),
+                    onAlternative: item == null || draftMeals != null
+                        ? null
+                        : () => suggestAlternative(item.meal),
+                    onReschedule: item == null || draftMeals != null
+                        ? null
+                        : (action) => reschedule(item.meal, action),
+                    onReplace: item == null
+                        ? null
+                        : () => guard(() => replaceMeal(day, slot, item.meal)),
+                    onDelete: item == null
+                        ? null
+                        : () => guard(() => removeMeal(item.meal, meals)),
+                    onGuiltyPleasure: item == null
+                        ? null
+                        : () => guard(() => changeGuiltyPleasure(item.meal)),
+                  );
+                },
+              ),
+            ],
+        ],
         if (upcoming.isNotEmpty) ...[
           const SizedBox(height: 28),
           Text(
@@ -1115,6 +1310,7 @@ class _PlannerMealCard extends StatelessWidget {
     this.onLock,
     this.onAlternative,
     this.onReschedule,
+    this.onEdit,
   });
 
   final DateTime day;
@@ -1130,6 +1326,7 @@ class _PlannerMealCard extends StatelessWidget {
   final VoidCallback? onLock;
   final VoidCallback? onAlternative;
   final void Function(String)? onReschedule;
+  final void Function(String)? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -1138,7 +1335,7 @@ class _PlannerMealCard extends StatelessWidget {
         ? labelOf(recipe?['title'] ?? '', context)
         : context.t('add_meal');
     return InformationPanel(
-      tinted: featured,
+      tinted: false,
       padding: EdgeInsets.zero,
       child: InkWell(
         key: ValueKey('planner-slot-$slot'),
@@ -1152,11 +1349,9 @@ class _PlannerMealCard extends StatelessWidget {
                 FoodImage(
                   id: '${meal!['recipe_id']}',
                   imageUrl: '${recipe?['image_url'] ?? ''}',
-                  width: featured
-                      ? (MediaQuery.sizeOf(context).width < 380 ? 72 : 104)
-                      : 52,
-                  height: featured ? 92 : 52,
-                  radius: featured ? 18 : 14,
+                  width: 52,
+                  height: 52,
+                  radius: 12,
                 )
               else
                 Container(
@@ -1188,9 +1383,7 @@ class _PlannerMealCard extends StatelessWidget {
                       title,
                       maxLines: featured ? 2 : 1,
                       overflow: TextOverflow.ellipsis,
-                      style: featured
-                          ? Theme.of(context).textTheme.titleLarge
-                          : Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
                     if (hasMeal) ...[
                       const SizedBox(height: 5),
@@ -1226,6 +1419,9 @@ class _PlannerMealCard extends StatelessWidget {
               if (hasMeal && meal!['locked'] != true)
                 PopupMenuButton<String>(
                   onSelected: (action) {
+                    if (action == 'servings' || action == 'participants') {
+                      onEdit?.call(action);
+                    }
                     if (action == 'alternative') onAlternative?.call();
                     if (const {'move', 'swap', 'copy'}.contains(action)) {
                       onReschedule?.call(action);
@@ -1235,6 +1431,16 @@ class _PlannerMealCard extends StatelessWidget {
                     if (action == 'guilty_pleasure') onGuiltyPleasure?.call();
                   },
                   itemBuilder: (context) => [
+                    if (onEdit != null) ...[
+                      PopupMenuItem(
+                        value: 'servings',
+                        child: Text(context.t('servings')),
+                      ),
+                      PopupMenuItem(
+                        value: 'participants',
+                        child: Text(context.t('who_is_eating')),
+                      ),
+                    ],
                     if (onAlternative != null)
                       PopupMenuItem(
                         value: 'alternative',
