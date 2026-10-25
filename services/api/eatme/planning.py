@@ -191,10 +191,11 @@ class PlanningService:
                         raise DomainError("invalid_meals", 422)
                     if data.get("plan_id") and "plan_version" in data and data["plan_version"] != plan["version"]:
                         raise DomainError("stale_plan", 409)
-                    totals, foods = {}, {}
-                    for meal in meals:
-                        checked, catalog = self._validate_meal(tx, user_id, meal)
-                        foods.update(catalog)
+                    # Share one catalog snapshot and diner validation cache across
+                    # the week, instead of downloading every recipe up to 28 times.
+                    checked_recipes, foods = self._validate_meals(tx, user_id, meals)
+                    totals = {}
+                    for meal, checked in zip(meals, checked_recipes):
                         for food_id, amount in requirements(checked, meal["servings"]).items():
                             totals[food_id] = totals.get(food_id, 0) + amount
                     today = self.today(self._profile(tx, user_id)["settings"])
