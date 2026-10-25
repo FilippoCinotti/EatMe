@@ -117,7 +117,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
     }, reload: false);
     if (mounted && result['id'] != null) {
       setState(() {
-        selected = result;
+        selected = {...?selected, ...result};
         final items = records(data?['items'])
           ..removeWhere((plan) => plan['id'] == result['id'])
           ..insert(0, result);
@@ -803,6 +803,27 @@ class _PlannerState extends ResourceState<PlannerPage> {
         ],
         if (selected != null) ...[
           const SizedBox(height: 20),
+          if (selected!['user_id'] == ref.read(apiProvider).userId ||
+              selected!['user_id'] == null)
+            TextButton.icon(
+              icon: Icon(
+                selected!['data']?['shared'] == true
+                    ? Icons.group
+                    : Icons.person_outline,
+              ),
+              label: Text(
+                context.t(
+                  selected!['data']?['shared'] == true
+                      ? 'plan_make_private'
+                      : 'plan_share_household',
+                ),
+              ),
+              onPressed: () => guard(() async {
+                await mealCommand('set_visibility', {
+                  'shared': selected!['data']?['shared'] != true,
+                });
+              }),
+            ),
           AsyncAction(
             label: context.t('build_shopping_list'),
             badge: PremiumBadge(unlocked: canGenerateShopping),
