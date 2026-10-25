@@ -892,8 +892,9 @@ class _SummaryPill extends StatelessWidget {
       label,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: Theme.of(context).textTheme.labelMedium
-          ?.copyWith(fontWeight: FontWeight.w700),
+      style: Theme.of(
+        context,
+      ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700),
     ),
   );
 }

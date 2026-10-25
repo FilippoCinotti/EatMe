@@ -1306,5 +1306,9 @@
   "shopping_reconciliation_required": "Hay compras parciales por conciliar. Revisa las cantidades de la lista.",
   "plan_share_household": "Compartir plan con el hogar",
   "plan_make_private": "Hacer el plan privado",
-  "capture_label_evidence": "Texto detectado en la etiqueta: {text}"
+  "capture_label_evidence": "Texto detectado en la etiqueta: {text}",
+  "insights_period": "Últimos {count} días",
+  "insights_daily_meals": "Comidas cocinadas por día",
+  "insights_chart_description": "Comidas cocinadas por día. Fechas UTC.",
+  "unavailable": "No disponible"
 }

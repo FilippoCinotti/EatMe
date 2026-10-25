@@ -243,8 +243,9 @@ class InventoryPhotoCard extends StatelessWidget {
                   '${batch.quantity} ${batch.food.unit}${showLocation ? ' · ${context.t(batch.location)}' : ''}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall
-                      ?.copyWith(color: scheme.onSurfaceVariant),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
                 ),
                 const SizedBox(height: 3),
                 Row(
@@ -256,8 +257,9 @@ class InventoryPhotoCard extends StatelessWidget {
                         compactExpiry,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.labelSmall
-                            ?.copyWith(color: statusColor),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.labelSmall?.copyWith(color: statusColor),
                       ),
                     ),
                     if (batch.expiryKind == 'estimated')

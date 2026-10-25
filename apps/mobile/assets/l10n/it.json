@@ -1306,5 +1306,9 @@
   "shopping_reconciliation_required": "Sono presenti acquisti parziali da riconciliare. Controlla le quantità nella lista.",
   "plan_share_household": "Condividi il piano con la casa",
   "plan_make_private": "Rendi il piano privato",
-  "capture_label_evidence": "Testo rilevato sull’etichetta: {text}"
+  "capture_label_evidence": "Testo rilevato sull’etichetta: {text}",
+  "insights_period": "Ultimi {count} giorni",
+  "insights_daily_meals": "Pasti cucinati per giorno",
+  "insights_chart_description": "Andamento dei pasti cucinati. Date in UTC.",
+  "unavailable": "Non disponibile"
 }

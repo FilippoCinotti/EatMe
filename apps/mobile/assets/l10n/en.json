@@ -1306,5 +1306,9 @@
   "shopping_reconciliation_required": "Some partial purchases need reconciliation. Review the quantities in your list.",
   "plan_share_household": "Share plan with household",
   "plan_make_private": "Make plan private",
-  "capture_label_evidence": "Detected label text: {text}"
+  "capture_label_evidence": "Detected label text: {text}",
+  "insights_period": "Last {count} days",
+  "insights_daily_meals": "Meals cooked per day",
+  "insights_chart_description": "Daily cooked meals. Dates in UTC.",
+  "unavailable": "Not available"
 }

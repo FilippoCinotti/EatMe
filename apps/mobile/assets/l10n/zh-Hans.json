@@ -1306,5 +1306,9 @@
   "shopping_reconciliation_required": "部分购买记录需要核对。请检查清单中的数量。",
   "plan_share_household": "与家庭共享计划",
   "plan_make_private": "将计划设为私密",
-  "capture_label_evidence": "识别到的标签文字: {text}"
+  "capture_label_evidence": "识别到的标签文字: {text}",
+  "insights_period": "最近 {count} 天",
+  "insights_daily_meals": "每日烹饪餐数",
+  "insights_chart_description": "每日烹饪餐数。日期按 UTC 显示。",
+  "unavailable": "暂无数据"
 }

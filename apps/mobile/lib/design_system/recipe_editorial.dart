@@ -165,8 +165,9 @@ class RecipeMeta extends StatelessWidget {
       Flexible(
         child: Text(
           text,
-          style: Theme.of(context).textTheme.bodySmall
-              ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
       ),
     ],
@@ -227,8 +228,9 @@ class RecipeDisclosure extends StatelessWidget {
                       const SizedBox(height: 3),
                       Text(
                         subtitle!,
-                        style: Theme.of(context).textTheme.bodySmall
-                            ?.copyWith(color: scheme.onSurfaceVariant),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ],

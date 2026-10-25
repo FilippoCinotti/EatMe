@@ -591,14 +591,21 @@ class ContentService:
             mapped = existing["food_id"] if existing else None
             return {**value, "id": identifier, "mapped_food_id": mapped}
 
-    def insights(self, user_id):
+    def insights(self, user_id, days=None):
         home = self._household(user_id)
+        if days is not None and (type(days) is not int or days not in {7, 30, 90}):
+            raise DomainError("invalid_period", 422)
         with self.db.transaction() as tx:
-            rows = tx.all("SELECT kind,delta_milli,created_at FROM inventory_events WHERE household_id=? ORDER BY created_at DESC LIMIT 2000", (home,))
+            today = self.today(self._profile(tx, user_id)["settings"])
+            first = (today - timedelta(days=days - 1)).isoformat() if days else None
+            last = (today + timedelta(days=1)).isoformat()
+            condition = " AND created_at>=? AND created_at<?" if days else ""
+            params = (home, first, last) if days else (home,)
+            rows = tx.all("SELECT kind,delta_milli,created_at FROM inventory_events WHERE household_id=?" + condition + " ORDER BY created_at DESC" + ("" if days else " LIMIT 2000"), params)
             counts = Counter(r["kind"] for r in rows)
-            sessions = tx.all("SELECT recipe_id,data FROM cooking_sessions WHERE user_id=? ORDER BY created_at DESC LIMIT 100", (user_id,))
+            sessions = tx.all("SELECT recipe_id,data,created_at FROM cooking_sessions WHERE user_id=?" + condition + " ORDER BY created_at DESC" + ("" if days else " LIMIT 100"), (user_id, first, last) if days else (user_id,))
             sessions = [row for row in sessions if decode(row['data']).get('source') != 'external-preparation']
-            amounts = tx.all("SELECT e.batch_id,e.kind,e.delta_milli,e.created_at,b.expiry_date,b.expiry_kind,f.data AS food_data,m.data AS metadata,(SELECT c.delta_milli FROM inventory_events c WHERE c.batch_id=e.batch_id AND c.kind IN ('created','scan_confirmed') ORDER BY c.created_at,c.id LIMIT 1) AS initial_milli FROM inventory_events e JOIN inventory_batches b ON b.id=e.batch_id JOIN foods f ON f.id=b.food_id LEFT JOIN inventory_metadata m ON m.batch_id=b.id WHERE e.household_id=? AND e.kind IN ('consumed','discarded','cooked') ORDER BY e.created_at DESC LIMIT 2000", (home,))
+            amounts = tx.all("SELECT e.batch_id,e.kind,e.delta_milli,e.created_at,b.expiry_date,b.expiry_kind,f.data AS food_data,m.data AS metadata,(SELECT c.delta_milli FROM inventory_events c WHERE c.batch_id=e.batch_id AND c.kind IN ('created','scan_confirmed') ORDER BY c.created_at,c.id LIMIT 1) AS initial_milli FROM inventory_events e JOIN inventory_batches b ON b.id=e.batch_id JOIN foods f ON f.id=b.food_id LEFT JOIN inventory_metadata m ON m.batch_id=b.id WHERE e.household_id=? AND e.kind IN ('consumed','discarded','cooked')" + (" AND e.created_at>=? AND e.created_at<?" if days else "") + " ORDER BY e.created_at DESC" + ("" if days else " LIMIT 2000"), params)
             recorded = {}
             for row in amounts:
                 unit = decode(row['food_data'])['unit']
@@ -606,7 +613,16 @@ class ContentService:
                 recorded.setdefault(unit, {'used': 0, 'discarded': 0})[kind] += abs(row['delta_milli'])
             recorded = {unit: {kind: quantity(value) for kind, value in values.items()} for unit, values in recorded.items()}
             savings = estimate_savings([row for row in amounts if row["kind"] in {"consumed", "cooked"}])
-            return {"recorded_quantities": recorded, "inventory_event_counts": dict(counts), "cooked_meals": len(sessions), "different_recipes": len({r["recipe_id"] for r in sessions}), "window": "latest_2000_events_and_100_meals", **savings}
+            timeline = []
+            if days:
+                per_day = Counter(row["created_at"][:10] for row in sessions)
+                for offset in range(days):
+                    day = (today - timedelta(days=days - 1 - offset)).isoformat()
+                    timeline.append({"date": day, "cooked_meals": per_day[day]})
+            return {"period_days": days, "period_start": first, "period_end": today.isoformat(),
+                    "timeline_timezone": "UTC", "timeline": timeline,
+                    "metric_scope": {"meals": "personal", "inventory": "household"},
+                    "recorded_quantities": recorded, "inventory_event_counts": dict(counts), "cooked_meals": len(sessions), "different_recipes": len({r["recipe_id"] for r in sessions}), "window": f"last_{days}_days" if days else "latest_2000_events_and_100_meals", **savings}
 
     def recipe_nutrition(self, recipe, foods, servings):
         from decimal import Decimal, InvalidOperation
