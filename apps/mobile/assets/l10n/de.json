@@ -1303,5 +1303,7 @@
   "shopping_nothing_missing": "Es fehlen keine Zutaten.",
   "shopping_purchased_quantity": "Gekaufte Menge",
   "shopping_partial_summary": "Offen {remaining} {unit} · Gekauft {bought} {unit}",
-  "shopping_reconciliation_required": "Einige Teilkäufe müssen abgeglichen werden. Mengen in der Liste prüfen."
+  "shopping_reconciliation_required": "Einige Teilkäufe müssen abgeglichen werden. Mengen in der Liste prüfen.",
+  "plan_share_household": "Plan mit Haushalt teilen",
+  "plan_make_private": "Plan privat machen"
 }
