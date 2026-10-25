@@ -72,6 +72,29 @@ void main() {
     for (final page in [
       ('wellbeing', const WellbeingPage()),
       ('custom-food', const CustomFoodPage()),
+      (
+        'capture-label-review',
+        const DetectionReviewPage(
+          job: {
+            'id': 'label-scan',
+            'created_at': '2026-10-24',
+            'result': {
+              'items': [
+                {
+                  'food_id': 'tomato',
+                  'name': 'Tomatoes',
+                  'quantity': '500',
+                  'unit': 'g',
+                  'confidence': 0.8,
+                  'expiry_date': '2026-10-27',
+                  'expiry_kind': 'best_before',
+                  'expiry_evidence': 'Best before 27/10/2026',
+                },
+              ],
+            },
+          },
+        ),
+      ),
     ]) {
       for (final scale in [1.0, 1.6]) {
         testWidgets('${page.$1} mobile layout dark=$dark scale=$scale', (

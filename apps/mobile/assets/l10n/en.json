@@ -1305,5 +1305,6 @@
   "shopping_partial_summary": "Remaining {remaining} {unit} · Bought {bought} {unit}",
   "shopping_reconciliation_required": "Some partial purchases need reconciliation. Review the quantities in your list.",
   "plan_share_household": "Share plan with household",
-  "plan_make_private": "Make plan private"
+  "plan_make_private": "Make plan private",
+  "capture_label_evidence": "Detected label text: {text}"
 }
