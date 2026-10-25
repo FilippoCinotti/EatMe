@@ -1301,5 +1301,8 @@
   "storage_location": "Lieu de conservation",
   "review_shopping": "Vérifier les achats à mettre à jour",
   "shopping_nothing_missing": "Aucun ingrédient ne manque.",
+  "shopping_purchased_quantity": "Quantité achetée",
+  "shopping_partial_summary": "Restant {remaining} {unit} · Acheté {bought} {unit}",
+  "shopping_reconciliation_required": "Des achats partiels doivent être rapprochés. Vérifiez les quantités de la liste.",
   "capture_label_evidence": "Texte détecté sur l’étiquette : {text}"
 }

@@ -1301,5 +1301,8 @@
   "storage_location": "Storage location",
   "review_shopping": "Review shopping updates",
   "shopping_nothing_missing": "No ingredients are missing.",
+  "shopping_purchased_quantity": "Quantity purchased",
+  "shopping_partial_summary": "Remaining {remaining} {unit} · Bought {bought} {unit}",
+  "shopping_reconciliation_required": "Some partial purchases need reconciliation. Review the quantities in your list.",
   "capture_label_evidence": "Detected label text: {text}"
 }
