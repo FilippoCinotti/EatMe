@@ -21,7 +21,8 @@ class BootstrapApi extends EatMeApi {
   Future<void> sync() async {}
 
   @override
-  Future<Json?> cachedRecommendations(String mode, String slot) async => snapshot;
+  Future<Json?> cachedRecommendations(String mode, String slot) async =>
+      snapshot;
 
   Json? snapshot;
   bool failRecommendations = false;
@@ -61,22 +62,46 @@ void main() {
 
   setUp(() => FlutterSecureStorage.setMockInitialValues({}));
 
-  test('startup restores recommendations and retains them when refresh fails', () async {
-    final api = BootstrapApi()..connected = true..failRecommendations = true;
-    api.snapshot = {
-      'contextual': <Json>[],
-      'items': [{
-        'recipe': {'id': 'cached-recipe', 'title': {'en': 'Cached recipe'}, 'minutes': 15, 'servings': 2, 'ingredients': <Json>[], 'steps': {'en': ['Cook.']}},
-        'available_count': 0, 'ingredient_count': 0, 'use_soon_food_ids': <String>[], 'warnings': <Json>[],
-      }],
-    };
-    final container = ProviderContainer(overrides: [apiProvider.overrideWithValue(api)]);
-    addTearDown(container.dispose);
-    await container.read(appProvider.notifier).restore();
-    expect(container.read(appProvider).stage, Stage.ready);
-    expect(container.read(appProvider).recommendations.single.recipe.id, 'cached-recipe');
-    expect(container.read(appProvider).error, 'service_unavailable');
-  });
+  test(
+    'startup restores recommendations and retains them when refresh fails',
+    () async {
+      final api = BootstrapApi()
+        ..connected = true
+        ..failRecommendations = true;
+      api.snapshot = {
+        'contextual': <Json>[],
+        'items': [
+          {
+            'recipe': {
+              'id': 'cached-recipe',
+              'title': {'en': 'Cached recipe'},
+              'minutes': 15,
+              'servings': 2,
+              'ingredients': <Json>[],
+              'steps': {
+                'en': ['Cook.'],
+              },
+            },
+            'available_count': 0,
+            'ingredient_count': 0,
+            'use_soon_food_ids': <String>[],
+            'warnings': <Json>[],
+          },
+        ],
+      };
+      final container = ProviderContainer(
+        overrides: [apiProvider.overrideWithValue(api)],
+      );
+      addTearDown(container.dispose);
+      await container.read(appProvider.notifier).restore();
+      expect(container.read(appProvider).stage, Stage.ready);
+      expect(
+        container.read(appProvider).recommendations.single.recipe.id,
+        'cached-recipe',
+      );
+      expect(container.read(appProvider).error, 'service_unavailable');
+    },
+  );
 
   test('transport failures and server failures have actionable codes', () {
     final options = RequestOptions(path: '/config');

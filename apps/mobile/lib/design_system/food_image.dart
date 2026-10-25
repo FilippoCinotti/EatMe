@@ -95,12 +95,12 @@ class FoodImage extends ConsumerWidget {
             fit: BoxFit.cover,
             filterQuality: FilterQuality.medium,
             errorBuilder: (_, _, _) => ColoredBox(
-              color: Theme.of(context).colorScheme.primaryContainer,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
               child: Center(
                 child: Icon(
                   fallback,
                   size: math.min(height * .4, 64),
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
@@ -134,12 +134,12 @@ class FoodImage extends ConsumerWidget {
             builder: (context, constraints) {
               if (cell == null) {
                 return ColoredBox(
-                  color: scheme.primaryContainer,
+                  color: scheme.surfaceContainerHigh,
                   child: Center(
                     child: Icon(
                       fallback,
                       size: math.min(height * .4, 64),
-                      color: scheme.primary,
+                      color: scheme.onSurfaceVariant,
                     ),
                   ),
                 );
@@ -159,7 +159,7 @@ class FoodImage extends ConsumerWidget {
                       fit: BoxFit.fill,
                       filterQuality: FilterQuality.medium,
                       errorBuilder: (context, error, stack) =>
-                          ColoredBox(color: scheme.primaryContainer),
+                          ColoredBox(color: scheme.surfaceContainerHigh),
                     ),
                   ),
                 ],

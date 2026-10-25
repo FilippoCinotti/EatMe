@@ -950,7 +950,7 @@ class _ContextualCard extends StatelessWidget {
                     id: item.recipe.id,
                     imageUrl: item.recipe.imageUrl ?? '',
                     width: double.infinity,
-                    height: double.infinity,
+                    height: 180,
                     radius: 0,
                   ),
                 ),

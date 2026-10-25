@@ -311,7 +311,8 @@ class EatMeApi {
           final previous = await cache?.read('/profile');
           if (previous != null &&
               (previous['household_id'] != value['household_id'] ||
-               jsonEncode(previous['settings']) != jsonEncode(value['settings']))) {
+                  jsonEncode(previous['settings']) !=
+                      jsonEncode(value['settings']))) {
             _cacheEpoch++;
             await cache?.clearSnapshots();
             await secure.delete(key: 'eatme.inventory');
@@ -496,8 +497,9 @@ class EatMeApi {
     }
   }
 
-  Future<Json?> cachedRecommendations(String mode, String slot) async =>
-      cache?.read('/recommendations?mode=$mode&slot=$slot').timeout(const Duration(seconds: 2));
+  Future<Json?> cachedRecommendations(String mode, String slot) async => cache
+      ?.read('/recommendations?mode=$mode&slot=$slot')
+      .timeout(const Duration(seconds: 2));
 
   Future<void> cacheInventory(Json inventory) async {
     await secure.write(

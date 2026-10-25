@@ -221,16 +221,25 @@ class AppController extends Notifier<AppState> {
     if (state.stage == Stage.ready) {
       Json? saved;
       try {
-        saved = await api.cachedRecommendations(state.mode, mealSlotAt(DateTime.now()));
+        saved = await api.cachedRecommendations(
+          state.mode,
+          mealSlotAt(DateTime.now()),
+        );
       } catch (_) {
         // A damaged or unavailable local snapshot must not block online startup.
       }
       if (saved != null) {
         state = state.copy(
           contextual: (saved['contextual'] as List? ?? const [])
-              .map((r) => Map<String, dynamic>.from(r as Map)).toList(),
+              .map((r) => Map<String, dynamic>.from(r as Map))
+              .toList(),
           recommendations: (saved['items'] as List? ?? const [])
-              .map((r) => Recommendation.fromJson(Map<String, dynamic>.from(r as Map))).toList(),
+              .map(
+                (r) => Recommendation.fromJson(
+                  Map<String, dynamic>.from(r as Map),
+                ),
+              )
+              .toList(),
         );
       }
       await refresh();
@@ -243,12 +252,19 @@ class AppController extends Notifier<AppState> {
 
   Future<void> refresh({String? mode, bool recommendationsOnly = false}) {
     final key = '${api.userId}:${mode ?? state.mode}:$recommendationsOnly';
-    return _refreshes.putIfAbsent(key, () => _refresh(
-      mode: mode, recommendationsOnly: recommendationsOnly,
-    ).whenComplete(() => _refreshes.remove(key)));
+    return _refreshes.putIfAbsent(
+      key,
+      () => _refresh(
+        mode: mode,
+        recommendationsOnly: recommendationsOnly,
+      ).whenComplete(() => _refreshes.remove(key)),
+    );
   }
 
-  Future<void> _refresh({String? mode, bool recommendationsOnly = false}) async {
+  Future<void> _refresh({
+    String? mode,
+    bool recommendationsOnly = false,
+  }) async {
     final account = api.userId;
     final recommendationEpoch = ++_recommendationEpoch;
     if (state.guiltyPleasure != null && !state.guiltyPleasureActive) {
@@ -260,19 +276,30 @@ class AppController extends Notifier<AppState> {
       final requests = await Future.wait<Json>([
         if (!recommendationsOnly) api.request('GET', '/inventory'),
         if (!recommendationsOnly) api.request('GET', '/leftovers'),
-        api.request(
-          'GET',
-          '/recommendations?mode=$chosenMode&slot=${mealSlotAt(DateTime.now())}',
-        ).then((response) {
-          if (account == api.userId && recommendationEpoch == _recommendationEpoch) {
-            state = state.copy(
-              mode: chosenMode,
-              contextual: (response['contextual'] as List? ?? const []).map((r) => Map<String, dynamic>.from(r as Map)).toList(),
-              recommendations: (response['items'] as List? ?? const []).map((r) => Recommendation.fromJson(Map<String, dynamic>.from(r as Map))).toList(),
-            );
-          }
-          return response;
-        }),
+        api
+            .request(
+              'GET',
+              '/recommendations?mode=$chosenMode&slot=${mealSlotAt(DateTime.now())}',
+            )
+            .then((response) {
+              if (account == api.userId &&
+                  recommendationEpoch == _recommendationEpoch) {
+                state = state.copy(
+                  mode: chosenMode,
+                  contextual: (response['contextual'] as List? ?? const [])
+                      .map((r) => Map<String, dynamic>.from(r as Map))
+                      .toList(),
+                  recommendations: (response['items'] as List? ?? const [])
+                      .map(
+                        (r) => Recommendation.fromJson(
+                          Map<String, dynamic>.from(r as Map),
+                        ),
+                      )
+                      .toList(),
+                );
+              }
+              return response;
+            }),
       ]);
       final usingCachedData = requests.any(
         (response) => response['_offline'] == true,
@@ -311,7 +338,10 @@ class AppController extends Notifier<AppState> {
         unawaited(updateReminders());
       }
     } on ApiFailure catch (error) {
-      if (account != api.userId || recommendationEpoch != _recommendationEpoch) return;
+      if (account != api.userId ||
+          recommendationEpoch != _recommendationEpoch) {
+        return;
+      }
       if (error.code == 'unauthorized' ||
           error.code == 'account_deletion_pending') {
         await api.clearSession();
