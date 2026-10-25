@@ -96,6 +96,19 @@ class _CookingPageState extends ConsumerState<CookingPage> {
     });
   }
 
+  void showTimers() => sheet(context, StreamBuilder<int>(
+    stream: Stream<int>.periodic(const Duration(seconds: 1), (i) => i),
+    builder: (context, _) => ListView(shrinkWrap: true, padding: const EdgeInsets.all(16), children: [
+      Text(context.t('timer_running'), style: Theme.of(context).textTheme.titleMedium),
+      for (final value in activeTimers) ListTile(
+        title: Text(value.name),
+        subtitle: Text('${(value.secondsAt(DateTime.now()) ~/ 60).toString().padLeft(2, '0')}:${(value.secondsAt(DateTime.now()) % 60).toString().padLeft(2, '0')}'),
+        leading: IconButton(tooltip: context.t(value.paused ? 'timer_resume' : 'timer_pause'), onPressed: () => pauseTimer(value), icon: Icon(value.paused ? Icons.play_arrow : Icons.pause)),
+        trailing: IconButton(tooltip: context.t('timer_stop'), onPressed: () => removeTimer(value), icon: const Icon(Icons.close)),
+      ),
+    ]),
+  ));
+
   Future<void> editTimer(BuildContext context, int? suggestedTimer) async {
     final value = await askText(
       context,
@@ -342,6 +355,7 @@ class _CookingPageState extends ConsumerState<CookingPage> {
           appBar: EatMeAppBar(
             title: Text(context.t('cooking_mode')),
             actions: [
+              IconButton(tooltip: context.t('timer_running'), onPressed: showTimers, icon: const Icon(Icons.timer_outlined)),
               IconButton(
                 tooltip: context.t('cooking_all_steps'),
                 onPressed: () => showAllSteps(steps),

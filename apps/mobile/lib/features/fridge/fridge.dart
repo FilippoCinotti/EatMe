@@ -603,14 +603,16 @@ class _FridgePageState extends ConsumerState<FridgePage> {
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: Row(
         children: [
-          Expanded(child: Text(
-            context.t('inventory_selected_count', {
-              'count': selectedBatchIds.length,
-            }),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodySmall,
-          )),
+          Expanded(
+            child: Text(
+              context.t('inventory_selected_count', {
+                'count': selectedBatchIds.length,
+              }),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ),
           IconButton(
             key: const ValueKey('inventory-select-all'),
             tooltip: context.t('inventory_select_all'),

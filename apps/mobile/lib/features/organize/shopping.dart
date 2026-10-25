@@ -370,12 +370,15 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
       ]),
     );
   }
-  Widget _itemGrid(BuildContext context, List<Json> items) => Column(children: [
-    for (final item in items) ...[
-      _itemCard(context, item),
-      const Divider(height: 1),
+
+  Widget _itemGrid(BuildContext context, List<Json> items) => Column(
+    children: [
+      for (final item in items) ...[
+        _itemCard(context, item),
+        const Divider(height: 1),
+      ],
     ],
-  ]);
+  );
 
   Widget _itemCard(BuildContext context, Json item) {
     final food = itemFood(item);
@@ -386,72 +389,116 @@ class _ShoppingState extends ResourceState<ShoppingPage> {
       leading: Checkbox(
         semanticLabel: itemLabel(item),
         value: item['checked'] == true,
-        onChanged: updating ? null : (value) => guard(() => command({
-          'action': 'check', 'id': item['id'], 'expected_version': item['version'], 'checked': value,
-        })),
+        onChanged: updating
+            ? null
+            : (value) => guard(
+                () => command({
+                  'action': 'check',
+                  'id': item['id'],
+                  'expected_version': item['version'],
+                  'checked': value,
+                }),
+              ),
       ),
-      title: Row(children: [
-        FoodImage(id: '${item['food_id'] ?? ''}', photoId: food?.photoId, imageUrl: food?.imageUrl, width: 40, height: 40, radius: 8, fallback: Icons.shopping_bag_outlined),
-        const SizedBox(width: 10),
-        Expanded(child: Text(itemLabel(item), style: Theme.of(context).textTheme.bodySmall?.copyWith(decoration: item['checked'] == true ? TextDecoration.lineThrough : null))),
-      ]),
-      subtitle: Padding(padding: const EdgeInsetsDirectional.only(start: 50), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(item['purchased_quantity'] != null && item['purchased_quantity'] != '0'
-          ? context.t('shopping_partial_summary', {'remaining': '${item['quantity']}', 'bought': '${item['purchased_quantity']}', 'unit': '${item['unit']}'})
-          : '${item['quantity']} ${item['unit']}', style: Theme.of(context).textTheme.bodySmall),
-        Text(price == null ? context.t('shopping_price_unavailable') : context.t('shopping_line_estimate', {'price': money(price.cents)}), style: Theme.of(context).textTheme.bodySmall),
-      ])),
-      trailing: PopupMenuButton<String>(
-              tooltip: context.t('more'),
-              icon: const Icon(Icons.more_horiz),
-              enabled: !updating,
-              onSelected: (action) async {
-                try {
-                  if (action == 'edit') {
-                    final amount = await askText(
-                      context,
-                      context.t('quantity'),
-                      initial: '${item['quantity']}',
-                      numeric: true,
-                    );
-                    if (amount != null) {
-                      await command({
-                        'action': 'edit',
-                        'id': item['id'],
-                        'expected_version': item['version'],
-                        'quantity': amount,
-                      });
-                    }
-                  }
-                  if (action == 'delete') {
-                    await command({
-                      'action': 'delete',
-                      'id': item['id'],
-                      'expected_version': item['version'],
-                    });
-                  }
-                  if (action == 'purchase') await purchase(item);
-                } catch (_) {
-                  if (mounted && context.mounted) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(context.t('retry'))));
-                  }
-                }
-              },
-              itemBuilder: (context) => [
-                if (item['checked'] == true || item['food_id'] != null)
-                  PopupMenuItem(
-                    value: 'purchase',
-                    child: Text(context.t('put_in_fridge')),
-                  ),
-                PopupMenuItem(value: 'edit', child: Text(context.t('edit'))),
-                PopupMenuItem(
-                  value: 'delete',
-                  child: Text(context.t('delete')),
-                ),
-              ],
+      title: Row(
+        children: [
+          FoodImage(
+            id: '${item['food_id'] ?? ''}',
+            photoId: food?.photoId,
+            imageUrl: food?.imageUrl,
+            width: 40,
+            height: 40,
+            radius: 8,
+            fallback: Icons.shopping_bag_outlined,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              itemLabel(item),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                decoration: item['checked'] == true
+                    ? TextDecoration.lineThrough
+                    : null,
+              ),
             ),
+          ),
+        ],
+      ),
+      subtitle: Padding(
+        padding: const EdgeInsetsDirectional.only(start: 50),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              item['purchased_quantity'] != null &&
+                      item['purchased_quantity'] != '0'
+                  ? context.t('shopping_partial_summary', {
+                      'remaining': '${item['quantity']}',
+                      'bought': '${item['purchased_quantity']}',
+                      'unit': '${item['unit']}',
+                    })
+                  : '${item['quantity']} ${item['unit']}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            Text(
+              price == null
+                  ? context.t('shopping_price_unavailable')
+                  : context.t('shopping_line_estimate', {
+                      'price': money(price.cents),
+                    }),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+      ),
+      trailing: PopupMenuButton<String>(
+        tooltip: context.t('more'),
+        icon: const Icon(Icons.more_horiz),
+        enabled: !updating,
+        onSelected: (action) async {
+          try {
+            if (action == 'edit') {
+              final amount = await askText(
+                context,
+                context.t('quantity'),
+                initial: '${item['quantity']}',
+                numeric: true,
+              );
+              if (amount != null) {
+                await command({
+                  'action': 'edit',
+                  'id': item['id'],
+                  'expected_version': item['version'],
+                  'quantity': amount,
+                });
+              }
+            }
+            if (action == 'delete') {
+              await command({
+                'action': 'delete',
+                'id': item['id'],
+                'expected_version': item['version'],
+              });
+            }
+            if (action == 'purchase') await purchase(item);
+          } catch (_) {
+            if (mounted && context.mounted) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(context.t('retry'))));
+            }
+          }
+        },
+        itemBuilder: (context) => [
+          if (item['checked'] == true || item['food_id'] != null)
+            PopupMenuItem(
+              value: 'purchase',
+              child: Text(context.t('put_in_fridge')),
+            ),
+          PopupMenuItem(value: 'edit', child: Text(context.t('edit'))),
+          PopupMenuItem(value: 'delete', child: Text(context.t('delete'))),
+        ],
+      ),
     );
   }
 }

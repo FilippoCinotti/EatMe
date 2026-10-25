@@ -496,6 +496,9 @@ class EatMeApi {
     }
   }
 
+  Future<Json?> cachedRecommendations(String mode, String slot) async =>
+      cache?.read('/recommendations?mode=$mode&slot=$slot').timeout(const Duration(seconds: 2));
+
   Future<void> cacheInventory(Json inventory) async {
     await secure.write(
       key: 'eatme.inventory',

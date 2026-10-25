@@ -472,7 +472,7 @@ class _PlannerState extends ResourceState<PlannerPage> {
                         enabled: meal['locked'] != true && draftMeals == null,
                         onSelected: (action) => action == 'alternative' ? suggestAlternative(meal) : reschedule(meal, action),
                         itemBuilder: (_) => [
-                          PopupMenuItem(value: 'alternative', child: Text(context.t('plan_suggest_alternative'))),
+                          PopupMenuItem(value: 'alternative', child: Text(context.t('plan_alternative'))),
                           for (final action in ['move', 'swap', 'copy']) PopupMenuItem(value: action, child: Text(context.t('plan_$action'))),
                         ],
                       ),

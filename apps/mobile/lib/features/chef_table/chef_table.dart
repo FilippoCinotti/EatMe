@@ -915,35 +915,78 @@ class _ChefRecipeActions extends StatelessWidget {
     ],
   );
 }
+
 class _ContextualCard extends StatelessWidget {
   const _ContextualCard({required this.card});
   final Json card;
   @override
   Widget build(BuildContext context) {
-    final item = Recommendation.fromJson(Map<String, dynamic>.from(card['recommendation'] as Map));
-    final reasons = (card['reasons'] as List? ?? const []).take(1).map((raw) {
-      final reason = Map<String, dynamic>.from(raw as Map);
-      return context.t(reason['code'] as String, {if (reason['count'] != null) 'count': reason['count'] as Object});
-    }).join(' · ');
+    final item = Recommendation.fromJson(
+      Map<String, dynamic>.from(card['recommendation'] as Map),
+    );
+    final reasons = (card['reasons'] as List? ?? const [])
+        .take(1)
+        .map((raw) {
+          final reason = Map<String, dynamic>.from(raw as Map);
+          return context.t(reason['code'] as String, {
+            if (reason['count'] != null) 'count': reason['count'] as Object,
+          });
+        })
+        .join(' · ');
     return Material(
       color: Theme.of(context).colorScheme.surfaceContainer,
       borderRadius: BorderRadius.circular(18),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () => context.push('/recipes/${item.recipe.id}'),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Stack(children: [
-            AspectRatio(aspectRatio: 2.2, child: FoodImage(id: item.recipe.id, imageUrl: item.recipe.imageUrl ?? '', width: double.infinity, height: double.infinity, radius: 0)),
-            PositionedDirectional(top: 6, end: 6, child: RecipeFavorite(recipeId: item.recipe.id)),
-          ]),
-          Padding(padding: const EdgeInsets.all(12), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(context.t('smart_card_${card['kind']}'), style: Theme.of(context).textTheme.labelSmall),
-            const SizedBox(height: 4),
-            Text(localized(item.recipe.title, context.language), maxLines: 2, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 4),
-            Text('${item.recipe.minutes} min · $reasons', style: Theme.of(context).textTheme.bodySmall),
-          ])),
-        ]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                AspectRatio(
+                  aspectRatio: 2.2,
+                  child: FoodImage(
+                    id: item.recipe.id,
+                    imageUrl: item.recipe.imageUrl ?? '',
+                    width: double.infinity,
+                    height: double.infinity,
+                    radius: 0,
+                  ),
+                ),
+                PositionedDirectional(
+                  top: 6,
+                  end: 6,
+                  child: RecipeFavorite(recipeId: item.recipe.id),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.t('smart_card_${card['kind']}'),
+                    style: Theme.of(context).textTheme.labelSmall,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    localized(item.recipe.title, context.language),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${item.recipe.minutes} min · $reasons',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

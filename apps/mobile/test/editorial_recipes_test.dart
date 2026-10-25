@@ -210,6 +210,8 @@ void main() {
       await tester.pumpAndSettle();
       await journey.capture(tester, boundary, 'editorial-cooking-step');
       await tester.ensureVisible(find.text('Set timer duration'));
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -180));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Set timer duration'));
       // AsyncAction remains busy behind the open dialog until it is answered.
       await tester.pump();
@@ -252,6 +254,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Ingredients'), 180, scrollable: find.byType(Scrollable).first);
       await tester.tap(find.text('Ingredients'));
       await tester.pumpAndSettle();
       expect(find.text('Eggs'), findsOneWidget);
