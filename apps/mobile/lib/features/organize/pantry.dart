@@ -59,8 +59,9 @@ class _PantryState extends ResourceState<PantryPage> {
     extra.clear();
     await ref.read(appProvider.notifier).refresh();
     if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(context.t('pantry_saved'))));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.t('pantry_saved'))));
     }
   }
 

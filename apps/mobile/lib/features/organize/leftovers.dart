@@ -21,9 +21,9 @@ class _LeftoversState extends ResourceState<LeftoversPage> {
   Widget build(BuildContext context) => RecipeEditorial(builder: _build);
 
   Widget _build(BuildContext context) {
-    final items = records(data?['items'])
-        .where((i) => (i['remaining'] as int) > 0)
-        .toList();
+    final items = records(
+      data?['items'],
+    ).where((i) => (i['remaining'] as int) > 0).toList();
     return Scaffold(
       appBar: EatMeAppBar(
         title: Text(context.t('leftovers')),
@@ -75,9 +75,9 @@ class _LeftoversState extends ResourceState<LeftoversPage> {
                       Container(
                         padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: Theme.of(context).colorScheme.primary,
@@ -240,8 +240,9 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
   String location = 'fridge';
   int servings = 1;
   DateTime prepared = DateUtils.dateOnly(DateTime.now());
-  DateTime? useDate = DateUtils.dateOnly(DateTime.now())
-      .add(const Duration(days: 3));
+  DateTime? useDate = DateUtils.dateOnly(
+    DateTime.now(),
+  ).add(const Duration(days: 3));
   bool automaticDate = true;
   bool confirmed = false, saved = false;
   @override
@@ -356,8 +357,9 @@ class _AddLeftoversState extends ResourceState<AddLeftoversPage> {
       if (recipeId != null) ...[
         SectionHeading(title: context.t('ingredients')),
         for (final ingredient in records(
-          records(data?['items'])
-              .firstWhere((r) => r['id'] == recipeId)['ingredients'],
+          records(
+            data?['items'],
+          ).firstWhere((r) => r['id'] == recipeId)['ingredients'],
         ))
           Text(
             labelOf(

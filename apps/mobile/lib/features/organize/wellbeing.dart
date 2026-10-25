@@ -100,15 +100,16 @@ class _WellbeingState extends ResourceState<WellbeingPage> {
                         child: OutlinedButtonTheme(
                           data: OutlinedButtonThemeData(
                             style: OutlinedButton.styleFrom(
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer,
-                              foregroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .onPrimaryContainer,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onPrimaryContainer,
                               side: BorderSide(
-                                color: Theme.of(context).colorScheme.primary
-                                    .withValues(alpha: 0.55),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withValues(alpha: 0.55),
                               ),
                               minimumSize: const Size(44, 44),
                               textStyle: const TextStyle(
