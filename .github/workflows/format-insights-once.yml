@@ -1,0 +1,34 @@
+name: Format Insights Dart once
+on:
+  push:
+    branches: [feat/insights-periods]
+    paths:
+      - '.github/workflows/format-insights-once.yml'
+permissions:
+  contents: write
+jobs:
+  format-dart:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/insights-periods
+          persist-credentials: true
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.2'
+      - name: Apply standard formatting to Flutter sources and tests
+        run: |
+          cd apps/mobile
+          dart format lib test integration_test
+      - name: Commit formatted Dart only
+        run: |
+          git add apps/mobile/lib apps/mobile/test apps/mobile/integration_test
+          if git diff --cached --quiet; then
+            echo "Dart files already formatted"
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'style(mobile): format Dart source and tests on PR #111'
+          git push origin HEAD:refs/heads/feat/insights-periods
