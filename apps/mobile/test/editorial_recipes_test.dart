@@ -268,6 +268,11 @@ void main() {
       await tester.tap(find.text('Next step'));
       await tester.pumpAndSettle();
       expect(find.textContaining('Start 5-minute timer'), findsNothing);
+      await tester.scrollUntilVisible(
+        find.text('Set timer duration').hitTestable(),
+        180,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('Set timer duration'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },

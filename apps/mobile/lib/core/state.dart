@@ -244,7 +244,10 @@ class AppController extends Notifier<AppState> {
       }
       await refresh();
     }
-    state = state.copy(offline: usingCachedBootstrap || state.offline);
+    state = state.copy(
+      offline: usingCachedBootstrap || state.offline,
+      error: state.error,
+    );
   }
 
   final Map<String, Future<void>> _refreshes = {};
