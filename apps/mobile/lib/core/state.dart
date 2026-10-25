@@ -254,10 +254,10 @@ class AppController extends Notifier<AppState> {
     final key = '${api.userId}:${mode ?? state.mode}:$recommendationsOnly';
     return _refreshes.putIfAbsent(
       key,
-      () => _refresh(
-        mode: mode,
-        recommendationsOnly: recommendationsOnly,
-      ).whenComplete(() => _refreshes.remove(key)),
+      () => _refresh(mode: mode, recommendationsOnly: recommendationsOnly)
+          .whenComplete(() {
+            _refreshes.remove(key);
+          }),
     );
   }
 
